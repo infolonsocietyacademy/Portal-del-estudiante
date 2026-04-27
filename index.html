@@ -1151,5 +1151,24 @@ if(currentUser){ enterPortal(); }
 })();
 </script>
 
+
+<script>
+function showWelcome(user){
+  const name = user.full_name || "Estudiante";
+  const welcome = document.getElementById("welcomeText");
+  if(!welcome) return;
+
+  let text = `BIENVENIDO, ${name.toUpperCase()}`;
+  let i = 0;
+  welcome.innerHTML = "";
+
+  const typing = setInterval(()=>{
+    welcome.innerHTML += text[i];
+    i++;
+    if(i >= text.length) clearInterval(typing);
+  }, 30);
+}
+</script>
+
 </body>
 </html>
