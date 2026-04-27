@@ -358,6 +358,75 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
   .topbar{align-items:flex-start;flex-direction:column}
   .chartBox{height:290px}
 }
+
+/* ===== ANIMACIONES PRO RECOMENDADAS ===== */
+.main,
+.authShell,
+.sidebar{
+  animation: fadeInUp .65s ease both;
+}
+
+.card,
+.adminMetric,
+.adminHero,
+.sideBox,
+.userPill,
+.btn,
+.nav button{
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease, background .25s ease;
+}
+
+.card:hover,
+.adminMetric:hover,
+.adminHero:hover{
+  transform: translateY(-6px);
+  box-shadow: 0 24px 55px rgba(0,0,0,.38);
+  border-color: rgba(246,196,83,.30);
+}
+
+.btn:hover,
+.nav button:hover{
+  transform: translateY(-2px);
+}
+
+#welcomeText{
+  min-height: 38px;
+}
+
+#welcomeText::after{
+  content:"|";
+  display:inline-block;
+  margin-left:3px;
+  color:var(--gold);
+  animation: blinkCursor .8s infinite;
+}
+
+@keyframes fadeInUp{
+  from{
+    opacity:0;
+    transform:translateY(22px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+@keyframes blinkCursor{
+  0%,45%{opacity:1}
+  46%,100%{opacity:0}
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,
+  *::before,
+  *::after{
+    animation:none!important;
+    transition:none!important;
+  }
+  #welcomeText::after{display:none}
+}
+
 </style>
 </head>
 <body>
@@ -385,7 +454,7 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
       </div>
 
       <div id="loginForm" class="form active">
-        <h2>Bienvenido</h2>
+        <h2 id="welcomeText" data-text="Bienvenido"></h2>
         <p>Entra con tu código de acceso y password.</p>
         <div class="field"><label>Código de acceso</label><input id="loginCode" placeholder="Ej: 12345"></div>
         <div class="field"><label>Password</label><input id="loginPass" type="password" placeholder="Tu password"></div>
@@ -982,5 +1051,39 @@ async function clearData(){
 }
 if(currentUser){ enterPortal(); }
 </script>
+
+<script>
+/* ===== BIENVENIDO ANIMADO PRO ===== */
+(function(){
+  function startWelcomeAnimation(){
+    const el = document.getElementById("welcomeText");
+    if(!el) return;
+
+    const finalText = el.getAttribute("data-text") || "Bienvenido";
+    el.textContent = "";
+
+    let i = 0;
+    function type(){
+      if(i <= finalText.length){
+        el.textContent = finalText.slice(0, i);
+        i++;
+        setTimeout(type, 42);
+      }else{
+        setTimeout(function(){
+          el.style.setProperty("--cursor", "none");
+        }, 900);
+      }
+    }
+    setTimeout(type, 220);
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", startWelcomeAnimation);
+  }else{
+    startWelcomeAnimation();
+  }
+})();
+</script>
+
 </body>
 </html>
