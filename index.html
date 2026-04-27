@@ -359,6 +359,15 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
   .chartBox{height:290px}
 }
 
+
+/* ===== VERIFICACION REAL DE EMAIL ===== */
+.emailStatus{margin-top:8px;font-size:12px;font-weight:900;line-height:1.4;padding:9px 11px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.04)}
+.emailStatus.neutral{color:var(--muted)}
+.emailStatus.valid{color:#bbf7d0;background:rgba(34,197,94,.13);border-color:rgba(34,197,94,.30)}
+.emailStatus.invalid{color:#fecaca;background:rgba(239,68,68,.13);border-color:rgba(239,68,68,.30)}
+.emailStatus.checking{color:#fde68a;background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.28)}
+.verifyBtn{margin-top:10px}
+
 /* ===== BIENVENIDA DEL ESTUDIANTE ===== */
 .welcomeHeroCard{margin-bottom:16px;position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(246,196,83,.16),rgba(59,130,246,.13),rgba(168,85,247,.10));border:1px solid rgba(246,196,83,.22)}
 .welcomeHeroCard:before{content:"";position:absolute;right:-70px;top:-80px;width:220px;height:220px;border-radius:50%;background:rgba(246,196,83,.20);filter:blur(14px)}
@@ -475,7 +484,16 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
         <h2>Crear cuenta</h2>
         <p>El sistema generará tu código de acceso automáticamente. Guarda ese código para entrar cuando el admin apruebe tu cuenta.</p>
         <div class="field"><label>Nombre completo</label><input id="signupName" placeholder="Nombre del estudiante"></div>
-        <div class="field"><label>Email</label><input id="signupEmail" type="email" placeholder="Ej: correo@gmail.com"></div>
+        <div class="field">
+          <label>Email</label>
+          <input id="signupEmail" type="email" placeholder="Ej: correo@gmail.com" autocomplete="email">
+        </div>
+        <div class="field">
+          <label>Confirmar Email</label>
+          <input id="signupEmailConfirm" type="email" placeholder="Confirma tu email" autocomplete="email">
+          <div id="emailVerifyStatus" class="emailStatus neutral">Escribe y confirma tu email.</div>
+          <button type="button" id="verifyEmailBtn" class="btn secondary full verifyBtn" onclick="verifySignupEmail()">Verificar Email</button>
+        </div>
         <div class="field"><label>Password</label><input id="signupPass" type="password" placeholder="Crea tu password"></div>
         <div class="field"><label>Tipo de VIP</label><select id="signupPlan"><option value="VIP Regular">🔥 VIP Regular</option><option value="VIP Premium">💎 VIP Premium</option></select></div>
         <button class="btn full" onclick="signup()">Crear cuenta</button>
@@ -694,6 +712,77 @@ function money(n){return "$" + Number(n||0).toLocaleString("en-US",{minimumFract
 function pct(n){return Number(n||0).toFixed(2) + "%"}
 function showError(msg, error){ console.error(msg, error || ""); alert(msg + (error?.message ? "\n" + error.message : "")); }
 
+let signupEmailVerified = false;
+let signupVerifiedEmail = "";
+
+function normalizeEmail(value){
+  return String(value || "").trim().toLowerCase();
+}
+
+function isValidEmailFormat(email){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+}
+
+function setEmailStatus(type, message){
+  const box = document.getElementById("emailVerifyStatus");
+  if(!box) return;
+  box.className = "emailStatus " + type;
+  box.innerText = message;
+}
+
+function resetEmailVerification(){
+  signupEmailVerified = false;
+  signupVerifiedEmail = "";
+  const email = normalizeEmail(document.getElementById("signupEmail")?.value);
+  const confirm = normalizeEmail(document.getElementById("signupEmailConfirm")?.value);
+  if(!email && !confirm){ setEmailStatus("neutral", "Escribe y confirma tu email."); return; }
+  if(email && !isValidEmailFormat(email)){ setEmailStatus("invalid", "Email no válido. Revisa que tenga @ y dominio correcto."); return; }
+  if(confirm && email !== confirm){ setEmailStatus("invalid", "Los emails no coinciden."); return; }
+  if(email && confirm && email === confirm){ setEmailStatus("neutral", "Email listo. Presiona Verificar Email."); return; }
+  setEmailStatus("neutral", "Confirma tu email para verificarlo.");
+}
+
+async function verifySignupEmail(){
+  const email = normalizeEmail(document.getElementById("signupEmail")?.value);
+  const confirm = normalizeEmail(document.getElementById("signupEmailConfirm")?.value);
+  signupEmailVerified = false;
+  signupVerifiedEmail = "";
+
+  if(!email || !confirm){ setEmailStatus("invalid", "Debes escribir el email y confirmarlo."); return false; }
+  if(!isValidEmailFormat(email)){ setEmailStatus("invalid", "Email no válido. Ejemplo correcto: nombre@gmail.com"); return false; }
+  if(email !== confirm){ setEmailStatus("invalid", "Los emails no coinciden."); return false; }
+
+  setEmailStatus("checking", "Verificando email en Supabase...");
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .select("id,email")
+    .ilike("email", email)
+    .maybeSingle();
+
+  if(error){
+    console.error(error);
+    setEmailStatus("invalid", "No se pudo verificar el email. Revisa Supabase/RLS.");
+    return false;
+  }
+  if(data){
+    setEmailStatus("invalid", "Ese email ya está registrado. Usa otro email o inicia sesión.");
+    return false;
+  }
+
+  signupEmailVerified = true;
+  signupVerifiedEmail = email;
+  setEmailStatus("valid", "✅ Email válido, confirmado y disponible.");
+  return true;
+}
+
+function setupEmailVerificationListeners(){
+  const email = document.getElementById("signupEmail");
+  const confirm = document.getElementById("signupEmailConfirm");
+  if(email) email.addEventListener("input", resetEmailVerification);
+  if(confirm) confirm.addEventListener("input", resetEmailVerification);
+}
+
+
 function applyPlanStyle(plan){
   const cleanPlan = (plan || "VIP Regular").toLowerCase();
   document.body.classList.remove("plan-regular", "plan-premium");
@@ -808,10 +897,14 @@ async function createUniqueAccessCode(){
 
 async function signup(){
   const name = document.getElementById("signupName").value.trim();
-  const email = document.getElementById("signupEmail").value.trim();
+  const email = normalizeEmail(document.getElementById("signupEmail").value);
   const pass = document.getElementById("signupPass").value.trim();
   const plan = document.getElementById("signupPlan").value || "VIP Regular";
   if(!name || !email || !pass){ alert("Llena nombre, email y password."); return; }
+  if(!signupEmailVerified || signupVerifiedEmail !== email){
+    const ok = await verifySignupEmail();
+    if(!ok){ alert("Verifica un email válido antes de crear la cuenta."); return; }
+  }
 
   const code = await createUniqueAccessCode();
 
@@ -826,6 +919,10 @@ async function signup(){
   document.getElementById("generatedCodeText").innerText = code;
   document.getElementById("signupName").value = "";
   document.getElementById("signupEmail").value = "";
+  document.getElementById("signupEmailConfirm").value = "";
+  signupEmailVerified = false;
+  signupVerifiedEmail = "";
+  setEmailStatus("neutral", "Escribe y confirma tu email.");
   document.getElementById("signupPass").value = "";
   document.getElementById("signupPlan").value = "VIP Regular";
   document.getElementById("auth").classList.add("hidden");
@@ -1115,6 +1212,7 @@ async function clearData(){
     cachedRecords = []; await render();
   }
 }
+setupEmailVerificationListeners();
 if(currentUser){ enterPortal(); }
 </script>
 
