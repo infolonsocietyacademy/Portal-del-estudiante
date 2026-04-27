@@ -228,6 +228,28 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
 .premiumOnly{display:none}body.plan-premium .premiumOnly{display:block}body.plan-premium .regularOnly{display:none!important}
 
 @media(max-width:980px){
+
+/* ===== ADMIN PANEL PRO UPGRADE ===== */
+.adminHero{
+  position:relative;overflow:hidden;margin-bottom:16px;
+  background:linear-gradient(135deg,rgba(246,196,83,.14),rgba(59,130,246,.12),rgba(168,85,247,.10));
+  border:1px solid var(--line);border-radius:28px;padding:24px;box-shadow:var(--shadow)
+}
+.adminHero:before{content:"";position:absolute;right:-90px;top:-90px;width:240px;height:240px;border-radius:50%;background:rgba(246,196,83,.18);filter:blur(8px)}
+.adminHeroTop{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.adminKicker{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border:1px solid rgba(246,196,83,.28);border-radius:999px;background:rgba(246,196,83,.10);color:var(--gold);font-size:12px;font-weight:900;letter-spacing:.35px;text-transform:uppercase}
+.adminHero h3{font-size:30px;margin:12px 0 8px}.adminHero p{color:var(--muted);line-height:1.7;max-width:760px}
+.adminActions{display:flex;gap:10px;flex-wrap:wrap}.adminActions .btn{white-space:nowrap}
+.adminMetrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:16px 0}
+.adminMetric{position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.035));border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 14px 35px rgba(0,0,0,.16)}
+.adminMetric small{display:block;color:var(--muted);font-weight:800}.adminMetric b{display:block;font-size:28px;margin-top:9px}.adminMetric span{font-size:12px;color:var(--muted);font-weight:800}
+.adminTools{display:grid;grid-template-columns:1.2fr .8fr .8fr;gap:12px;margin:14px 0 4px}
+.adminSearch,.adminSelect{width:100%;border:1px solid var(--line);background:rgba(2,6,23,.55);color:white;border-radius:16px;padding:14px;outline:none;font-weight:700}
+.adminSelect option{background:#0c1222;color:white}.adminPanelCard{padding:0;overflow:hidden}.adminPanelHead{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.035)}
+.adminPanelHead h4{font-size:18px}.adminPanelHead p{color:var(--muted);font-size:13px;margin-top:4px}.adminCountPill{padding:8px 12px;border-radius:999px;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.24);color:#93c5fd;font-weight:900;font-size:12px}
+.adminTable table{min-width:980px}.adminStudent{display:flex;align-items:center;gap:12px}.adminAvatar{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--gold),var(--blue));font-weight:900;color:white}.adminStudent b{display:block}.adminStudent small{display:block;color:var(--muted);margin-top:3px}.codePill{display:inline-flex;padding:6px 9px;border-radius:10px;background:rgba(255,255,255,.07);border:1px solid var(--line);font-weight:900;letter-spacing:.2px}.passPill{filter:blur(2px);transition:.2s}.passPill:hover{filter:none}.actionRow{display:flex;gap:8px;flex-wrap:wrap}.btn.danger{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.26);color:#fecaca}.btn.success{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.26);color:#bbf7d0}.btn.warnBtn{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.26);color:#fde68a}
+@media(max-width:980px){.adminMetrics{grid-template-columns:repeat(2,1fr)}.adminTools{grid-template-columns:1fr}.adminHero h3{font-size:25px}}
+@media(max-width:620px){.adminHero{padding:18px;border-radius:22px}.adminMetrics{grid-template-columns:1fr}.adminPanelHead{align-items:flex-start;flex-direction:column}.adminTable table{min-width:900px}.adminActions{width:100%}.adminActions .btn{width:100%}}
   .authShell{grid-template-columns:1fr}
   .authHero{border-right:0;border-bottom:1px solid var(--line)}
   .app{grid-template-columns:1fr}
@@ -420,19 +442,59 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
     </section>
 
     <section id="admin" class="page hidden">
-      <div class="card">
-        <h3>Panel Admin</h3>
-        <p style="color:var(--muted);line-height:1.7;margin-top:10px">
-          Vista separada del admin. Aquí puedes aprobar, suspender o borrar estudiantes creados en Supabase.
-        </p>
-        <div class="tableWrap">
+      <div class="adminHero">
+        <div class="adminHeroTop">
+          <div>
+            <div class="adminKicker">👑 Admin Control Center</div>
+            <h3>Panel Admin Profesional</h3>
+            <p>Controla estudiantes, códigos de acceso, planes VIP, estados de pago y aprobaciones desde una vista más limpia, premium y lista para móvil.</p>
+          </div>
+          <div class="adminActions">
+            <button class="btn secondary" onclick="renderUsers()">Actualizar</button>
+            <button class="btn" onclick="filterAdminUsers('pending')">Ver pendientes</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="adminMetrics">
+        <div class="adminMetric"><small>Total estudiantes</small><b id="adminTotalUsers">0</b><span>Usuarios registrados</span></div>
+        <div class="adminMetric"><small>Activos</small><b id="adminActiveUsers">0</b><span>Acceso aprobado</span></div>
+        <div class="adminMetric"><small>Pendientes</small><b id="adminPendingUsers">0</b><span>Esperando aprobación</span></div>
+        <div class="adminMetric"><small>Premium</small><b id="adminPremiumUsers">0</b><span>Plan VIP Premium</span></div>
+      </div>
+
+      <div class="card adminPanelCard">
+        <div class="adminPanelHead">
+          <div>
+            <h4>Gestión de estudiantes</h4>
+            <p>Aprobar, suspender o eliminar estudiantes. El password se oculta y se muestra al pasar el mouse.</p>
+          </div>
+          <span id="adminCountPill" class="adminCountPill">0 resultados</span>
+        </div>
+        <div style="padding:18px 20px">
+          <div class="adminTools">
+            <input id="adminSearch" class="adminSearch" placeholder="Buscar por nombre, email o código..." oninput="renderAdminTable()">
+            <select id="adminStatusFilter" class="adminSelect" onchange="renderAdminTable()">
+              <option value="all">Todos los estados</option>
+              <option value="pending">Pendientes</option>
+              <option value="active">Activos</option>
+              <option value="suspended">Suspendidos</option>
+              <option value="expired">Expirados</option>
+            </select>
+            <select id="adminPlanFilter" class="adminSelect" onchange="renderAdminTable()">
+              <option value="all">Todos los planes</option>
+              <option value="regular">VIP Regular</option>
+              <option value="premium">VIP Premium</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="tableWrap adminTable">
           <table>
-            <thead><tr><th>Nombre</th><th>Email</th><th>Código</th><th>Password</th><th>Rol</th><th>Plan</th><th>Estado</th><th>Acción</th></tr></thead>
+            <thead><tr><th>Estudiante</th><th>Código</th><th>Password</th><th>Rol</th><th>Plan</th><th>Estado</th><th>Próximo pago</th><th>Acción</th></tr></thead>
             <tbody id="usersBody"></tbody>
           </table>
         </div>
-        <br>
-        <button class="btn secondary" onclick="clearData()">Borrar registros del usuario actual</button>
       </div>
     </section>
   </main>
@@ -698,37 +760,81 @@ async function renderUsers(){
   if(error){ showError("No se pudieron cargar los estudiantes.", error); return; }
 
   cachedUsers = data || [];
-  document.getElementById("usersBody").innerHTML = cachedUsers.map(u=>{
+  updateAdminMetrics();
+  renderAdminTable();
+}
+
+function updateAdminMetrics(){
+  const users = cachedUsers || [];
+  const students = users.filter(u => u.role !== "admin");
+  const active = students.filter(u => u.status === "active").length;
+  const pending = students.filter(u => u.status === "pending").length;
+  const premium = students.filter(u => String(u.plan || "").toLowerCase().includes("premium")).length;
+  const setText = (id, value) => { const el = document.getElementById(id); if(el) el.innerText = value; };
+  setText("adminTotalUsers", students.length);
+  setText("adminActiveUsers", active);
+  setText("adminPendingUsers", pending);
+  setText("adminPremiumUsers", premium);
+}
+
+function filterAdminUsers(status){
+  const statusFilter = document.getElementById("adminStatusFilter");
+  if(statusFilter) statusFilter.value = status || "all";
+  renderAdminTable();
+}
+
+function renderAdminTable(){
+  const body = document.getElementById("usersBody");
+  if(!body) return;
+
+  const search = (document.getElementById("adminSearch")?.value || "").toLowerCase().trim();
+  const statusFilter = document.getElementById("adminStatusFilter")?.value || "all";
+  const planFilter = document.getElementById("adminPlanFilter")?.value || "all";
+
+  let users = (cachedUsers || []).filter(u => {
+    const text = `${u.full_name || ""} ${u.email || ""} ${u.access_code || ""}`.toLowerCase();
+    const statusOk = statusFilter === "all" || u.status === statusFilter;
+    const plan = String(u.plan || "").toLowerCase();
+    const role = String(u.role || "").toLowerCase();
+    const planOk = planFilter === "all" || plan.includes(planFilter) || role.includes(planFilter);
+    const searchOk = !search || text.includes(search);
+    return statusOk && planOk && searchOk;
+  });
+
+  const countPill = document.getElementById("adminCountPill");
+  if(countPill) countPill.innerText = users.length + (users.length === 1 ? " resultado" : " resultados");
+
+  body.innerHTML = users.map(u=>{
     const isMainAdmin = u.role === "admin" && u.access_code === "admin-nolo";
+    const initials = (u.full_name || "O").split(" ").map(x=>x[0]).join("").slice(0,2).toUpperCase();
 
     let statusBadgeClass = "blue";
     if(u.status === "active") statusBadgeClass = "green";
     if(u.status === "suspended" || u.status === "expired") statusBadgeClass = "red";
     if(u.status === "pending") statusBadgeClass = "blue";
 
-    const approveBtn = isMainAdmin
-      ? ""
-      : `<button class="btn secondary" onclick="updateUserStatus('${u.id}', 'active')">Aprobar</button>`;
-
-    const suspendBtn = isMainAdmin
-      ? ""
-      : `<button class="btn secondary" onclick="updateUserStatus('${u.id}', 'suspended')">Suspender</button>`;
-
+    const approveBtn = isMainAdmin ? "" : `<button class="btn success" onclick="updateUserStatus('${u.id}', 'active')">Aprobar</button>`;
+    const suspendBtn = isMainAdmin ? "" : `<button class="btn warnBtn" onclick="updateUserStatus('${u.id}', 'suspended')">Suspender</button>`;
     const deleteBtn = isMainAdmin
       ? `<span class="badge blue">Protegido</span>`
-      : `<button class="btn secondary" onclick="deleteUser('${u.id}', '${String(u.full_name || '').replace(/'/g, "\\'")}')">Borrar</button>`;
+      : `<button class="btn danger" onclick="deleteUser('${u.id}', '${String(u.full_name || '').replace(/'/g, "\\'")}')">Borrar</button>`;
 
     return `<tr>
-      <td>${u.full_name || "-"}</td>
-      <td>${u.email || "-"}</td>
-      <td>${u.access_code || "-"}</td>
-      <td>${u.password || "-"}</td>
+      <td>
+        <div class="adminStudent">
+          <div class="adminAvatar">${initials}</div>
+          <div><b>${u.full_name || "Sin nombre"}</b><small>${u.email || "Sin email"}</small></div>
+        </div>
+      </td>
+      <td><span class="codePill">${u.access_code || "-"}</span></td>
+      <td><span class="codePill passPill">${u.password || "-"}</span></td>
       <td><span class="badge ${u.role==='admin'?'blue':'green'}">${u.role || "-"}</span></td>
       <td>${u.plan || '-'}</td>
       <td><span class="badge ${statusBadgeClass}">${u.status || '-'}</span></td>
-      <td style="display:flex;gap:8px;flex-wrap:wrap">${approveBtn}${suspendBtn}${deleteBtn}</td>
+      <td>${u.next_payment_date || "No asignado"}</td>
+      <td><div class="actionRow">${approveBtn}${suspendBtn}${deleteBtn}</div></td>
     </tr>`;
-  }).join("") || `<tr><td colspan="8" style="color:var(--muted)">No hay usuarios todavía.</td></tr>`;
+  }).join("") || `<tr><td colspan="8" style="color:var(--muted);padding:24px">No hay usuarios con ese filtro.</td></tr>`;
 }
 
 async function updateUserStatus(userId, newStatus){
