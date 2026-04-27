@@ -257,13 +257,10 @@ th{color:var(--muted);font-size:12px;text-transform:uppercase}
       <div id="loginForm" class="form active">
         <h2>Bienvenido</h2>
         <p>Entra con tu código de acceso y password.</p>
-        <div class="field"><label>Código de acceso</label><input id="loginCode" placeholder="Ej: admin-nolo o OLON-1001"></div>
+        <div class="field"><label>Código de acceso</label><input id="loginCode" placeholder="Ej: 12345"></div>
         <div class="field"><label>Password</label><input id="loginPass" type="password" placeholder="Tu password"></div>
         <button class="btn full" onclick="login()">Entrar</button>
-        <div class="authNote">
-          Admin demo: <b>admin-nolo</b> / <b>nolofx</b><br>
-          Estudiante demo: <b>OLON-1001</b> / <b>1234</b>
-        </div>
+
       </div>
 
       <div id="signupForm" class="form">
@@ -274,7 +271,7 @@ th{color:var(--muted);font-size:12px;text-transform:uppercase}
         <div class="field"><label>Código de acceso</label><input id="signupCode" placeholder="Ej: 12345"></div>
         <div class="field"><label>Password</label><input id="signupPass" type="password" placeholder="Crea tu password"></div>
         <button class="btn full" onclick="signup()">Crear cuenta</button>
-        <div class="authNote">Esta versión ya guarda el Sign Up directamente en Supabase.</div>
+        <div class="authNote">Tu cuenta quedará pendiente hasta que el admin la apruebe.</div>
       </div>
     </div>
   </div>
@@ -390,7 +387,7 @@ th{color:var(--muted);font-size:12px;text-transform:uppercase}
       <div class="card">
         <h3>Panel Admin</h3>
         <p style="color:var(--muted);line-height:1.7;margin-top:10px">
-          Vista separada del admin. Aquí puedes ver todos los estudiantes reales creados en Supabase.
+          Vista separada del admin. Aquí puedes aprobar, suspender o borrar estudiantes creados en Supabase.
         </p>
         <div class="tableWrap">
           <table>
@@ -441,6 +438,15 @@ async function login(){
     .single();
 
   if(error || !data){ showError("Código o password incorrecto.", error); return; }
+
+  if(data.role !== "admin" && data.status !== "active"){
+    const msg = data.status === "pending"
+      ? "Tu cuenta está pendiente de aprobación por el admin."
+      : "Tu cuenta no está activa. Contacta al admin.";
+    alert(msg);
+    return;
+  }
+
   currentUser = data;
   localStorage.setItem("olon_current_user", JSON.stringify(currentUser));
   await enterPortal();
@@ -455,14 +461,18 @@ async function signup(){
 
   const { data, error } = await supabaseClient
     .from("profiles")
-    .insert([{ full_name:name, email:email, access_code:code, password:pass, role:"student", plan:"VIP Regular", status:"active", next_payment_date:null }])
+    .insert([{ full_name:name, email:email, access_code:code, password:pass, role:"student", plan:"VIP Regular", status:"pending", next_payment_date:null }])
     .select()
     .single();
 
   if(error){ showError("No se pudo crear la cuenta. Ese código puede estar en uso.", error); return; }
-  currentUser = data;
-  localStorage.setItem("olon_current_user", JSON.stringify(currentUser));
-  await enterPortal();
+
+  alert("Cuenta creada. Espera que el admin apruebe tu acceso.");
+  document.getElementById("signupName").value = "";
+  document.getElementById("signupEmail").value = "";
+  document.getElementById("signupCode").value = "";
+  document.getElementById("signupPass").value = "";
+  toggleAuth("login");
 }
 
 async function enterPortal(){
@@ -602,6 +612,20 @@ async function renderUsers(){
   cachedUsers = data || [];
   document.getElementById("usersBody").innerHTML = cachedUsers.map(u=>{
     const isMainAdmin = u.role === "admin" && u.access_code === "admin-nolo";
+
+    let statusBadgeClass = "blue";
+    if(u.status === "active") statusBadgeClass = "green";
+    if(u.status === "suspended" || u.status === "expired") statusBadgeClass = "red";
+    if(u.status === "pending") statusBadgeClass = "blue";
+
+    const approveBtn = isMainAdmin
+      ? ""
+      : `<button class="btn secondary" onclick="updateUserStatus('${u.id}', 'active')">Aprobar</button>`;
+
+    const suspendBtn = isMainAdmin
+      ? ""
+      : `<button class="btn secondary" onclick="updateUserStatus('${u.id}', 'suspended')">Suspender</button>`;
+
     const deleteBtn = isMainAdmin
       ? `<span class="badge blue">Protegido</span>`
       : `<button class="btn secondary" onclick="deleteUser('${u.id}', '${String(u.full_name || '').replace(/'/g, "\\'")}')">Borrar</button>`;
@@ -613,10 +637,31 @@ async function renderUsers(){
       <td>${u.password || "-"}</td>
       <td><span class="badge ${u.role==='admin'?'blue':'green'}">${u.role || "-"}</span></td>
       <td>${u.plan || '-'}</td>
-      <td>${u.status || '-'}</td>
-      <td>${deleteBtn}</td>
+      <td><span class="badge ${statusBadgeClass}">${u.status || '-'}</span></td>
+      <td style="display:flex;gap:8px;flex-wrap:wrap">${approveBtn}${suspendBtn}${deleteBtn}</td>
     </tr>`;
   }).join("") || `<tr><td colspan="8" style="color:var(--muted)">No hay usuarios todavía.</td></tr>`;
+}
+
+async function updateUserStatus(userId, newStatus){
+  if(!currentUser || currentUser.role !== "admin") return;
+
+  const target = cachedUsers.find(u => u.id === userId);
+  if(!target) return;
+
+  if(target.role === "admin" && target.access_code === "admin-nolo"){
+    alert("No puedes modificar el admin principal.");
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from("profiles")
+    .update({ status:newStatus })
+    .eq("id", userId);
+
+  if(error){ showError("No se pudo actualizar el estado.", error); return; }
+
+  await renderUsers();
 }
 
 async function deleteUser(userId, userName){
