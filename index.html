@@ -445,6 +445,74 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
   #welcomeText::after{display:none}
 }
 
+
+/* ===== LOGIN / SIGNUP PRO + LOGO WATERMARK + LEGAL NOTICE ===== */
+.auth{
+  position:relative;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(246,196,83,.18), transparent 32%),
+    radial-gradient(circle at 90% 18%, rgba(59,130,246,.18), transparent 34%),
+    radial-gradient(circle at 50% 100%, rgba(34,211,238,.07), transparent 34%);
+}
+.auth::before{
+  content:"";
+  position:absolute;
+  inset:-8%;
+  background-image:url('olon-logo.png');
+  background-repeat:no-repeat;
+  background-position:left 5% center;
+  background-size:min(650px, 78vw);
+  opacity:.055;
+  filter:grayscale(10%) blur(.2px);
+  pointer-events:none;
+}
+.authShell{position:relative;z-index:1;backdrop-filter:blur(18px)}
+.authHero{position:relative;overflow:hidden}
+.authHero::before{
+  content:"";
+  position:absolute;
+  width:560px;
+  height:560px;
+  left:-180px;
+  top:30px;
+  background-image:url('olon-logo.png');
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:contain;
+  opacity:.105;
+  filter:drop-shadow(0 22px 45px rgba(246,196,83,.24));
+  pointer-events:none;
+}
+.authHero > *{position:relative;z-index:1}
+.authHero .brandLogoBig{
+  width:min(250px,75%);
+  max-height:110px;
+  object-fit:contain;
+  display:block;
+  margin-bottom:24px;
+  filter:drop-shadow(0 18px 35px rgba(246,196,83,.25));
+}
+.authNote.authTrustLegal{
+  border:1px solid rgba(246,196,83,.30);
+  background:linear-gradient(135deg,rgba(246,196,83,.095),rgba(59,130,246,.075));
+  color:#cbd5e1;
+  padding:16px;
+}
+.authTrustLegal .legalRow{display:flex;gap:12px;align-items:flex-start;padding:10px 0}
+.authTrustLegal .legalRow + .legalRow{border-top:1px solid rgba(255,255,255,.10)}
+.authTrustLegal .legalIcon{
+  width:34px;height:34px;border-radius:12px;display:grid;place-items:center;flex:none;
+  background:rgba(246,196,83,.13);border:1px solid rgba(246,196,83,.28);
+}
+.authTrustLegal b{display:block;color:#f8fafc;margin-bottom:3px}
+.authTrustLegal span{display:block;color:#94a3b8;font-size:12.5px;line-height:1.45}
+@media(max-width:620px){
+  .auth::before{background-size:520px;background-position:center top 12%;opacity:.04}
+  .authHero::before{width:430px;height:430px;left:-150px;top:-20px;opacity:.075}
+  .authHero .brandLogoBig{width:220px;margin-inline:auto}
+}
+
 </style>
 </head>
 <body>
@@ -476,7 +544,23 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
         <p>Entra con tu código de acceso y password.</p>
         <div class="field"><label>Código de acceso</label><input id="loginCode" placeholder="Ej: 12345"></div>
         <div class="field"><label>Password</label><input id="loginPass" type="password" placeholder="Tu password"></div>
-        <button class="btn full" onclick="login()">Entrar</button>
+        <button class="btn full" onclick="login()">Entrar al Portal</button>        <div class="authNote authTrustLegal">
+          <div class="legalRow">
+            <div class="legalIcon">🔒</div>
+            <div>
+              <b>Tus datos están protegidos</b>
+              <span>Utilizamos tecnología segura para proteger tu información y tu acceso al portal.</span>
+            </div>
+          </div>
+          <div class="legalRow">
+            <div class="legalIcon">⚠️</div>
+            <div>
+              <b>Esta plataforma no maneja dinero real</b>
+              <span>Este portal es únicamente educativo y de seguimiento de rendimiento. No se manejan fondos reales, pagos, inversiones directas ni servicios de broker.</span>
+            </div>
+          </div>
+        </div>
+
 
       </div>
 
@@ -497,7 +581,23 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
         <div class="field"><label>Password</label><input id="signupPass" type="password" placeholder="Crea tu password"></div>
         <div class="field"><label>Tipo de VIP</label><select id="signupPlan"><option value="VIP Regular">🔥 VIP Regular</option><option value="VIP Premium">💎 VIP Premium</option></select></div>
         <button class="btn full" onclick="signup()">Crear cuenta</button>
-        <div class="authNote">Tu cuenta quedará pendiente hasta que el admin la apruebe.</div>
+                <div class="authNote authTrustLegal">
+          <div class="legalRow">
+            <div class="legalIcon">🔒</div>
+            <div>
+              <b>Tus datos están protegidos</b>
+              <span>Utilizamos tecnología segura para proteger tu información y tu acceso al portal.</span>
+            </div>
+          </div>
+          <div class="legalRow">
+            <div class="legalIcon">⚠️</div>
+            <div>
+              <b>Esta plataforma no maneja dinero real</b>
+              <span>Este portal es únicamente educativo y de seguimiento de rendimiento. No se manejan fondos reales, pagos, inversiones directas ni servicios de broker.</span>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
