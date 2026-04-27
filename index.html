@@ -6,6 +6,7 @@
 <title>OLON Society Academy | Portal del Estudiante</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
   --bg:#070b16;
@@ -272,7 +273,7 @@ th{color:var(--muted);font-size:12px;text-transform:uppercase}
         <div class="field"><label>Código de acceso</label><input id="signupCode" placeholder="Ej: OLON-1020"></div>
         <div class="field"><label>Password</label><input id="signupPass" type="password" placeholder="Crea tu password"></div>
         <button class="btn full" onclick="signup()">Crear cuenta</button>
-        <div class="authNote">Esta versión guarda datos localmente. Cuando conectes Supabase, el Sign Up se guardará en tu base de datos.</div>
+        <div class="authNote">Esta versión ya guarda el Sign Up directamente en Supabase.</div>
       </div>
     </div>
   </div>
@@ -388,8 +389,7 @@ th{color:var(--muted);font-size:12px;text-transform:uppercase}
       <div class="card">
         <h3>Panel Admin</h3>
         <p style="color:var(--muted);line-height:1.7;margin-top:10px">
-          Vista separada del admin. Aquí puedes ver usuarios creados en este demo local.
-          Cuando conectemos Supabase, aquí verás todos los estudiantes reales del portal.
+          Vista separada del admin. Aquí puedes ver todos los estudiantes reales creados en Supabase.
         </p>
         <div class="tableWrap">
           <table>
@@ -405,30 +405,20 @@ th{color:var(--muted);font-size:12px;text-transform:uppercase}
 </section>
 
 <script>
-const DEFAULT_USERS = [
-  {full_name:"Admin NOLO", access_code:"admin-nolo", password:"nolofx", role:"admin", plan:"Admin", status:"active", next_payment_date:"2026-12-31"},
-  {full_name:"Estudiante Demo", access_code:"OLON-1001", password:"1234", role:"student", plan:"VIP Premium", status:"active", next_payment_date:"2026-05-15"}
-];
-
-let users = JSON.parse(localStorage.getItem("olon_users") || "null") || DEFAULT_USERS;
-localStorage.setItem("olon_users", JSON.stringify(users));
+const SUPABASE_URL = "https://bffojtcojnsvzxzwbdes.supabase.co";
+const SUPABASE_KEY = "sb_publishable_1qXUiQ6gXpBsyVkWdvq-rA_GwbAotcT";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = JSON.parse(localStorage.getItem("olon_current_user") || "null");
 let chart;
+let cachedRecords = [];
+let cachedUsers = [];
 
 document.getElementById("date").valueAsDate = new Date();
 
-function recordsKey(){
-  return "olon_records_" + (currentUser?.access_code || "guest");
-}
-function getRecords(){
-  return JSON.parse(localStorage.getItem(recordsKey()) || "[]");
-}
-function setRecords(records){
-  localStorage.setItem(recordsKey(), JSON.stringify(records));
-}
 function money(n){return "$" + Number(n||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}
 function pct(n){return Number(n||0).toFixed(2) + "%"}
+function showError(msg, error){ console.error(msg, error || ""); alert(msg + (error?.message ? "\n" + error.message : "")); }
 
 function toggleAuth(mode){
   document.getElementById("tabLogin").classList.toggle("active", mode==="login");
@@ -437,58 +427,49 @@ function toggleAuth(mode){
   document.getElementById("signupForm").classList.toggle("active", mode==="signup");
 }
 
-function login(){
+async function login(){
   const code = document.getElementById("loginCode").value.trim();
   const pass = document.getElementById("loginPass").value.trim();
-  const found = users.find(u => u.access_code === code && u.password === pass);
+  if(!code || !pass){ alert("Escribe tu código y password."); return; }
 
-  if(!found){
-    alert("Código o password incorrecto.");
-    return;
-  }
-  currentUser = found;
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .select("*")
+    .eq("access_code", code)
+    .eq("password", pass)
+    .single();
+
+  if(error || !data){ showError("Código o password incorrecto.", error); return; }
+  currentUser = data;
   localStorage.setItem("olon_current_user", JSON.stringify(currentUser));
-  enterPortal();
+  await enterPortal();
 }
 
-function signup(){
+async function signup(){
   const name = document.getElementById("signupName").value.trim();
   const code = document.getElementById("signupCode").value.trim();
   const pass = document.getElementById("signupPass").value.trim();
+  if(!name || !code || !pass){ alert("Llena nombre, código y password."); return; }
 
-  if(!name || !code || !pass){
-    alert("Llena nombre, código y password.");
-    return;
-  }
-  if(users.some(u => u.access_code === code)){
-    alert("Ese código ya existe. Usa otro.");
-    return;
-  }
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .insert([{ full_name:name, access_code:code, password:pass, role:"student", plan:"VIP Regular", status:"active", next_payment_date:null }])
+    .select()
+    .single();
 
-  const newUser = {
-    full_name:name,
-    access_code:code,
-    password:pass,
-    role:"student",
-    plan:"VIP Regular",
-    status:"active",
-    next_payment_date:"2026-05-15"
-  };
-  users.push(newUser);
-  localStorage.setItem("olon_users", JSON.stringify(users));
-  currentUser = newUser;
+  if(error){ showError("No se pudo crear la cuenta. Ese código puede estar en uso.", error); return; }
+  currentUser = data;
   localStorage.setItem("olon_current_user", JSON.stringify(currentUser));
-  enterPortal();
+  await enterPortal();
 }
 
-function enterPortal(){
+async function enterPortal(){
   if(!currentUser) return;
   document.getElementById("studentName").innerText = currentUser.full_name;
-  document.getElementById("avatarText").innerText = currentUser.full_name[0].toUpperCase();
+  document.getElementById("avatarText").innerText = currentUser.full_name?.[0]?.toUpperCase() || "O";
   document.getElementById("userCodeText").innerText = "Código: " + currentUser.access_code;
-  document.getElementById("accessStatus").innerText = currentUser.plan + " " + (currentUser.status === "active" ? "Activo" : currentUser.status);
-  document.getElementById("paymentDate").innerText = "Próximo pago: " + (currentUser.next_payment_date || "-");
-
+  document.getElementById("accessStatus").innerText = (currentUser.plan || "VIP Regular") + " " + (currentUser.status === "active" ? "Activo" : currentUser.status);
+  document.getElementById("paymentDate").innerText = "Próximo pago: " + (currentUser.next_payment_date || "No asignado");
   document.getElementById("auth").classList.add("hidden");
   document.getElementById("portal").classList.remove("hidden");
 
@@ -497,23 +478,17 @@ function enterPortal(){
   document.querySelectorAll(".studentNav").forEach(el => el.classList.toggle("hidden", isAdmin));
   document.querySelectorAll(".adminNav").forEach(el => el.classList.toggle("hidden", !isAdmin));
 
-  if(isAdmin){
-    showPageById("admin");
-  }else{
-    showPageById("dashboard");
-  }
-  render();
+  showPageById(isAdmin ? "admin" : "dashboard");
+  await render();
 }
 
 function logout(){
   localStorage.removeItem("olon_current_user");
-  currentUser = null;
+  currentUser = null; cachedRecords = []; cachedUsers = [];
   document.getElementById("portal").classList.add("hidden");
   document.getElementById("auth").classList.remove("hidden");
 }
-
 function toggleMenu(){document.getElementById("sidebar").classList.toggle("open")}
-
 function showPage(id,btn){
   document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
@@ -528,154 +503,107 @@ function showPageById(id){
   showPage(id,btn);
 }
 
-function addRecord(){
-  const records = getRecords();
+async function fetchRecords(){
+  if(!currentUser || currentUser.role === "admin") return [];
+  const { data, error } = await supabaseClient
+    .from("student_records")
+    .select("*")
+    .eq("student_id", currentUser.id)
+    .order("record_date", { ascending:true })
+    .order("created_at", { ascending:true });
+  if(error){ showError("No se pudieron cargar los registros.", error); return []; }
+  cachedRecords = (data || []).map(r => ({ id:r.id, date:r.record_date, deposit:Number(r.deposit||0), gain:Number(r.gain||0), loss:Number(r.loss||0), note:r.note||"" }));
+  return cachedRecords;
+}
+
+async function addRecord(){
+  if(!currentUser || currentUser.role === "admin") return;
   const rec = {
-    id: Date.now(),
-    date: document.getElementById("date").value || new Date().toISOString().slice(0,10),
+    student_id: currentUser.id,
+    record_date: document.getElementById("date").value || new Date().toISOString().slice(0,10),
     deposit: Number(document.getElementById("deposit").value||0),
     gain: Number(document.getElementById("gain").value||0),
     loss: Number(document.getElementById("loss").value||0),
     note: document.getElementById("note").value.trim()
   };
-  records.push(rec);
-  setRecords(records);
-  document.getElementById("deposit").value="";
-  document.getElementById("gain").value="";
-  document.getElementById("loss").value="";
-  document.getElementById("note").value="";
-  render();
-  showPageById("dashboard");
+  const { error } = await supabaseClient.from("student_records").insert([rec]);
+  if(error){ showError("No se pudo guardar el registro.", error); return; }
+  document.getElementById("deposit").value=""; document.getElementById("gain").value=""; document.getElementById("loss").value=""; document.getElementById("note").value="";
+  await fetchRecords(); await render(); showPageById("dashboard");
 }
 
-function delRecord(id){
-  const records = getRecords().filter(r=>r.id!==id);
-  setRecords(records);
-  render();
+async function delRecord(id){
+  const { error } = await supabaseClient.from("student_records").delete().eq("id", id).eq("student_id", currentUser.id);
+  if(error){ showError("No se pudo eliminar el registro.", error); return; }
+  await fetchRecords(); await render();
 }
 
-function totals(records=getRecords()){
-  const deposit = records.reduce((a,r)=>a+r.deposit,0);
-  const gain = records.reduce((a,r)=>a+r.gain,0);
-  const loss = records.reduce((a,r)=>a+r.loss,0);
-  const net = gain-loss;
-  const balance = deposit+net;
-  const growth = deposit>0 ? (net/deposit)*100 : 0;
-  const positiveDays = records.filter(r => (r.gain-r.loss)>0).length;
-  const negativeDays = records.filter(r => (r.gain-r.loss)<0).length;
+function totals(records=cachedRecords){
+  const deposit = records.reduce((a,r)=>a+Number(r.deposit||0),0);
+  const gain = records.reduce((a,r)=>a+Number(r.gain||0),0);
+  const loss = records.reduce((a,r)=>a+Number(r.loss||0),0);
+  const net = gain-loss, balance = deposit+net, growth = deposit>0 ? (net/deposit)*100 : 0;
+  const positiveDays = records.filter(r => (Number(r.gain)-Number(r.loss))>0).length;
+  const negativeDays = records.filter(r => (Number(r.gain)-Number(r.loss))<0).length;
   const avgDaily = records.length ? net / records.length : 0;
   return {deposit,gain,loss,net,balance,growth,positiveDays,negativeDays,avgDaily,days:records.length};
 }
-
 function monthRecords(offset){
-  const now = new Date();
-  const target = new Date(now.getFullYear(), now.getMonth()+offset, 1);
-  const y = target.getFullYear();
-  const m = target.getMonth();
-  return getRecords().filter(r=>{
-    const d = new Date(r.date + "T00:00:00");
-    return d.getFullYear() === y && d.getMonth() === m;
-  });
+  const now = new Date(); const target = new Date(now.getFullYear(), now.getMonth()+offset, 1);
+  const y = target.getFullYear(), m = target.getMonth();
+  return cachedRecords.filter(r=>{ const d = new Date(r.date + "T00:00:00"); return d.getFullYear() === y && d.getMonth() === m; });
 }
 
-function render(){
+async function render(){
   if(!currentUser) return;
-  if(currentUser.role === "admin"){
-    renderUsers();
-    return;
-  }
-
-  const records = getRecords();
-  const t = totals(records);
+  if(currentUser.role === "admin"){ await renderUsers(); return; }
+  await fetchRecords();
+  const records = cachedRecords, t = totals(records);
   document.getElementById("mBalance").innerText = money(t.balance);
   document.getElementById("mProfit").innerText = money(t.gain);
   document.getElementById("mLoss").innerText = money(t.loss);
   document.getElementById("mGrowth").innerText = pct(t.growth);
-
   const body = document.getElementById("historyBody");
   body.innerHTML = records.slice().reverse().map(r=>{
-    const net = r.gain-r.loss;
-    return `<tr>
-      <td>${r.date}</td>
-      <td>${money(r.deposit)}</td>
-      <td class="good">${money(r.gain)}</td>
-      <td class="bad">${money(r.loss)}</td>
-      <td><span class="badge ${net>=0?'green':'red'}">${money(net)}</span></td>
-      <td>${r.note || "-"}</td>
-      <td><button class="btn secondary" onclick="delRecord(${r.id})">Eliminar</button></td>
-    </tr>`
+    const net = Number(r.gain)-Number(r.loss);
+    return `<tr><td>${r.date}</td><td>${money(r.deposit)}</td><td class="good">${money(r.gain)}</td><td class="bad">${money(r.loss)}</td><td><span class="badge ${net>=0?'green':'red'}">${money(net)}</span></td><td>${r.note || "-"}</td><td><button class="btn secondary" onclick="delRecord('${r.id}')">Eliminar</button></td></tr>`
   }).join("") || `<tr><td colspan="7" style="color:var(--muted)">No hay registros todavía.</td></tr>`;
-
-  renderCompare();
-  renderChart();
+  renderCompare(); renderChart();
 }
 
 function changeBadge(value, inverse=false){
-  const good = inverse ? value < 0 : value > 0;
-  const bad = inverse ? value > 0 : value < 0;
-  const cls = good ? "green" : bad ? "red" : "blue";
-  const sign = value > 0 ? "+" : "";
+  const good = inverse ? value < 0 : value > 0, bad = inverse ? value > 0 : value < 0;
+  const cls = good ? "green" : bad ? "red" : "blue", sign = value > 0 ? "+" : "";
   return `<span class="badge ${cls}">${sign}${typeof value === "number" ? value.toFixed(2) : value}</span>`;
 }
-
 function renderCompare(){
-  const cur = totals(monthRecords(0));
-  const prev = totals(monthRecords(-1));
-  const rows = [
-    ["Profit Neto", money(cur.net), money(prev.net), changeBadge(cur.net-prev.net)],
-    ["Ganancias", money(cur.gain), money(prev.gain), changeBadge(cur.gain-prev.gain)],
-    ["Pérdidas", money(cur.loss), money(prev.loss), changeBadge(cur.loss-prev.loss, true)],
-    ["Crecimiento %", pct(cur.growth), pct(prev.growth), changeBadge(cur.growth-prev.growth)],
-    ["Días positivos", cur.positiveDays, prev.positiveDays, changeBadge(cur.positiveDays-prev.positiveDays)],
-    ["Días negativos", cur.negativeDays, prev.negativeDays, changeBadge(cur.negativeDays-prev.negativeDays, true)],
-    ["Promedio diario", money(cur.avgDaily), money(prev.avgDaily), changeBadge(cur.avgDaily-prev.avgDaily)]
-  ];
+  const cur = totals(monthRecords(0)), prev = totals(monthRecords(-1));
+  const rows = [["Profit Neto", money(cur.net), money(prev.net), changeBadge(cur.net-prev.net)], ["Ganancias", money(cur.gain), money(prev.gain), changeBadge(cur.gain-prev.gain)], ["Pérdidas", money(cur.loss), money(prev.loss), changeBadge(cur.loss-prev.loss, true)], ["Crecimiento %", pct(cur.growth), pct(prev.growth), changeBadge(cur.growth-prev.growth)], ["Días positivos", cur.positiveDays, prev.positiveDays, changeBadge(cur.positiveDays-prev.positiveDays)], ["Días negativos", cur.negativeDays, prev.negativeDays, changeBadge(cur.negativeDays-prev.negativeDays, true)], ["Promedio diario", money(cur.avgDaily), money(prev.avgDaily), changeBadge(cur.avgDaily-prev.avgDaily)]];
   document.getElementById("compareBody").innerHTML = rows.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("");
 }
-
 function renderChart(){
-  const ctx = document.getElementById("balanceChart");
-  let running = 0;
-  const sorted = getRecords().slice().sort((a,b)=>a.date.localeCompare(b.date));
+  const ctx = document.getElementById("balanceChart"); let running = 0;
+  const sorted = cachedRecords.slice().sort((a,b)=>a.date.localeCompare(b.date));
   const labels = sorted.map(r=>r.date);
-  const data = sorted.map(r=>{
-    running += r.deposit + r.gain - r.loss;
-    return running;
-  });
+  const data = sorted.map(r=>{ running += Number(r.deposit) + Number(r.gain) - Number(r.loss); return running; });
   if(chart) chart.destroy();
-  chart = new Chart(ctx,{
-    type:"line",
-    data:{labels: labels.length?labels:["Inicio"], datasets:[{label:"Balance", data:data.length?data:[0], tension:.4, fill:true}]},
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{labels:{color:"#f8fafc"}}},
-      scales:{x:{ticks:{color:"#94a3b8"},grid:{color:"rgba(255,255,255,.08)"}}, y:{ticks:{color:"#94a3b8"},grid:{color:"rgba(255,255,255,.08)"}}}
-    }
-  });
+  chart = new Chart(ctx,{ type:"line", data:{labels: labels.length?labels:["Inicio"], datasets:[{label:"Balance", data:data.length?data:[0], tension:.4, fill:true}]}, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:"#f8fafc"}}}, scales:{x:{ticks:{color:"#94a3b8"},grid:{color:"rgba(255,255,255,.08)"}}, y:{ticks:{color:"#94a3b8"},grid:{color:"rgba(255,255,255,.08)"}}} } });
 }
-
-function renderUsers(){
-  document.getElementById("usersBody").innerHTML = users.map(u=>`
-    <tr>
-      <td>${u.full_name}</td>
-      <td>${u.access_code}</td>
-      <td><span class="badge ${u.role==='admin'?'blue':'green'}">${u.role}</span></td>
-      <td>${u.plan}</td>
-      <td>${u.status}</td>
-    </tr>
-  `).join("");
+async function renderUsers(){
+  const { data, error } = await supabaseClient.from("profiles").select("id, full_name, access_code, role, plan, status, next_payment_date, created_at").order("created_at", { ascending:false });
+  if(error){ showError("No se pudieron cargar los estudiantes.", error); return; }
+  cachedUsers = data || [];
+  document.getElementById("usersBody").innerHTML = cachedUsers.map(u=>`<tr><td>${u.full_name}</td><td>${u.access_code}</td><td><span class="badge ${u.role==='admin'?'blue':'green'}">${u.role}</span></td><td>${u.plan || '-'}</td><td>${u.status || '-'}</td></tr>`).join("") || `<tr><td colspan="5" style="color:var(--muted)">No hay usuarios todavía.</td></tr>`;
 }
-
-function clearData(){
-  if(confirm("¿Borrar registros del usuario actual?")){
-    setRecords([]);
-    render();
+async function clearData(){
+  if(!currentUser || currentUser.role === "admin") return;
+  if(confirm("¿Borrar todos tus registros?")){
+    const { error } = await supabaseClient.from("student_records").delete().eq("student_id", currentUser.id);
+    if(error){ showError("No se pudieron borrar los registros.", error); return; }
+    cachedRecords = []; await render();
   }
 }
-
-if(currentUser){
-  enterPortal();
-}
+if(currentUser){ enterPortal(); }
 </script>
 </body>
 </html>
