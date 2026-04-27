@@ -576,7 +576,7 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
 
         <div class="authStats">
           <div class="authStat"><b id="authActiveStudents">0</b><small>Estudiantes<br>Activos</small></div>
-          <div class="authStat"><b>+10K</b><small>Trades<br>Registrados</small></div>
+          <div class="authStat"><b id="authTradesRegistered">+0</b><small>Trades<br>Registrados</small></div>
           <div class="authStat"><b>98%</b><small>Enfoque en<br>Disciplina</small></div>
         </div>
 
@@ -610,7 +610,7 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
             <div><b>Esta plataforma no maneja dinero real</b><p>Este portal es únicamente educativo. No se manejan fondos reales ni inversiones directas.</p></div>
           </div>
         </div>
-        <div class="authHelp">¿Necesitas ayuda? <a href="#">Contáctanos</a> · <a href="#">Soporte</a></div>
+        <div class="authHelp">¿Necesitas ayuda? <a href="mailto:infolonsocietyacademy@gmail.com?subject=Soporte%20OLON%20Society%20Academy&body=Hola,%20necesito%20ayuda%20con...">Contáctanos</a> · <a href="mailto:infolonsocietyacademy@gmail.com?subject=Soporte%20OLON%20Society%20Academy&body=Hola,%20necesito%20ayuda%20con...">Soporte</a></div>
       </div>
 
       <div id="signupForm" class="form">
@@ -859,6 +859,26 @@ async function updateAuthStudentCount(){
   }
 }
 
+async function updateAuthTradeCount(){
+  const el = document.getElementById("authTradesRegistered");
+  if(!el) return;
+  try{
+    const { count, error } = await supabaseClient
+      .from("student_records")
+      .select("id", { count:"exact", head:true });
+    if(error){ throw error; }
+    el.innerText = "+" + Number(count || 0).toLocaleString("en-US");
+  }catch(err){
+    console.warn("No se pudo contar trades registrados", err);
+    el.innerText = "+0";
+  }
+}
+
+function updateAuthRealStats(){
+  updateAuthStudentCount();
+  updateAuthTradeCount();
+}
+
 
 let currentUser = JSON.parse(localStorage.getItem("olon_current_user") || "null");
 let chart;
@@ -1075,7 +1095,7 @@ async function signup(){
 
   if(error){ showError("No se pudo crear la cuenta.", error); return; }
 
-  updateAuthStudentCount();
+  updateAuthRealStats();
   document.getElementById("generatedCodeText").innerText = code;
   document.getElementById("signupName").value = "";
   document.getElementById("signupEmail").value = "";
@@ -1378,7 +1398,7 @@ async function clearData(){
   }
 }
 setupEmailVerificationListeners();
-updateAuthStudentCount();
+updateAuthRealStats();
 if(currentUser){ enterPortal(); }
 </script>
 
