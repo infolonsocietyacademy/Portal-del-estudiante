@@ -359,6 +359,15 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
   .chartBox{height:290px}
 }
 
+/* ===== BIENVENIDA DEL ESTUDIANTE ===== */
+.welcomeHeroCard{margin-bottom:16px;position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(246,196,83,.16),rgba(59,130,246,.13),rgba(168,85,247,.10));border:1px solid rgba(246,196,83,.22)}
+.welcomeHeroCard:before{content:"";position:absolute;right:-70px;top:-80px;width:220px;height:220px;border-radius:50%;background:rgba(246,196,83,.20);filter:blur(14px)}
+.welcomeHeroContent{position:relative;z-index:1}
+.welcomeKicker{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;border:1px solid rgba(246,196,83,.28);background:rgba(246,196,83,.10);color:var(--gold);font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.35px}
+.welcomeTitle{margin-top:12px;font-size:34px;line-height:1.05;letter-spacing:-.04em;min-height:42px}
+.welcomeSub{color:var(--muted);margin-top:9px;line-height:1.6}
+@media(max-width:620px){.welcomeTitle{font-size:26px;min-height:34px}}
+
 /* ===== ANIMACIONES PRO RECOMENDADAS ===== */
 .main,
 .authShell,
@@ -537,6 +546,14 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
     </div>
 
     <section id="dashboard" class="page">
+      <div id="portalWelcomeCard" class="card welcomeHeroCard">
+        <div class="welcomeHeroContent">
+          <div class="welcomeKicker">👋 Acceso confirmado</div>
+          <h2 id="portalWelcomeText" class="welcomeTitle">BIENVENIDO</h2>
+          <p id="portalWelcomeSub" class="welcomeSub">Tu portal privado está listo para registrar tu progreso.</p>
+        </div>
+      </div>
+
       <div class="grid4">
         <div class="card metric"><small>Balance Actual</small><h3 id="mBalance">$0</h3><span class="good">Actualizado automático</span></div>
         <div class="card metric"><small>Profit Total</small><h3 id="mProfit">$0</h3><span class="good">Ganancias netas</span></div>
@@ -689,6 +706,53 @@ function applyPlanStyle(plan){
 
 
 function toggleAuth(mode){
+function getStudentFirstName(user){
+  const fullName = (user?.full_name || "Estudiante").trim();
+  return fullName.split(" ")[0] || "Estudiante";
+}
+
+function typeWelcomeMessage(el, text){
+  if(!el) return;
+  el.textContent = "";
+  let i = 0;
+  const speed = 34;
+  function type(){
+    el.textContent = text.slice(0, i);
+    i++;
+    if(i <= text.length){ setTimeout(type, speed); }
+  }
+  type();
+}
+
+function updatePortalWelcome(){
+  if(!currentUser) return;
+  const firstName = getStudentFirstName(currentUser).toUpperCase();
+  const fullName = (currentUser.full_name || "Estudiante").toUpperCase();
+  const isAdminUser = currentUser.role === "admin";
+  const titleText = isAdminUser ? "BIENVENIDO, " + firstName : "BIENVENIDO, " + fullName;
+
+  const pageTitle = document.getElementById("pageTitle");
+  if(pageTitle){ pageTitle.innerText = titleText; }
+
+  const pageSubtitle = document.getElementById("pageSubtitle");
+  if(pageSubtitle){
+    pageSubtitle.innerText = isAdminUser
+      ? "Panel administrativo listo para gestionar estudiantes."
+      : "Tu portal privado está listo para registrar tu progreso.";
+  }
+
+  const welcomeCard = document.getElementById("portalWelcomeCard");
+  if(welcomeCard){ welcomeCard.classList.toggle("hidden", isAdminUser); }
+
+  const welcomeText = document.getElementById("portalWelcomeText");
+  typeWelcomeMessage(welcomeText, titleText);
+
+  const welcomeSub = document.getElementById("portalWelcomeSub");
+  if(welcomeSub){
+    welcomeSub.innerText = "Plan: " + (currentUser.plan || "VIP Regular") + " • Código: " + (currentUser.access_code || "");
+  }
+}
+
   document.getElementById("tabLogin").classList.toggle("active", mode==="login");
   document.getElementById("tabSignup").classList.toggle("active", mode==="signup");
   document.getElementById("loginForm").classList.toggle("active", mode==="login");
@@ -801,6 +865,7 @@ async function enterPortal(){
   document.querySelectorAll(".adminNav").forEach(el => el.classList.toggle("hidden", !isAdmin));
 
   showPageById(isAdmin ? "admin" : "dashboard");
+  updatePortalWelcome();
   await render();
 }
 
@@ -816,6 +881,7 @@ function showPage(id,btn){
   document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
   document.getElementById("pageTitle").innerText = btn ? btn.textContent.replace(/[^\wÁÉÍÓÚáéíóúñÑ ]/g,"").trim() : id;
+  if(id === "dashboard" && currentUser){ updatePortalWelcome(); }
   document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
   if(btn) btn.classList.add("active");
   document.getElementById("sidebar").classList.remove("open");
