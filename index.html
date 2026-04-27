@@ -446,7 +446,7 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
     <div class="sideBox">
       <small>Estado del acceso</small>
       <h3 id="accessStatus">VIP Premium Activo</h3>
-      <small id="paymentDate">Próximo pago: 15 de mayo 2026</small>
+      <small id="paymentDate">: 15 de mayo 2026</small>
     </div>
   </aside>
 
@@ -583,7 +583,7 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
         </div>
         <div class="tableWrap adminTable">
           <table>
-            <thead><tr><th>Estudiante</th><th>Código</th><th>Password</th><th>Rol</th><th>Plan</th><th>Estado</th><th>Próximo pago</th><th>Acción</th></tr></thead>
+            <thead><tr><th>Estudiante</th><th>Código</th><th>Password</th><th>Rol</th><th>Plan</th><th>Estado</th><th></th><th>Acción</th></tr></thead>
             <tbody id="usersBody"></tbody>
           </table>
         </div>
@@ -722,7 +722,7 @@ async function enterPortal(){
   document.getElementById("userCodeText").innerText = "Código: " + currentUser.access_code;
   document.getElementById("planBadge").innerText = ((currentUser.plan || "VIP Regular").toLowerCase().includes("premium") || (currentUser.plan || "").toLowerCase().includes("admin")) ? "💎 VIP PREMIUM" : "🔥 VIP REGULAR";
   document.getElementById("accessStatus").innerText = (currentUser.plan || "VIP Regular") + " " + (currentUser.status === "active" ? "Activo" : currentUser.status);
-  document.getElementById("paymentDate").innerText = "Próximo pago: " + (currentUser.next_payment_date || "No asignado");
+  document.getElementById("paymentDate").innerText = ": " + (currentUser.next_payment_date || "No asignado");
   document.getElementById("auth").classList.add("hidden");
   document.getElementById("portal").classList.remove("hidden");
 
