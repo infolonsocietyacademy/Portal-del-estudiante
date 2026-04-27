@@ -573,8 +573,8 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
       </div>
 
       <div class="grid4">
-        <div class="card metric"><small>Balance Actual</small><h3 id="mBalance">$0</h3><span class="good">Actualizado automático</span></div>
-        <div class="card metric"><small>Profit Total</small><h3 id="mProfit">$0</h3><span class="good">Ganancias netas</span></div>
+        <div class="card metric"><small>Total Depositado</small><h3 id="mDeposited">$0</h3><span class="good">Capital registrado</span></div>
+        <div class="card metric"><small>Total Ganado / Perdido</small><h3 id="mNet">$0</h3><span id="mNetLabel" class="good">Ganancias menos pérdidas</span></div>
         <div class="card metric"><small>Pérdidas Total</small><h3 id="mLoss">$0</h3><span class="bad">Control de riesgo</span></div>
         <div class="card metric"><small>Crecimiento</small><h3 id="mGrowth">0%</h3><span class="warn">Basado en depósito</span></div>
       </div>
@@ -1045,8 +1045,13 @@ async function render(){
   if(currentUser.role === "admin"){ await renderUsers(); return; }
   await fetchRecords();
   const records = cachedRecords, t = totals(records);
-  document.getElementById("mBalance").innerText = money(t.balance);
-  document.getElementById("mProfit").innerText = money(t.gain);
+  document.getElementById("mDeposited").innerText = money(t.deposit);
+  document.getElementById("mNet").innerText = money(t.net);
+  const netLabel = document.getElementById("mNetLabel");
+  if(netLabel){
+    netLabel.className = t.net >= 0 ? "good" : "bad";
+    netLabel.innerText = t.net >= 0 ? "Ganancia neta total" : "Pérdida neta total";
+  }
   document.getElementById("mLoss").innerText = money(t.loss);
   document.getElementById("mGrowth").innerText = pct(t.growth);
   const body = document.getElementById("historyBody");
