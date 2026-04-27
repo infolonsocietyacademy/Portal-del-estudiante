@@ -270,7 +270,8 @@ th{color:var(--muted);font-size:12px;text-transform:uppercase}
         <h2>Crear cuenta</h2>
         <p>El estudiante puede crear su acceso personal. Luego el admin puede revisar su cuenta.</p>
         <div class="field"><label>Nombre completo</label><input id="signupName" placeholder="Nombre del estudiante"></div>
-        <div class="field"><label>Código de acceso</label><input id="signupCode" placeholder="Ej: OLON-1020"></div>
+        <div class="field"><label>Email</label><input id="signupEmail" type="email" placeholder="Ej: correo@gmail.com"></div>
+        <div class="field"><label>Código de acceso</label><input id="signupCode" placeholder="Ej: 12345"></div>
         <div class="field"><label>Password</label><input id="signupPass" type="password" placeholder="Crea tu password"></div>
         <button class="btn full" onclick="signup()">Crear cuenta</button>
         <div class="authNote">Esta versión ya guarda el Sign Up directamente en Supabase.</div>
@@ -393,7 +394,7 @@ th{color:var(--muted);font-size:12px;text-transform:uppercase}
         </p>
         <div class="tableWrap">
           <table>
-            <thead><tr><th>Nombre</th><th>Código</th><th>Rol</th><th>Plan</th><th>Estado</th></tr></thead>
+            <thead><tr><th>Nombre</th><th>Email</th><th>Código</th><th>Password</th><th>Rol</th><th>Plan</th><th>Estado</th><th>Acción</th></tr></thead>
             <tbody id="usersBody"></tbody>
           </table>
         </div>
@@ -447,13 +448,14 @@ async function login(){
 
 async function signup(){
   const name = document.getElementById("signupName").value.trim();
+  const email = document.getElementById("signupEmail").value.trim();
   const code = document.getElementById("signupCode").value.trim();
   const pass = document.getElementById("signupPass").value.trim();
-  if(!name || !code || !pass){ alert("Llena nombre, código y password."); return; }
+  if(!name || !email || !code || !pass){ alert("Llena nombre, email, código y password."); return; }
 
   const { data, error } = await supabaseClient
     .from("profiles")
-    .insert([{ full_name:name, access_code:code, password:pass, role:"student", plan:"VIP Regular", status:"active", next_payment_date:null }])
+    .insert([{ full_name:name, email:email, access_code:code, password:pass, role:"student", plan:"VIP Regular", status:"active", next_payment_date:null }])
     .select()
     .single();
 
@@ -590,10 +592,54 @@ function renderChart(){
   chart = new Chart(ctx,{ type:"line", data:{labels: labels.length?labels:["Inicio"], datasets:[{label:"Balance", data:data.length?data:[0], tension:.4, fill:true}]}, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:"#f8fafc"}}}, scales:{x:{ticks:{color:"#94a3b8"},grid:{color:"rgba(255,255,255,.08)"}}, y:{ticks:{color:"#94a3b8"},grid:{color:"rgba(255,255,255,.08)"}}} } });
 }
 async function renderUsers(){
-  const { data, error } = await supabaseClient.from("profiles").select("id, full_name, access_code, role, plan, status, next_payment_date, created_at").order("created_at", { ascending:false });
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .select("id, email, full_name, access_code, password, role, plan, status, next_payment_date, created_at")
+    .order("created_at", { ascending:false });
+
   if(error){ showError("No se pudieron cargar los estudiantes.", error); return; }
+
   cachedUsers = data || [];
-  document.getElementById("usersBody").innerHTML = cachedUsers.map(u=>`<tr><td>${u.full_name}</td><td>${u.access_code}</td><td><span class="badge ${u.role==='admin'?'blue':'green'}">${u.role}</span></td><td>${u.plan || '-'}</td><td>${u.status || '-'}</td></tr>`).join("") || `<tr><td colspan="5" style="color:var(--muted)">No hay usuarios todavía.</td></tr>`;
+  document.getElementById("usersBody").innerHTML = cachedUsers.map(u=>{
+    const isMainAdmin = u.role === "admin" && u.access_code === "admin-nolo";
+    const deleteBtn = isMainAdmin
+      ? `<span class="badge blue">Protegido</span>`
+      : `<button class="btn secondary" onclick="deleteUser('${u.id}', '${String(u.full_name || '').replace(/'/g, "\\'")}')">Borrar</button>`;
+
+    return `<tr>
+      <td>${u.full_name || "-"}</td>
+      <td>${u.email || "-"}</td>
+      <td>${u.access_code || "-"}</td>
+      <td>${u.password || "-"}</td>
+      <td><span class="badge ${u.role==='admin'?'blue':'green'}">${u.role || "-"}</span></td>
+      <td>${u.plan || '-'}</td>
+      <td>${u.status || '-'}</td>
+      <td>${deleteBtn}</td>
+    </tr>`;
+  }).join("") || `<tr><td colspan="8" style="color:var(--muted)">No hay usuarios todavía.</td></tr>`;
+}
+
+async function deleteUser(userId, userName){
+  if(!currentUser || currentUser.role !== "admin") return;
+
+  const target = cachedUsers.find(u => u.id === userId);
+  if(!target) return;
+
+  if(target.role === "admin" && target.access_code === "admin-nolo"){
+    alert("No puedes borrar el admin principal.");
+    return;
+  }
+
+  if(!confirm("¿Seguro que quieres borrar a " + userName + "? También se borrarán sus registros.")) return;
+
+  const { error } = await supabaseClient
+    .from("profiles")
+    .delete()
+    .eq("id", userId);
+
+  if(error){ showError("No se pudo borrar el usuario.", error); return; }
+
+  await renderUsers();
 }
 async function clearData(){
   if(!currentUser || currentUser.role === "admin") return;
