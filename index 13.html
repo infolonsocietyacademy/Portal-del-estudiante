@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+<link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./assets/favicon.png">
+<link rel="shortcut icon" href="./assets/favicon.png">
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#070b16">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OLON Society Academy | Portal del Estudiante</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<!-- SETTINGS FLOATING OLON -->
+<button id="settingsFab" class="settingsFab" type="button" title="Configuración">⚙️</button>
+<div id="settingsPanel" class="settingsPanel">
+  <h3>Configuración</h3>
+  <p>Personaliza tu experiencia dentro del portal.</p>
+
+  <div class="settingRow">
+    <div>
+      <b>Sonidos del portal</b>
+      <small>Teclado, hover, click, loading y mensajes</small>
+    </div>
+    <button id="soundSwitch" class="switch on" type="button"><span></span></button>
+  </div>
+
+  <div class="settingRow" style="display:block">
+    <div>
+      <b>Apariencia</b>
+      <small>Modo oscuro o claro</small>
+    </div>
+    <div class="themeButtons">
+      <button id="darkThemeBtn" type="button">🌙 Dark</button>
+      <button id="lightThemeBtn" type="button">☀️ Light</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- LOADER PREMIUM OLON -->
+<div id="olonLoader">
+  <div class="loaderBox">
+    <div class="loaderLogoWrap">
+      <img class="loaderLogo" src="./assets/favicon.png" alt="OLON Society Academy">
+    </div>
+    <div class="loaderTitle">OLON Society Academy</div>
+    <div class="loaderSub">Cargando portal seguro...</div>
+    <div class="loaderBar"><span></span></div>
+  </div>
+</div>
+
+
+<!-- LOADING ULTRA PREMIUM PARA ENTRAR AL PORTAL -->
+<div id="portalEnterLoader">
+  <div class="portalEnterBox">
+    <div class="portalEnterLogo">
+      <img src="./assets/favicon.png" alt="OLON Society Academy">
+    </div>
+    <div class="portalEnterKicker">🔐 Acceso validado</div>
+    <div class="portalEnterTitle">BIENVENIDO <span id="loaderStudentName">ESTUDIANTE</span></div>
+    <div class="portalEnterText">Preparando tu dashboard privado...</div>
+    <div class="portalEnterPlan" id="loaderStudentPlan">VIP REGULAR</div>
+
+    <div class="portalLoadingSteps">
+      <div class="portalStep active"><i>✓</i><span>Verificando acceso seguro</span></div>
+      <div class="portalStep active"><i>✓</i><span>Cargando datos del estudiante</span></div>
+      <div class="portalStep active"><i>✓</i><span>Activando experiencia OLON</span></div>
+    </div>
+
+    <div class="portalProgress"><span></span></div>
+    <div class="portalDots"><span></span><span></span><span></span></div>
+  </div>
+</div>
+
+
+<section id="auth" class="auth authFullScreenPro">
+  <div class="authBgArt" aria-hidden="true">
+    <span class="authOrb authOrbA"></span>
+    <span class="authOrb authOrbB"></span>
+    <span class="authOrb authOrbC"></span>
+    <span class="authMesh"></span>
+    <span class="authBigText authBigTextA">OLON</span>
+    <span class="authBigText authBigTextB">01</span>
+    <span class="authBigText authBigTextC">OS</span>
+  </div>
+  <div class="authShell">
+    <div class="authHero">
+      <div>
+        <img class="authLogo" src="./assets/background.png" alt="OLON Society Academy">
+
+        <div class="authKicker">Bienvenido a</div>
+        <h1 class="authTitle">OLON Society<br><span>Academy</span></h1>
+        <p class="authText">Tu camino hacia la consistencia, disciplina y seguimiento profesional comienza aquí.</p>
+        <div class="authHeroPills">
+          <span>📱 Mobile App Look</span>
+          <span>🔐 Acceso Privado</span>
+          <span>📊 Reportes Pro</span>
+        </div>
+
+
+        <div class="authFeatures">
+          <div class="authFeature">
+            <div class="authFeatureIcon">📈</div>
+            <div><b>Sistema Profesional</b><small>Herramientas avanzadas para llevar tu trading al siguiente nivel.</small></div>
+          </div>
+          <div class="authFeature">
+            <div class="authFeatureIcon">👥</div>
+            <div><b>Comunidad Exclusiva</b><small>Conecta con estudiantes comprometidos y mantén tu progreso organizado.</small></div>
+          </div>
+          <div class="authFeature">
+            <div class="authFeatureIcon">🛡️</div>
+            <div><b>Enfoque Educativo</b><small>Seguimiento, análisis y mejora continua sin manejar dinero real.</small></div>
+          </div>
+        </div>
+
+        <div class="authStats">
+          <div class="authStat"><b id="authActiveStudents">0</b><small>Estudiantes<br>Activos</small></div>
+          <div class="authStat"><b id="authTradesRegistered">+0</b><small>Trades<br>Registrados</small></div>
+          <div class="authStat"><b>98%</b><small>Enfoque en<br>Disciplina</small></div>
+        </div>
+
+        <div class="authQuote">
+          “La consistencia no es suerte, es disciplina con un sistema.”
+          <span>OLON SOCIETY ACADEMY</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="authPanel authPanelGlass">
+
+      <div class="authPanelIntro">
+        <span>Portal Privado</span>
+        <h2>Acceso profesional</h2>
+        <p>Entra, registra tu progreso y mantén tu academia organizada desde cualquier dispositivo.</p>
+      </div>
+      <div class="tabs authSegmented">
+        <button id="tabLogin" class="active" onclick="toggleAuth('login')">🔐 Iniciar Sesión</button>
+        <button id="tabSignup" onclick="toggleAuth('signup')">👤 Crear Cuenta</button>
+      </div>
+
+      <div id="loginForm" class="form active">
+        
+        <div class="top3Container">
+          <div class="top3Title">🏆 Top 3 Estudiantes del Mes</div>
+          <div id="top3LoginList">
+            <div class="top3Empty">Cargando ranking desde Supabase...</div>
+          </div>
+        </div>
+
+        <h2>¡Bienvenido de vuelta!</h2>
+        <p>Inicia sesión para continuar en tu portal.</p>
+        <div class="field"><label>Código de acceso</label><input id="loginCode" placeholder="Ej: OLON-12345" autocomplete="username"></div>
+        <div class="field"><label>Password</label><input id="loginPass" type="password" placeholder="Tu password" autocomplete="current-password"></div>
+        <button id="loginSubmitBtn" class="btn full" type="button" onclick="login()">Entrar al Portal →</button>
+
+        <div class="authLegal">
+          <div class="authLegalItem">
+            <div class="authLegalIcon">🔒</div>
+            <div><b>Tus datos están protegidos</b><p>Utilizamos tecnología segura para proteger tu información y mantener tu cuenta privada.</p></div>
+          </div>
+          <div class="authLegalItem">
+            <div class="authLegalIcon">⚠️</div>
+            <div><b>Esta plataforma no maneja dinero real</b><p>Este portal es únicamente educativo. No se manejan fondos reales ni inversiones directas.</p></div>
+          </div>
+        </div>
+        <div class="authHelp">¿Necesitas ayuda? <a href="mailto:infolonsocietyacademy@gmail.com?subject=Soporte%20OLON%20Society%20Academy&body=Hola,%20necesito%20ayuda%20con...">Contáctanos</a> · <a href="mailto:infolonsocietyacademy@gmail.com?subject=Soporte%20OLON%20Society%20Academy&body=Hola,%20necesito%20ayuda%20con...">Soporte</a></div>
+      </div>
+
+      <div id="signupForm" class="form">
+        <h2>Crea tu cuenta</h2>
+        <p>Regístrate para solicitar acceso al portal de estudiantes.</p>
+        <div class="field"><label>Nombre completo</label><input id="signupName" placeholder="Nombre del estudiante" autocomplete="name"></div>
+        <div class="field">
+          <label>Email</label>
+          <input id="signupEmail" type="email" placeholder="Ej: correo@gmail.com" autocomplete="email">
+        </div>
+        <div class="field">
+          <label>Confirmar Email</label>
+          <input id="signupEmailConfirm" type="email" placeholder="Confirma tu email" autocomplete="email">
+          <div id="emailVerifyStatus" class="emailStatus neutral">Escribe y confirma tu email.</div>
+          <button type="button" class="btn secondary full verifyBtn" onclick="verifySignupEmail()">Verificar Email</button>
+        </div>
+        <div class="field"><label>Password</label><input id="signupPass" type="password" placeholder="Crea tu password" autocomplete="new-password"></div>
+        <div class="field"><label>Tipo de VIP</label><select id="signupPlan"><option value="VIP Regular">🔥 VIP Regular</option><option value="VIP Premium">💎 VIP Premium</option></select></div>
+        <button id="signupSubmitBtn" class="btn full" type="button" onclick="signup()">Crear mi cuenta →</button>
+        <div class="authLegal">
+          <div class="authLegalItem">
+            <div class="authLegalIcon">🛡️</div>
+            <div><b>Cuenta pendiente de aprobación</b><p>Tu cuenta quedará pendiente hasta que el admin la apruebe.</p></div>
+          </div>
+          <div class="authLegalItem">
+            <div class="authLegalIcon">⚠️</div>
+            <div><b>Portal educativo</b><p>No se maneja dinero real, fondos de clientes ni inversiones directas dentro de esta plataforma.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="codeResult" class="auth hidden" style="display:none!important;">
+  <div class="loginCard" style="width:min(520px,100%);padding:30px;border-radius:28px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.045));border:1px solid var(--line);box-shadow:var(--shadow)">
+    <img src="./assets/logo.png" alt="OLON Society Academy" style="width:92px;display:block;margin:0 auto 14px;border-radius:18px;filter:drop-shadow(0 16px 30px rgba(246,196,83,.28));">
+    <h1 style="text-align:center;font-size:28px">Cuenta creada</h1>
+    <p style="text-align:center;color:var(--muted);margin:10px 0 22px;line-height:1.6">
+      Tu cuenta quedó pendiente de aprobación. Guarda este código para iniciar sesión cuando el admin te apruebe.
+    </p>
+    <div style="padding:18px;border-radius:18px;background:rgba(246,196,83,.12);border:1px solid rgba(246,196,83,.22);text-align:center;margin-bottom:16px">
+      <small style="color:var(--muted);font-weight:800">TU CÓDIGO DE ACCESO</small>
+      <h2 id="generatedCodeText" style="font-size:34px;margin-top:8px;letter-spacing:1px">OLON-00000</h2>
+    </div>
+    <button class="btn full" onclick="copyGeneratedCode()">Copiar código</button>
+    <br><br>
+    <button class="btn secondary full" onclick="backToLogin()">Volver al login</button>
+  </div>
+</section>
+
+<section id="portal" class="app hidden">
+  <aside id="sidebar" class="sidebar">
+    <div class="brand">
+      <img src="./assets/logo.png" alt="OLON Society Academy" style="width:70px;">
+      <div>
+        <h1>OLON Society</h1>
+        <span id="portalMode">Student Portal</span>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="active studentNav" onclick="showPage('dashboard',this)">📊 Dashboard</button>
+      <button class="studentNav" onclick="showPage('registro',this)">➕ Registrar Día</button>
+      <button class="studentNav" onclick="showPage('historial',this)">📅 Historial</button>
+      <button class="studentNav" onclick="showPage('comparacion',this)">📈 Comparación Mensual</button>
+      <button class="studentNav" onclick="showPage('publicChat',this)">🌍 Chat Público</button>
+      <button class="adminNav hidden" onclick="showPage('admin',this)">⚙️ Admin</button>
+      <button class="adminNav hidden" onclick="showPage('adminChat',this)">💬 Chat Live <span id="adminChatBadge" class="adminUnread" style="display:none">0</span></button>
+      <button onclick="logout()">🚪 Salir</button>
+    </div>
+
+    <div class="sideBox">
+      <small>Estado del acceso</small>
+      <h3 id="accessStatus">VIP Premium Activo</h3>
+      <small id="paymentDate">: 15 de mayo 2026</small>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <button class="btn secondary mobileBtn" onclick="toggleMenu()">☰ Menú</button>
+        <h2 id="pageTitle">Panel del Trader</h2>
+        <p id="pageSubtitle">Control manual privado de depósito, ganancia, pérdida y progreso.</p>
+      </div>
+      <div class="userPill">
+        <div class="avatar" id="avatarText">E</div>
+        <div>
+          <b id="studentName">Estudiante</b><br>
+          <small style="color:var(--muted)" id="userCodeText">Código: OLON-2026</small><br>
+          <span id="planBadge" class="planBadge">🔥 VIP REGULAR</span>
+        </div>
+      </div>
+    </div>
+
+    <section id="dashboard" class="page">
+      <div id="portalWelcomeCard" class="card welcomeHeroCard">
+        <div class="welcomeHeroContent">
+          <div class="welcomeKicker">👋 Acceso confirmado</div>
+          <h2 id="portalWelcomeText" class="welcomeTitle">Hola, Estudiante</h2>
+          <p id="portalWelcomeSub" class="welcomeSub">Panel del Trader</p>
+        </div>
+      </div>
+
+      <div class="proQuote" id="dailyQuote">🔥 La disciplina te paga lo que la emoción te quita.</div>
+
+      <div class="v3Grid">
+        <div class="card v3Card">
+          <small>Ranking Estudiantil</small>
+          <h3 id="topRanking">Top --%</h3>
+          <span id="topRankingNote">Posición entre estudiantes por rendimiento sobre depósito</span>
+        </div>
+        <div class="card v3Card">
+          <small>Rendimiento</small>
+          <h3 id="depositReturn">0%</h3>
+          <span>Ganancia neta ÷ total depositado</span>
+        </div>
+        <div class="card v3Card">
+          <small>Drawdown</small>
+          <h3 id="maxDrawdown">$0</h3>
+          <span id="drawdownPct">0% del depósito</span>
+        </div>
+        <div class="card v3Card">
+          <small>YTD Winrate</small>
+          <h3 id="ytdWinrate">0%</h3>
+          <span id="ytdStats">0 wins / 0 losses</span>
+        </div>
+      </div>
+
+      <div class="card reportCard selectedReportCard">
+        <div class="reportToolbar">
+          <div class="reportSwitch" aria-label="Selector de reporte">
+            <button type="button" id="reportBtnWeekly" class="active" onclick="setReportView('weekly')">Semanal</button>
+            <button type="button" id="reportBtnMonthly" onclick="setReportView('monthly')">Mensual</button>
+            <button type="button" id="reportBtnYtd" onclick="setReportView('ytd')">YTD</button>
+          </div>
+          <button type="button" class="btn secondary" onclick="downloadSelectedReportPDF()">📄 Descargar PDF</button>
+        </div>
+
+        <div class="selectedReportHead">
+          <div>
+            <h3 id="selectedReportTitle">Reporte Semanal</h3>
+            <p id="selectedReportSubtitle">Resumen de tu rendimiento de esta semana.</p>
+          </div>
+          <span id="selectedReportBadge" class="selectedReportBadge">Vista Semanal</span>
+        </div>
+
+        <div class="reportRows" id="selectedReport"></div>
+      </div>
+
+
+      <div class="proGrid">
+        <div class="card traderScoreCard">
+          <div class="traderScoreInner">
+            <div class="scoreRing" id="scoreRing" style="--score:0"><span id="traderScore">0%</span></div>
+            <div class="scoreDetails">
+              <h3>Trader Score</h3>
+              <p id="traderLevel">Nivel: En desarrollo</p>
+              <div class="scoreBars">
+                <div>
+                  <div class="scoreBarTop"><span>Disciplina</span><span id="disciplineScore">0%</span></div>
+                  <div class="scoreBarTrack"><span id="disciplineBar" style="width:0%"></span></div>
+                </div>
+                <div>
+                  <div class="scoreBarTop"><span>Consistencia</span><span id="consistencyScore">0%</span></div>
+                  <div class="scoreBarTrack"><span id="consistencyBar" style="width:0%"></span></div>
+                </div>
+                <div>
+                  <div class="scoreBarTop"><span>Control de riesgo</span><span id="riskScore">0%</span></div>
+                  <div class="scoreBarTrack"><span id="riskBar" style="width:0%"></span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card goalCard">
+          <h3>Meta Mensual</h3>
+          <p style="color:var(--muted);margin-top:8px">Progreso basado en tu neto del mes actual.</p>
+          <div class="goalBar"><span id="monthlyGoalBar"></span></div>
+          <div class="goalMeta">
+            <span id="monthlyGoalText">$0 / $2,000</span>
+            <span id="monthlyGoalPct">0%</span>
+          </div>
+          <div style="margin-top:14px" class="field">
+            <label>Editar meta mensual</label>
+            <input id="monthlyGoalInput" type="number" placeholder="Ej: 2000" onchange="saveMonthlyGoal()">
+          </div>
+        </div>
+      </div>
+
+      <div class="proGrid">
+        <div class="card aiCard">
+          <h3>Análisis Automático</h3>
+          <div class="aiList" id="aiAnalysisList"></div>
+        </div>
+
+        <div class="card calendarCard">
+          <h3>Calendario del Mes</h3>
+          <p style="color:var(--muted);margin-top:8px;font-size:13px">🟢 positivo · 🔴 negativo · 🟡 break even</p>
+          <div class="calendarGrid" id="tradingCalendar"></div>
+        </div>
+      </div>
+
+      <div class="grid4">
+        <div class="card metric"><small>Total Depositado</small><h3 id="mDeposited">$0</h3><span class="good">Capital registrado</span></div>
+        <div class="card metric"><small>Total Ganado / Perdido</small><h3 id="mNet">$0</h3><span id="mNetLabel" class="good">Ganancias menos pérdidas</span></div>
+        <div class="card metric"><small>Pérdidas Total</small><h3 id="mLoss">$0</h3><span class="bad">Control de riesgo</span></div>
+        <div class="card metric"><small>Crecimiento</small><h3 id="mGrowth">0%</h3><span class="warn">Basado en depósito</span></div>
+      </div>
+
+      <div class="layout">
+        <div class="card chartBox">
+          <h3>Crecimiento del Balance</h3>
+          <canvas id="balanceChart"></canvas>
+        </div>
+        <div class="card">
+          <h3>Uso personal privado</h3>
+          <p style="color:var(--muted);margin:14px 0;line-height:1.7">
+            Este portal no compara estudiantes. Cada persona se mide contra su propio progreso:
+            mes actual vs mes anterior.
+          </p>
+          <div class="regularOnly" style="margin:14px 0;padding:12px;border-radius:16px;background:rgba(59,130,246,.10);border:1px solid rgba(59,130,246,.18);color:var(--muted);font-size:13px;line-height:1.5">🔥 Estilo VIP Regular activo: dashboard limpio, privado y directo.</div>
+          <div class="premiumOnly" style="margin:14px 0;padding:12px;border-radius:16px;background:rgba(255,216,107,.10);border:1px solid rgba(255,216,107,.25);color:#fde68a;font-size:13px;line-height:1.5">💎 Estilo VIP Premium activo: experiencia visual premium con glow, detalles dorados y diseño más exclusivo.</div>
+          <button class="btn" onclick="showPageById('registro')">Registrar resultado de hoy</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="registro" class="page hidden">
+      <div class="card">
+        <h3>Registrar Día</h3>
+        <p style="color:var(--muted);margin:8px 0 18px">Llena los campos y el dashboard se actualiza solo.</p>
+        <div class="formGrid">
+          <div class="field"><label>Fecha</label><input id="date" type="date"></div>
+          <div class="field"><label>Depósito inicial / adicional</label><input id="deposit" type="number" placeholder="Ej: 500"></div>
+          <div class="field"><label>Ganancia del día</label><input id="gain" type="number" placeholder="Ej: 80"></div>
+          <div class="field"><label>Pérdida del día</label><input id="loss" type="number" placeholder="Ej: 20"></div>
+
+          <div class="field"><label>Par operado</label><input id="pair" placeholder="Ej: NAS100, XAUUSD, EURUSD"></div>
+          <div class="field"><label>Tipo de trade</label><select id="tradeType"><option value="">Seleccionar</option><option>Scalp</option><option>Intraday</option><option>Swing</option></select></div>
+          <div class="field"><label>Emoción</label><select id="emotion"><option value="">Seleccionar</option><option>Disciplina</option><option>FOMO</option><option>Ansiedad</option><option>Paciencia</option><option>Confianza</option></select></div>
+          <div class="field"><label>Error cometido</label><input id="mistake" placeholder="Ej: Entré tarde, no esperé confirmación">
+          </div>
+          <div class="field full"><label>Nota</label><textarea id="note" placeholder="Ej: Buen trade en NAS100, respeté mi plan."></textarea></div>
+          <button class="btn full" onclick="addRecord()">Guardar registro</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="historial" class="page hidden">
+      <div class="card">
+        <h3>Historial Individual</h3>
+        <div class="tableWrap">
+          <table>
+            <thead><tr><th>Fecha</th><th>Depósito</th><th>Ganancia</th><th>Pérdida</th><th>Neto</th><th>Nota</th><th></th></tr></thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+        <div id="historyMobileCards" class="mobileCards"></div>
+      </div>
+    </section>
+
+    <section id="comparacion" class="page hidden">
+      <div class="card">
+        <h3>Mes Actual vs Mes Anterior</h3>
+        <p style="color:var(--muted);margin:8px 0 18px">Comparación privada. El estudiante compite contra su propio progreso.</p>
+        <div class="tableWrap">
+          <table>
+            <thead><tr><th>Métrica</th><th>Mes Actual</th><th>Mes Anterior</th><th>Cambio</th></tr></thead>
+            <tbody id="compareBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    
+<section id="publicChat" class="page hidden">
+  <div class="card">
+    <h3>🌍 Chat Público</h3>
+    <p style="color:var(--muted);margin:8px 0 14px">
+      Canal general donde todos pueden hablar en tiempo real.
+    </p>
+
+    <div id="publicChatMessages" class="chatMessages"></div>
+
+    <div class="chatInputArea">
+      <textarea id="publicChatInput" placeholder="Escribe un mensaje..." onkeydown="handlePublicChatEnter(event)"></textarea>
+      <button onclick="sendPublicMessage()">Enviar</button>
+    </div>
+  </div>
+</section>
+
+
+<section id="admin" class="page hidden">
+      <div class="adminHero">
+        <div class="adminHeroTop">
+          <div>
+            <div class="adminKicker">👑 Admin Control Center</div>
+            <h3>Panel Admin Profesional</h3>
+            <p>Controla estudiantes, códigos de acceso, planes VIP, estados de pago y aprobaciones desde una vista más limpia, premium y lista para móvil.</p>
+          </div>
+          <div class="adminActions">
+            <button class="btn secondary" onclick="renderUsers()">Actualizar</button>
+            <button class="btn" onclick="filterAdminUsers('pending')">Ver pendientes</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="adminMetrics">
+        <div class="adminMetric"><small>Total estudiantes</small><b id="adminTotalUsers">0</b><span>Usuarios registrados</span></div>
+        <div class="adminMetric"><small>Activos</small><b id="adminActiveUsers">0</b><span>Acceso aprobado</span></div>
+        <div class="adminMetric"><small>Pendientes</small><b id="adminPendingUsers">0</b><span>Esperando aprobación</span></div>
+        <div class="adminMetric"><small>Premium</small><b id="adminPremiumUsers">0</b><span>Plan VIP Premium</span></div>
+      </div>
+
+      <div class="card adminPanelCard">
+        <div class="adminPanelHead">
+          <div>
+            <h4>Gestión de estudiantes</h4>
+            <p>Aprobar, suspender o eliminar estudiantes. El password se oculta y se muestra al pasar el mouse.</p>
+          </div>
+          <span id="adminCountPill" class="adminCountPill">0 resultados</span>
+        </div>
+        <div style="padding:18px 20px">
+          <div class="adminTools">
+            <input id="adminSearch" class="adminSearch" placeholder="Buscar por nombre, email o código..." oninput="renderAdminTable()">
+            <select id="adminStatusFilter" class="adminSelect" onchange="renderAdminTable()">
+              <option value="all">Todos los estados</option>
+              <option value="pending">Pendientes</option>
+              <option value="active">Activos</option>
+              <option value="suspended">Suspendidos</option>
+              <option value="expired">Expirados</option>
+            </select>
+            <select id="adminPlanFilter" class="adminSelect" onchange="renderAdminTable()">
+              <option value="all">Todos los planes</option>
+              <option value="regular">VIP Regular</option>
+              <option value="premium">VIP Premium</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="tableWrap adminTable">
+          <table>
+            <thead><tr><th>Estudiante</th><th>Código</th><th>Password</th><th>Rol</th><th>Plan</th><th>Estado</th><th></th><th>Acción</th></tr></thead>
+            <tbody id="usersBody"></tbody>
+          </table>
+        </div>
+        <div id="usersMobileCards" class="mobileCards adminMobileCards"></div>
+      </div>
+    </section>
+
+
+    <button id="chatFab" class="chatFab studentOnly" onclick="toggleStudentChat()">💬 Chat <span id="studentChatBadge" class="chatFabBadge">0</span></button>
+
+    <div id="studentChatPanel" class="studentChatPanel studentOnly">
+      <div class="chatHead">
+        <div>
+          <h3>💬 Chat con mentor</h3>
+          <small>Escríbenos y el admin te responde desde el portal.</small>
+        </div>
+        <button class="chatClose" onclick="toggleStudentChat()">✕</button>
+      </div>
+      <div id="studentChatMessages" class="chatMessages"></div>
+      <div class="chatInputArea">
+        <textarea id="studentChatInput" placeholder="Escribe tu mensaje..."></textarea>
+        <button onclick="sendStudentChatMessage()">Enviar</button>
+      </div>
+    </div>
+
+
+    <section id="adminChat" class="page hidden">
+      <div class="adminHero">
+        <div class="adminHeroTop">
+          <div>
+            <div class="adminKicker">💬 Live Chat Center</div>
+            <h3>Mensajes de estudiantes</h3>
+            <p>Lee mensajes, selecciona un estudiante y responde directamente desde el portal admin.</p>
+          </div>
+          <div class="adminActions">
+            <button class="btn secondary" onclick="loadAdminChatInbox()">Actualizar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="adminChatLayout">
+          <div>
+            <h3>Inbox</h3>
+            <p style="color:var(--muted);margin:8px 0 14px">Estudiantes con mensajes.</p>
+            <div id="adminChatList" class="adminChatList"></div>
+          </div>
+
+          <div class="adminChatBox">
+            <div class="adminChatTitleRow">
+              <h3 id="adminChatTitle" class="adminChatTitle">Selecciona un estudiante</h3>
+              <button id="deleteConversationBtn" class="deleteConversationBtn" onclick="deleteSelectedConversation()" style="display:none">🗑️ Borrar conversación</button>
+            </div>
+            <div id="adminChatMessages" class="chatMessages"></div>
+            <div class="adminReplyArea">
+              <textarea id="adminChatInput" placeholder="Escribe tu respuesta..."></textarea>
+              <button onclick="sendAdminChatMessage()">Responder</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <nav class="mobileBottomNav studentOnly" aria-label="Navegación móvil">
+      <button class="active" type="button" onclick="mobileGo('dashboard', this)"><span>⌂</span><small>Inicio</small></button>
+      <button type="button" onclick="mobileGo('registro', this)"><span>＋</span><small>Trade</small></button>
+      <button type="button" onclick="mobileGo('historial', this)"><span>▤</span><small>Historial</small></button>
+      <button type="button" onclick="mobileGo('comparacion', this)"><span>↗</span><small>Reporte</small></button>
+      <button type="button" onclick="mobileOpenAccount(this)"><span>◉</span><small>Cuenta</small></button>
+    </nav>
+
+    <footer class="portalFooter">
+      <img class="portalFooterSeal" src="./assets/footer-seal.png" alt="OLON Society Academy">
+      <p>© 2026 OLON Society Academy. Todos los derechos reservados.</p>
+    </footer>
+
+  </main>
+</section>
+
+
+<script src="./script.js" defer></script>
+
+<script>
+/* FIX FUERTE: La pantalla de código NO se muestra al cargar.
+   Solo aparece cuando el sistema quite la clase .hidden después de crear la cuenta. */
+(function(){
+  function lockCodeResult(){
+    var el = document.getElementById('codeResult');
+    if(!el) return;
+
+    function sync(){
+      if(el.classList.contains('hidden')){
+        el.style.setProperty('display','none','important');
+        el.setAttribute('aria-hidden','true');
+      }else{
+        el.style.removeProperty('display');
+        el.removeAttribute('aria-hidden');
+      }
+    }
+
+    sync();
+    new MutationObserver(sync).observe(el,{attributes:true,attributeFilter:['class']});
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', lockCodeResult);
+  }else{
+    lockCodeResult();
+  }
+})();
+</script>
+
+
+<script>
+
+/* CHAT PUBLICO FIX */
+let publicChatSubscribed = false;
+
+async function sendPublicMessage() {
+  const input = document.getElementById("publicChatInput");
+  const message = input.value.trim();
+  if (!message) return;
+
+  await supabaseClient.from("general_chat_messages").insert([{
+    sender_id: currentUser.id,
+    sender_name: currentUser.full_name,
+    sender_role: currentUser.role,
+    message: message
+  }]);
+
+  input.value = "";
+}
+
+async function loadPublicChat() {
+  const box = document.getElementById("publicChatMessages");
+
+  const { data } = await supabaseClient
+    .from("general_chat_messages")
+    .select("*")
+    .order("created_at", { ascending: true });
+
+  box.innerHTML = "";
+
+  (data || []).forEach(msg => addPublicMessage(msg));
+
+  if (!publicChatSubscribed) {
+    subscribePublicChat();
+    publicChatSubscribed = true;
+  }
+}
+
+function addPublicMessage(msg) {
+  const box = document.getElementById("publicChatMessages");
+
+  const div = document.createElement("div");
+  div.className = "chatBubble " + (msg.sender_role === "admin" ? "admin" : "student");
+
+  div.innerHTML = `
+    <b>${msg.sender_name}</b><br>
+    ${msg.message}
+    <small>${msg.sender_role} · ${new Date(msg.created_at).toLocaleTimeString()}</small>
+  `;
+
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function subscribePublicChat() {
+  supabaseClient
+    .channel('public-chat')
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'general_chat_messages'
+      },
+      payload => {
+        addPublicMessage(payload.new);
+        if (typeof playNewMessageSound === "function") playNewMessageSound();
+      }
+    )
+    .subscribe();
+}
+
+function handlePublicChatEnter(e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    sendPublicMessage();
+  }
+}
+
+// Hook al menu
+const originalShowPage = showPage;
+showPage = function(id, btn){
+  originalShowPage(id, btn);
+  if(id === "publicChat"){
+    setTimeout(loadPublicChat, 200);
+  }
+};
+
+</script>
+
+</body>
+</html>
