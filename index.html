@@ -15,6 +15,16 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js">
 
 
+
+// Chat page hook
+const originalShowPageForChat = typeof showPage === "function" ? showPage : null;
+if(originalShowPageForChat){
+  window.showPage = function(id, btn){
+    originalShowPageForChat(id, btn);
+    if(id === "adminChat") loadAdminChatInbox();
+  }
+}
+
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -1708,6 +1718,230 @@ body.light-mode .top3Container{
   }
 }
 
+
+/* ===== LIVE CHAT OLON ===== */
+.chatFab{
+  position:fixed;
+  right:22px;
+  bottom:86px;
+  z-index:45;
+  border:0;
+  border-radius:999px;
+  padding:14px 18px;
+  background:linear-gradient(135deg,var(--gold),var(--blue));
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 18px 44px rgba(0,0,0,.34),0 0 32px rgba(246,196,83,.16);
+}
+.chatFabBadge{
+  display:none;
+  margin-left:7px;
+  min-width:20px;
+  height:20px;
+  border-radius:999px;
+  background:#ef4444;
+  color:#fff;
+  font-size:11px;
+  align-items:center;
+  justify-content:center;
+  padding:0 6px;
+}
+.chatFabBadge.show{display:inline-flex}
+.studentChatPanel{
+  position:fixed;
+  right:22px;
+  bottom:145px;
+  z-index:46;
+  width:min(390px,calc(100vw - 28px));
+  height:520px;
+  max-height:70vh;
+  border-radius:26px;
+  border:1px solid rgba(246,196,83,.28);
+  background:linear-gradient(180deg,rgba(15,23,42,.96),rgba(2,6,23,.94));
+  box-shadow:0 28px 90px rgba(0,0,0,.52);
+  display:none;
+  overflow:hidden;
+  backdrop-filter:blur(18px);
+}
+.studentChatPanel.show{display:flex;flex-direction:column;animation:chatPop .22s ease both}
+.chatHead{
+  padding:16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  border-bottom:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.035);
+}
+.chatHead h3{font-size:16px}
+.chatHead small{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+.chatClose{
+  border:0;
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  width:34px;
+  height:34px;
+  border-radius:12px;
+  cursor:pointer;
+}
+.chatMessages{
+  flex:1;
+  overflow:auto;
+  padding:15px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.chatBubble{
+  max-width:82%;
+  padding:11px 12px;
+  border-radius:18px;
+  font-size:13px;
+  line-height:1.45;
+  border:1px solid rgba(255,255,255,.10);
+}
+.chatBubble small{
+  display:block;
+  margin-top:6px;
+  opacity:.72;
+  font-size:10px;
+}
+.chatBubble.student{
+  margin-left:auto;
+  background:linear-gradient(135deg,rgba(59,130,246,.22),rgba(34,211,238,.10));
+  color:#dbeafe;
+}
+.chatBubble.admin{
+  margin-right:auto;
+  background:linear-gradient(135deg,rgba(246,196,83,.18),rgba(255,255,255,.05));
+  color:#fde68a;
+}
+.chatInputArea{
+  padding:13px;
+  border-top:1px solid rgba(255,255,255,.10);
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+}
+.chatInputArea textarea{
+  min-height:44px;
+  max-height:95px;
+  resize:none;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(2,6,23,.55);
+  color:#fff;
+  border-radius:16px;
+  padding:12px;
+  outline:none;
+}
+.chatInputArea button{
+  border:0;
+  border-radius:16px;
+  padding:0 15px;
+  background:linear-gradient(135deg,var(--gold),var(--blue));
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+}
+.adminChatLayout{
+  display:grid;
+  grid-template-columns:320px 1fr;
+  gap:16px;
+}
+.adminChatList{
+  overflow:auto;
+  max-height:620px;
+  display:grid;
+  gap:10px;
+}
+.adminChatUser{
+  text-align:left;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.045);
+  color:#fff;
+  border-radius:18px;
+  padding:13px;
+  cursor:pointer;
+}
+.adminChatUser.active,
+.adminChatUser:hover{
+  border-color:rgba(246,196,83,.32);
+  background:rgba(246,196,83,.09);
+}
+.adminChatUser b{display:block}
+.adminChatUser small{display:block;color:var(--muted);margin-top:5px;line-height:1.35}
+.adminUnread{
+  display:inline-flex;
+  margin-left:6px;
+  min-width:20px;
+  height:20px;
+  border-radius:999px;
+  background:#ef4444;
+  color:#fff;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  padding:0 6px;
+}
+.adminChatBox{
+  min-height:620px;
+  display:flex;
+  flex-direction:column;
+}
+.adminChatTitle{
+  padding-bottom:12px;
+  border-bottom:1px solid rgba(255,255,255,.10);
+  margin-bottom:0;
+}
+.adminReplyArea{
+  border-top:1px solid rgba(255,255,255,.10);
+  padding-top:12px;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+}
+.adminReplyArea textarea{
+  min-height:48px;
+  resize:vertical;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(2,6,23,.55);
+  color:#fff;
+  border-radius:16px;
+  padding:12px;
+  outline:none;
+}
+.adminReplyArea button{
+  border:0;
+  border-radius:16px;
+  padding:0 18px;
+  background:linear-gradient(135deg,var(--gold),var(--blue));
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+}
+body.light-mode .studentChatPanel,
+body.light-mode .adminChatUser,
+body.light-mode .chatInputArea textarea,
+body.light-mode .adminReplyArea textarea{
+  background:#fff!important;
+  color:#0f172a!important;
+}
+body.light-mode .chatClose{color:#0f172a}
+@keyframes chatPop{
+  from{opacity:0;transform:translateY(12px) scale(.96)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+@media(max-width:980px){
+  .adminChatLayout{grid-template-columns:1fr}
+  .adminChatBox{min-height:520px}
+}
+@media(max-width:620px){
+  .chatFab{right:14px;bottom:76px;padding:13px 15px}
+  .studentChatPanel{right:14px;bottom:130px;height:500px}
+  .chatBubble{max-width:90%}
+}
+
 </style>
 </head>
 <body>
@@ -1913,6 +2147,7 @@ body.light-mode .top3Container{
       <button class="studentNav" onclick="showPage('historial',this)">📅 Historial</button>
       <button class="studentNav" onclick="showPage('comparacion',this)">📈 Comparación Mensual</button>
       <button class="adminNav hidden" onclick="showPage('admin',this)">⚙️ Admin</button>
+      <button class="adminNav hidden" onclick="showPage('adminChat',this)">💬 Chat Live <span id="adminChatBadge" class="adminUnread" style="display:none">0</span></button>
       <button onclick="logout()">🚪 Salir</button>
     </div>
 
@@ -2172,6 +2407,60 @@ body.light-mode .top3Container{
       </div>
     </section>
 
+
+    <button id="chatFab" class="chatFab studentOnly" onclick="toggleStudentChat()">💬 Chat <span id="studentChatBadge" class="chatFabBadge">0</span></button>
+
+    <div id="studentChatPanel" class="studentChatPanel studentOnly">
+      <div class="chatHead">
+        <div>
+          <h3>💬 Chat con mentor</h3>
+          <small>Escríbenos y el admin te responde desde el portal.</small>
+        </div>
+        <button class="chatClose" onclick="toggleStudentChat()">✕</button>
+      </div>
+      <div id="studentChatMessages" class="chatMessages"></div>
+      <div class="chatInputArea">
+        <textarea id="studentChatInput" placeholder="Escribe tu mensaje..."></textarea>
+        <button onclick="sendStudentChatMessage()">Enviar</button>
+      </div>
+    </div>
+
+
+    <section id="adminChat" class="page hidden">
+      <div class="adminHero">
+        <div class="adminHeroTop">
+          <div>
+            <div class="adminKicker">💬 Live Chat Center</div>
+            <h3>Mensajes de estudiantes</h3>
+            <p>Lee mensajes, selecciona un estudiante y responde directamente desde el portal admin.</p>
+          </div>
+          <div class="adminActions">
+            <button class="btn secondary" onclick="loadAdminChatInbox()">Actualizar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="adminChatLayout">
+          <div>
+            <h3>Inbox</h3>
+            <p style="color:var(--muted);margin:8px 0 14px">Estudiantes con mensajes.</p>
+            <div id="adminChatList" class="adminChatList"></div>
+          </div>
+
+          <div class="adminChatBox">
+            <h3 id="adminChatTitle" class="adminChatTitle">Selecciona un estudiante</h3>
+            <div id="adminChatMessages" class="chatMessages"></div>
+            <div class="adminReplyArea">
+              <textarea id="adminChatInput" placeholder="Escribe tu respuesta..."></textarea>
+              <button onclick="sendAdminChatMessage()">Responder</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
     <footer class="portalFooter">
       <img class="portalFooterSeal" src="./assets/footer-seal.png" alt="OLON Society Academy">
       <p>© 2026 OLON Society Academy. Todos los derechos reservados.</p>
@@ -2358,6 +2647,290 @@ function hidePortalEnterLoader(){
 
 function waitPortalLoading(ms = 4000){
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
+// ===== LIVE CHAT OLON SUPABASE =====
+let selectedChatStudentId = null;
+let chatRefreshTimer = null;
+
+let lastStudentUnreadCount = 0;
+let lastAdminUnreadCount = 0;
+
+function playNewMessageSound(){
+  if(typeof isSoundEnabled === "function" && !isSoundEnabled()) return;
+  try{
+    if(typeof playOlonTone === "function"){
+      playOlonTone(720, 0.08, 0.024, "sine");
+      setTimeout(()=>playOlonTone(980, 0.10, 0.020, "triangle"), 95);
+      setTimeout(()=>playOlonTone(1240, 0.08, 0.016, "sine"), 190);
+    }
+  }catch(e){
+    console.warn("No se pudo reproducir sonido de mensaje", e);
+  }
+}
+
+
+function chatTime(value){
+  try{
+    return new Date(value).toLocaleString("es-PR", {month:"short", day:"numeric", hour:"numeric", minute:"2-digit"});
+  }catch(e){ return ""; }
+}
+
+function escapeHTML(str){
+  return String(str || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+
+function toggleStudentChat(){
+  const panel = document.getElementById("studentChatPanel");
+  if(panel) panel.classList.toggle("show");
+  if(panel && panel.classList.contains("show")){
+    loadStudentChatMessages();
+    markStudentMessagesRead();
+  }
+  if(typeof playClickSound === "function") playClickSound();
+}
+
+async function loadStudentChatMessages(){
+  if(!currentUser || currentUser.role === "admin") return;
+  const box = document.getElementById("studentChatMessages");
+  if(!box) return;
+
+  const { data, error } = await supabaseClient
+    .from("chat_messages")
+    .select("*")
+    .eq("student_id", currentUser.id)
+    .order("created_at", {ascending:true});
+
+  if(error){
+    box.innerHTML = `<div class="top3Empty">No se pudo cargar el chat. Revisa la tabla chat_messages.</div>`;
+    return;
+  }
+
+  box.innerHTML = (data || []).map(m => `
+    <div class="chatBubble ${m.sender_role === "admin" ? "admin" : "student"}">
+      ${escapeHTML(m.message)}
+      <small>${m.sender_role === "admin" ? "Admin" : "Tú"} · ${chatTime(m.created_at)}</small>
+    </div>
+  `).join("") || `<div class="top3Empty">No hay mensajes todavía. Escríbele al mentor.</div>`;
+
+  box.scrollTop = box.scrollHeight;
+  updateStudentUnreadBadge(data || []);
+}
+
+async function sendStudentChatMessage(){
+  if(!currentUser || currentUser.role === "admin") return;
+  const input = document.getElementById("studentChatInput");
+  const msg = input?.value.trim();
+  if(!msg) return;
+
+  const { error } = await supabaseClient
+    .from("chat_messages")
+    .insert([{ student_id: currentUser.id, sender_role:"student", message:msg, is_read:false }]);
+
+  if(error){ alert("No se pudo enviar el mensaje."); console.error(error); return; }
+
+  input.value = "";
+  if(typeof playClickSound === "function") playClickSound();
+  await loadStudentChatMessages();
+}
+
+async function markStudentMessagesRead(){
+  lastStudentUnreadCount = 0;
+  if(!currentUser || currentUser.role === "admin") return;
+  await supabaseClient
+    .from("chat_messages")
+    .update({is_read:true})
+    .eq("student_id", currentUser.id)
+    .eq("sender_role", "admin");
+  updateStudentUnreadCount();
+}
+
+function updateStudentUnreadBadge(messages){
+  const badge = document.getElementById("studentChatBadge");
+  if(!badge) return;
+  const unread = (messages || []).filter(m => m.sender_role === "admin" && !m.is_read).length;
+  badge.textContent = unread;
+  badge.classList.toggle("show", unread > 0);
+}
+
+async function updateStudentUnreadCount(){
+  if(!currentUser || currentUser.role === "admin") return;
+  const { data } = await supabaseClient
+    .from("chat_messages")
+    .select("id,sender_role,is_read")
+    .eq("student_id", currentUser.id)
+    .eq("sender_role", "admin")
+    .eq("is_read", false);
+
+  const n = (data || []).length;
+
+  if(n > lastStudentUnreadCount){
+    playNewMessageSound();
+  }
+  lastStudentUnreadCount = n;
+
+  const badge = document.getElementById("studentChatBadge");
+  if(badge){
+    badge.textContent = n;
+    badge.classList.toggle("show", n > 0);
+  }
+}
+
+async function loadAdminChatInbox(){
+  if(!currentUser || currentUser.role !== "admin") return;
+  const list = document.getElementById("adminChatList");
+  if(!list) return;
+
+  const { data: messages, error } = await supabaseClient
+    .from("chat_messages")
+    .select("student_id,message,sender_role,is_read,created_at")
+    .order("created_at", {ascending:false});
+
+  if(error){
+    list.innerHTML = `<div class="top3Empty">No se pudo cargar el inbox.</div>`;
+    console.error(error);
+    return;
+  }
+
+  const studentIds = [...new Set((messages || []).map(m => m.student_id).filter(Boolean))];
+
+  if(!studentIds.length){
+    list.innerHTML = `<div class="top3Empty">No hay mensajes todavía.</div>`;
+    updateAdminChatBadge(0);
+    return;
+  }
+
+  const { data: profiles } = await supabaseClient
+    .from("profiles")
+    .select("id,full_name,access_code")
+    .in("id", studentIds);
+
+  const profileMap = {};
+  (profiles || []).forEach(p => profileMap[p.id] = p);
+
+  const grouped = {};
+  (messages || []).forEach(m=>{
+    if(!grouped[m.student_id]){
+      grouped[m.student_id] = { latest:m, unread:0 };
+    }
+    if(m.sender_role === "student" && !m.is_read) grouped[m.student_id].unread++;
+  });
+
+  const totalUnread = Object.values(grouped).reduce((a,x)=>a+x.unread,0);
+  updateAdminChatBadge(totalUnread);
+
+  list.innerHTML = studentIds.map(id=>{
+    const p = profileMap[id] || {};
+    const g = grouped[id] || {};
+    const latest = g.latest || {};
+    const unread = g.unread || 0;
+    return `
+      <button class="adminChatUser ${selectedChatStudentId === id ? "active" : ""}" onclick="selectAdminChatStudent('${id}')">
+        <b>${escapeHTML(p.full_name || "Estudiante")} ${unread ? `<span class="adminUnread">${unread}</span>` : ""}</b>
+        <small>${escapeHTML(latest.message || "")}</small>
+        <small>${escapeHTML(p.access_code || "")} · ${chatTime(latest.created_at)}</small>
+      </button>
+    `;
+  }).join("");
+}
+
+function updateAdminChatBadge(n){
+  if(currentUser && currentUser.role === "admin" && n > lastAdminUnreadCount){
+    playNewMessageSound();
+  }
+  lastAdminUnreadCount = n;
+
+  const badge = document.getElementById("adminChatBadge");
+  if(!badge) return;
+  badge.textContent = n;
+  badge.style.display = n > 0 ? "inline-flex" : "none";
+}
+
+async function selectAdminChatStudent(studentId){
+  lastAdminUnreadCount = 0;
+  selectedChatStudentId = studentId;
+  await loadAdminChatInbox();
+  await loadAdminChatMessages();
+  await supabaseClient
+    .from("chat_messages")
+    .update({is_read:true})
+    .eq("student_id", studentId)
+    .eq("sender_role", "student");
+  await loadAdminChatInbox();
+}
+
+async function loadAdminChatMessages(){
+  if(!selectedChatStudentId) return;
+  const box = document.getElementById("adminChatMessages");
+  const title = document.getElementById("adminChatTitle");
+  if(!box) return;
+
+  const { data: profile } = await supabaseClient
+    .from("profiles")
+    .select("full_name,access_code")
+    .eq("id", selectedChatStudentId)
+    .maybeSingle();
+
+  if(title){
+    title.textContent = "Chat con " + (profile?.full_name || "Estudiante");
+  }
+
+  const { data, error } = await supabaseClient
+    .from("chat_messages")
+    .select("*")
+    .eq("student_id", selectedChatStudentId)
+    .order("created_at", {ascending:true});
+
+  if(error){
+    box.innerHTML = `<div class="top3Empty">No se pudo cargar esta conversación.</div>`;
+    return;
+  }
+
+  box.innerHTML = (data || []).map(m => `
+    <div class="chatBubble ${m.sender_role === "admin" ? "admin" : "student"}">
+      ${escapeHTML(m.message)}
+      <small>${m.sender_role === "admin" ? "Admin" : "Estudiante"} · ${chatTime(m.created_at)}</small>
+    </div>
+  `).join("");
+
+  box.scrollTop = box.scrollHeight;
+}
+
+async function sendAdminChatMessage(){
+  if(!currentUser || currentUser.role !== "admin" || !selectedChatStudentId){
+    alert("Selecciona un estudiante primero.");
+    return;
+  }
+  const input = document.getElementById("adminChatInput");
+  const msg = input?.value.trim();
+  if(!msg) return;
+
+  const { error } = await supabaseClient
+    .from("chat_messages")
+    .insert([{ student_id:selectedChatStudentId, sender_role:"admin", message:msg, is_read:false }]);
+
+  if(error){ alert("No se pudo enviar la respuesta."); console.error(error); return; }
+
+  input.value = "";
+  if(typeof playClickSound === "function") playClickSound();
+  await loadAdminChatMessages();
+  await loadAdminChatInbox();
+}
+
+function startChatRefresh(){
+  if(chatRefreshTimer) clearInterval(chatRefreshTimer);
+  chatRefreshTimer = setInterval(()=>{
+    if(!currentUser) return;
+    if(currentUser.role === "admin"){
+      loadAdminChatInbox();
+      if(selectedChatStudentId) loadAdminChatMessages();
+    }else{
+      updateStudentUnreadCount();
+      const panel = document.getElementById("studentChatPanel");
+      if(panel?.classList.contains("show")) loadStudentChatMessages();
+    }
+  }, 7000);
 }
 
 let currentUser = JSON.parse(localStorage.getItem("olon_current_user") || "null");
@@ -2629,6 +3202,8 @@ async function enterPortal(){
   showPageById(isAdmin ? "admin" : "dashboard");
   updatePortalWelcome();
   await render();
+  startChatRefresh();
+  if(currentUser.role === 'admin') loadAdminChatInbox(); else updateStudentUnreadCount();
 }
 
 function logout(){
