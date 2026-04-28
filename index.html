@@ -483,6 +483,14 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
 .adminPanelCard{padding:0;overflow:hidden}
 .adminPanelHead{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.035)}
 .adminPanelHead h4{font-size:18px}.adminPanelHead p{color:var(--muted);font-size:13px;margin-top:4px}
+
+.ownerOnly{display:none!important}
+body.owner-admin .ownerOnly{display:block!important}
+.ownerAdminCard{margin:16px 0;border:1px solid rgba(246,196,83,.28);background:linear-gradient(135deg,rgba(246,196,83,.10),rgba(59,130,246,.07))}
+.ownerAdminCard h3{font-size:20px;margin-bottom:8px}
+.ownerAdminCard p{color:var(--muted);line-height:1.55;margin-bottom:16px}
+.ownerAdminNote{margin-top:12px;padding:12px;border-radius:16px;border:1px solid rgba(246,196,83,.22);background:rgba(246,196,83,.08);color:#fde68a;font-size:13px;font-weight:800}
+body.light-mode .ownerAdminCard{background:linear-gradient(135deg,rgba(246,196,83,.18),rgba(59,130,246,.08))}
 .adminCountPill{padding:8px 12px;border-radius:999px;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.24);color:#93c5fd;font-weight:900;font-size:12px}
 .adminTable table{min-width:980px}
 .adminStudent{display:flex;align-items:center;gap:12px}
@@ -2468,6 +2476,19 @@ body.light-mode .mobileBottomNav{background:rgba(255,255,255,.90);border-color:r
         <div class="adminMetric"><small>Premium</small><b id="adminPremiumUsers">0</b><span>Plan VIP Premium</span></div>
       </div>
 
+      <div id="ownerAdminManager" class="card ownerAdminCard ownerOnly">
+        <h3>👑 Administradores de soporte</h3>
+        <p>Solo el admin principal puede crear o eliminar administradores. Los admins de soporte pueden ayudar con el chat y la gestión diaria, pero no pueden borrar usuarios ni crear otros admins.</p>
+        <div class="formGrid">
+          <div class="field"><label>Nombre del admin</label><input id="supportAdminName" placeholder="Ej: Admin Soporte"></div>
+          <div class="field"><label>Email</label><input id="supportAdminEmail" type="email" placeholder="soporte@olon.com"></div>
+          <div class="field"><label>Password</label><input id="supportAdminPass" placeholder="Password temporal"></div>
+          <div class="field"><label>Plan / etiqueta</label><input id="supportAdminPlan" value="Admin Soporte"></div>
+          <button class="btn full" onclick="createSupportAdmin()">Agregar admin de soporte</button>
+        </div>
+        <div class="ownerAdminNote">Tu cuenta principal queda protegida. Nadie puede borrarla desde el panel.</div>
+      </div>
+
       <div class="card adminPanelCard">
         <div class="adminPanelHead">
           <div>
@@ -3162,6 +3183,81 @@ function setupEmailVerificationListeners(){
   if(confirm) confirm.addEventListener("input", resetEmailVerification);
 }
 
+function isOwnerAdmin(user = currentUser){
+  return !!(user && user.role === "admin" && user.access_code === "admin-nolo");
+}
+
+function updateOwnerAdminUI(){
+  const owner = isOwnerAdmin();
+  document.body.classList.toggle("owner-admin", owner);
+  document.querySelectorAll(".ownerOnly").forEach(el => el.classList.toggle("hidden", !owner));
+}
+
+function escapeJS(value){
+  return String(value || "")
+    .replace(/\\/g, "\\\\")
+    .replace(/'/g, "\\'")
+    .replace(/\n/g, " ");
+}
+async function createUniqueAdminAccessCode(){
+  for(let i = 0; i < 10; i++){
+    const code = "ADMIN-" + Math.floor(10000 + Math.random() * 90000);
+    const { data, error } = await supabaseClient
+      .from("profiles")
+      .select("id")
+      .eq("access_code", code)
+      .maybeSingle();
+    if(error){ console.error(error); }
+    if(!data) return code;
+  }
+  return "ADMIN-" + Date.now().toString().slice(-5);
+}
+
+async function createSupportAdmin(){
+  if(!isOwnerAdmin()){
+    alert("Solo el admin principal puede agregar administradores.");
+    return;
+  }
+
+  const name = document.getElementById("supportAdminName")?.value.trim();
+  const email = normalizeEmail(document.getElementById("supportAdminEmail")?.value || "");
+  const pass = document.getElementById("supportAdminPass")?.value.trim();
+  const plan = document.getElementById("supportAdminPlan")?.value.trim() || "Admin Soporte";
+
+  if(!name || !email || !pass){
+    alert("Llena nombre, email y password para crear el admin de soporte.");
+    return;
+  }
+  if(!isValidEmailFormat(email)){
+    alert("Email no válido.");
+    return;
+  }
+
+  const { data: existing, error: checkError } = await supabaseClient
+    .from("profiles")
+    .select("id")
+    .ilike("email", email)
+    .maybeSingle();
+
+  if(checkError){ showError("No se pudo verificar el admin.", checkError); return; }
+  if(existing){ alert("Ese email ya existe en el sistema."); return; }
+
+  const code = await createUniqueAdminAccessCode();
+  const { error } = await supabaseClient
+    .from("profiles")
+    .insert([{ full_name:name, email:email, access_code:code, password:pass, role:"admin", plan:plan, status:"active", next_payment_date:null }]);
+
+  if(error){ showError("No se pudo crear el admin de soporte.", error); return; }
+
+  document.getElementById("supportAdminName").value = "";
+  document.getElementById("supportAdminEmail").value = "";
+  document.getElementById("supportAdminPass").value = "";
+  document.getElementById("supportAdminPlan").value = "Admin Soporte";
+
+  alert("Admin de soporte creado. Código de acceso: " + code);
+  await renderUsers();
+}
+
 function applyPlanStyle(plan){
   const cleanPlan = (plan || "VIP Regular").toLowerCase();
   document.body.classList.remove("plan-regular", "plan-premium");
@@ -3192,6 +3288,7 @@ function typeWelcomeMessage(el, text){
 
 function updatePortalWelcome(){
   if(!currentUser) return;
+  updateOwnerAdminUI();
 
   const fullName = currentUser.full_name || "Estudiante";
   const isAdminUser = currentUser.role === "admin";
@@ -3749,6 +3846,7 @@ function renderUsersMobileCards(users){
   if(!box) return;
   box.innerHTML = (users || []).map(u=>{
     const isMainAdmin = u.role === 'admin' && u.access_code === 'admin-nolo';
+    const ownerCanDelete = isOwnerAdmin() && !isMainAdmin && u.id !== currentUser.id;
     const initials = (u.full_name || 'O').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
     let statusBadgeClass = 'blue';
     if(u.status === 'active') statusBadgeClass = 'green';
@@ -4004,6 +4102,7 @@ function renderAdminTable(){
 
   body.innerHTML = users.map(u=>{
     const isMainAdmin = u.role === "admin" && u.access_code === "admin-nolo";
+    const ownerCanDelete = isOwnerAdmin() && !isMainAdmin && u.id !== currentUser.id;
     const initials = (u.full_name || "O").split(" ").map(x=>x[0]).join("").slice(0,2).toUpperCase();
 
     let statusBadgeClass = "blue";
@@ -4015,7 +4114,7 @@ function renderAdminTable(){
     const suspendBtn = isMainAdmin ? "" : `<button class="btn warnBtn" onclick="updateUserStatus('${u.id}', 'suspended')">Suspender</button>`;
     const deleteBtn = isMainAdmin
       ? `<span class="badge blue">Protegido</span>`
-      : `<button class="btn danger" onclick="deleteUser('${u.id}', '${String(u.full_name || '').replace(/'/g, "\\'")}')">Borrar</button>`;
+      : (ownerCanDelete ? `<button class="btn danger" onclick="deleteUser('${u.id}', '${escapeJS(u.full_name)}')">Borrar</button>` : `<span class="badge blue">Solo dueño</span>`);
 
     return `<tr>
       <td>
@@ -4046,6 +4145,11 @@ async function updateUserStatus(userId, newStatus){
     return;
   }
 
+  if(target.role === "admin" && !isOwnerAdmin()){
+    alert("Solo el admin principal puede modificar administradores.");
+    return;
+  }
+
   const { error } = await supabaseClient
     .from("profiles")
     .update({ status:newStatus })
@@ -4059,8 +4163,18 @@ async function updateUserStatus(userId, newStatus){
 async function deleteUser(userId, userName){
   if(!currentUser || currentUser.role !== "admin") return;
 
+  if(!isOwnerAdmin()){
+    alert("Solo el admin principal puede eliminar usuarios o administradores.");
+    return;
+  }
+
   const target = cachedUsers.find(u => u.id === userId);
   if(!target) return;
+
+  if(target.id === currentUser.id){
+    alert("No puedes borrar tu propia cuenta principal.");
+    return;
+  }
 
   if(target.role === "admin" && target.access_code === "admin-nolo"){
     alert("No puedes borrar el admin principal.");
