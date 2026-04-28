@@ -678,69 +678,213 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
 }
 
 
-/* ===== LOADING PARA ENTRAR AL PORTAL ===== */
+
+/* ===== LOADING PARA ENTRAR AL PORTAL — ULTRA PREMIUM ===== */
 #portalEnterLoader{
   position:fixed;
   inset:0;
   z-index:99998;
   display:none;
   place-items:center;
+  overflow:hidden;
   background:
-    radial-gradient(circle at 50% 35%, rgba(246,196,83,.18), transparent 30%),
-    radial-gradient(circle at 50% 100%, rgba(59,130,246,.18), transparent 36%),
-    rgba(2,6,23,.96);
-  backdrop-filter:blur(18px);
+    radial-gradient(circle at 50% 32%, rgba(255,216,107,.22), transparent 28%),
+    radial-gradient(circle at 18% 18%, rgba(139,92,246,.20), transparent 30%),
+    radial-gradient(circle at 82% 85%, rgba(34,211,238,.16), transparent 34%),
+    linear-gradient(135deg,#020617 0%,#07101f 50%,#020617 100%);
+  backdrop-filter:blur(22px);
 }
-#portalEnterLoader.show{
-  display:grid;
+#portalEnterLoader.show{display:grid}
+#portalEnterLoader:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:url("./assets/background.png") center/620px no-repeat;
+  opacity:.035;
+  filter:grayscale(20%);
+  pointer-events:none;
+}
+#portalEnterLoader:after{
+  content:"";
+  position:absolute;
+  width:520px;
+  height:520px;
+  border-radius:50%;
+  border:1px solid rgba(255,216,107,.14);
+  box-shadow:
+    0 0 80px rgba(255,216,107,.10),
+    inset 0 0 80px rgba(59,130,246,.08);
+  animation:premiumOrb 5.5s linear infinite;
 }
 .portalEnterBox{
-  width:min(390px,88vw);
+  position:relative;
+  z-index:2;
+  width:min(460px,90vw);
   text-align:center;
-  padding:30px 24px;
-  border-radius:34px;
-  border:1px solid rgba(246,196,83,.30);
-  background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(2,6,23,.78));
-  box-shadow:0 30px 100px rgba(0,0,0,.55),0 0 55px rgba(246,196,83,.08);
+  padding:34px 26px 30px;
+  border-radius:38px;
+  border:1px solid rgba(255,216,107,.36);
+  background:
+    linear-gradient(180deg,rgba(15,23,42,.90),rgba(2,6,23,.80)),
+    rgba(2,6,23,.80);
+  box-shadow:
+    0 36px 120px rgba(0,0,0,.62),
+    0 0 70px rgba(255,216,107,.10),
+    inset 0 1px 0 rgba(255,255,255,.10);
   animation:portalEnterPop .55s ease both;
+  overflow:hidden;
+}
+.portalEnterBox:before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-70%;
+  width:45%;
+  height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent);
+  transform:skewX(-18deg);
+  animation:premiumSweep 2.6s ease-in-out infinite;
 }
 .portalEnterLogo{
-  width:105px;
-  height:105px;
-  margin:0 auto 18px;
-  border-radius:30px;
+  width:122px;
+  height:122px;
+  margin:0 auto 20px;
+  border-radius:34px;
   display:grid;
   place-items:center;
-  background:rgba(246,196,83,.08);
-  border:1px solid rgba(246,196,83,.30);
-  box-shadow:0 0 35px rgba(246,196,83,.16);
+  background:linear-gradient(135deg,rgba(255,216,107,.12),rgba(59,130,246,.08));
+  border:1px solid rgba(255,216,107,.34);
+  box-shadow:0 0 48px rgba(255,216,107,.18);
   position:relative;
 }
 .portalEnterLogo:before{
   content:"";
   position:absolute;
-  inset:-8px;
-  border-radius:36px;
+  inset:-9px;
+  border-radius:42px;
   border:2px solid transparent;
-  border-top-color:var(--gold);
-  border-right-color:var(--blue);
-  animation:portalEnterSpin 1.15s linear infinite;
+  border-top-color:#ffd86b;
+  border-right-color:#8b5cf6;
+  border-bottom-color:rgba(34,211,238,.70);
+  animation:portalEnterSpin 1.25s linear infinite;
+}
+.portalEnterLogo:after{
+  content:"";
+  position:absolute;
+  inset:-20px;
+  border-radius:50px;
+  border:1px solid rgba(255,216,107,.14);
+  animation:premiumRing 2.2s ease-in-out infinite;
 }
 .portalEnterLogo img{
-  width:76px;
-  filter:drop-shadow(0 0 14px rgba(246,196,83,.38));
+  width:86px;
+  position:relative;
+  z-index:2;
+  filter:drop-shadow(0 0 18px rgba(255,216,107,.48));
   animation:logoPulse 1.6s ease-in-out infinite;
 }
+.portalEnterKicker{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:7px 12px;
+  border-radius:999px;
+  border:1px solid rgba(255,216,107,.28);
+  background:rgba(255,216,107,.09);
+  color:#ffd86b;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.45px;
+  text-transform:uppercase;
+}
 .portalEnterTitle{
-  font-size:22px;
+  margin-top:13px;
+  font-size:28px;
+  line-height:1.05;
   font-weight:900;
   color:#fff;
+  letter-spacing:-.04em;
+}
+.portalEnterTitle span{
+  display:block;
+  margin-top:5px;
+  color:#ffd86b;
+  text-shadow:0 0 24px rgba(255,216,107,.34);
 }
 .portalEnterText{
-  margin-top:8px;
-  color:#94a3b8;
+  margin-top:10px;
+  color:#cbd5e1;
   font-size:13px;
   font-weight:700;
+}
+.portalEnterPlan{
+  margin:16px auto 0;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:9px 13px;
+  border-radius:999px;
+  border:1px solid rgba(255,216,107,.28);
+  background:linear-gradient(135deg,rgba(255,216,107,.11),rgba(139,92,246,.10));
+  color:#fde68a;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.25px;
+}
+.portalLoadingSteps{
+  margin-top:20px;
+  display:grid;
+  gap:8px;
+  text-align:left;
+}
+.portalStep{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:10px 12px;
+  border-radius:15px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.045);
+  color:#94a3b8;
+  font-size:12px;
+  font-weight:800;
+}
+.portalStep i{
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  font-style:normal;
+  background:rgba(255,216,107,.12);
+  color:#ffd86b;
+  font-size:11px;
+}
+.portalStep.active{
+  color:#fff;
+  border-color:rgba(255,216,107,.28);
+  background:rgba(255,216,107,.08);
+}
+.portalStep.active i{
+  background:#ffd86b;
+  color:#020617;
+}
+.portalProgress{
+  margin:18px auto 0;
+  height:8px;
+  width:100%;
+  border-radius:999px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.10);
+  overflow:hidden;
+}
+.portalProgress span{
+  display:block;
+  height:100%;
+  width:0%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#ffd86b,#8b5cf6,#22d3ee);
+  animation:portalProgressFill 1.35s ease forwards;
 }
 .portalDots{
   margin-top:17px;
@@ -752,21 +896,34 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
   width:9px;
   height:9px;
   border-radius:50%;
-  background:var(--gold);
+  background:#ffd86b;
   animation:portalDot 1s ease-in-out infinite;
 }
-.portalDots span:nth-child(2){animation-delay:.16s;background:var(--blue)}
-.portalDots span:nth-child(3){animation-delay:.32s;background:var(--cyan)}
-@keyframes portalEnterSpin{
-  to{transform:rotate(360deg)}
+.portalDots span:nth-child(2){animation-delay:.16s;background:#8b5cf6}
+.portalDots span:nth-child(3){animation-delay:.32s;background:#22d3ee}
+@keyframes portalEnterSpin{to{transform:rotate(360deg)}}
+@keyframes portalEnterPop{from{opacity:0;transform:scale(.94) translateY(14px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes portalDot{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(-8px);opacity:1}}
+@keyframes premiumSweep{0%{left:-70%}55%,100%{left:125%}}
+@keyframes premiumOrb{to{transform:rotate(360deg)}}
+@keyframes premiumRing{0%,100%{transform:scale(.96);opacity:.45}50%{transform:scale(1.06);opacity:1}}
+@keyframes portalProgressFill{from{width:0%}to{width:100%}}
+@media(max-width:620px){
+  .portalEnterBox{padding:28px 20px;border-radius:30px}
+  .portalEnterLogo{width:104px;height:104px;border-radius:30px}
+  .portalEnterLogo img{width:74px}
+  .portalEnterTitle{font-size:23px}
 }
-@keyframes portalEnterPop{
-  from{opacity:0;transform:scale(.94) translateY(14px)}
-  to{opacity:1;transform:scale(1) translateY(0)}
+
+
+
+/* ===== TRANSICION SUAVE DEL DASHBOARD ===== */
+#portal.portalReady{
+  animation:portalReveal .65s ease both;
 }
-@keyframes portalDot{
-  0%,100%{transform:translateY(0);opacity:.45}
-  50%{transform:translateY(-8px);opacity:1}
+@keyframes portalReveal{
+  from{opacity:0;transform:translateY(16px) scale(.99);filter:blur(8px)}
+  to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
 }
 
 </style>
@@ -782,6 +939,30 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
     <div class="loaderTitle">OLON Society Academy</div>
     <div class="loaderSub">Cargando portal seguro...</div>
     <div class="loaderBar"><span></span></div>
+  </div>
+</div>
+
+
+
+<!-- LOADING ULTRA PREMIUM PARA ENTRAR AL PORTAL -->
+<div id="portalEnterLoader">
+  <div class="portalEnterBox">
+    <div class="portalEnterLogo">
+      <img src="./assets/favicon.png" alt="OLON Society Academy">
+    </div>
+    <div class="portalEnterKicker">🔐 Acceso validado</div>
+    <div class="portalEnterTitle">BIENVENIDO <span id="loaderStudentName">ESTUDIANTE</span></div>
+    <div class="portalEnterText">Preparando tu dashboard privado...</div>
+    <div class="portalEnterPlan" id="loaderStudentPlan">VIP REGULAR</div>
+
+    <div class="portalLoadingSteps">
+      <div class="portalStep active"><i>✓</i><span>Verificando acceso seguro</span></div>
+      <div class="portalStep active"><i>✓</i><span>Cargando datos del estudiante</span></div>
+      <div class="portalStep active"><i>✓</i><span>Activando experiencia OLON</span></div>
+    </div>
+
+    <div class="portalProgress"><span></span></div>
+    <div class="portalDots"><span></span><span></span><span></span></div>
   </div>
 </div>
 
@@ -1135,12 +1316,13 @@ function updateAuthRealStats(){
 
 
 
-function setLoaderStudentName(name){
-  const n = (name || "Estudiante").split(" ")[0];
-  const el1 = document.getElementById("loaderStudentName");
-  const el2 = document.getElementById("loaderStudentName2");
-  if(el1) el1.innerText = n.toUpperCase();
-  if(el2) el2.innerText = n;
+function setLoaderStudentName(name, plan){
+  const first = (name || "Estudiante").trim().split(" ")[0] || "Estudiante";
+  const planText = (plan || "VIP Regular").toUpperCase();
+  const elName = document.getElementById("loaderStudentName");
+  const elPlan = document.getElementById("loaderStudentPlan");
+  if(elName) elName.innerText = first.toUpperCase();
+  if(elPlan) elPlan.innerText = planText.includes("PREMIUM") || planText.includes("ADMIN") ? "💎 VIP PREMIUM EXPERIENCE" : "🔥 VIP REGULAR ACCESS";
 }
 
 function showPortalEnterLoader(){
@@ -1153,7 +1335,7 @@ function hidePortalEnterLoader(){
   if(loader) loader.classList.remove("show");
 }
 
-function waitPortalLoading(ms = 950){
+function waitPortalLoading(ms = 1450){
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -1327,8 +1509,8 @@ async function login(){
   currentUser = data;
   localStorage.setItem("olon_current_user", JSON.stringify(currentUser));
 
-  setLoaderStudentName(currentUser.full_name); setLoaderStudentName(currentUser?.full_name); showPortalEnterLoader();
-  await waitPortalLoading(950);
+  setLoaderStudentName(currentUser.full_name, currentUser.plan); showPortalEnterLoader();
+  await waitPortalLoading(1450);
   await enterPortal();
   hidePortalEnterLoader();
 }
@@ -1414,6 +1596,7 @@ async function enterPortal(){
   document.getElementById("paymentDate").innerText = ": " + (currentUser.next_payment_date || "No asignado");
   document.getElementById("auth").classList.add("hidden");
   document.getElementById("portal").classList.remove("hidden");
+  document.getElementById("portal").classList.add("portalReady");
 
   const isAdmin = currentUser.role === "admin";
   document.getElementById("portalMode").innerText = isAdmin ? "Admin Portal" : "Student Portal";
@@ -1679,8 +1862,8 @@ async function clearData(){
 setupEmailVerificationListeners();
 updateAuthRealStats();
 if(currentUser){
-  setLoaderStudentName(currentUser.full_name); setLoaderStudentName(currentUser?.full_name); showPortalEnterLoader();
-  waitPortalLoading(750).then(async () => {
+  setLoaderStudentName(currentUser.full_name, currentUser.plan); showPortalEnterLoader();
+  waitPortalLoading(1200).then(async () => {
     await enterPortal();
     hidePortalEnterLoader();
   });
