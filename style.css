@@ -2806,3 +2806,158 @@ body #codeResult.auth.hidden{
 @keyframes olonGodProgress{0%{width:0%}22%{width:31%}52%{width:63%}78%{width:86%}100%{width:100%}}
 @keyframes olonGodGradient{to{background-position:240% 0}}
 @media(max-width:620px){.portalEnterBox{padding:30px 20px 28px !important;border-radius:32px !important}.portalEnterLogo{width:112px !important;height:112px !important;border-radius:32px !important}.portalEnterLogo img{width:78px !important}.portalEnterTitle{font-size:24px !important}#portalEnterLoader::before{width:520px;height:520px}}
+
+
+/* =========================================================
+   OLON LOGIN CLEAN FIX - MENOS BUG / MENOS LAG
+   Pegar al final del CSS. Reemplaza animaciones pesadas del login.
+   ========================================================= */
+
+/* Evita que el fondo se salga o cause bug visual */
+html, body{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden !important;
+}
+
+/* Login estable */
+.auth,
+.authFullScreenPro{
+  position:relative !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+  min-height:100svh !important;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(246,196,83,.12), transparent 34%),
+    radial-gradient(circle at 90% 100%, rgba(59,130,246,.10), transparent 34%),
+    linear-gradient(135deg,#020617 0%,#07101f 55%,#020617 100%) !important;
+}
+
+/* Quita imagen/fondo pesado detrás del login */
+.auth:before,
+.authHero:before{
+  display:none !important;
+  content:none !important;
+}
+
+/* Si existe arte animado atrás, lo baja o elimina */
+.authBgArt,
+.authOrb,
+.authMesh,
+.authBigText{
+  pointer-events:none !important;
+  animation:none !important;
+  transition:none !important;
+}
+
+/* Elimina los textos grandes de atrás que causan brincos */
+.authBigText{
+  display:none !important;
+}
+
+/* Orbs suaves sin blur pesado */
+.authOrb{
+  opacity:.16 !important;
+  filter:none !important;
+  transform:none !important;
+}
+
+/* Panel más estable */
+.authShell{
+  position:relative !important;
+  z-index:2 !important;
+  overflow:hidden !important;
+  transform:none !important;
+  animation:loginSoftIn .38s ease both !important;
+  box-shadow:0 24px 60px rgba(0,0,0,.36) !important;
+}
+
+.authHero,
+.authPanel,
+.authPanelGlass{
+  transform:none !important;
+  animation:none !important;
+  backface-visibility:hidden !important;
+  will-change:auto !important;
+}
+
+/* Baja hover pesado en login */
+.auth .card:hover,
+.authShell:hover,
+.authHero:hover,
+.authPanel:hover{
+  transform:none !important;
+}
+
+/* Animación nueva: simple, suave y sin lag */
+@keyframes loginSoftIn{
+  from{
+    opacity:0;
+    transform:translateY(10px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+/* iPad / móvil: eliminar casi todo lo pesado */
+@media(max-width:980px){
+  .auth,
+  .authFullScreenPro{
+    padding:14px !important;
+    min-height:100svh !important;
+    overflow-y:auto !important;
+  }
+
+  .authShell{
+    width:100% !important;
+    max-width:760px !important;
+    min-height:auto !important;
+    border-radius:26px !important;
+    box-shadow:0 18px 42px rgba(0,0,0,.30) !important;
+  }
+
+  .authHero{
+    background:
+      linear-gradient(135deg,rgba(246,196,83,.08),rgba(59,130,246,.06)) !important;
+  }
+
+  .authLogo{
+    filter:none !important;
+  }
+}
+
+/* Teléfonos: cero animación pesada */
+@media(max-width:620px){
+  .auth,
+  .authFullScreenPro{
+    padding:10px !important;
+    background:#020617 !important;
+  }
+
+  .authShell{
+    border-radius:22px !important;
+    box-shadow:none !important;
+  }
+
+  .authHero,
+  .authPanel{
+    padding:20px !important;
+  }
+
+  .authFeatures,
+  .authQuote{
+    display:none !important;
+  }
+}
+
+/* Respeta dispositivos que piden menos movimiento */
+@media (prefers-reduced-motion: reduce){
+  .auth *,
+  .auth *::before,
+  .auth *::after{
+    animation:none !important;
+    transition:none !important;
+  }
+}
