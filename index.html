@@ -330,7 +330,6 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
   <main class="main">
     <div class="topbar">
       <div>
-        <button class="btn secondary mobileBtn" onclick="toggleMenu()">☰ Menú</button>
         <h2 id="pageTitle">Panel del Trader</h2>
         <p id="pageSubtitle">Control manual privado de depósito, ganancia, pérdida y progreso.</p>
       </div>
@@ -381,9 +380,9 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
       <div class="card reportCard selectedReportCard">
         <div class="reportToolbar">
           <div class="reportSwitch" aria-label="Selector de reporte">
-            <button type="button" id="reportBtnWeekly" class="active" onclick="setReportView('weekly')">Semanal</button>
-            <button type="button" id="reportBtnMonthly" onclick="setReportView('monthly')">Mensual</button>
-            <button type="button" id="reportBtnYtd" onclick="setReportView('ytd')">YTD</button>
+            <button type="button" id="reportBtnWeekly" class="active" data-report="weekly" onclick="setReportView('weekly')">Semanal</button>
+            <button type="button" id="reportBtnMonthly" data-report="monthly" onclick="setReportView('monthly')">Mensual</button>
+            <button type="button" id="reportBtnYtd" data-report="ytd" onclick="setReportView('ytd')">YTD</button>
           </div>
           <button type="button" class="btn secondary" onclick="downloadSelectedReportPDF()">📄 Descargar PDF</button>
         </div>
@@ -983,6 +982,58 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
 
     updateMenuUI();
   });
+})();
+
+</script>
+<script>
+
+/* =====================================================
+   FIX SELECTOR REPORTES MOBILE - CLICK/TAP
+   ===================================================== */
+(function(){
+  function activateReport(view){
+    if(typeof window.setReportView === "function"){
+      window.setReportView(view);
+      return;
+    }
+
+    // Fallback si algo pisa setReportView
+    window.currentReportView = view;
+    ["weekly","monthly","ytd"].forEach(function(v){
+      const btn = document.querySelector('[data-report="'+v+'"]');
+      if(btn) btn.classList.toggle("active", v === view);
+    });
+
+    if(typeof window.renderSelectedReport === "function"){
+      window.renderSelectedReport();
+    }
+  }
+
+  document.addEventListener("click", function(e){
+    const btn = e.target.closest("[data-report]");
+    if(!btn) return;
+
+    const view = btn.getAttribute("data-report");
+    if(!view) return;
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    activateReport(view);
+    return false;
+  }, true);
+
+  document.addEventListener("touchend", function(e){
+    const btn = e.target.closest("[data-report]");
+    if(!btn) return;
+
+    const view = btn.getAttribute("data-report");
+    if(!view) return;
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    activateReport(view);
+    return false;
+  }, {capture:true, passive:false});
 })();
 
 </script>

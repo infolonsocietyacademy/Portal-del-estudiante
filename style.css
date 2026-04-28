@@ -3299,3 +3299,64 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
     left:226px!important;
   }
 }
+
+/* =====================================================
+   FIX SELECTOR REPORTES MOBILE - SEMANAL/MENSUAL/YTD
+   ===================================================== */
+.reportToolbar,
+.reportSwitch,
+.reportSwitch button{
+  position:relative!important;
+  z-index:50!important;
+  pointer-events:auto!important;
+}
+
+.reportSwitch button{
+  touch-action:manipulation!important;
+  -webkit-tap-highlight-color:transparent;
+}
+
+@media(max-width:620px){
+  .reportToolbar{
+    display:block!important;
+    width:100%!important;
+  }
+
+  .reportSwitch{
+    display:grid!important;
+    grid-template-columns:repeat(3,1fr)!important;
+    gap:8px!important;
+    width:100%!important;
+    margin-bottom:12px!important;
+  }
+
+  .reportSwitch button{
+    width:100%!important;
+    min-height:48px!important;
+    padding:12px 8px!important;
+    border-radius:16px!important;
+    font-size:12px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+
+  .reportToolbar .btn{
+    width:100%!important;
+    min-height:48px!important;
+  }
+
+  .selectedReportCard:before{
+    pointer-events:none!important;
+  }
+}
+
+/* =====================================================
+   OCULTAR BOTÓN VIEJO DE MENÚ - DEJAR SOLO EL NUEVO
+   ===================================================== */
+.mobileBtn{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+

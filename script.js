@@ -2683,3 +2683,52 @@ function handlePublicChatEnter(e){
   });
 })();
 
+/* =====================================================
+   FIX SELECTOR REPORTES MOBILE - CLICK/TAP
+   ===================================================== */
+(function(){
+  function activateReport(view){
+    if(typeof window.setReportView === "function"){
+      window.setReportView(view);
+      return;
+    }
+
+    // Fallback si algo pisa setReportView
+    window.currentReportView = view;
+    ["weekly","monthly","ytd"].forEach(function(v){
+      const btn = document.querySelector('[data-report="'+v+'"]');
+      if(btn) btn.classList.toggle("active", v === view);
+    });
+
+    if(typeof window.renderSelectedReport === "function"){
+      window.renderSelectedReport();
+    }
+  }
+
+  document.addEventListener("click", function(e){
+    const btn = e.target.closest("[data-report]");
+    if(!btn) return;
+
+    const view = btn.getAttribute("data-report");
+    if(!view) return;
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    activateReport(view);
+    return false;
+  }, true);
+
+  document.addEventListener("touchend", function(e){
+    const btn = e.target.closest("[data-report]");
+    if(!btn) return;
+
+    const view = btn.getAttribute("data-report");
+    if(!view) return;
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    activateReport(view);
+    return false;
+  }, {capture:true, passive:false});
+})();
+
