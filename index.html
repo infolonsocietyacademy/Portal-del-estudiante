@@ -21,6 +21,221 @@
 
 
 <link rel="stylesheet" href="./style.css">
+
+<style>
+/* ==============================
+   OLON PUBLIC CHAT - DISCORD PRO
+   ============================== */
+.discordChatShell{
+  display:grid;
+  grid-template-columns:230px 1fr 220px;
+  min-height:72vh;
+  border-radius:28px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.10);
+  background:linear-gradient(135deg,rgba(8,11,22,.96),rgba(17,24,39,.92));
+  box-shadow:0 24px 80px rgba(0,0,0,.35);
+}
+.discordChannels{
+  background:rgba(4,7,16,.72);
+  border-right:1px solid rgba(255,255,255,.08);
+  padding:18px;
+}
+.discordServerBadge{
+  width:58px;height:58px;border-radius:20px;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,#f6c453,#8b6b18);
+  color:#070b16;font-weight:900;font-size:20px;
+  box-shadow:0 0 35px rgba(246,196,83,.28);
+  margin-bottom:14px;
+}
+.discordChannelTitle{
+  font-size:12px;
+  color:var(--muted);
+  font-weight:900;
+  letter-spacing:.08em;
+  margin-bottom:12px;
+}
+.discordChannel{
+  width:100%;
+  text-align:left;
+  border:1px solid transparent;
+  color:#dbeafe;
+  background:transparent;
+  padding:12px;
+  border-radius:14px;
+  font-weight:800;
+  cursor:pointer;
+  margin-bottom:6px;
+}
+.discordChannel.active,.discordChannel:hover{
+  background:rgba(246,196,83,.12);
+  border-color:rgba(246,196,83,.20);
+  color:#fef3c7;
+}
+.discordRules{
+  margin-top:20px;
+  padding:13px;
+  border-radius:18px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);
+}
+.discordRules b{display:block;color:#fef3c7;margin-bottom:6px}
+.discordRules span{font-size:12px;color:var(--muted);line-height:1.45}
+.discordMainChat{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+}
+.discordTop{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  padding:18px 20px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.035);
+}
+.discordTop h3{margin:0;font-size:21px}
+.discordTop p{margin:4px 0 0;color:var(--muted);font-size:13px}
+.discordLive{
+  color:#86efac;
+  background:rgba(34,197,94,.12);
+  border:1px solid rgba(34,197,94,.22);
+  padding:7px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
+}
+.discordMessages{
+  flex:1;
+  height:58vh;
+  overflow-y:auto;
+  padding:18px 20px;
+}
+.discordEmpty{
+  text-align:center;
+  color:var(--muted);
+  padding:54px 18px;
+}
+.discordEmptyIcon{font-size:42px;margin-bottom:12px}
+.discordMsg{
+  display:grid;
+  grid-template-columns:44px 1fr;
+  gap:12px;
+  padding:12px 8px;
+  border-radius:18px;
+}
+.discordMsg:hover{background:rgba(255,255,255,.035)}
+.discordAvatar{
+  width:42px;height:42px;border-radius:15px;
+  display:grid;place-items:center;
+  font-weight:900;
+  color:#071016;
+  background:linear-gradient(135deg,#f6c453,#fff3b0);
+}
+.discordAvatar.student{
+  background:linear-gradient(135deg,#60a5fa,#bfdbfe);
+}
+.discordAvatar.admin{
+  background:linear-gradient(135deg,#f6c453,#fde68a);
+}
+.discordMsgTop{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:5px;
+}
+.discordName{font-weight:900;color:#fff}
+.discordRole{
+  font-size:10px;
+  padding:3px 7px;
+  border-radius:999px;
+  background:rgba(96,165,250,.13);
+  color:#bfdbfe;
+  border:1px solid rgba(96,165,250,.20);
+  font-weight:900;
+  text-transform:uppercase;
+}
+.discordRole.admin{
+  background:rgba(246,196,83,.13);
+  color:#fde68a;
+  border-color:rgba(246,196,83,.22);
+}
+.discordTime{font-size:11px;color:var(--muted)}
+.discordText{
+  color:#e5e7eb;
+  line-height:1.45;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+.discordTyping{
+  min-height:20px;
+  padding:0 20px;
+  color:#9ca3af;
+  font-size:12px;
+}
+.discordComposer{
+  display:flex;
+  gap:10px;
+  padding:14px;
+  border-top:1px solid rgba(255,255,255,.08);
+  background:rgba(4,7,16,.55);
+}
+.discordComposer textarea{
+  flex:1;
+  min-height:48px;
+  max-height:120px;
+  resize:vertical;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.07);
+  color:#fff;
+  border-radius:16px;
+  padding:14px;
+  outline:none;
+  font-family:inherit;
+}
+.discordComposer button{
+  border:0;
+  border-radius:16px;
+  padding:0 22px;
+  font-weight:900;
+  cursor:pointer;
+  color:#071016;
+  background:linear-gradient(135deg,#f6c453,#a67c16);
+  box-shadow:0 12px 30px rgba(246,196,83,.18);
+}
+.discordMembers{
+  background:rgba(4,7,16,.62);
+  border-left:1px solid rgba(255,255,255,.08);
+  padding:18px;
+}
+.discordMembers h4{margin:0 0 14px;color:#fef3c7}
+.discordMember{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 0;
+}
+.discordMember b{display:block;font-size:13px}
+.discordMember small{color:var(--muted);font-size:11px}
+
+@media(max-width:1000px){
+  .discordChatShell{grid-template-columns:1fr}
+  .discordChannels,.discordMembers{display:none}
+  .discordMessages{height:60vh}
+}
+@media(max-width:600px){
+  .discordChatShell{border-radius:20px;min-height:74vh}
+  .discordTop{padding:14px}
+  .discordTop h3{font-size:18px}
+  .discordMessages{height:58vh;padding:12px}
+  .discordComposer{padding:10px}
+  .discordComposer button{padding:0 14px}
+}
+</style>
+
 </head>
 <body>
 
@@ -244,6 +459,7 @@
       <button class="studentNav" onclick="showPage('registro',this)">➕ Registrar Día</button>
       <button class="studentNav" onclick="showPage('historial',this)">📅 Historial</button>
       <button class="studentNav" onclick="showPage('comparacion',this)">📈 Comparación Mensual</button>
+      <button class="studentNav" onclick="showPage('publicChat',this); loadPublicChatDiscord();">🌍 Chat Público</button>
       <button class="adminNav hidden" onclick="showPage('admin',this)">⚙️ Admin</button>
       <button class="adminNav hidden" onclick="showPage('adminChat',this)">💬 Chat Live <span id="adminChatBadge" class="adminUnread" style="display:none">0</span></button>
       <button onclick="logout()">🚪 Salir</button>
@@ -454,6 +670,62 @@
       </div>
     </section>
 
+    
+<section id="publicChat" class="page hidden">
+  <div class="discordChatShell">
+    <aside class="discordChannels">
+      <div class="discordServerBadge">OS</div>
+      <div class="discordChannelTitle">OLON SOCIETY</div>
+      <button class="discordChannel active" type="button"># chat-publico</button>
+      <button class="discordChannel" type="button"># trading-room</button>
+      <button class="discordChannel" type="button"># anuncios</button>
+
+      <div class="discordRules">
+        <b>Reglas del canal</b>
+        <span>Respeto, disciplina y enfoque. No spam.</span>
+      </div>
+    </aside>
+
+    <div class="discordMainChat">
+      <div class="discordTop">
+        <div>
+          <h3># chat-publico</h3>
+          <p>Canal general en vivo para estudiantes y admins.</p>
+        </div>
+        <span class="discordLive">● LIVE</span>
+      </div>
+
+      <div id="publicChatMessages" class="discordMessages">
+        <div class="discordEmpty">
+          <div class="discordEmptyIcon">💬</div>
+          <h3>Bienvenido al Chat Público</h3>
+          <p>Todos los estudiantes podrán hablar aquí en tiempo real.</p>
+        </div>
+      </div>
+
+      <div id="publicTypingStatus" class="discordTyping"></div>
+
+      <div class="discordComposer">
+        <textarea id="publicChatInput" placeholder="Escribe en #chat-publico..." onkeydown="handlePublicChatEnter(event)" oninput="showPublicTyping()"></textarea>
+        <button type="button" onclick="sendPublicMessage()">Enviar</button>
+      </div>
+    </div>
+
+    <aside class="discordMembers">
+      <h4>Online</h4>
+      <div class="discordMember">
+        <span class="discordAvatar admin">A</span>
+        <div><b>Admins</b><small>Mentores activos</small></div>
+      </div>
+      <div class="discordMember">
+        <span class="discordAvatar student">S</span>
+        <div><b>Estudiantes</b><small>Comunidad OLON</small></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+
     <section id="admin" class="page hidden">
       <div class="adminHero">
         <div class="adminHeroTop">
@@ -615,6 +887,205 @@
   }else{
     lockCodeResult();
   }
+})();
+</script>
+
+
+<script>
+/* ==============================
+   OLON PUBLIC CHAT - DISCORD PRO
+   Requires Supabase table: general_chat_messages
+   ============================== */
+let publicChatLoadedOnce = false;
+let publicChatChannelReady = false;
+let publicTypingTimer = null;
+
+function safeText(value){
+  return String(value ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function getPortalUser(){
+  if(typeof currentUser !== "undefined" && currentUser) return currentUser;
+  if(typeof loggedUser !== "undefined" && loggedUser) return loggedUser;
+  if(typeof user !== "undefined" && user) return user;
+  try{
+    const saved = localStorage.getItem("olon_current_user") || localStorage.getItem("currentUser") || localStorage.getItem("user");
+    if(saved) return JSON.parse(saved);
+  }catch(e){}
+  return {};
+}
+
+function getPublicInitials(name){
+  const n = String(name || "OS").trim();
+  return n.split(" ").filter(Boolean).slice(0,2).map(x => x[0]).join("").toUpperCase() || "OS";
+}
+
+function formatPublicTime(value){
+  try{
+    return new Date(value).toLocaleTimeString("es-PR",{hour:"2-digit",minute:"2-digit"});
+  }catch(e){
+    return "";
+  }
+}
+
+async function loadPublicChatDiscord(){
+  const box = document.getElementById("publicChatMessages");
+  if(!box || typeof supabase === "undefined") return;
+
+  const { data, error } = await supabase
+    .from("general_chat_messages")
+    .select("*")
+    .eq("is_deleted", false)
+    .order("created_at", { ascending: true })
+    .limit(150);
+
+  if(error){
+    box.innerHTML = `<div class="discordEmpty"><h3>Error cargando chat</h3><p>${safeText(error.message)}</p></div>`;
+    return;
+  }
+
+  box.innerHTML = "";
+  if(!data || !data.length){
+    box.innerHTML = `
+      <div class="discordEmpty">
+        <div class="discordEmptyIcon">💬</div>
+        <h3>Bienvenido al Chat Público</h3>
+        <p>Sé el primero en escribir en el canal general.</p>
+      </div>
+    `;
+  }else{
+    data.forEach(addPublicDiscordMessage);
+  }
+
+  publicChatLoadedOnce = true;
+  subscribePublicChatDiscord();
+}
+
+function addPublicDiscordMessage(msg){
+  const box = document.getElementById("publicChatMessages");
+  if(!box) return;
+
+  const empty = box.querySelector(".discordEmpty");
+  if(empty) empty.remove();
+
+  const name = msg.sender_name || "OLON Member";
+  const role = msg.sender_role || "student";
+  const initials = getPublicInitials(name);
+  const isAdmin = role === "admin";
+
+  const div = document.createElement("div");
+  div.className = "discordMsg";
+  div.dataset.id = msg.id || "";
+
+  div.innerHTML = `
+    <div class="discordAvatar ${isAdmin ? "admin" : "student"}">${safeText(initials)}</div>
+    <div>
+      <div class="discordMsgTop">
+        <span class="discordName">${safeText(name)}</span>
+        <span class="discordRole ${isAdmin ? "admin" : ""}">${safeText(role)}</span>
+        <span class="discordTime">${safeText(formatPublicTime(msg.created_at))}</span>
+      </div>
+      <div class="discordText">${safeText(msg.message)}</div>
+    </div>
+  `;
+
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+async function sendPublicMessage(){
+  const input = document.getElementById("publicChatInput");
+  if(!input || typeof supabase === "undefined") return;
+
+  const message = input.value.trim();
+  if(!message) return;
+
+  const u = getPortalUser();
+  const senderName = u.full_name || u.name || document.getElementById("studentName")?.textContent || "OLON Member";
+  const senderRole = u.role || (document.body.classList.contains("admin") ? "admin" : "student");
+
+  const payload = {
+    sender_id: u.id || null,
+    sender_name: senderName,
+    sender_role: senderRole,
+    message: message
+  };
+
+  const { error } = await supabase.from("general_chat_messages").insert([payload]);
+
+  if(error){
+    alert("No se pudo enviar el mensaje: " + error.message);
+    return;
+  }
+
+  input.value = "";
+}
+
+function handlePublicChatEnter(event){
+  if(event.key === "Enter" && !event.shiftKey){
+    event.preventDefault();
+    sendPublicMessage();
+  }
+}
+
+function showPublicTyping(){
+  const status = document.getElementById("publicTypingStatus");
+  const u = getPortalUser();
+  if(!status) return;
+  status.textContent = `${u.full_name || "Alguien"} está escribiendo...`;
+  clearTimeout(publicTypingTimer);
+  publicTypingTimer = setTimeout(() => status.textContent = "", 900);
+}
+
+function playPublicChatSound(){
+  const audio = document.getElementById("notifySound");
+  if(audio){
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
+  }
+}
+
+function subscribePublicChatDiscord(){
+  if(publicChatChannelReady || typeof supabase === "undefined") return;
+
+  supabase
+    .channel("olon-public-discord-chat")
+    .on(
+      "postgres_changes",
+      { event:"INSERT", schema:"public", table:"general_chat_messages" },
+      payload => {
+        const msg = payload.new;
+        if(msg && msg.is_deleted !== true){
+          addPublicDiscordMessage(msg);
+          playPublicChatSound();
+        }
+      }
+    )
+    .subscribe();
+
+  publicChatChannelReady = true;
+}
+
+/* Hook automático para tu función showPage existente */
+(function(){
+  const wait = setInterval(function(){
+    if(typeof window.showPage === "function"){
+      clearInterval(wait);
+      const originalShowPage = window.showPage;
+      window.showPage = function(pageId, btn){
+        const result = originalShowPage.apply(this, arguments);
+        if(pageId === "publicChat"){
+          setTimeout(loadPublicChatDiscord, 80);
+        }
+        return result;
+      };
+    }
+  }, 100);
 })();
 </script>
 
