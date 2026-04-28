@@ -12,79 +12,128 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>OLON Society Academy | Portal del Estudiante</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js">
-// ===== SONIDOS PREMIUM UI OLON =====
-let olonAudioCtx;
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+// ===== SONIDOS PREMIUM UI OLON — TECLADO MECANICO =====
+let olonAudioCtx = null;
 let olonLastKeySound = 0;
 let olonLastHoverSound = 0;
+let olonLastClickSound = 0;
 
 function getOlonAudio(){
   if(!olonAudioCtx){
     olonAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
+  if(olonAudioCtx.state === "suspended") olonAudioCtx.resume();
   return olonAudioCtx;
 }
 
-function playOlonTone(freq = 520, duration = 0.035, volume = 0.018){
+function playOlonTone(freq = 520, duration = 0.035, volume = 0.018, type = "sine"){
   try{
     const ctx = getOlonAudio();
-    if(ctx.state === "suspended") ctx.resume();
+    const now = ctx.currentTime;
 
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
 
-    osc.type = "sine";
-    osc.frequency.value = freq;
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, now);
 
-    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(volume, ctx.currentTime + 0.006);
-    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(volume, now + 0.006);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
     osc.connect(gain);
     gain.connect(ctx.destination);
 
-    osc.start();
-    osc.stop(ctx.currentTime + duration + 0.01);
+    osc.start(now);
+    osc.stop(now + duration + 0.012);
   }catch(e){
     console.warn("Audio UI no disponible", e);
   }
 }
 
-function playKeySound(){
-  const now = Date.now();
-  if(now - olonLastKeySound < 42) return;
-  olonLastKeySound = now;
-  playOlonTone(680, 0.032, 0.014);
+function playMechanicalKeySound(){
+  const nowMs = Date.now();
+  if(nowMs - olonLastKeySound < 34) return;
+  olonLastKeySound = nowMs;
+
+  try{
+    const ctx = getOlonAudio();
+    const now = ctx.currentTime;
+
+    // Click alto del switch
+    const oscClick = ctx.createOscillator();
+    const gainClick = ctx.createGain();
+    oscClick.type = "square";
+    oscClick.frequency.setValueAtTime(1150 + Math.random() * 180, now);
+    gainClick.gain.setValueAtTime(0.0001, now);
+    gainClick.gain.exponentialRampToValueAtTime(0.028, now + 0.004);
+    gainClick.gain.exponentialRampToValueAtTime(0.0001, now + 0.022);
+    oscClick.connect(gainClick);
+    gainClick.connect(ctx.destination);
+    oscClick.start(now);
+    oscClick.stop(now + 0.028);
+
+    // Golpe bajo tipo bottom-out
+    const oscThock = ctx.createOscillator();
+    const gainThock = ctx.createGain();
+    oscThock.type = "triangle";
+    oscThock.frequency.setValueAtTime(165 + Math.random() * 35, now);
+    gainThock.gain.setValueAtTime(0.0001, now);
+    gainThock.gain.exponentialRampToValueAtTime(0.023, now + 0.006);
+    gainThock.gain.exponentialRampToValueAtTime(0.0001, now + 0.055);
+    oscThock.connect(gainThock);
+    gainThock.connect(ctx.destination);
+    oscThock.start(now);
+    oscThock.stop(now + 0.065);
+  }catch(e){
+    console.warn("Audio teclado no disponible", e);
+  }
 }
 
 function playHoverSound(){
   const now = Date.now();
-  if(now - olonLastHoverSound < 120) return;
+  if(now - olonLastHoverSound < 130) return;
   olonLastHoverSound = now;
-  playOlonTone(420, 0.045, 0.012);
+  playOlonTone(410, 0.04, 0.010, "sine");
+}
+
+function playClickSound(){
+  const now = Date.now();
+  if(now - olonLastClickSound < 80) return;
+  olonLastClickSound = now;
+  playOlonTone(260, 0.045, 0.022, "triangle");
+  setTimeout(()=>playOlonTone(520, 0.032, 0.012, "sine"), 28);
 }
 
 function setupOlonUISounds(){
   document.addEventListener("keydown", (e)=>{
     const tag = (e.target?.tagName || "").toLowerCase();
     const isTyping = tag === "input" || tag === "textarea" || e.target?.isContentEditable;
-    if(isTyping && e.key.length === 1) playKeySound();
+    if(isTyping && e.key.length === 1){
+      playMechanicalKeySound();
+    }
   });
 
   document.addEventListener("mouseover", (e)=>{
-    const target = e.target.closest("button,.card,.nav button,.userPill,.sideBox,.calDay:not(.empty),.reportRow,.aiItem");
+    const target = e.target.closest("button,.card,.nav button,.userPill,.sideBox,.calDay:not(.empty),.reportRow,.aiItem,.v3Card");
     if(target) playHoverSound();
   });
 
-  document.addEventListener("click", ()=>{
-    if(!olonAudioCtx) getOlonAudio();
-  }, { once:true });
+  document.addEventListener("click", (e)=>{
+    getOlonAudio();
+    if(e.target.closest("button,.nav button,.calDay:not(.empty)")){
+      playClickSound();
+    }
+  }, true);
 }
 
-setupOlonUISounds();
-
+window.addEventListener("DOMContentLoaded", setupOlonUISounds);
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 :root{
   --bg:#070b16;
