@@ -29,165 +29,184 @@ if(originalShowPageForChat){
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-// ===== SONIDOS PREMIUM UI OLON — TECLADO MECANICO =====
-let olonAudioCtx = null;
-let olonLastKeySound = 0;
-let olonLastHoverSound = 0;
-let olonLastClickSound = 0;
+// ===== OLON AUDIO ENGINE FIXED MULTI USER =====
+(function(){
+  let ctx = null;
+  let unlocked = false;
+  let lastKey = 0;
+  let lastHover = 0;
+  let lastClick = 0;
+  let lastMsg = 0;
 
-function getOlonAudio(){
-  if(!olonAudioCtx){
-    olonAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  function soundEnabled(){
+    return localStorage.getItem("olon_sound_enabled") !== "false";
   }
-  if(olonAudioCtx.state === "suspended") olonAudioCtx.resume();
-  return olonAudioCtx;
-}
 
-function playOlonTone(freq = 520, duration = 0.035, volume = 0.018, type = "sine"){
-  if(typeof isSoundEnabled === "function" && !isSoundEnabled()) return;
-  try{
-    const ctx = getOlonAudio();
-    const now = ctx.currentTime;
-
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, now);
-
-    gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(volume, now + 0.006);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    osc.start(now);
-    osc.stop(now + duration + 0.012);
-  }catch(e){
-    console.warn("Audio UI no disponible", e);
-  }
-}
-
-function playMechanicalKeySound(){
-  if(typeof isSoundEnabled === "function" && !isSoundEnabled()) return;
-  const nowMs = Date.now();
-  if(nowMs - olonLastKeySound < 34) return;
-  olonLastKeySound = nowMs;
-
-  try{
-    const ctx = getOlonAudio();
-    const now = ctx.currentTime;
-
-    // Click alto del switch
-    const oscClick = ctx.createOscillator();
-    const gainClick = ctx.createGain();
-    oscClick.type = "square";
-    oscClick.frequency.setValueAtTime(1150 + Math.random() * 180, now);
-    gainClick.gain.setValueAtTime(0.0001, now);
-    gainClick.gain.exponentialRampToValueAtTime(0.028, now + 0.004);
-    gainClick.gain.exponentialRampToValueAtTime(0.0001, now + 0.022);
-    oscClick.connect(gainClick);
-    gainClick.connect(ctx.destination);
-    oscClick.start(now);
-    oscClick.stop(now + 0.028);
-
-    // Golpe bajo tipo bottom-out
-    const oscThock = ctx.createOscillator();
-    const gainThock = ctx.createGain();
-    oscThock.type = "triangle";
-    oscThock.frequency.setValueAtTime(165 + Math.random() * 35, now);
-    gainThock.gain.setValueAtTime(0.0001, now);
-    gainThock.gain.exponentialRampToValueAtTime(0.023, now + 0.006);
-    gainThock.gain.exponentialRampToValueAtTime(0.0001, now + 0.055);
-    oscThock.connect(gainThock);
-    gainThock.connect(ctx.destination);
-    oscThock.start(now);
-    oscThock.stop(now + 0.065);
-  }catch(e){
-    console.warn("Audio teclado no disponible", e);
-  }
-}
-
-
-function playBackspaceSound(){
-  if(typeof isSoundEnabled === "function" && !isSoundEnabled()) return;
-  const now = Date.now();
-  if(now - olonLastKeySound < 34) return;
-  olonLastKeySound = now;
-  playOlonTone(210, 0.045, 0.024, "triangle");
-  setTimeout(()=>playOlonTone(155, 0.035, 0.014, "sine"), 18);
-}
-
-function playPasteSound(){
-  if(typeof isSoundEnabled === "function" && !isSoundEnabled()) return;
-  playOlonTone(520, 0.045, 0.018, "sine");
-  setTimeout(()=>playOlonTone(760, 0.05, 0.016, "triangle"), 45);
-  setTimeout(()=>playOlonTone(980, 0.04, 0.012, "sine"), 90);
-}
-
-function playPortalLoadingSound(){
-  if(typeof isSoundEnabled === "function" && !isSoundEnabled()) return;
-  playOlonTone(180, 0.12, 0.020, "sine");
-  setTimeout(()=>playOlonTone(360, 0.12, 0.018, "triangle"), 150);
-  setTimeout(()=>playOlonTone(620, 0.16, 0.016, "sine"), 330);
-  setTimeout(()=>playOlonTone(880, 0.18, 0.014, "sine"), 560);
-}
-
-function playHoverSound(){
-  if(typeof isSoundEnabled === "function" && !isSoundEnabled()) return;
-  const now = Date.now();
-  if(now - olonLastHoverSound < 130) return;
-  olonLastHoverSound = now;
-  playOlonTone(410, 0.04, 0.010, "sine");
-}
-
-function playClickSound(){
-  if(typeof isSoundEnabled === "function" && !isSoundEnabled()) return;
-  const now = Date.now();
-  if(now - olonLastClickSound < 80) return;
-  olonLastClickSound = now;
-  playOlonTone(260, 0.045, 0.022, "triangle");
-  setTimeout(()=>playOlonTone(520, 0.032, 0.012, "sine"), 28);
-}
-
-function setupOlonUISounds(){
-  document.addEventListener("keydown", (e)=>{
-    const tag = (e.target?.tagName || "").toLowerCase();
-    const isTyping = tag === "input" || tag === "textarea" || e.target?.isContentEditable;
-    if(!isTyping) return;
-
-    if(e.key.length === 1){
-      playMechanicalKeySound();
-    }else if(e.key === "Backspace" || e.key === "Delete"){
-      playBackspaceSound();
-    }else if(e.key === "Enter"){
-      playClickSound();
+  function getCtx(){
+    if(!ctx){
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
     }
-  });
+    return ctx;
+  }
 
-  document.addEventListener("paste", (e)=>{
-    const tag = (e.target?.tagName || "").toLowerCase();
-    const isTyping = tag === "input" || tag === "textarea" || e.target?.isContentEditable;
-    if(isTyping) playPasteSound();
-  });
+  async function unlockAudio(){
+    try{
+      const audio = getCtx();
+      if(audio.state === "suspended") await audio.resume();
 
+      // silent tap to unlock audio on iPhone/iPad/Safari/Chrome
+      const gain = audio.createGain();
+      const osc = audio.createOscillator();
+      gain.gain.value = 0.00001;
+      osc.connect(gain);
+      gain.connect(audio.destination);
+      osc.start();
+      osc.stop(audio.currentTime + 0.01);
 
-  document.addEventListener("mouseover", (e)=>{
-    const target = e.target.closest("button,.card,.nav button,.userPill,.sideBox,.calDay:not(.empty),.reportRow,.aiItem,.v3Card");
-    if(target) playHoverSound();
-  });
-
-  document.addEventListener("click", (e)=>{
-    getOlonAudio();
-    if(e.target.closest("button,.nav button,.calDay:not(.empty)")){
-      playClickSound();
+      unlocked = true;
+    }catch(e){
+      console.warn("Audio unlock error", e);
     }
-  }, true);
-}
+  }
 
-window.addEventListener("DOMContentLoaded", setupOlonUISounds);
+  function tone(freq = 520, duration = 0.04, volume = 0.02, type = "sine", delay = 0){
+    if(!soundEnabled()) return;
+    try{
+      const audio = getCtx();
+      if(audio.state === "suspended") audio.resume();
+
+      const start = audio.currentTime + delay;
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, start);
+
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(volume, start + 0.006);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+
+      osc.connect(gain);
+      gain.connect(audio.destination);
+
+      osc.start(start);
+      osc.stop(start + duration + 0.02);
+    }catch(e){
+      console.warn("Audio tone error", e);
+    }
+  }
+
+  function playMechanicalKeySound(){
+    const now = Date.now();
+    if(now - lastKey < 34) return;
+    lastKey = now;
+
+    tone(1120 + Math.random()*180, 0.024, 0.030, "square");
+    tone(160 + Math.random()*40, 0.060, 0.024, "triangle");
+  }
+
+  function playBackspaceSound(){
+    const now = Date.now();
+    if(now - lastKey < 34) return;
+    lastKey = now;
+
+    tone(210, 0.048, 0.024, "triangle");
+    tone(145, 0.035, 0.014, "sine", 0.018);
+  }
+
+  function playPasteSound(){
+    tone(520, 0.045, 0.020, "sine");
+    tone(760, 0.050, 0.016, "triangle", 0.045);
+    tone(980, 0.040, 0.012, "sine", 0.090);
+  }
+
+  function playHoverSound(){
+    const now = Date.now();
+    if(now - lastHover < 130) return;
+    lastHover = now;
+    tone(410, 0.04, 0.010, "sine");
+  }
+
+  function playClickSound(){
+    const now = Date.now();
+    if(now - lastClick < 80) return;
+    lastClick = now;
+    tone(260, 0.045, 0.022, "triangle");
+    tone(520, 0.032, 0.012, "sine", 0.028);
+  }
+
+  function playPortalLoadingSound(){
+    tone(180, 0.12, 0.020, "sine");
+    tone(360, 0.12, 0.018, "triangle", 0.150);
+    tone(620, 0.16, 0.016, "sine", 0.330);
+    tone(880, 0.18, 0.014, "sine", 0.560);
+  }
+
+  function playNewMessageSound(){
+    const now = Date.now();
+    if(now - lastMsg < 1200) return;
+    lastMsg = now;
+    tone(720, 0.08, 0.024, "sine");
+    tone(980, 0.10, 0.020, "triangle", 0.095);
+    tone(1240, 0.08, 0.016, "sine", 0.190);
+  }
+
+  function setupAudioEvents(){
+    // Browser audio must be unlocked by a real user gesture on EACH device/browser.
+    ["pointerdown","touchstart","mousedown","keydown","click"].forEach(evt=>{
+      document.addEventListener(evt, unlockAudio, {once:false, passive:true});
+    });
+
+    document.addEventListener("keydown", function(e){
+      const tag = (e.target?.tagName || "").toLowerCase();
+      const isTyping = tag === "input" || tag === "textarea" || e.target?.isContentEditable;
+      if(!isTyping) return;
+
+      if(e.key.length === 1) playMechanicalKeySound();
+      else if(e.key === "Backspace" || e.key === "Delete") playBackspaceSound();
+      else if(e.key === "Enter") playClickSound();
+    });
+
+    document.addEventListener("paste", function(e){
+      const tag = (e.target?.tagName || "").toLowerCase();
+      const isTyping = tag === "input" || tag === "textarea" || e.target?.isContentEditable;
+      if(isTyping) playPasteSound();
+    });
+
+    document.addEventListener("mouseover", function(e){
+      const target = e.target.closest("button,.card,.nav button,.userPill,.sideBox,.calDay:not(.empty),.reportRow,.aiItem,.v3Card,.adminChatUser");
+      if(target) playHoverSound();
+    });
+
+    document.addEventListener("click", function(e){
+      unlockAudio();
+      if(e.target.closest("button,.nav button,.calDay:not(.empty),.adminChatUser")){
+        playClickSound();
+      }
+    }, true);
+  }
+
+  // Expose globally for existing portal functions
+  window.getOlonAudio = getCtx;
+  window.unlockOlonAudio = unlockAudio;
+  window.isSoundEnabled = soundEnabled;
+  window.playOlonTone = tone;
+  window.playMechanicalKeySound = playMechanicalKeySound;
+  window.playBackspaceSound = playBackspaceSound;
+  window.playPasteSound = playPasteSound;
+  window.playHoverSound = playHoverSound;
+  window.playClickSound = playClickSound;
+  window.playPortalLoadingSound = playPortalLoadingSound;
+  window.playNewMessageSound = playNewMessageSound;
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", setupAudioEvents);
+  }else{
+    setupAudioEvents();
+  }
+})();
 </script>
+
 
 <style>
 :root{
@@ -1942,6 +1961,43 @@ body.light-mode .chatClose{color:#0f172a}
   .chatBubble{max-width:90%}
 }
 
+
+/* ===== DELETE CHAT CONVERSATION ===== */
+.deleteConversationBtn{
+  border:1px solid rgba(239,68,68,.32);
+  background:rgba(239,68,68,.14);
+  color:#fecaca;
+  border-radius:14px;
+  padding:10px 12px;
+  font-weight:900;
+  cursor:pointer;
+}
+.deleteConversationBtn:hover{
+  background:#ef4444;
+  color:#fff;
+}
+.adminChatTitleRow{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding-bottom:12px;
+  border-bottom:1px solid rgba(255,255,255,.10);
+}
+.adminChatTitleRow .adminChatTitle{
+  padding-bottom:0;
+  border-bottom:0;
+}
+@media(max-width:620px){
+  .adminChatTitleRow{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+  .deleteConversationBtn{
+    width:100%;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1955,7 +2011,7 @@ body.light-mode .chatClose{color:#0f172a}
   <div class="settingRow">
     <div>
       <b>Sonidos del portal</b>
-      <small>Teclado, hover, click y loading</small>
+      <small>Teclado, hover, click, loading y mensajes</small>
     </div>
     <button id="soundSwitch" class="switch on" type="button"><span></span></button>
   </div>
@@ -2449,7 +2505,10 @@ body.light-mode .chatClose{color:#0f172a}
           </div>
 
           <div class="adminChatBox">
-            <h3 id="adminChatTitle" class="adminChatTitle">Selecciona un estudiante</h3>
+            <div class="adminChatTitleRow">
+              <h3 id="adminChatTitle" class="adminChatTitle">Selecciona un estudiante</h3>
+              <button id="deleteConversationBtn" class="deleteConversationBtn" onclick="deleteSelectedConversation()" style="display:none">🗑️ Borrar conversación</button>
+            </div>
             <div id="adminChatMessages" class="chatMessages"></div>
             <div class="adminReplyArea">
               <textarea id="adminChatInput" placeholder="Escribe tu respuesta..."></textarea>
@@ -2637,6 +2696,7 @@ function setLoaderStudentName(name, plan){
 function showPortalEnterLoader(){
   const loader = document.getElementById("portalEnterLoader");
   if(loader) loader.classList.add("show");
+  if(typeof unlockOlonAudio === "function") unlockOlonAudio();
   if(typeof playPortalLoadingSound === "function") playPortalLoadingSound();
 }
 
@@ -2654,21 +2714,11 @@ function waitPortalLoading(ms = 4000){
 let selectedChatStudentId = null;
 let chatRefreshTimer = null;
 
-let lastStudentUnreadCount = 0;
-let lastAdminUnreadCount = 0;
 
-function playNewMessageSound(){
-  if(typeof isSoundEnabled === "function" && !isSoundEnabled()) return;
-  try{
-    if(typeof playOlonTone === "function"){
-      playOlonTone(720, 0.08, 0.024, "sine");
-      setTimeout(()=>playOlonTone(980, 0.10, 0.020, "triangle"), 95);
-      setTimeout(()=>playOlonTone(1240, 0.08, 0.016, "sine"), 190);
-    }
-  }catch(e){
-    console.warn("No se pudo reproducir sonido de mensaje", e);
-  }
-}
+let lastStudentUnreadCount = Number(localStorage.getItem("olon_last_student_unread") || 0);
+let lastAdminUnreadCount = Number(localStorage.getItem("olon_last_admin_unread") || 0);
+
+
 
 
 function chatTime(value){
@@ -2737,6 +2787,7 @@ async function sendStudentChatMessage(){
 
 async function markStudentMessagesRead(){
   lastStudentUnreadCount = 0;
+  localStorage.setItem("olon_last_student_unread", "0");
   if(!currentUser || currentUser.role === "admin") return;
   await supabaseClient
     .from("chat_messages")
@@ -2769,6 +2820,7 @@ async function updateStudentUnreadCount(){
     playNewMessageSound();
   }
   lastStudentUnreadCount = n;
+  localStorage.setItem("olon_last_student_unread", String(n));
 
   const badge = document.getElementById("studentChatBadge");
   if(badge){
@@ -2840,6 +2892,7 @@ function updateAdminChatBadge(n){
     playNewMessageSound();
   }
   lastAdminUnreadCount = n;
+  localStorage.setItem("olon_last_admin_unread", String(n));
 
   const badge = document.getElementById("adminChatBadge");
   if(!badge) return;
@@ -2849,6 +2902,7 @@ function updateAdminChatBadge(n){
 
 async function selectAdminChatStudent(studentId){
   lastAdminUnreadCount = 0;
+  localStorage.setItem("olon_last_admin_unread", "0");
   selectedChatStudentId = studentId;
   await loadAdminChatInbox();
   await loadAdminChatMessages();
@@ -2875,6 +2929,9 @@ async function loadAdminChatMessages(){
   if(title){
     title.textContent = "Chat con " + (profile?.full_name || "Estudiante");
   }
+
+  const deleteBtn = document.getElementById("deleteConversationBtn");
+  if(deleteBtn) deleteBtn.style.display = "inline-flex";
 
   const { data, error } = await supabaseClient
     .from("chat_messages")
@@ -2915,6 +2972,48 @@ async function sendAdminChatMessage(){
   input.value = "";
   if(typeof playClickSound === "function") playClickSound();
   await loadAdminChatMessages();
+  await loadAdminChatInbox();
+}
+
+
+async function deleteSelectedConversation(){
+  if(!currentUser || currentUser.role !== "admin"){
+    alert("No autorizado.");
+    return;
+  }
+
+  if(!selectedChatStudentId){
+    alert("Selecciona un estudiante primero.");
+    return;
+  }
+
+  const ok = confirm("¿Seguro que quieres borrar TODA esta conversación? Esta acción no se puede deshacer.");
+  if(!ok) return;
+
+  const { error } = await supabaseClient
+    .from("chat_messages")
+    .delete()
+    .eq("student_id", selectedChatStudentId);
+
+  if(error){
+    alert("No se pudo borrar la conversación.");
+    console.error(error);
+    return;
+  }
+
+  if(typeof playClickSound === "function") playClickSound();
+
+  selectedChatStudentId = null;
+
+  const title = document.getElementById("adminChatTitle");
+  if(title) title.textContent = "Selecciona un estudiante";
+
+  const messages = document.getElementById("adminChatMessages");
+  if(messages) messages.innerHTML = `<div class="top3Empty">Conversación borrada.</div>`;
+
+  const btn = document.getElementById("deleteConversationBtn");
+  if(btn) btn.style.display = "none";
+
   await loadAdminChatInbox();
 }
 
