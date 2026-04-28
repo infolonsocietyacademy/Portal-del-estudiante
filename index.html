@@ -1167,6 +1167,11 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
 .scoreBarTrack{height:8px;border-radius:999px;background:rgba(255,255,255,.09);overflow:hidden}
 .scoreBarTrack span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--blue))}
 .goalCard h3,.aiCard h3,.calendarCard h3{font-size:20px;letter-spacing:-.03em}
+.calendarHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.calendarNavBtn{width:42px;height:42px;border-radius:15px;border:1px solid rgba(246,196,83,.28);background:linear-gradient(135deg,rgba(246,196,83,.14),rgba(59,130,246,.10));color:#fff;font-size:28px;font-weight:900;line-height:1;cursor:pointer;display:grid;place-items:center}
+.calendarNavBtn:hover{transform:translateY(-2px);border-color:rgba(246,196,83,.46)}
+.calendarWeekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin-top:14px}
+.calendarWeekdays span{font-size:11px;font-weight:900;color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:.25px}
 .goalBar{margin-top:14px;height:13px;border-radius:999px;background:rgba(255,255,255,.09);overflow:hidden;border:1px solid rgba(255,255,255,.08)}
 .goalBar span{display:block;height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--green))}
 .goalMeta{display:flex;justify-content:space-between;gap:10px;margin-top:12px;color:var(--muted);font-size:12px;font-weight:800}
@@ -1183,6 +1188,9 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
 .calDay.goodDay{background:rgba(34,197,94,.16);color:#bbf7d0;border-color:rgba(34,197,94,.26)}
 .calDay.badDay{background:rgba(239,68,68,.16);color:#fecaca;border-color:rgba(239,68,68,.26)}
 .calDay.flatDay{background:rgba(245,158,11,.16);color:#fde68a;border-color:rgba(245,158,11,.26)}
+.calDay.empty{opacity:.25;background:transparent;border-color:transparent;box-shadow:none}
+.calDay.today{outline:2px solid rgba(246,196,83,.75);outline-offset:2px;color:#fff}
+.calDay small{display:block;margin-top:3px;font-size:10px;color:inherit;opacity:.85}
 .proQuote{
   margin:16px 0;
   padding:17px 18px;
@@ -2361,8 +2369,17 @@ body.light-mode .chatClose{color:#0f172a}
         </div>
 
         <div class="card calendarCard">
-          <h3>Calendario del Mes</h3>
-          <p style="color:var(--muted);margin-top:8px;font-size:13px">🟢 positivo · 🔴 negativo · 🟡 break even</p>
+          <div class="calendarHeader">
+            <button class="calendarNavBtn" type="button" onclick="changeCalendarMonth(-1)">‹</button>
+            <div>
+              <h3 id="calendarMonthTitle">Calendario</h3>
+              <p style="color:var(--muted);margin-top:6px;font-size:13px">🟢 positivo · 🔴 negativo · 🟡 break even</p>
+            </div>
+            <button class="calendarNavBtn" type="button" onclick="changeCalendarMonth(1)">›</button>
+          </div>
+          <div class="calendarWeekdays">
+            <span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span>
+          </div>
           <div class="calendarGrid" id="tradingCalendar"></div>
         </div>
       </div>
@@ -3067,6 +3084,7 @@ function startChatRefresh(){
 let currentUser = JSON.parse(localStorage.getItem("olon_current_user") || "null");
 let chart;
 let cachedRecords = [];
+let calendarViewDate = new Date();
 let cachedUsers = [];
 
 document.getElementById("date").valueAsDate = new Date();
@@ -3788,7 +3806,7 @@ function renderProDashboard(){
   const aiBox = document.getElementById("aiAnalysisList");
   if(aiBox) aiBox.innerHTML = ai.map(x=>`<div class="aiItem">${x}</div>`).join("");
 
-  renderTradingCalendar(currentMonth);
+  renderTradingCalendar();
   renderDailyQuote();
   renderV3Performance();
 }
@@ -3808,25 +3826,59 @@ function renderDailyQuote(){
   }
 }
 
-function renderTradingCalendar(records){
+function renderTradingCalendar(){
   const box = document.getElementById("tradingCalendar");
   if(!box) return;
-  const now = new Date();
-  const days = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+
+  const view = calendarViewDate instanceof Date ? calendarViewDate : new Date();
+  const year = view.getFullYear();
+  const month = view.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const days = new Date(year, month + 1, 0).getDate();
+  const startOffset = firstDay.getDay();
+
+  const title = document.getElementById("calendarMonthTitle");
+  if(title){
+    title.innerText = firstDay.toLocaleDateString("es-ES", { month:"long", year:"numeric" }).replace(/^./, c => c.toUpperCase());
+  }
+
   const map = {};
-  records.forEach(r=>{
-    const d = new Date(r.date + "T00:00:00").getDate();
-    map[d] = (map[d] || 0) + Number(r.gain||0) - Number(r.loss||0);
+  (cachedRecords || []).forEach(r=>{
+    const d = new Date(r.date + "T00:00:00");
+    if(d.getFullYear() !== year || d.getMonth() !== month) return;
+    const day = d.getDate();
+    if(!map[day]) map[day] = { net:0, trades:0 };
+    map[day].net += Number(r.gain||0) - Number(r.loss||0);
+    map[day].trades += 1;
   });
+
+  const today = new Date();
   let html = "";
+  for(let i=0; i<startOffset; i++){
+    html += '<div class="calDay empty"></div>';
+  }
+
   for(let d=1; d<=days; d++){
+    const info = map[d];
     let cls = "";
-    if(map[d] > 0) cls = "goodDay";
-    else if(map[d] < 0) cls = "badDay";
-    else if(map[d] === 0 && map[d] !== undefined) cls = "flatDay";
-    html += `<div class="calDay ${cls}">${d}</div>`;
+    if(info){
+      if(info.net > 0) cls = "goodDay";
+      else if(info.net < 0) cls = "badDay";
+      else cls = "flatDay";
+    }
+    if(today.getFullYear() === year && today.getMonth() === month && today.getDate() === d){
+      cls += " today";
+    }
+    const mini = info ? '<small>' + money(info.net) + '</small>' : "";
+    html += '<div class="calDay ' + cls.trim() + '" title="' + (info ? money(info.net) : 'Sin registro') + '"><b>' + d + '</b>' + mini + '</div>';
   }
   box.innerHTML = html;
+}
+
+function changeCalendarMonth(delta){
+  const view = calendarViewDate instanceof Date ? calendarViewDate : new Date();
+  calendarViewDate = new Date(view.getFullYear(), view.getMonth() + Number(delta || 0), 1);
+  renderTradingCalendar();
 }
 
 async function render(){
