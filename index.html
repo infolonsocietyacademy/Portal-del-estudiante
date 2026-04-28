@@ -1450,6 +1450,125 @@ body.light-mode small{
   pointer-events:auto!important;
 }
 
+
+/* ===== TOP 3 LOGIN PREMIUM DINAMICO ===== */
+.top3Container{
+  margin-bottom:24px;
+  padding:18px;
+  border-radius:24px;
+  border:1px solid rgba(246,196,83,.28);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(246,196,83,.16), transparent 44%),
+    linear-gradient(135deg,rgba(246,196,83,.11),rgba(59,130,246,.09));
+  text-align:center;
+  box-shadow:0 18px 45px rgba(0,0,0,.18);
+}
+.top3Title{
+  font-size:15px;
+  font-weight:900;
+  margin-bottom:14px;
+  color:#fff;
+  letter-spacing:.2px;
+}
+.top3Grid{
+  display:grid;
+  grid-template-columns:1fr 1.12fr 1fr;
+  gap:10px;
+  align-items:end;
+}
+.topCard{
+  min-height:104px;
+  padding:13px 10px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.055);
+  position:relative;
+  overflow:hidden;
+  transition:.25s ease;
+}
+.topCard:hover{transform:translateY(-4px)}
+.topCard:before{
+  content:"";
+  position:absolute;
+  inset:-60%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent);
+  transform:rotate(20deg);
+  animation:top3Shine 3.6s ease-in-out infinite;
+}
+.topCard.main{
+  min-height:128px;
+  transform:scale(1.05);
+  box-shadow:0 0 30px rgba(246,196,83,.26);
+}
+.topMedal{
+  position:relative;
+  z-index:1;
+  font-size:24px;
+  line-height:1;
+}
+.topRank{
+  position:relative;
+  z-index:1;
+  margin-top:7px;
+  font-size:12px;
+  font-weight:900;
+  color:#94a3b8;
+}
+.topName{
+  position:relative;
+  z-index:1;
+  margin-top:6px;
+  font-size:13px;
+  font-weight:900;
+  color:#fff;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.topReturn{
+  position:relative;
+  z-index:1;
+  margin-top:6px;
+  display:inline-flex;
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:10px;
+  font-weight:900;
+  background:rgba(255,255,255,.08);
+  color:#cbd5e1;
+}
+.topCard.gold{border-color:rgba(246,196,83,.55);background:rgba(246,196,83,.14)}
+.topCard.gold .topName,.topCard.gold .topReturn{color:#fde68a}
+.topCard.silver{border-color:rgba(203,213,225,.38);background:rgba(148,163,184,.11)}
+.topCard.silver .topName{color:#e2e8f0}
+.topCard.bronze{border-color:rgba(251,146,60,.42);background:rgba(251,146,60,.12)}
+.topCard.bronze .topName{color:#fed7aa}
+.top3Empty{
+  padding:14px;
+  border-radius:18px;
+  border:1px dashed rgba(255,255,255,.16);
+  color:var(--muted);
+  font-size:12px;
+  font-weight:800;
+  line-height:1.45;
+}
+@keyframes top3Shine{
+  0%,50%{transform:translateX(-120%) rotate(20deg)}
+  100%{transform:translateX(120%) rotate(20deg)}
+}
+body.light-mode .top3Title,
+body.light-mode .topName{color:#0f172a}
+body.light-mode .top3Container{
+  background:linear-gradient(135deg,rgba(246,196,83,.18),rgba(59,130,246,.10));
+}
+@media(max-width:620px){
+  .top3Container{padding:15px}
+  .top3Grid{gap:7px}
+  .topCard{min-height:96px;padding:11px 7px}
+  .topCard.main{min-height:116px}
+  .topName{font-size:11px}
+}
+
 </style>
 </head>
 <body>
@@ -1563,6 +1682,14 @@ body.light-mode small{
       </div>
 
       <div id="loginForm" class="form active">
+        
+        <div class="top3Container">
+          <div class="top3Title">🏆 Top 3 Estudiantes del Mes</div>
+          <div id="top3LoginList">
+            <div class="top3Empty">Cargando ranking desde Supabase...</div>
+          </div>
+        </div>
+
         <h2>¡Bienvenido de vuelta!</h2>
         <p>Inicia sesión para continuar en tu portal.</p>
         <div class="field"><label>Código de acceso</label><input id="loginCode" placeholder="Ej: OLON-12345" autocomplete="username"></div>
@@ -1961,6 +2088,108 @@ async function updateAuthTradeCount(){
   }
 }
 
+
+async function loadTop3LoginStudents(){
+  const box = document.getElementById("top3LoginList");
+  if(!box || typeof supabaseClient === "undefined") return;
+
+  try{
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0,10);
+    const end = new Date(now.getFullYear(), now.getMonth()+1, 0).toISOString().slice(0,10);
+
+    const { data: records, error: recError } = await supabaseClient
+      .from("student_records")
+      .select("student_id,deposit,gain,loss,record_date")
+      .gte("record_date", start)
+      .lte("record_date", end);
+
+    if(recError) throw recError;
+
+    const grouped = {};
+    (records || []).forEach(r=>{
+      const id = r.student_id;
+      if(!id) return;
+      if(!grouped[id]) grouped[id] = {deposit:0,gain:0,loss:0};
+      grouped[id].deposit += Number(r.deposit || 0);
+      grouped[id].gain += Number(r.gain || 0);
+      grouped[id].loss += Number(r.loss || 0);
+    });
+
+    const ids = Object.keys(grouped);
+    if(!ids.length){
+      box.innerHTML = `<div class="top3Empty">Todavía no hay registros este mes.</div>`;
+      return;
+    }
+
+    const { data: profiles, error: profError } = await supabaseClient
+      .from("profiles")
+      .select("id,full_name,role,status")
+      .in("id", ids);
+
+    if(profError) throw profError;
+
+    const profileMap = {};
+    (profiles || []).forEach(p=>profileMap[p.id] = p);
+
+    const ranking = ids.map(id=>{
+      const t = grouped[id];
+      const net = Number(t.gain || 0) - Number(t.loss || 0);
+      const ret = Number(t.deposit || 0) > 0 ? (net / Number(t.deposit || 0)) * 100 : -999999;
+      const profile = profileMap[id] || {};
+      return {
+        id,
+        name: profile.full_name || "Estudiante",
+        role: profile.role || "student",
+        status: profile.status || "active",
+        returnPct: ret
+      };
+    })
+    .filter(x=>x.role !== "admin" && x.status !== "suspended" && x.returnPct > -999999)
+    .sort((a,b)=>b.returnPct - a.returnPct)
+    .slice(0,3);
+
+    if(!ranking.length){
+      box.innerHTML = `<div class="top3Empty">El ranking aparece cuando haya depósitos y resultados registrados.</div>`;
+      return;
+    }
+
+    const cards = [
+      {pos:2, cls:"silver", medal:"🥈"},
+      {pos:1, cls:"gold main", medal:"🥇"},
+      {pos:3, cls:"bronze", medal:"🥉"}
+    ];
+
+    const ordered = [ranking[1], ranking[0], ranking[2]];
+
+    box.innerHTML = `<div class="top3Grid">` + ordered.map((student, idx)=>{
+      const meta = cards[idx];
+      if(!student){
+        return `<div class="topCard ${meta.cls}">
+          <div class="topMedal">${meta.medal}</div>
+          <div class="topRank">#${meta.pos}</div>
+          <div class="topName">---</div>
+          <div class="topReturn">Sin data</div>
+        </div>`;
+      }
+
+      const firstName = String(student.name || "Estudiante").trim().split(" ")[0].toUpperCase();
+      const ret = Number(student.returnPct || 0).toFixed(1) + "%";
+
+      return `<div class="topCard ${meta.cls}">
+        <div class="topMedal">${meta.medal}</div>
+        <div class="topRank">#${meta.pos}</div>
+        <div class="topName">${firstName}</div>
+        <div class="topReturn">${ret}</div>
+      </div>`;
+    }).join("") + `</div>`;
+
+  }catch(err){
+    console.warn("No se pudo cargar Top 3", err);
+    box.innerHTML = `<div class="top3Empty">Top 3 no disponible. Revisa permisos de Supabase.</div>`;
+  }
+}
+
 function updateAuthRealStats(){
   updateAuthStudentCount();
   updateAuthTradeCount();
@@ -2210,6 +2439,7 @@ async function signup(){
   if(error){ showError("No se pudo crear la cuenta.", error); return; }
 
   updateAuthRealStats();
+loadTop3LoginStudents();
   document.getElementById("generatedCodeText").innerText = code;
   document.getElementById("signupName").value = "";
   document.getElementById("signupEmail").value = "";
