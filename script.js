@@ -351,17 +351,27 @@ function setLoaderStudentName(name, plan){
 
 function showPortalEnterLoader(){
   const loader = document.getElementById("portalEnterLoader");
-  if(loader) loader.classList.add("show");
+  if(loader){
+    loader.style.display = "grid";
+    loader.classList.remove("closing");
+    loader.classList.add("show");
+  }
   if(typeof unlockOlonAudio === "function") unlockOlonAudio();
   if(typeof playPortalLoadingSound === "function") playPortalLoadingSound();
 }
 
 function hidePortalEnterLoader(){
   const loader = document.getElementById("portalEnterLoader");
-  if(loader) loader.classList.remove("show");
+  if(!loader) return;
+  loader.classList.add("closing");
+  setTimeout(() => {
+    loader.classList.remove("show");
+    loader.classList.remove("closing");
+    loader.style.display = "none";
+  }, 900);
 }
 
-function waitPortalLoading(ms = 4500){
+function waitPortalLoading(ms = 4000){
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -879,8 +889,10 @@ async function login(){
 
     setLoaderStudentName(currentUser.full_name, currentUser.plan);
     showPortalEnterLoader();
-    await waitPortalLoading(1200);
+    // Loading nivel dios: duración real premium
+    await new Promise(resolve => setTimeout(resolve, 6800));
     await enterPortal();
+    await new Promise(resolve => setTimeout(resolve, 900));
   }catch(err){
     console.error("Login fatal error", err);
     alert("No se pudo entrar al portal. Revisa Supabase o la consola del navegador.");
@@ -1671,7 +1683,7 @@ updateAuthRealStats();
 if(currentUser){
   setLoaderStudentName(currentUser.full_name, currentUser.plan);
   showPortalEnterLoader();
-  waitPortalLoading(900).then(async () => {
+  waitPortalLoading(4200).then(async () => {
     try{
       await enterPortal();
     }catch(err){

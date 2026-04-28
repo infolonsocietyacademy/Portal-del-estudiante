@@ -2681,3 +2681,128 @@ body #codeResult.auth.hidden{
     min-height:100svh!important;
   }
 }
+
+/* =========================================================
+   OLON SOCIETY ACADEMY — LOADING NIVEL DIOS READY
+   Ya integrado: no tienes que pegar nada más.
+   ========================================================= */
+#portalEnterLoader{
+  position:fixed !important;
+  inset:0 !important;
+  z-index:999999 !important;
+  display:none;
+  place-items:center;
+  overflow:hidden;
+  opacity:1;
+  background:
+    radial-gradient(circle at 50% 34%, rgba(255,216,107,.24), transparent 28%),
+    radial-gradient(circle at 15% 20%, rgba(139,92,246,.20), transparent 30%),
+    radial-gradient(circle at 85% 82%, rgba(34,211,238,.18), transparent 34%),
+    linear-gradient(135deg,#01030a 0%,#07101f 45%,#020617 100%) !important;
+}
+#portalEnterLoader.show{display:grid !important;opacity:1 !important;}
+#portalEnterLoader.closing{opacity:0 !important;transition:opacity .9s ease !important;}
+#portalEnterLoader::before{
+  content:"";
+  position:absolute;
+  width:760px;
+  height:760px;
+  border-radius:50%;
+  background:conic-gradient(from 0deg, transparent, rgba(255,216,107,.22), transparent, rgba(139,92,246,.18), transparent, rgba(34,211,238,.18), transparent);
+  animation:olonGodOrb 9s linear infinite;
+}
+#portalEnterLoader::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size:42px 42px;
+  mask-image:radial-gradient(circle at center, black 0%, transparent 72%);
+  -webkit-mask-image:radial-gradient(circle at center, black 0%, transparent 72%);
+  opacity:.38;
+  animation:olonGridMove 12s linear infinite;
+}
+.portalEnterBox{
+  position:relative !important;
+  z-index:3 !important;
+  width:min(490px,91vw) !important;
+  padding:38px 28px 32px !important;
+  border-radius:42px !important;
+  text-align:center !important;
+  border:1px solid rgba(255,216,107,.42) !important;
+  background:linear-gradient(180deg,rgba(15,23,42,.92),rgba(2,6,23,.84)) !important;
+  box-shadow:0 44px 140px rgba(0,0,0,.72),0 0 90px rgba(255,216,107,.14),inset 0 1px 0 rgba(255,255,255,.12) !important;
+  overflow:hidden !important;
+  animation:olonGodPop .75s cubic-bezier(.2,.9,.2,1) both !important;
+}
+.portalEnterBox::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-80%;
+  width:48%;
+  height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent);
+  transform:skewX(-18deg);
+  animation:olonGodSweep 3.4s ease-in-out infinite;
+}
+.portalEnterLogo{
+  width:138px !important;
+  height:138px !important;
+  margin:0 auto 22px !important;
+  border-radius:38px !important;
+  display:grid !important;
+  place-items:center !important;
+  background:linear-gradient(135deg,rgba(255,216,107,.14),rgba(34,211,238,.08)) !important;
+  border:1px solid rgba(255,216,107,.42) !important;
+  box-shadow:0 0 62px rgba(255,216,107,.22) !important;
+  position:relative !important;
+}
+.portalEnterLogo::before{
+  content:"";
+  position:absolute;
+  inset:-11px;
+  border-radius:48px;
+  border:2px solid transparent;
+  border-top-color:#ffd86b;
+  border-right-color:#8b5cf6;
+  border-bottom-color:#22d3ee;
+  animation:olonGodSpin 1.45s linear infinite;
+}
+.portalEnterLogo::after{
+  content:"";
+  position:absolute;
+  inset:-28px;
+  border-radius:58px;
+  border:1px solid rgba(255,216,107,.18);
+  box-shadow:0 0 40px rgba(255,216,107,.08);
+  animation:olonGodRing 2.4s ease-in-out infinite;
+}
+.portalEnterLogo img{
+  width:96px !important;
+  position:relative !important;
+  z-index:2 !important;
+  filter:drop-shadow(0 0 22px rgba(255,216,107,.55)) !important;
+  animation:olonGodLogo 2.1s ease-in-out infinite !important;
+}
+.portalEnterKicker{border-color:rgba(255,216,107,.38) !important;background:rgba(255,216,107,.11) !important;color:#ffd86b !important;box-shadow:0 0 24px rgba(255,216,107,.08);}
+.portalEnterTitle{font-size:31px !important;line-height:1.04 !important;letter-spacing:-.05em !important;font-weight:900 !important;}
+.portalEnterTitle span{color:#ffd86b !important;text-shadow:0 0 32px rgba(255,216,107,.48) !important;}
+.portalEnterText{color:#dbeafe !important;font-size:14px !important;}
+.portalEnterPlan{border-color:rgba(255,216,107,.34) !important;background:linear-gradient(135deg,rgba(255,216,107,.14),rgba(139,92,246,.13)) !important;box-shadow:0 0 32px rgba(255,216,107,.08);}
+.portalStep{opacity:.72;transform:translateX(-8px);animation:olonStepIn .55s ease forwards;}
+.portalStep:nth-child(1){animation-delay:.25s}.portalStep:nth-child(2){animation-delay:.9s}.portalStep:nth-child(3){animation-delay:1.55s}
+.portalProgress{height:10px !important;background:rgba(255,255,255,.09) !important;}
+.portalProgress span{width:0% !important;background:linear-gradient(90deg,#ffd86b,#8b5cf6,#22d3ee,#ffd86b) !important;background-size:240% 100%;animation:olonGodProgress 6.8s cubic-bezier(.16,.85,.25,1) forwards, olonGodGradient 1.8s linear infinite !important;}
+.portalDots span{box-shadow:0 0 18px currentColor;}
+@keyframes olonGodOrb{to{transform:rotate(360deg)}}
+@keyframes olonGridMove{to{background-position:84px 84px}}
+@keyframes olonGodPop{from{opacity:0;transform:scale(.92) translateY(22px);filter:blur(10px)}to{opacity:1;transform:scale(1) translateY(0);filter:blur(0)}}
+@keyframes olonGodSweep{0%{left:-80%}48%,100%{left:130%}}
+@keyframes olonGodSpin{to{transform:rotate(360deg)}}
+@keyframes olonGodRing{0%,100%{transform:scale(.93);opacity:.35}50%{transform:scale(1.08);opacity:1}}
+@keyframes olonGodLogo{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-7px) scale(1.055)}}
+@keyframes olonStepIn{to{opacity:1;transform:translateX(0)}}
+@keyframes olonGodProgress{0%{width:0%}22%{width:31%}52%{width:63%}78%{width:86%}100%{width:100%}}
+@keyframes olonGodGradient{to{background-position:240% 0}}
+@media(max-width:620px){.portalEnterBox{padding:30px 20px 28px !important;border-radius:32px !important}.portalEnterLogo{width:112px !important;height:112px !important;border-radius:32px !important}.portalEnterLogo img{width:78px !important}.portalEnterTitle{font-size:24px !important}#portalEnterLoader::before{width:520px;height:520px}}
