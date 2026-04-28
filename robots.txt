@@ -1,3 +1,2 @@
 User-agent: *
 Allow: /
-Sitemap: https://infolonsocietyacademy.github.io/Portal-del-estudiante/sitemap.xml

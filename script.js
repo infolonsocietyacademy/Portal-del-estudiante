@@ -2267,6 +2267,7 @@ if(typeof olonOriginalRenderAdminTable === 'function'){
     registro:"Registra depósito, ganancia, pérdida y notas del día.",
     historial:"Consulta tu historial individual.",
     comparacion:"Compara tu mes actual con el mes anterior.",
+    marketLive:"Chart en vivo con velas japonesas de TradingView.",
     publicChat:"Canal público para todos los estudiantes.",
     admin:"Panel administrativo profesional.",
     adminChat:"Centro de mensajes privados."
@@ -2307,6 +2308,7 @@ if(typeof olonOriginalRenderAdminTable === 'function'){
       if(sidebar) sidebar.classList.remove("open");
       document.body.classList.remove("menu-open");
 
+      if(id === "marketLive" && typeof window.loadTradingViewProChart === "function") setTimeout(window.loadTradingViewProChart, 120);
       if(id === "publicChat" && typeof window.loadPublicChat === "function") setTimeout(window.loadPublicChat, 80);
       if(id === "adminChat" && typeof window.loadAdminChatInbox === "function") setTimeout(window.loadAdminChatInbox, 80);
       if(id === "admin" && typeof window.renderUsers === "function") setTimeout(window.renderUsers, 80);
@@ -2814,3 +2816,34 @@ function handlePublicChatEnter(e){
   }, true);
 })();
 
+
+/* =====================================================
+   OLON MARKET LIVE PRO - TRADINGVIEW WIDGET
+   ===================================================== */
+(function(){
+  let marketChartLoaded=false;
+  let lastKey="";
+  function getMarketSymbol(){return document.getElementById("marketSymbolSelect")?.value||"OANDA:XAUUSD";}
+  function getMarketInterval(){return document.getElementById("marketIntervalSelect")?.value||"5";}
+  function cleanMarketName(symbol){return String(symbol||"OANDA:XAUUSD").split(":").pop();}
+  function updateMarketLabel(symbol,interval){const label=document.getElementById("marketCurrentLabel");if(label){const tf=interval==="D"?"1D":interval==="60"?"1H":interval==="240"?"4H":interval+"M";label.innerText=cleanMarketName(symbol)+" · "+tf;}}
+  window.loadTradingViewProChart=function(force=false){
+    const container=document.getElementById("tradingview_pro_chart");
+    if(!container)return;
+    const symbol=getMarketSymbol();
+    const interval=getMarketInterval();
+    const key=symbol+"_"+interval;
+    updateMarketLabel(symbol,interval);
+    if(!force&&marketChartLoaded&&lastKey===key)return;
+    marketChartLoaded=true;lastKey=key;container.innerHTML="";
+    if(typeof TradingView==="undefined"||!TradingView.widget){
+      container.innerHTML='<div style="display:grid;place-items:center;height:100%;padding:24px;text-align:center;color:#94a3b8"><div><b style="color:#f8fafc">Cargando TradingView...</b><br>Verifica tu conexión si el chart no aparece.</div></div>';
+      setTimeout(function(){window.loadTradingViewProChart(true);},900);
+      return;
+    }
+    new TradingView.widget({autosize:true,symbol:symbol,interval:interval,timezone:"America/New_York",theme:"dark",style:"1",locale:"es",enable_publishing:false,hide_side_toolbar:false,allow_symbol_change:true,details:true,hotlist:false,calendar:false,studies:["Volume@tv-basicstudies"],container_id:"tradingview_pro_chart"});
+  };
+  window.reloadTradingViewProChart=function(){window.loadTradingViewProChart(true);if(typeof playClickSound==="function")playClickSound();};
+  window.changeMarketSymbol=function(){window.loadTradingViewProChart(true);};
+  document.addEventListener("DOMContentLoaded",function(){const current=document.querySelector(".page:not(.hidden)");if(current&&current.id==="marketLive")setTimeout(function(){window.loadTradingViewProChart(true);},300);});
+})();
