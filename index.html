@@ -1569,6 +1569,145 @@ body.light-mode .top3Container{
   .topName{font-size:11px}
 }
 
+
+/* ===== TOP 3 RESPONSIVE FINAL — MOBILE / IPAD / WEB ===== */
+.top3Container{
+  width:100%;
+  max-width:100%;
+  margin:0 0 24px;
+  padding:18px;
+}
+.top3Grid{
+  width:100%;
+}
+.topCard{
+  min-width:0;
+}
+.topName{
+  max-width:100%;
+}
+
+/* WEB / DESKTOP */
+@media(min-width:981px){
+  .top3Container{
+    padding:20px;
+    border-radius:26px;
+  }
+  .top3Grid{
+    grid-template-columns:1fr 1.18fr 1fr;
+    gap:12px;
+  }
+  .topCard{
+    min-height:112px;
+  }
+  .topCard.main{
+    min-height:138px;
+    transform:scale(1.06);
+  }
+  .topMedal{font-size:28px}
+  .topRank{font-size:13px}
+  .topName{font-size:14px}
+}
+
+/* IPAD / TABLET */
+@media(max-width:980px) and (min-width:621px){
+  .authShell{
+    width:min(760px,100%);
+  }
+  .authPanel{
+    padding:32px;
+  }
+  .top3Container{
+    padding:16px;
+    border-radius:22px;
+  }
+  .top3Grid{
+    grid-template-columns:1fr 1.08fr 1fr;
+    gap:9px;
+  }
+  .topCard{
+    min-height:98px;
+    padding:11px 8px;
+  }
+  .topCard.main{
+    min-height:116px;
+    transform:scale(1.04);
+  }
+  .topMedal{font-size:23px}
+  .topRank{font-size:11px}
+  .topName{font-size:12px}
+  .topReturn{font-size:9.5px;padding:4px 7px}
+}
+
+/* MOBILE */
+@media(max-width:620px){
+  .auth{
+    padding:12px;
+  }
+  .authPanel{
+    padding:18px!important;
+  }
+  .top3Container{
+    padding:14px;
+    border-radius:20px;
+    margin-bottom:18px;
+  }
+  .top3Title{
+    font-size:14px;
+    margin-bottom:12px;
+  }
+  .top3Grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:9px;
+    align-items:stretch;
+  }
+  .topCard,
+  .topCard.main{
+    min-height:72px!important;
+    transform:none!important;
+    padding:10px 12px;
+    border-radius:16px;
+    display:grid;
+    grid-template-columns:34px 44px 1fr auto;
+    align-items:center;
+    gap:8px;
+    text-align:left;
+  }
+  .topCard:hover,
+  .topCard.main:hover{
+    transform:translateY(-2px)!important;
+  }
+  .topMedal{
+    font-size:22px;
+    margin:0;
+  }
+  .topRank{
+    margin:0;
+    font-size:12px;
+  }
+  .topName{
+    margin:0;
+    font-size:13px;
+  }
+  .topReturn{
+    margin:0;
+    font-size:10px;
+    padding:4px 7px;
+    white-space:nowrap;
+  }
+  .topCard.gold{
+    order:1;
+    box-shadow:0 0 20px rgba(246,196,83,.22);
+  }
+  .topCard.silver{order:2}
+  .topCard.bronze{order:3}
+  .top3Empty{
+    font-size:12px;
+    padding:12px;
+  }
+}
+
 </style>
 </head>
 <body>
