@@ -2267,7 +2267,6 @@ if(typeof olonOriginalRenderAdminTable === 'function'){
     registro:"Registra depósito, ganancia, pérdida y notas del día.",
     historial:"Consulta tu historial individual.",
     comparacion:"Compara tu mes actual con el mes anterior.",
-    marketLive:"Chart en vivo con velas japonesas de TradingView.",
     publicChat:"Canal público para todos los estudiantes.",
     admin:"Panel administrativo profesional.",
     adminChat:"Centro de mensajes privados."
@@ -2308,7 +2307,6 @@ if(typeof olonOriginalRenderAdminTable === 'function'){
       if(sidebar) sidebar.classList.remove("open");
       document.body.classList.remove("menu-open");
 
-      if(id === "marketLive" && typeof window.loadTradingViewProChart === "function") setTimeout(window.loadTradingViewProChart, 120);
       if(id === "publicChat" && typeof window.loadPublicChat === "function") setTimeout(window.loadPublicChat, 80);
       if(id === "adminChat" && typeof window.loadAdminChatInbox === "function") setTimeout(window.loadAdminChatInbox, 80);
       if(id === "admin" && typeof window.renderUsers === "function") setTimeout(window.renderUsers, 80);
@@ -2816,34 +2814,120 @@ function handlePublicChatEnter(e){
   }, true);
 })();
 
+// ===== OLON MARKET NEWS PRO - FINNHUB SECURE SUPABASE FUNCTION =====
+const OLON_NEWS_FUNCTION_URL = "https://bffojtcojnsvzxzwbdes.supabase.co/functions/v1/finnhub-news";
+let currentNewsCategory = "forex";
+let cachedNewsItems = [];
 
-/* =====================================================
-   OLON MARKET LIVE PRO - TRADINGVIEW WIDGET
-   ===================================================== */
-(function(){
-  let marketChartLoaded=false;
-  let lastKey="";
-  function getMarketSymbol(){return document.getElementById("marketSymbolSelect")?.value||"OANDA:XAUUSD";}
-  function getMarketInterval(){return document.getElementById("marketIntervalSelect")?.value||"5";}
-  function cleanMarketName(symbol){return String(symbol||"OANDA:XAUUSD").split(":").pop();}
-  function updateMarketLabel(symbol,interval){const label=document.getElementById("marketCurrentLabel");if(label){const tf=interval==="D"?"1D":interval==="60"?"1H":interval==="240"?"4H":interval+"M";label.innerText=cleanMarketName(symbol)+" · "+tf;}}
-  window.loadTradingViewProChart=function(force=false){
-    const container=document.getElementById("tradingview_pro_chart");
-    if(!container)return;
-    const symbol=getMarketSymbol();
-    const interval=getMarketInterval();
-    const key=symbol+"_"+interval;
-    updateMarketLabel(symbol,interval);
-    if(!force&&marketChartLoaded&&lastKey===key)return;
-    marketChartLoaded=true;lastKey=key;container.innerHTML="";
-    if(typeof TradingView==="undefined"||!TradingView.widget){
-      container.innerHTML='<div style="display:grid;place-items:center;height:100%;padding:24px;text-align:center;color:#94a3b8"><div><b style="color:#f8fafc">Cargando TradingView...</b><br>Verifica tu conexión si el chart no aparece.</div></div>';
-      setTimeout(function(){window.loadTradingViewProChart(true);},900);
-      return;
+function escapeNewsText(value){
+  return String(value || "").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
+}
+
+function setNewsActiveButton(category){
+  document.querySelectorAll(".newsFilterBtn").forEach(btn => {
+    btn.classList.toggle("active", btn.getAttribute("data-news-category") === category);
+  });
+}
+
+function formatNewsDate(timestamp){
+  try{
+    if(!timestamp) return "Ahora";
+    return new Date(Number(timestamp) * 1000).toLocaleString("es-PR", {
+      month:"short", day:"numeric", hour:"numeric", minute:"2-digit"
+    });
+  }catch(e){ return "Ahora"; }
+}
+
+function renderNews(items){
+  const container = document.getElementById("newsContainer");
+  const status = document.getElementById("newsStatus");
+  if(!container) return;
+
+  const clean = Array.isArray(items) ? items.filter(n => n && n.headline && n.url) : [];
+  cachedNewsItems = clean;
+
+  if(status){
+    status.textContent = `${clean.length} noticias cargadas · Categoría: ${currentNewsCategory.toUpperCase()}`;
+  }
+
+  if(!clean.length){
+    container.innerHTML = `<div class="newsEmpty">No llegaron noticias para esta categoría ahora mismo. Prueba General o Crypto.</div>`;
+    return;
+  }
+
+  container.innerHTML = clean.slice(0, 24).map(n => {
+    const img = n.image || "https://placehold.co/700x420/070b16/f6c453?text=OLON+Market+News";
+    const source = escapeNewsText(n.source || "Market News");
+    const headline = escapeNewsText(n.headline || "Noticia del mercado");
+    const summary = escapeNewsText(n.summary || "Abre la noticia para leer más detalles del mercado.");
+    const url = String(n.url || "#");
+    const date = formatNewsDate(n.datetime);
+    const dataText = escapeNewsText((source + " " + headline + " " + summary).toLowerCase());
+
+    return `
+      <article class="newsCard" data-news-text="${dataText}">
+        <div class="newsImageWrap"><img src="${img}" alt="${headline}" loading="lazy" onerror="this.src='https://placehold.co/700x420/070b16/f6c453?text=OLON+Market+News'"></div>
+        <div class="newsContent">
+          <div class="newsMeta"><span class="newsSource">${source}</span><span>${date}</span></div>
+          <h4>${headline}</h4>
+          <p>${summary.length > 130 ? summary.slice(0,130) + "..." : summary}</p>
+          <a href="${url}" target="_blank" rel="noopener noreferrer">Leer más →</a>
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  filterNewsCards();
+}
+
+async function loadNews(category = "forex", force = false){
+  currentNewsCategory = category || "forex";
+  window.currentNewsCategory = currentNewsCategory;
+  setNewsActiveButton(currentNewsCategory);
+
+  const container = document.getElementById("newsContainer");
+  const status = document.getElementById("newsStatus");
+  if(!container) return;
+
+  container.innerHTML = `<div class="newsLoading">Cargando noticias del mercado...</div>`;
+  if(status) status.textContent = "Conectando con Finnhub vía Supabase...";
+
+  try{
+    const res = await fetch(`${OLON_NEWS_FUNCTION_URL}?category=${encodeURIComponent(currentNewsCategory)}`);
+    const data = await res.json();
+
+    if(!res.ok || data?.error){
+      throw new Error(data?.error || "No se pudo cargar Finnhub");
     }
-    new TradingView.widget({autosize:true,symbol:symbol,interval:interval,timezone:"America/New_York",theme:"dark",style:"1",locale:"es",enable_publishing:false,hide_side_toolbar:false,allow_symbol_change:true,details:true,hotlist:false,calendar:false,studies:["Volume@tv-basicstudies"],container_id:"tradingview_pro_chart"});
+
+    renderNews(data);
+  }catch(err){
+    console.error("Finnhub news error", err);
+    container.innerHTML = `<div class="newsError">No se pudieron cargar las noticias. Verifica que la Edge Function esté deployed, Verify JWT esté OFF y el secret FINNHUB_API_KEY esté guardado.</div>`;
+    if(status) status.textContent = "Error de conexión con noticias.";
+  }
+}
+
+function filterNewsCards(){
+  const input = document.getElementById("newsSearchInput");
+  const query = (input?.value || "").trim().toLowerCase();
+  const cards = document.querySelectorAll(".newsCard");
+  cards.forEach(card => {
+    const text = card.getAttribute("data-news-text") || "";
+    card.style.display = !query || text.includes(query) ? "" : "none";
+  });
+}
+
+window.loadNews = loadNews;
+window.filterNewsCards = filterNewsCards;
+window.currentNewsCategory = currentNewsCategory;
+
+(function(){
+  const previousShowPage = window.showPage;
+  window.showPage = function(id, btn){
+    if(typeof previousShowPage === "function") previousShowPage(id, btn);
+    if(id === "newsProPage"){
+      setTimeout(() => loadNews(window.currentNewsCategory || "forex"), 120);
+    }
   };
-  window.reloadTradingViewProChart=function(){window.loadTradingViewProChart(true);if(typeof playClickSound==="function")playClickSound();};
-  window.changeMarketSymbol=function(){window.loadTradingViewProChart(true);};
-  document.addEventListener("DOMContentLoaded",function(){const current=document.querySelector(".page:not(.hidden)");if(current&&current.id==="marketLive")setTimeout(function(){window.loadTradingViewProChart(true);},300);});
 })();
