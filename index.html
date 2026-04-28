@@ -445,7 +445,6 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
           </div>
         </div>
 
-
         <div class="card goalCard yearlyGoalCard">
           <h3>Meta Anual</h3>
           <p style="color:var(--muted);margin-top:8px">Progreso basado en tu neto acumulado YTD.</p>
@@ -456,9 +455,11 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
           </div>
           <div style="margin-top:14px" class="field">
             <label>Editar meta anual</label>
-            <input id="yearlyGoalInput" type="number" placeholder="Ej: 20000" onchange="saveYearlyGoal()">
+            <input id="yearlyGoalInput" type="number" inputmode="decimal" min="1" step="1" placeholder="Ej: 20000">
           </div>
+          <button type="button" class="btn secondary full yearlySaveBtn" onclick="saveYearlyGoal()">Guardar Meta Anual</button>
         </div>
+
 
       </div>
 

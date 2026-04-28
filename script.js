@@ -1116,16 +1116,47 @@ function saveMonthlyGoal(){
 }
 
 
+
 function getYearlyGoal(){
-  return Number(localStorage.getItem("olon_yearly_goal") || 20000);
+  const stored = Number(localStorage.getItem("olon_yearly_goal"));
+  return Number.isFinite(stored) && stored > 0 ? stored : 20000;
 }
 
 function saveYearlyGoal(){
   const input = document.getElementById("yearlyGoalInput");
-  const value = Number(input?.value || 20000);
-  localStorage.setItem("olon_yearly_goal", Math.max(1, value));
+  const raw = Number(input?.value || 0);
+
+  if(!Number.isFinite(raw) || raw <= 0){
+    alert("Escribe una meta anual válida mayor que 0.");
+    return;
+  }
+
+  localStorage.setItem("olon_yearly_goal", String(raw));
+  if(typeof playClickSound === "function") playClickSound();
   renderProDashboard();
 }
+
+function updateYearlyGoalUI(){
+  const currentYear = yearRecords();
+  const ytdTotals = totals(currentYear);
+  const yearlyGoal = getYearlyGoal();
+  const yearlyGoalPct = clamp(Math.round((Math.max(0, ytdTotals.net) / yearlyGoal) * 100), 0, 100);
+
+  const yearlyGoalBar = document.getElementById("yearlyGoalBar");
+  if(yearlyGoalBar) yearlyGoalBar.style.width = yearlyGoalPct + "%";
+
+  const yearlyGoalText = document.getElementById("yearlyGoalText");
+  if(yearlyGoalText) yearlyGoalText.innerText = money(ytdTotals.net) + " / " + money(yearlyGoal);
+
+  const yearlyGoalPctEl = document.getElementById("yearlyGoalPct");
+  if(yearlyGoalPctEl) yearlyGoalPctEl.innerText = yearlyGoalPct + "%";
+
+  const yearlyGoalInput = document.getElementById("yearlyGoalInput");
+  if(yearlyGoalInput && document.activeElement !== yearlyGoalInput){
+    yearlyGoalInput.value = yearlyGoal;
+  }
+}
+
 
 
 function buildJournalNote(){
@@ -1478,19 +1509,8 @@ function renderProDashboard(){
   const goalPctEl = document.getElementById("monthlyGoalPct");
   if(goalPctEl) goalPctEl.innerText = goalPct + "%";
   const goalInput = document.getElementById("monthlyGoalInput");
-  if(goalInput && !goalInput.value) goalInput.value = goal;
-
-  const yearlyGoal = getYearlyGoal();
-  const yearlyGoalPct = clamp(Math.round((Math.max(0, ytdTotals.net) / yearlyGoal) * 100), 0, 100);
-  const yearlyGoalBar = document.getElementById("yearlyGoalBar");
-  if(yearlyGoalBar) yearlyGoalBar.style.width = yearlyGoalPct + "%";
-  const yearlyGoalText = document.getElementById("yearlyGoalText");
-  if(yearlyGoalText) yearlyGoalText.innerText = money(ytdTotals.net) + " / " + money(yearlyGoal);
-  const yearlyGoalPctEl = document.getElementById("yearlyGoalPct");
-  if(yearlyGoalPctEl) yearlyGoalPctEl.innerText = yearlyGoalPct + "%";
-  const yearlyGoalInput = document.getElementById("yearlyGoalInput");
-  if(yearlyGoalInput && !yearlyGoalInput.value) yearlyGoalInput.value = yearlyGoal;
-
+  if(goalInput && document.activeElement !== goalInput) goalInput.value = goal;
+  updateYearlyGoalUI();
   const ai = [];
   if(t.days === 0){
     ai.push("📌 Todavía no hay registros. Comienza registrando tu primer día.");
@@ -2768,5 +2788,29 @@ function handlePublicChatEnter(e){
     const view = active?.getAttribute("data-report") || window.currentReportView || "weekly";
     window.setReportViewSafe(view);
   });
+})();
+
+/* =====================================================
+   META ANUAL INPUT FIX
+   ===================================================== */
+(function(){
+  document.addEventListener("keydown", function(e){
+    const input = e.target && e.target.id === "yearlyGoalInput" ? e.target : null;
+    if(!input) return;
+
+    if(e.key === "Enter"){
+      e.preventDefault();
+      if(typeof saveYearlyGoal === "function") saveYearlyGoal();
+      input.blur();
+    }
+  });
+
+  document.addEventListener("blur", function(e){
+    const input = e.target && e.target.id === "yearlyGoalInput" ? e.target : null;
+    if(!input) return;
+    if(input.value && Number(input.value) > 0 && typeof saveYearlyGoal === "function"){
+      saveYearlyGoal();
+    }
+  }, true);
 })();
 

@@ -3497,3 +3497,27 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
     grid-template-columns:1fr;
   }
 }
+
+/* =====================================================
+   META ANUAL INPUT FIX
+   ===================================================== */
+.yearlyGoalCard,
+.yearlyGoalCard .field,
+#yearlyGoalInput,
+.yearlySaveBtn{
+  position:relative!important;
+  z-index:100!important;
+  pointer-events:auto!important;
+}
+
+#yearlyGoalInput{
+  min-height:48px!important;
+  touch-action:manipulation!important;
+  -webkit-user-select:text!important;
+  user-select:text!important;
+}
+
+.yearlySaveBtn{
+  margin-top:10px!important;
+}
+
