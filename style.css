@@ -2984,3 +2984,239 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
   body.menu-open .sidebar{z-index:9999!important}
 }
 
+
+
+/* =====================================================
+   CHAT PÚBLICO ESTILO WHATSAPP + EMOJIS
+   ===================================================== */
+.waChatShell{
+  position:relative;
+  min-height:72vh;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:28px;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(246,196,83,.08), transparent 26%),
+    radial-gradient(circle at 90% 80%, rgba(34,197,94,.08), transparent 28%),
+    linear-gradient(180deg, rgba(7,11,22,.96), rgba(2,6,23,.96));
+  box-shadow:var(--shadow);
+}
+.waChatHeader{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 16px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.05);
+}
+.waAvatar{
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  font-weight:900;
+  background:linear-gradient(135deg,var(--gold),var(--green));
+  color:#071016;
+}
+.waChatHeader h3{margin:0;font-size:18px}
+.waChatHeader p{margin:3px 0 0;color:var(--muted);font-size:12px}
+.waLive{
+  margin-left:auto;
+  font-size:12px;
+  font-weight:900;
+  color:#86efac;
+  background:rgba(34,197,94,.12);
+  border:1px solid rgba(34,197,94,.22);
+  padding:7px 10px;
+  border-radius:999px;
+}
+.waMessages{
+  flex:1;
+  min-height:52vh;
+  max-height:64vh;
+  overflow-y:auto;
+  padding:18px;
+  scroll-behavior:smooth;
+}
+.waMessages::-webkit-scrollbar{width:6px}
+.waMessages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:999px}
+.waEmpty{
+  text-align:center;
+  padding:60px 18px;
+  color:var(--muted);
+}
+.waEmptyIcon{font-size:42px;margin-bottom:10px}
+.waBubble{
+  max-width:min(76%,680px);
+  width:max-content;
+  min-width:120px;
+  padding:10px 12px 7px;
+  border-radius:18px 18px 18px 5px;
+  margin:0 0 10px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.08);
+  color:#f8fafc;
+  line-height:1.4;
+  word-break:break-word;
+  animation:waPop .16s ease both;
+}
+.waBubble.me{
+  margin-left:auto;
+  border-radius:18px 18px 5px 18px;
+  background:linear-gradient(135deg,rgba(34,197,94,.22),rgba(59,130,246,.12));
+  border-color:rgba(34,197,94,.20);
+}
+.waBubble.admin{
+  background:linear-gradient(135deg,rgba(246,196,83,.18),rgba(255,255,255,.06));
+  border-color:rgba(246,196,83,.24);
+}
+.waName{
+  display:block;
+  margin-bottom:4px;
+  color:#fde68a;
+  font-size:12px;
+  font-weight:900;
+}
+.waBubble.me .waName{color:#bbf7d0}
+.waText{white-space:pre-wrap}
+.waMeta{
+  display:flex;
+  justify-content:flex-end;
+  gap:5px;
+  align-items:center;
+  margin-top:5px;
+  font-size:10px;
+  color:rgba(255,255,255,.62);
+}
+.waChecks{color:#86efac;font-weight:900}
+.waEmojiBar{
+  display:flex;
+  gap:7px;
+  padding:8px 12px 0;
+  overflow-x:auto;
+  background:rgba(2,6,23,.64);
+}
+.waEmojiBar button{
+  flex:none;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  width:38px;
+  height:34px;
+  border-radius:999px;
+  cursor:pointer;
+  font-size:17px;
+}
+.waEmojiBar button:hover{transform:translateY(-2px);background:rgba(246,196,83,.12)}
+.waComposer{
+  display:flex;
+  gap:10px;
+  align-items:flex-end;
+  padding:10px 12px 14px;
+  background:rgba(2,6,23,.64);
+  border-top:1px solid rgba(255,255,255,.06);
+}
+.waComposer textarea{
+  flex:1;
+  min-height:46px;
+  max-height:110px;
+  resize:none;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  border-radius:22px;
+  padding:13px 15px;
+  outline:none;
+  font-family:inherit;
+}
+.waSendBtn{
+  width:48px;
+  height:48px;
+  border:0;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--green),var(--gold));
+  color:#071016;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 10px 25px rgba(34,197,94,.18);
+}
+.waNewMessagesBtn{
+  position:absolute;
+  right:18px;
+  bottom:112px;
+  z-index:4;
+  border:0;
+  border-radius:999px;
+  padding:9px 13px;
+  background:linear-gradient(135deg,var(--gold),var(--green));
+  color:#071016;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 12px 28px rgba(0,0,0,.28);
+}
+@keyframes waPop{
+  from{opacity:0;transform:translateY(5px) scale(.98)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+@media(max-width:700px){
+  .waChatShell{min-height:74vh;border-radius:20px}
+  .waMessages{min-height:56vh;max-height:58vh;padding:12px}
+  .waBubble{max-width:88%;font-size:14px}
+  .waLive{display:none}
+}
+
+
+/* =====================================================
+   BOTÓN ABRIR / CERRAR MENÚ - MÓVIL & IPAD
+   ===================================================== */
+.mobileMenuToggle{
+  position:fixed;
+  top:14px;
+  left:14px;
+  width:48px;
+  height:48px;
+  border-radius:16px;
+  border:1px solid rgba(246,196,83,.32);
+  background:linear-gradient(135deg,rgba(7,11,22,.92),rgba(17,24,39,.82));
+  color:#fff;
+  font-size:24px;
+  font-weight:900;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:12000;
+  cursor:pointer;
+  backdrop-filter:blur(14px);
+  box-shadow:0 14px 34px rgba(0,0,0,.34),0 0 24px rgba(246,196,83,.14);
+}
+.mobileMenuToggle span{
+  display:block;
+  line-height:1;
+  transform:translateY(-1px);
+}
+body.menu-open .mobileMenuToggle{
+  left:236px;
+  background:linear-gradient(135deg,var(--gold),var(--blue));
+  color:#071016;
+}
+@media(max-width:980px){
+  .mobileMenuToggle{
+    display:flex!important;
+  }
+  .topbar{
+    padding-left:58px!important;
+  }
+}
+@media(max-width:420px){
+  body.menu-open .mobileMenuToggle{
+    left:226px;
+  }
+}
+@media(min-width:981px){
+  .mobileMenuToggle{
+    display:none!important;
+  }
+}

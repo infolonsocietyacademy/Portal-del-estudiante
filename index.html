@@ -295,6 +295,11 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
 </section>
 
 <section id="portal" class="app hidden">
+
+  <button id="mobileMenuToggle" class="mobileMenuToggle" type="button" onclick="toggleMenu()" aria-label="Abrir menú">
+    <span id="mobileMenuIcon">☰</span>
+  </button>
+
   <aside id="sidebar" class="sidebar">
     <div class="brand">
       <img src="./assets/logo.png" alt="OLON Society Academy" style="width:70px;">
@@ -520,24 +525,42 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
       </div>
     </section>
 
-
     <section id="publicChat" class="page hidden">
-      <div class="card">
-        <h3>🌍 Chat Público</h3>
-        <p style="color:var(--muted);margin:8px 0 14px">
-          Canal general donde todos los estudiantes y admins pueden hablar en tiempo real.
-        </p>
+      <div class="waChatShell">
+        <div class="waChatHeader">
+          <div class="waAvatar">OS</div>
+          <div>
+            <h3>Chat Público OLON</h3>
+            <p>Canal general en vivo · Comunidad</p>
+          </div>
+          <span class="waLive">● Online</span>
+        </div>
 
-        <div id="publicChatMessages" class="chatMessages"></div>
+        <div id="publicChatMessages" class="waMessages"></div>
 
-        <div class="chatInputArea">
-          <textarea id="publicChatInput" placeholder="Escribe un mensaje al grupo..." onkeydown="handlePublicChatEnter(event)"></textarea>
-          <button type="button" onclick="sendPublicMessage()">Enviar</button>
+        <button id="waNewMessagesBtn" class="waNewMessagesBtn" type="button" onclick="forcePublicChatBottom(true)" style="display:none">
+          Nuevos mensajes ↓
+        </button>
+
+        <div class="waEmojiBar">
+          <button type="button" onclick="insertPublicEmoji('🔥')">🔥</button>
+          <button type="button" onclick="insertPublicEmoji('📈')">📈</button>
+          <button type="button" onclick="insertPublicEmoji('💎')">💎</button>
+          <button type="button" onclick="insertPublicEmoji('✅')">✅</button>
+          <button type="button" onclick="insertPublicEmoji('🙏')">🙏</button>
+          <button type="button" onclick="insertPublicEmoji('🚀')">🚀</button>
+          <button type="button" onclick="insertPublicEmoji('😂')">😂</button>
+          <button type="button" onclick="insertPublicEmoji('👀')">👀</button>
+        </div>
+
+        <div class="waComposer">
+          <textarea id="publicChatInput" placeholder="Escribe un mensaje..." onkeydown="handlePublicChatEnter(event)"></textarea>
+          <button class="waSendBtn" type="button" onclick="sendPublicMessage()">➤</button>
         </div>
       </div>
     </section>
 
-    <section id="admin" class="page hidden">
+<section id="admin" class="page hidden">
       <div class="adminHero">
         <div class="adminHeroTop">
           <div>
@@ -827,6 +850,46 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
       enterLoader.style.display = "none";
     }
   });
+})();
+
+</script>
+<script>
+
+/* =====================================================
+   MOBILE MENU BUTTON FINAL FIX
+   ===================================================== */
+(function(){
+  function updateMobileMenuIcon(){
+    const sidebar = document.getElementById("sidebar");
+    const icon = document.getElementById("mobileMenuIcon");
+    const btn = document.getElementById("mobileMenuToggle");
+    const opened = !!(sidebar && sidebar.classList.contains("open"));
+
+    if(icon) icon.textContent = opened ? "×" : "☰";
+    if(btn) btn.setAttribute("aria-label", opened ? "Cerrar menú" : "Abrir menú");
+    document.body.classList.toggle("menu-open", opened);
+  }
+
+  window.toggleMenu = function(){
+    const sidebar = document.getElementById("sidebar");
+    if(!sidebar) return;
+    sidebar.classList.toggle("open");
+    updateMobileMenuIcon();
+  };
+
+  document.addEventListener("click", function(e){
+    if(!document.body.classList.contains("menu-open")) return;
+
+    const sidebar = document.getElementById("sidebar");
+    const btn = document.getElementById("mobileMenuToggle");
+
+    if(sidebar && !sidebar.contains(e.target) && btn && !btn.contains(e.target)){
+      sidebar.classList.remove("open");
+      updateMobileMenuIcon();
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", updateMobileMenuIcon);
 })();
 
 </script>
