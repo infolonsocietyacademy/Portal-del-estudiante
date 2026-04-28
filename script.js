@@ -2684,51 +2684,63 @@ function handlePublicChatEnter(e){
 })();
 
 /* =====================================================
-   FIX SELECTOR REPORTES MOBILE - CLICK/TAP
+   FIX FINAL YTD MOBILE - JS SAFE
    ===================================================== */
 (function(){
-  function activateReport(view){
-    if(typeof window.setReportView === "function"){
-      window.setReportView(view);
-      return;
-    }
+  window.setReportViewSafe = function(view){
+    view = String(view || "weekly").toLowerCase();
+    if(!["weekly","monthly","ytd"].includes(view)) view = "weekly";
 
-    // Fallback si algo pisa setReportView
-    window.currentReportView = view;
-    ["weekly","monthly","ytd"].forEach(function(v){
-      const btn = document.querySelector('[data-report="'+v+'"]');
-      if(btn) btn.classList.toggle("active", v === view);
-    });
+    try{
+      if(typeof window.setReportView === "function"){
+        window.setReportView(view);
+      }else{
+        window.currentReportView = view;
+        if(typeof window.renderSelectedReport === "function") window.renderSelectedReport();
+      }
 
-    if(typeof window.renderSelectedReport === "function"){
-      window.renderSelectedReport();
+      ["weekly","monthly","ytd"].forEach(function(v){
+        const btn = document.querySelector('[data-report="'+v+'"]');
+        if(btn) btn.classList.toggle("active", v === view);
+      });
+
+      const select = document.getElementById("mobileReportSelect");
+      if(select && select.value !== view) select.value = view;
+
+      const card = document.querySelector(".selectedReportCard");
+      if(card && window.innerWidth <= 700){
+        setTimeout(() => {
+          card.scrollIntoView({behavior:"smooth", block:"nearest"});
+        }, 80);
+      }
+    }catch(err){
+      console.error("setReportViewSafe error:", err);
     }
+  };
+
+  function handleReportTap(e){
+    const btn = e.target.closest("[data-report]");
+    if(!btn) return;
+
+    const view = btn.getAttribute("data-report");
+    if(!view) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+
+    window.setReportViewSafe(view);
+    return false;
   }
 
-  document.addEventListener("click", function(e){
-    const btn = e.target.closest("[data-report]");
-    if(!btn) return;
+  ["click","pointerdown","touchstart"].forEach(function(evt){
+    document.addEventListener(evt, handleReportTap, {capture:true, passive:false});
+  });
 
-    const view = btn.getAttribute("data-report");
-    if(!view) return;
-
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    activateReport(view);
-    return false;
-  }, true);
-
-  document.addEventListener("touchend", function(e){
-    const btn = e.target.closest("[data-report]");
-    if(!btn) return;
-
-    const view = btn.getAttribute("data-report");
-    if(!view) return;
-
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    activateReport(view);
-    return false;
-  }, {capture:true, passive:false});
+  document.addEventListener("DOMContentLoaded", function(){
+    const active = document.querySelector(".reportTapBtn.active,[data-report].active");
+    const view = active?.getAttribute("data-report") || window.currentReportView || "weekly";
+    window.setReportViewSafe(view);
+  });
 })();
 
