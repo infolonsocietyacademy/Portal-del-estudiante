@@ -926,6 +926,97 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
   to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
 }
 
+
+/* ===== DASHBOARD PRO OLON V2 ===== */
+.proGrid{
+  display:grid;
+  grid-template-columns:1.15fr .85fr;
+  gap:16px;
+  margin:16px 0;
+}
+.traderScoreCard{
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(135deg,rgba(255,216,107,.14),rgba(59,130,246,.10),rgba(168,85,247,.08));
+}
+.traderScoreCard:before{
+  content:"";
+  position:absolute;
+  right:-80px;
+  top:-80px;
+  width:220px;
+  height:220px;
+  border-radius:50%;
+  background:rgba(255,216,107,.16);
+  filter:blur(14px);
+}
+.traderScoreInner{position:relative;z-index:1;display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+.scoreRing{
+  width:138px;height:138px;border-radius:50%;
+  display:grid;place-items:center;
+  background:conic-gradient(var(--gold) calc(var(--score,0)*1%), rgba(255,255,255,.10) 0);
+  box-shadow:0 0 44px rgba(246,196,83,.14);
+}
+.scoreRing span{
+  width:106px;height:106px;border-radius:50%;
+  display:grid;place-items:center;
+  background:#07101f;
+  border:1px solid rgba(255,255,255,.10);
+  font-size:30px;font-weight:900;color:#fff;
+}
+.scoreDetails h3{font-size:26px;letter-spacing:-.04em}
+.scoreDetails p{color:var(--muted);margin:8px 0 14px;line-height:1.6}
+.scoreBars{display:grid;gap:10px}
+.scoreBarTop{display:flex;justify-content:space-between;color:#cbd5e1;font-size:12px;font-weight:900;margin-bottom:6px}
+.scoreBarTrack{height:8px;border-radius:999px;background:rgba(255,255,255,.09);overflow:hidden}
+.scoreBarTrack span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--blue))}
+.goalCard h3,.aiCard h3,.calendarCard h3{font-size:20px;letter-spacing:-.03em}
+.goalBar{margin-top:14px;height:13px;border-radius:999px;background:rgba(255,255,255,.09);overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+.goalBar span{display:block;height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--green))}
+.goalMeta{display:flex;justify-content:space-between;gap:10px;margin-top:12px;color:var(--muted);font-size:12px;font-weight:800}
+.aiList{display:grid;gap:10px;margin-top:14px}
+.aiItem{padding:12px;border-radius:16px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.045);color:#cbd5e1;font-size:13px;line-height:1.45;font-weight:700}
+.calendarGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin-top:14px}
+.calDay{
+  min-height:44px;border-radius:14px;
+  display:grid;place-items:center;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.04);
+  font-size:12px;font-weight:900;color:#94a3b8;
+}
+.calDay.goodDay{background:rgba(34,197,94,.16);color:#bbf7d0;border-color:rgba(34,197,94,.26)}
+.calDay.badDay{background:rgba(239,68,68,.16);color:#fecaca;border-color:rgba(239,68,68,.26)}
+.calDay.flatDay{background:rgba(245,158,11,.16);color:#fde68a;border-color:rgba(245,158,11,.26)}
+.proQuote{
+  margin:16px 0;
+  padding:17px 18px;
+  border-radius:22px;
+  border:1px solid rgba(246,196,83,.22);
+  background:linear-gradient(135deg,rgba(246,196,83,.10),rgba(59,130,246,.07));
+  color:#e5e7eb;
+  font-weight:800;
+  line-height:1.55;
+}
+.floatingAdd{
+  position:fixed;
+  right:22px;
+  bottom:22px;
+  z-index:40;
+  border-radius:999px;
+  padding:15px 18px;
+  box-shadow:0 18px 44px rgba(0,0,0,.36),0 0 32px rgba(246,196,83,.16);
+}
+@media(max-width:980px){
+  .proGrid{grid-template-columns:1fr}
+  .traderScoreInner{grid-template-columns:1fr;text-align:center}
+  .scoreRing{margin:0 auto}
+}
+@media(max-width:620px){
+  .calendarGrid{gap:5px}
+  .calDay{min-height:38px;border-radius:12px}
+  .floatingAdd{right:14px;bottom:14px;padding:13px 15px}
+}
+
 </style>
 </head>
 <body>
@@ -1132,6 +1223,61 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
         </div>
       </div>
 
+      <div class="proQuote" id="dailyQuote">🔥 La disciplina te paga lo que la emoción te quita.</div>
+
+      <div class="proGrid">
+        <div class="card traderScoreCard">
+          <div class="traderScoreInner">
+            <div class="scoreRing" id="scoreRing" style="--score:0"><span id="traderScore">0%</span></div>
+            <div class="scoreDetails">
+              <h3>Trader Score</h3>
+              <p id="traderLevel">Nivel: En desarrollo</p>
+              <div class="scoreBars">
+                <div>
+                  <div class="scoreBarTop"><span>Disciplina</span><span id="disciplineScore">0%</span></div>
+                  <div class="scoreBarTrack"><span id="disciplineBar" style="width:0%"></span></div>
+                </div>
+                <div>
+                  <div class="scoreBarTop"><span>Consistencia</span><span id="consistencyScore">0%</span></div>
+                  <div class="scoreBarTrack"><span id="consistencyBar" style="width:0%"></span></div>
+                </div>
+                <div>
+                  <div class="scoreBarTop"><span>Control de riesgo</span><span id="riskScore">0%</span></div>
+                  <div class="scoreBarTrack"><span id="riskBar" style="width:0%"></span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card goalCard">
+          <h3>Meta Mensual</h3>
+          <p style="color:var(--muted);margin-top:8px">Progreso basado en tu neto del mes actual.</p>
+          <div class="goalBar"><span id="monthlyGoalBar"></span></div>
+          <div class="goalMeta">
+            <span id="monthlyGoalText">$0 / $2,000</span>
+            <span id="monthlyGoalPct">0%</span>
+          </div>
+          <div style="margin-top:14px" class="field">
+            <label>Editar meta mensual</label>
+            <input id="monthlyGoalInput" type="number" placeholder="Ej: 2000" onchange="saveMonthlyGoal()">
+          </div>
+        </div>
+      </div>
+
+      <div class="proGrid">
+        <div class="card aiCard">
+          <h3>Análisis Automático</h3>
+          <div class="aiList" id="aiAnalysisList"></div>
+        </div>
+
+        <div class="card calendarCard">
+          <h3>Calendario del Mes</h3>
+          <p style="color:var(--muted);margin-top:8px;font-size:13px">🟢 positivo · 🔴 negativo · 🟡 break even</p>
+          <div class="calendarGrid" id="tradingCalendar"></div>
+        </div>
+      </div>
+
       <div class="grid4">
         <div class="card metric"><small>Total Depositado</small><h3 id="mDeposited">$0</h3><span class="good">Capital registrado</span></div>
         <div class="card metric"><small>Total Ganado / Perdido</small><h3 id="mNet">$0</h3><span id="mNetLabel" class="good">Ganancias menos pérdidas</span></div>
@@ -1166,6 +1312,12 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
           <div class="field"><label>Depósito inicial / adicional</label><input id="deposit" type="number" placeholder="Ej: 500"></div>
           <div class="field"><label>Ganancia del día</label><input id="gain" type="number" placeholder="Ej: 80"></div>
           <div class="field"><label>Pérdida del día</label><input id="loss" type="number" placeholder="Ej: 20"></div>
+
+          <div class="field"><label>Par operado</label><input id="pair" placeholder="Ej: NAS100, XAUUSD, EURUSD"></div>
+          <div class="field"><label>Tipo de trade</label><select id="tradeType"><option value="">Seleccionar</option><option>Scalp</option><option>Intraday</option><option>Swing</option></select></div>
+          <div class="field"><label>Emoción</label><select id="emotion"><option value="">Seleccionar</option><option>Disciplina</option><option>FOMO</option><option>Ansiedad</option><option>Paciencia</option><option>Confianza</option></select></div>
+          <div class="field"><label>Error cometido</label><input id="mistake" placeholder="Ej: Entré tarde, no esperé confirmación">
+          </div>
           <div class="field full"><label>Nota</label><textarea id="note" placeholder="Ej: Buen trade en NAS100, respeté mi plan."></textarea></div>
           <button class="btn full" onclick="addRecord()">Guardar registro</button>
         </div>
@@ -1510,7 +1662,7 @@ async function login(){
   localStorage.setItem("olon_current_user", JSON.stringify(currentUser));
 
   setLoaderStudentName(currentUser.full_name, currentUser.plan); showPortalEnterLoader();
-  await waitPortalLoading(1450);
+  await waitPortalLoading(4000);
   await enterPortal();
   hidePortalEnterLoader();
 }
@@ -1602,6 +1754,7 @@ async function enterPortal(){
   document.getElementById("portalMode").innerText = isAdmin ? "Admin Portal" : "Student Portal";
   document.querySelectorAll(".studentNav").forEach(el => el.classList.toggle("hidden", isAdmin));
   document.querySelectorAll(".adminNav").forEach(el => el.classList.toggle("hidden", !isAdmin));
+  document.querySelectorAll(".studentOnly").forEach(el => el.classList.toggle("hidden", isAdmin));
 
   showPageById(isAdmin ? "admin" : "dashboard");
   updatePortalWelcome();
@@ -1652,11 +1805,11 @@ async function addRecord(){
     deposit: Number(document.getElementById("deposit").value||0),
     gain: Number(document.getElementById("gain").value||0),
     loss: Number(document.getElementById("loss").value||0),
-    note: document.getElementById("note").value.trim()
+    note: buildJournalNote()
   };
   const { error } = await supabaseClient.from("student_records").insert([rec]);
   if(error){ showError("No se pudo guardar el registro.", error); return; }
-  document.getElementById("deposit").value=""; document.getElementById("gain").value=""; document.getElementById("loss").value=""; document.getElementById("note").value="";
+  document.getElementById("deposit").value=""; document.getElementById("gain").value=""; document.getElementById("loss").value=""; document.getElementById("note").value=""; ["pair","tradeType","emotion","mistake"].forEach(id=>{const el=document.getElementById(id); if(el) el.value="";});
   await fetchRecords(); await render(); showPageById("dashboard");
 }
 
@@ -1682,6 +1835,128 @@ function monthRecords(offset){
   return cachedRecords.filter(r=>{ const d = new Date(r.date + "T00:00:00"); return d.getFullYear() === y && d.getMonth() === m; });
 }
 
+
+function getMonthlyGoal(){
+  return Number(localStorage.getItem("olon_monthly_goal") || 2000);
+}
+
+function saveMonthlyGoal(){
+  const input = document.getElementById("monthlyGoalInput");
+  const value = Number(input?.value || 2000);
+  localStorage.setItem("olon_monthly_goal", Math.max(1, value));
+  renderProDashboard();
+}
+
+function buildJournalNote(){
+  const pair = document.getElementById("pair")?.value.trim();
+  const type = document.getElementById("tradeType")?.value.trim();
+  const emotion = document.getElementById("emotion")?.value.trim();
+  const mistake = document.getElementById("mistake")?.value.trim();
+  const note = document.getElementById("note")?.value.trim();
+  const parts = [];
+  if(pair) parts.push("Par: " + pair);
+  if(type) parts.push("Tipo: " + type);
+  if(emotion) parts.push("Emoción: " + emotion);
+  if(mistake) parts.push("Error: " + mistake);
+  if(note) parts.push("Nota: " + note);
+  return parts.join(" | ");
+}
+
+function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
+
+function renderProDashboard(){
+  if(!currentUser || currentUser.role === "admin") return;
+  const records = cachedRecords || [];
+  const t = totals(records);
+  const currentMonth = monthRecords(0);
+  const cur = totals(currentMonth);
+
+  const positiveDays = t.positiveDays || 0;
+  const totalDays = Math.max(1, t.days || 0);
+  const discipline = clamp(Math.round((positiveDays / totalDays) * 100), 0, 100);
+  const consistency = clamp(Math.round((Math.min(totalDays, 20) / 20) * 100), 0, 100);
+  const risk = clamp(Math.round(100 - (t.loss > 0 && t.gain > 0 ? (t.loss / Math.max(t.gain,1))*55 : t.loss > 0 ? 35 : 0)), 0, 100);
+  const traderScore = Math.round((discipline * .40) + (consistency * .25) + (risk * .35));
+
+  const scoreRing = document.getElementById("scoreRing");
+  if(scoreRing) scoreRing.style.setProperty("--score", traderScore);
+  const scoreEl = document.getElementById("traderScore");
+  if(scoreEl) scoreEl.innerText = traderScore + "%";
+
+  const level = traderScore >= 90 ? "Master Trader" : traderScore >= 75 ? "Elite Consistente" : traderScore >= 60 ? "Trader en Crecimiento" : "En desarrollo";
+  const levelEl = document.getElementById("traderLevel");
+  if(levelEl) levelEl.innerText = "Nivel: " + level;
+
+  [["discipline",discipline],["consistency",consistency],["risk",risk]].forEach(([id,val])=>{
+    const score = document.getElementById(id+"Score");
+    const bar = document.getElementById(id+"Bar");
+    if(score) score.innerText = val + "%";
+    if(bar) bar.style.width = val + "%";
+  });
+
+  const goal = getMonthlyGoal();
+  const goalPct = clamp(Math.round((Math.max(0, cur.net) / goal) * 100), 0, 100);
+  const goalBar = document.getElementById("monthlyGoalBar");
+  if(goalBar) goalBar.style.width = goalPct + "%";
+  const goalText = document.getElementById("monthlyGoalText");
+  if(goalText) goalText.innerText = money(cur.net) + " / " + money(goal);
+  const goalPctEl = document.getElementById("monthlyGoalPct");
+  if(goalPctEl) goalPctEl.innerText = goalPct + "%";
+  const goalInput = document.getElementById("monthlyGoalInput");
+  if(goalInput && !goalInput.value) goalInput.value = goal;
+
+  const ai = [];
+  if(t.days === 0){
+    ai.push("📌 Todavía no hay registros. Comienza registrando tu primer día.");
+  }else{
+    ai.push(traderScore >= 75 ? "🔥 Buen progreso: tu score muestra consistencia y control." : "⚠️ Tu score puede mejorar si registras más días y reduces pérdidas.");
+    ai.push(t.net >= 0 ? "✅ Tu balance neto está positivo. Mantén la misma disciplina." : "🔴 Tu balance neto está negativo. Baja el riesgo y enfócate en calidad.");
+    ai.push(t.loss > t.gain ? "⚠️ Las pérdidas superan las ganancias. Revisa entradas impulsivas o sobreoperación." : "🛡️ El control de riesgo se mantiene saludable.");
+    ai.push(currentMonth.length >= 8 ? "📈 Buen hábito: tienes varios registros este mes." : "🗓️ Registra más días para que el análisis sea más preciso.");
+  }
+  const aiBox = document.getElementById("aiAnalysisList");
+  if(aiBox) aiBox.innerHTML = ai.map(x=>`<div class="aiItem">${x}</div>`).join("");
+
+  renderTradingCalendar(currentMonth);
+  renderDailyQuote();
+}
+
+function renderDailyQuote(){
+  const quotes = [
+    "🔥 La disciplina te paga lo que la emoción te quita.",
+    "📈 Un buen trader no persigue el mercado; espera su oportunidad.",
+    "🛡️ Proteger capital también es ganar.",
+    "💎 La consistencia se construye registro por registro.",
+    "⚡ No necesitas operar más, necesitas operar mejor."
+  ];
+  const el = document.getElementById("dailyQuote");
+  if(el){
+    const day = new Date().getDate();
+    el.innerText = quotes[day % quotes.length];
+  }
+}
+
+function renderTradingCalendar(records){
+  const box = document.getElementById("tradingCalendar");
+  if(!box) return;
+  const now = new Date();
+  const days = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const map = {};
+  records.forEach(r=>{
+    const d = new Date(r.date + "T00:00:00").getDate();
+    map[d] = (map[d] || 0) + Number(r.gain||0) - Number(r.loss||0);
+  });
+  let html = "";
+  for(let d=1; d<=days; d++){
+    let cls = "";
+    if(map[d] > 0) cls = "goodDay";
+    else if(map[d] < 0) cls = "badDay";
+    else if(map[d] === 0 && map[d] !== undefined) cls = "flatDay";
+    html += `<div class="calDay ${cls}">${d}</div>`;
+  }
+  box.innerHTML = html;
+}
+
 async function render(){
   if(!currentUser) return;
   if(currentUser.role === "admin"){ await renderUsers(); return; }
@@ -1701,7 +1976,7 @@ async function render(){
     const net = Number(r.gain)-Number(r.loss);
     return `<tr><td>${r.date}</td><td>${money(r.deposit)}</td><td class="good">${money(r.gain)}</td><td class="bad">${money(r.loss)}</td><td><span class="badge ${net>=0?'green':'red'}">${money(net)}</span></td><td>${r.note || "-"}</td><td><button class="btn secondary" onclick="delRecord('${r.id}')">Eliminar</button></td></tr>`
   }).join("") || `<tr><td colspan="7" style="color:var(--muted)">No hay registros todavía.</td></tr>`;
-  renderCompare(); renderChart();
+  renderCompare(); renderChart(); renderProDashboard();
 }
 
 function changeBadge(value, inverse=false){
@@ -1863,7 +2138,7 @@ setupEmailVerificationListeners();
 updateAuthRealStats();
 if(currentUser){
   setLoaderStudentName(currentUser.full_name, currentUser.plan); showPortalEnterLoader();
-  waitPortalLoading(1200).then(async () => {
+  waitPortalLoading(4000).then(async () => {
     await enterPortal();
     hidePortalEnterLoader();
   });
