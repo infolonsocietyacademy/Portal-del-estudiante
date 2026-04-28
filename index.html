@@ -1017,6 +1017,129 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
   .floatingAdd{right:14px;bottom:14px;padding:13px 15px}
 }
 
+
+/* ===== CALENDARIO REAL PRO CON GANANCIA / PERDIDA ===== */
+.calendarCard{
+  overflow:hidden;
+}
+.calendarHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-top:12px;
+  padding:12px 14px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.045);
+}
+.calendarMonthTitle{
+  font-weight:900;
+  color:#fff;
+  letter-spacing:-.02em;
+}
+.calendarTotal{
+  font-size:12px;
+  font-weight:900;
+  color:var(--muted);
+}
+.calendarWeekdays{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:7px;
+  margin-top:14px;
+}
+.calendarWeekdays div{
+  text-align:center;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.4px;
+}
+.calendarGrid{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:7px;
+  margin-top:8px;
+}
+.calDay{
+  min-height:82px!important;
+  border-radius:16px!important;
+  padding:8px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  justify-content:space-between!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+  background:rgba(255,255,255,.04)!important;
+  color:#94a3b8!important;
+  font-size:12px!important;
+  font-weight:900!important;
+  text-align:left!important;
+  transition:.22s ease;
+}
+.calDay:hover{
+  transform:translateY(-3px);
+  border-color:rgba(246,196,83,.32)!important;
+  box-shadow:0 14px 32px rgba(0,0,0,.25);
+}
+.calDay.empty{
+  background:transparent!important;
+  border:1px solid transparent!important;
+  box-shadow:none!important;
+  pointer-events:none;
+}
+.dayNum{
+  color:#94a3b8;
+  font-size:12px;
+  font-weight:900;
+}
+.dayValue{
+  display:block;
+  margin-top:8px;
+  text-align:right;
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:-.02em;
+}
+.dayTrades{
+  display:block;
+  margin-top:4px;
+  text-align:right;
+  font-size:10px;
+  color:rgba(226,232,240,.72);
+  font-weight:800;
+}
+.calDay.goodDay{
+  background:linear-gradient(180deg,rgba(34,197,94,.22),rgba(34,197,94,.08))!important;
+  color:#bbf7d0!important;
+  border-color:rgba(34,197,94,.34)!important;
+}
+.calDay.badDay{
+  background:linear-gradient(180deg,rgba(239,68,68,.24),rgba(239,68,68,.08))!important;
+  color:#fecaca!important;
+  border-color:rgba(239,68,68,.34)!important;
+}
+.calDay.flatDay{
+  background:linear-gradient(180deg,rgba(245,158,11,.22),rgba(245,158,11,.08))!important;
+  color:#fde68a!important;
+  border-color:rgba(245,158,11,.34)!important;
+}
+.calDay.goodDay .dayValue{color:#bbf7d0}
+.calDay.badDay .dayValue{color:#fecaca}
+.calDay.flatDay .dayValue{color:#fde68a}
+@media(max-width:620px){
+  .calendarWeekdays,.calendarGrid{gap:5px}
+  .calDay{
+    min-height:64px!important;
+    border-radius:13px!important;
+    padding:6px!important;
+  }
+  .dayValue{font-size:10.5px}
+  .dayTrades{display:none}
+}
+
 </style>
 </head>
 <body>
@@ -1273,7 +1396,14 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
 
         <div class="card calendarCard">
           <h3>Calendario del Mes</h3>
-          <p style="color:var(--muted);margin-top:8px;font-size:13px">🟢 positivo · 🔴 negativo · 🟡 break even</p>
+          <p style="color:var(--muted);margin-top:8px;font-size:13px">Solo muestra los días que registras en “Agregar Día”.</p>
+          <div class="calendarHead">
+            <div class="calendarMonthTitle" id="calendarMonthTitle">Mes actual</div>
+            <div class="calendarTotal" id="calendarMonthTotal">$0</div>
+          </div>
+          <div class="calendarWeekdays">
+            <div>Dom</div><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div>
+          </div>
           <div class="calendarGrid" id="tradingCalendar"></div>
         </div>
       </div>
@@ -1939,21 +2069,72 @@ function renderDailyQuote(){
 function renderTradingCalendar(records){
   const box = document.getElementById("tradingCalendar");
   if(!box) return;
+
   const now = new Date();
-  const days = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+
+  const monthNames = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+  const title = document.getElementById("calendarMonthTitle");
+  if(title) title.innerText = monthNames[month] + " " + year;
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const totalDays = new Date(year, month + 1, 0).getDate();
+
   const map = {};
   records.forEach(r=>{
     const d = new Date(r.date + "T00:00:00").getDate();
-    map[d] = (map[d] || 0) + Number(r.gain||0) - Number(r.loss||0);
+    const net = Number(r.gain||0) - Number(r.loss||0);
+    if(!map[d]) map[d] = { net:0, trades:0 };
+    map[d].net += net;
+    map[d].trades += 1;
   });
-  let html = "";
-  for(let d=1; d<=days; d++){
-    let cls = "";
-    if(map[d] > 0) cls = "goodDay";
-    else if(map[d] < 0) cls = "badDay";
-    else if(map[d] === 0 && map[d] !== undefined) cls = "flatDay";
-    html += `<div class="calDay ${cls}">${d}</div>`;
+
+  const monthTotal = Object.values(map).reduce((a,x)=>a + Number(x.net||0),0);
+  const totalEl = document.getElementById("calendarMonthTotal");
+  if(totalEl){
+    totalEl.innerText = (monthTotal >= 0 ? "+" : "-") + money(Math.abs(monthTotal));
+    totalEl.className = "calendarTotal " + (monthTotal >= 0 ? "good" : "bad");
   }
+
+  let html = "";
+
+  for(let i=0; i<firstDay; i++){
+    html += `<div class="calDay empty"></div>`;
+  }
+
+  for(let d=1; d<=totalDays; d++){
+    const dayData = map[d];
+    let cls = "";
+    let value = "";
+    let tradesText = "";
+
+    if(dayData){
+      const net = Number(dayData.net || 0);
+      if(net > 0){
+        cls = "goodDay";
+        value = "+" + money(net);
+      }else if(net < 0){
+        cls = "badDay";
+        value = "-" + money(Math.abs(net));
+      }else{
+        cls = "flatDay";
+        value = money(0);
+      }
+      tradesText = dayData.trades === 1 ? "1 registro" : dayData.trades + " registros";
+    }
+
+    html += `
+      <div class="calDay ${cls}" title="${dayData ? value + ' · ' + tradesText : 'Sin registro'}">
+        <span class="dayNum">${d}</span>
+        <div>
+          <small class="dayValue">${value}</small>
+          <small class="dayTrades">${tradesText}</small>
+        </div>
+      </div>
+    `;
+  }
+
   box.innerHTML = html;
 }
 
