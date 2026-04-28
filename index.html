@@ -444,6 +444,22 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
             <input id="monthlyGoalInput" type="number" placeholder="Ej: 2000" onchange="saveMonthlyGoal()">
           </div>
         </div>
+
+
+        <div class="card goalCard yearlyGoalCard">
+          <h3>Meta Anual</h3>
+          <p style="color:var(--muted);margin-top:8px">Progreso basado en tu neto acumulado YTD.</p>
+          <div class="goalBar yearlyGoalBar"><span id="yearlyGoalBar"></span></div>
+          <div class="goalMeta">
+            <span id="yearlyGoalText">$0 / $20,000</span>
+            <span id="yearlyGoalPct">0%</span>
+          </div>
+          <div style="margin-top:14px" class="field">
+            <label>Editar meta anual</label>
+            <input id="yearlyGoalInput" type="number" placeholder="Ej: 20000" onchange="saveYearlyGoal()">
+          </div>
+        </div>
+
       </div>
 
       <div class="proGrid">
