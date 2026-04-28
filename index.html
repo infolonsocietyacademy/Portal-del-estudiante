@@ -677,6 +677,98 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
   .loaderTitle{font-size:19px}
 }
 
+
+/* ===== LOADING PARA ENTRAR AL PORTAL ===== */
+#portalEnterLoader{
+  position:fixed;
+  inset:0;
+  z-index:99998;
+  display:none;
+  place-items:center;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(246,196,83,.18), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(59,130,246,.18), transparent 36%),
+    rgba(2,6,23,.96);
+  backdrop-filter:blur(18px);
+}
+#portalEnterLoader.show{
+  display:grid;
+}
+.portalEnterBox{
+  width:min(390px,88vw);
+  text-align:center;
+  padding:30px 24px;
+  border-radius:34px;
+  border:1px solid rgba(246,196,83,.30);
+  background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(2,6,23,.78));
+  box-shadow:0 30px 100px rgba(0,0,0,.55),0 0 55px rgba(246,196,83,.08);
+  animation:portalEnterPop .55s ease both;
+}
+.portalEnterLogo{
+  width:105px;
+  height:105px;
+  margin:0 auto 18px;
+  border-radius:30px;
+  display:grid;
+  place-items:center;
+  background:rgba(246,196,83,.08);
+  border:1px solid rgba(246,196,83,.30);
+  box-shadow:0 0 35px rgba(246,196,83,.16);
+  position:relative;
+}
+.portalEnterLogo:before{
+  content:"";
+  position:absolute;
+  inset:-8px;
+  border-radius:36px;
+  border:2px solid transparent;
+  border-top-color:var(--gold);
+  border-right-color:var(--blue);
+  animation:portalEnterSpin 1.15s linear infinite;
+}
+.portalEnterLogo img{
+  width:76px;
+  filter:drop-shadow(0 0 14px rgba(246,196,83,.38));
+  animation:logoPulse 1.6s ease-in-out infinite;
+}
+.portalEnterTitle{
+  font-size:22px;
+  font-weight:900;
+  color:#fff;
+}
+.portalEnterText{
+  margin-top:8px;
+  color:#94a3b8;
+  font-size:13px;
+  font-weight:700;
+}
+.portalDots{
+  margin-top:17px;
+  display:flex;
+  justify-content:center;
+  gap:8px;
+}
+.portalDots span{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:var(--gold);
+  animation:portalDot 1s ease-in-out infinite;
+}
+.portalDots span:nth-child(2){animation-delay:.16s;background:var(--blue)}
+.portalDots span:nth-child(3){animation-delay:.32s;background:var(--cyan)}
+@keyframes portalEnterSpin{
+  to{transform:rotate(360deg)}
+}
+@keyframes portalEnterPop{
+  from{opacity:0;transform:scale(.94) translateY(14px)}
+  to{opacity:1;transform:scale(1) translateY(0)}
+}
+@keyframes portalDot{
+  0%,100%{transform:translateY(0);opacity:.45}
+  50%{transform:translateY(-8px);opacity:1}
+}
+
 </style>
 </head>
 <body>
@@ -1041,6 +1133,30 @@ function updateAuthRealStats(){
   updateAuthTradeCount();
 }
 
+
+
+function setLoaderStudentName(name){
+  const n = (name || "Estudiante").split(" ")[0];
+  const el1 = document.getElementById("loaderStudentName");
+  const el2 = document.getElementById("loaderStudentName2");
+  if(el1) el1.innerText = n.toUpperCase();
+  if(el2) el2.innerText = n;
+}
+
+function showPortalEnterLoader(){
+  const loader = document.getElementById("portalEnterLoader");
+  if(loader) loader.classList.add("show");
+}
+
+function hidePortalEnterLoader(){
+  const loader = document.getElementById("portalEnterLoader");
+  if(loader) loader.classList.remove("show");
+}
+
+function waitPortalLoading(ms = 950){
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 let currentUser = JSON.parse(localStorage.getItem("olon_current_user") || "null");
 let chart;
 let cachedRecords = [];
@@ -1210,7 +1326,11 @@ async function login(){
 
   currentUser = data;
   localStorage.setItem("olon_current_user", JSON.stringify(currentUser));
+
+  setLoaderStudentName(currentUser.full_name); setLoaderStudentName(currentUser?.full_name); showPortalEnterLoader();
+  await waitPortalLoading(950);
   await enterPortal();
+  hidePortalEnterLoader();
 }
 
 function generateAccessCode(){
@@ -1558,7 +1678,13 @@ async function clearData(){
 }
 setupEmailVerificationListeners();
 updateAuthRealStats();
-if(currentUser){ enterPortal(); }
+if(currentUser){
+  setLoaderStudentName(currentUser.full_name); setLoaderStudentName(currentUser?.full_name); showPortalEnterLoader();
+  waitPortalLoading(750).then(async () => {
+    await enterPortal();
+    hidePortalEnterLoader();
+  });
+}
 </script>
 
 <script>
