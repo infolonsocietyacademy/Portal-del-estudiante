@@ -61,6 +61,31 @@
 }
 </style>
 
+<style id="olon-rescue-css">
+
+/* ===== OLON RESCUE FIX: CLICK / INTERACTION ===== */
+html,body{max-width:100%!important;overflow-x:hidden!important}
+#portal:not(.hidden){display:grid!important;position:relative!important;z-index:50!important}
+#auth.hidden,#codeResult.hidden{display:none!important;pointer-events:none!important;visibility:hidden!important}
+#olonLoader.hide{display:none!important;pointer-events:none!important;visibility:hidden!important}
+#portalEnterLoader{display:none;pointer-events:none!important}
+#portalEnterLoader.show{display:grid!important;pointer-events:auto!important}
+.authBgArt,.authOrb,.authMesh,.authBigText,.auth:before,.authHero:before{pointer-events:none!important}
+.sidebar,.nav,.nav button,.mobileBtn,.mobileBottomNav,.mobileBottomNav button{pointer-events:auto!important}
+.sidebar{z-index:9999!important}
+.nav button{position:relative!important;z-index:10000!important;cursor:pointer!important}
+.page.hidden{display:none!important}
+.page:not(.hidden){display:block!important}
+.main{position:relative!important;z-index:10!important;pointer-events:auto!important}
+.settingsPanel:not(.show){display:none!important;pointer-events:none!important}
+@media(max-width:980px){
+  .sidebar{position:fixed!important;left:-292px!important;top:0!important;bottom:0!important;height:100dvh!important;transition:left .2s ease!important}
+  .sidebar.open{left:0!important}
+  body.menu-open:after{content:"";position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:9998}
+  body.menu-open .sidebar{z-index:9999!important}
+}
+
+</style>
 </head>
 <body>
 
@@ -280,13 +305,13 @@
     </div>
 
     <div class="nav">
-      <button class="active studentNav" onclick="showPage('dashboard',this)">📊 Dashboard</button>
-      <button class="studentNav" onclick="showPage('registro',this)">➕ Registrar Día</button>
-      <button class="studentNav" onclick="showPage('historial',this)">📅 Historial</button>
-      <button class="studentNav" onclick="showPage('comparacion',this)">📈 Comparación Mensual</button>
-      <button class="studentNav" onclick="showPage('publicChat',this)">🌍 Chat Público</button>
-      <button class="adminNav hidden" onclick="showPage('admin',this)">⚙️ Admin</button>
-      <button class="adminNav hidden" onclick="showPage('adminChat',this)">💬 Chat Live <span id="adminChatBadge" class="adminUnread" style="display:none">0</span></button>
+      <button data-page="dashboard" class="active studentNav" onclick="showPage('dashboard',this)">📊 Dashboard</button>
+      <button data-page="registro" class="studentNav" onclick="showPage('registro',this)">➕ Registrar Día</button>
+      <button data-page="historial" class="studentNav" onclick="showPage('historial',this)">📅 Historial</button>
+      <button data-page="comparacion" class="studentNav" onclick="showPage('comparacion',this)">📈 Comparación Mensual</button>
+      <button data-page="publicChat" class="studentNav" onclick="showPage('publicChat',this)">🌍 Chat Público</button>
+      <button data-page="admin" class="adminNav hidden" onclick="showPage('admin',this)">⚙️ Admin</button>
+      <button data-page="adminChat" class="adminNav hidden" onclick="showPage('adminChat',this)">💬 Chat Live <span id="adminChatBadge" class="adminUnread" style="display:none">0</span></button>
       <button onclick="logout()">🚪 Salir</button>
     </div>
 
@@ -676,5 +701,134 @@
 })();
 </script>
 
+<script id="olon-rescue-js">
+
+/* ===== OLON RESCUE FIX: MENU INTERACTIVO ===== */
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function clean(t){ return String(t||"").replace(/[^\wÁÉÍÓÚáéíóúñÑ# ]/g,"").replace(/\s+/g," ").trim(); }
+
+  const subtitles = {
+    dashboard:"Control manual privado de depósito, ganancia, pérdida y progreso.",
+    registro:"Registra depósito, ganancia, pérdida y notas del día.",
+    historial:"Consulta tu historial individual.",
+    comparacion:"Compara tu mes actual con el mes anterior.",
+    publicChat:"Canal público para todos los estudiantes.",
+    admin:"Panel administrativo profesional.",
+    adminChat:"Centro de mensajes privados."
+  };
+
+  function forceOpenPortalIfLogged(){
+    try{
+      const saved = localStorage.getItem("olon_current_user");
+      if(saved && $("portal") && $("auth")){
+        $("auth").classList.add("hidden");
+        $("codeResult")?.classList.add("hidden");
+        $("portal").classList.remove("hidden");
+      }
+    }catch(e){}
+  }
+
+  window.showPage = function(id, btn){
+    try{
+      const page = $(id);
+      if(!page){
+        console.warn("No existe page:", id);
+        return;
+      }
+
+      document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
+      page.classList.remove("hidden");
+
+      document.querySelectorAll(".nav button,.mobileBottomNav button").forEach(b => b.classList.remove("active"));
+      if(btn) btn.classList.add("active");
+
+      const title = $("pageTitle");
+      if(title) title.innerText = btn ? clean(btn.textContent) : clean(id);
+
+      const sub = $("pageSubtitle");
+      if(sub && subtitles[id]) sub.innerText = subtitles[id];
+
+      const sidebar = $("sidebar");
+      if(sidebar) sidebar.classList.remove("open");
+      document.body.classList.remove("menu-open");
+
+      if(id === "publicChat" && typeof window.loadPublicChat === "function") setTimeout(window.loadPublicChat, 80);
+      if(id === "adminChat" && typeof window.loadAdminChatInbox === "function") setTimeout(window.loadAdminChatInbox, 80);
+      if(id === "admin" && typeof window.renderUsers === "function") setTimeout(window.renderUsers, 80);
+      if(id === "dashboard" && typeof window.updatePortalWelcome === "function") setTimeout(window.updatePortalWelcome, 80);
+    }catch(err){
+      console.error("RESCUE showPage error", err);
+    }
+  };
+
+  window.showPageById = function(id){
+    const btn = document.querySelector(`[data-page="${id}"], .nav button[onclick*="'${id}'"]`);
+    window.showPage(id, btn);
+  };
+
+  window.toggleMenu = function(){
+    const sidebar = $("sidebar");
+    if(!sidebar) return;
+    sidebar.classList.toggle("open");
+    document.body.classList.toggle("menu-open", sidebar.classList.contains("open"));
+  };
+
+  window.mobileGo = function(id, btn){ window.showPage(id, btn); };
+  window.mobileOpenAccount = function(btn){ window.showPage("dashboard", btn); };
+
+  document.addEventListener("click", function(e){
+    const navBtn = e.target.closest(".nav button[data-page], .nav button[onclick*='showPage']");
+    if(navBtn){
+      let id = navBtn.getAttribute("data-page");
+      if(!id){
+        const on = navBtn.getAttribute("onclick") || "";
+        const m = on.match(/showPage\('([^']+)'/);
+        if(m) id = m[1];
+      }
+      if(id){
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        window.showPage(id, navBtn);
+        return false;
+      }
+    }
+
+    const menuBtn = e.target.closest(".mobileBtn");
+    if(menuBtn && String(menuBtn.getAttribute("onclick")||"").includes("toggleMenu")){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      window.toggleMenu();
+      return false;
+    }
+  }, true);
+
+  document.addEventListener("click", function(e){
+    if(!document.body.classList.contains("menu-open")) return;
+    const sidebar = $("sidebar");
+    if(sidebar && !sidebar.contains(e.target) && !e.target.closest(".mobileBtn")){
+      sidebar.classList.remove("open");
+      document.body.classList.remove("menu-open");
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", function(){
+    forceOpenPortalIfLogged();
+
+    const loader = $("olonLoader");
+    if(loader){
+      setTimeout(() => {
+        loader.classList.add("hide");
+        loader.style.display = "none";
+      }, 1800);
+    }
+    const enterLoader = $("portalEnterLoader");
+    if(enterLoader && !enterLoader.classList.contains("show")){
+      enterLoader.style.display = "none";
+    }
+  });
+})();
+
+</script>
 </body>
 </html>

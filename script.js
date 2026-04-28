@@ -2353,3 +2353,129 @@ function handlePublicChatEnter(e){
   }
 }
 
+/* ===== OLON RESCUE FIX: MENU INTERACTIVO ===== */
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function clean(t){ return String(t||"").replace(/[^\wÁÉÍÓÚáéíóúñÑ# ]/g,"").replace(/\s+/g," ").trim(); }
+
+  const subtitles = {
+    dashboard:"Control manual privado de depósito, ganancia, pérdida y progreso.",
+    registro:"Registra depósito, ganancia, pérdida y notas del día.",
+    historial:"Consulta tu historial individual.",
+    comparacion:"Compara tu mes actual con el mes anterior.",
+    publicChat:"Canal público para todos los estudiantes.",
+    admin:"Panel administrativo profesional.",
+    adminChat:"Centro de mensajes privados."
+  };
+
+  function forceOpenPortalIfLogged(){
+    try{
+      const saved = localStorage.getItem("olon_current_user");
+      if(saved && $("portal") && $("auth")){
+        $("auth").classList.add("hidden");
+        $("codeResult")?.classList.add("hidden");
+        $("portal").classList.remove("hidden");
+      }
+    }catch(e){}
+  }
+
+  window.showPage = function(id, btn){
+    try{
+      const page = $(id);
+      if(!page){
+        console.warn("No existe page:", id);
+        return;
+      }
+
+      document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
+      page.classList.remove("hidden");
+
+      document.querySelectorAll(".nav button,.mobileBottomNav button").forEach(b => b.classList.remove("active"));
+      if(btn) btn.classList.add("active");
+
+      const title = $("pageTitle");
+      if(title) title.innerText = btn ? clean(btn.textContent) : clean(id);
+
+      const sub = $("pageSubtitle");
+      if(sub && subtitles[id]) sub.innerText = subtitles[id];
+
+      const sidebar = $("sidebar");
+      if(sidebar) sidebar.classList.remove("open");
+      document.body.classList.remove("menu-open");
+
+      if(id === "publicChat" && typeof window.loadPublicChat === "function") setTimeout(window.loadPublicChat, 80);
+      if(id === "adminChat" && typeof window.loadAdminChatInbox === "function") setTimeout(window.loadAdminChatInbox, 80);
+      if(id === "admin" && typeof window.renderUsers === "function") setTimeout(window.renderUsers, 80);
+      if(id === "dashboard" && typeof window.updatePortalWelcome === "function") setTimeout(window.updatePortalWelcome, 80);
+    }catch(err){
+      console.error("RESCUE showPage error", err);
+    }
+  };
+
+  window.showPageById = function(id){
+    const btn = document.querySelector(`[data-page="${id}"], .nav button[onclick*="'${id}'"]`);
+    window.showPage(id, btn);
+  };
+
+  window.toggleMenu = function(){
+    const sidebar = $("sidebar");
+    if(!sidebar) return;
+    sidebar.classList.toggle("open");
+    document.body.classList.toggle("menu-open", sidebar.classList.contains("open"));
+  };
+
+  window.mobileGo = function(id, btn){ window.showPage(id, btn); };
+  window.mobileOpenAccount = function(btn){ window.showPage("dashboard", btn); };
+
+  document.addEventListener("click", function(e){
+    const navBtn = e.target.closest(".nav button[data-page], .nav button[onclick*='showPage']");
+    if(navBtn){
+      let id = navBtn.getAttribute("data-page");
+      if(!id){
+        const on = navBtn.getAttribute("onclick") || "";
+        const m = on.match(/showPage\('([^']+)'/);
+        if(m) id = m[1];
+      }
+      if(id){
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        window.showPage(id, navBtn);
+        return false;
+      }
+    }
+
+    const menuBtn = e.target.closest(".mobileBtn");
+    if(menuBtn && String(menuBtn.getAttribute("onclick")||"").includes("toggleMenu")){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      window.toggleMenu();
+      return false;
+    }
+  }, true);
+
+  document.addEventListener("click", function(e){
+    if(!document.body.classList.contains("menu-open")) return;
+    const sidebar = $("sidebar");
+    if(sidebar && !sidebar.contains(e.target) && !e.target.closest(".mobileBtn")){
+      sidebar.classList.remove("open");
+      document.body.classList.remove("menu-open");
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", function(){
+    forceOpenPortalIfLogged();
+
+    const loader = $("olonLoader");
+    if(loader){
+      setTimeout(() => {
+        loader.classList.add("hide");
+        loader.style.display = "none";
+      }, 1800);
+    }
+    const enterLoader = $("portalEnterLoader");
+    if(enterLoader && !enterLoader.classList.contains("show")){
+      enterLoader.style.display = "none";
+    }
+  });
+})();
+
