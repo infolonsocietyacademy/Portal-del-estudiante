@@ -1996,3 +1996,132 @@ if(typeof olonOriginalRenderAdminTable === 'function'){
     }
   });
 })();
+
+/* ===== ULTRA FORCE LOGIN VISIBLE FIX - FINAL =====
+   Este parche evita que el loader, render, chart, chat o cualquier error visual bloquee el portal.
+*/
+(function(){
+  function el(id){ return document.getElementById(id); }
+  function val(id){ return String(el(id)?.value || '').trim(); }
+  function txt(id, value){ const x = el(id); if(x) x.innerText = value; }
+  function hide(id){ const x = el(id); if(x){ x.classList.add('hidden'); x.style.display = 'none'; } }
+  function showPortal(){
+    const p = el('portal');
+    if(!p) return;
+    p.classList.remove('hidden');
+    p.classList.add('portalReady');
+    p.style.display = window.innerWidth <= 980 ? 'block' : 'grid';
+    p.style.visibility = 'visible';
+    p.style.opacity = '1';
+  }
+  function closeLoaders(){
+    const a = el('portalEnterLoader');
+    if(a){ a.classList.remove('show'); a.classList.add('forceClose'); a.style.display='none'; }
+    const b = el('olonLoader');
+    if(b){ b.classList.add('hide'); b.style.display='none'; }
+  }
+  function clean(s){ return String(s || '').trim(); }
+  function roleOf(u){
+    const r = clean(u?.role).toLowerCase();
+    const c = clean(u?.access_code).toLowerCase();
+    return (r === 'admin' || c === 'admin-nolo') ? 'admin' : 'student';
+  }
+  function statusOf(u){ return clean(u?.status).toLowerCase() || 'active'; }
+  function activatePage(id){
+    document.querySelectorAll('.page').forEach(p=>{p.classList.add('hidden'); p.classList.remove('forceActive'); p.style.display='none';});
+    const page = el(id);
+    if(page){ page.classList.remove('hidden'); page.classList.add('forceActive'); page.style.display='block'; }
+    document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+    const btn = [...document.querySelectorAll('.nav button')].find(b => (b.getAttribute('onclick') || '').includes("'" + id + "'"));
+    if(btn) btn.classList.add('active');
+  }
+  async function safeBackgroundRender(isAdmin){
+    setTimeout(async function(){
+      try{ if(typeof render === 'function') await render(); }catch(e){ console.error('Render falló pero el portal queda abierto:', e); }
+      try{ if(typeof startChatRefresh === 'function') startChatRefresh(); }catch(e){ console.warn(e); }
+      try{ if(isAdmin && typeof loadAdminChatInbox === 'function') loadAdminChatInbox(); }catch(e){ console.warn(e); }
+      try{ if(!isAdmin && typeof updateStudentUnreadCount === 'function') updateStudentUnreadCount(); }catch(e){ console.warn(e); }
+    }, 200);
+  }
+  async function openPortal(user){
+    currentUser = user;
+    const role = roleOf(user);
+    currentUser.role = role;
+    if(role === 'admin') currentUser.status = 'active';
+    localStorage.setItem('olon_current_user', JSON.stringify(currentUser));
+
+    const isAdmin = role === 'admin';
+    try{ if(typeof applyPlanStyle === 'function') applyPlanStyle(currentUser.plan || (isAdmin ? 'Admin' : 'VIP Regular')); }catch(e){}
+
+    txt('studentName', currentUser.full_name || (isAdmin ? 'Admin' : 'Estudiante'));
+    txt('avatarText', (currentUser.full_name || 'O').charAt(0).toUpperCase());
+    txt('userCodeText', 'Código: ' + (currentUser.access_code || 'OLON'));
+    txt('planBadge', isAdmin || clean(currentUser.plan).toLowerCase().includes('premium') ? '💎 VIP PREMIUM' : '🔥 VIP REGULAR');
+    txt('accessStatus', (currentUser.plan || (isAdmin ? 'Admin' : 'VIP Regular')) + ' Activo');
+    txt('paymentDate', ': ' + (currentUser.next_payment_date || 'No asignado'));
+    txt('portalMode', isAdmin ? 'Admin Portal' : 'Student Portal');
+    txt('pageTitle', isAdmin ? 'Panel Admin Profesional' : 'Panel del Trader');
+    txt('pageSubtitle', isAdmin ? 'Panel administrativo listo para gestionar estudiantes.' : 'Control manual privado de depósito, ganancia, pérdida y progreso.');
+    txt('portalWelcomeText', 'Hola, ' + (currentUser.full_name || 'Estudiante'));
+
+    hide('auth');
+    hide('codeResult');
+    closeLoaders();
+    showPortal();
+
+    document.querySelectorAll('.studentNav').forEach(x=>x.classList.toggle('hidden', isAdmin));
+    document.querySelectorAll('.adminNav').forEach(x=>x.classList.toggle('hidden', !isAdmin));
+    document.querySelectorAll('.studentOnly').forEach(x=>x.classList.toggle('hidden', isAdmin));
+
+    activatePage(isAdmin ? 'admin' : 'dashboard');
+    await safeBackgroundRender(isAdmin);
+  }
+
+  window.enterPortal = async function(){
+    if(currentUser) await openPortal(currentUser);
+  };
+
+  window.login = async function(){
+    const code = val('loginCode');
+    const pass = val('loginPass');
+    if(!code || !pass){ alert('Escribe tu código y password.'); return; }
+
+    const loader = el('portalEnterLoader');
+    if(loader){ loader.classList.remove('forceClose'); loader.classList.add('show'); loader.style.display='grid'; }
+
+    try{
+      const { data, error } = await supabaseClient
+        .from('profiles')
+        .select('*')
+        .ilike('access_code', code)
+        .eq('password', pass)
+        .maybeSingle();
+
+      if(error || !data){
+        console.error('LOGIN SUPABASE ERROR:', error);
+        alert('Código o password incorrecto. Usa el mismo código/password de Supabase.');
+        closeLoaders();
+        return;
+      }
+
+      const role = roleOf(data);
+      const status = statusOf(data);
+      if(role !== 'admin' && status !== 'active' && status !== 'approved'){
+        alert(status === 'pending' ? 'Tu cuenta está pendiente de aprobación por el admin.' : 'Tu cuenta no está activa. Contacta al admin.');
+        closeLoaders();
+        return;
+      }
+
+      await openPortal(data);
+    }catch(e){
+      console.error('LOGIN FORCE FIX ERROR:', e);
+      alert('No se pudo entrar. Hay un error en consola, pero el login fue protegido para no quedarse cargando.');
+      closeLoaders();
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const btn = [...document.querySelectorAll('button')].find(b => (b.getAttribute('onclick') || '').includes('login()'));
+    if(btn){ btn.onclick = function(ev){ ev.preventDefault(); window.login(); }; }
+  });
+})();

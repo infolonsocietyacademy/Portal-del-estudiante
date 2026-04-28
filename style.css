@@ -2540,3 +2540,35 @@ body #codeResult.auth.hidden{
     height:min(260px,74vw);
   }
 }
+
+/* ===== FORCE VISIBLE PORTAL FIX ===== */
+#portal:not(.hidden){
+  display:grid!important;
+  visibility:visible!important;
+  opacity:1!important;
+  min-height:100vh!important;
+}
+@media(max-width:980px){
+  #portal:not(.hidden){display:block!important;}
+}
+#auth.hidden,
+#codeResult.hidden{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+#portalEnterLoader:not(.show){
+  display:none!important;
+}
+#portalEnterLoader.forceClose{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+.page.forceActive{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
