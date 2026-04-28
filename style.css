@@ -2348,3 +2348,18 @@ body.light-mode .metric h3,body.light-mode .v3Card h3,body.light-mode .adminMetr
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
+
+/* ===== FIX IMPORTANTE: PANTALLA CUENTA CREADA ===== */
+/* Esta pantalla NO debe salir en el login inicial. Solo aparece cuando signup() quite la clase hidden. */
+#codeResult.hidden,
+#codeResult.auth.hidden{
+  display:none!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+#codeResult:not(.hidden){
+  display:grid!important;
+  place-items:center;
+  min-height:100vh;
+}
