@@ -544,7 +544,7 @@ async function loadAdminChatInbox(){
 }
 
 function updateAdminChatBadge(n){
-  if(currentUser && currentUser.role === "admin" && n > lastAdminUnreadCount){
+  if(currentUser && isAdminUser(currentUser) && n > lastAdminUnreadCount){
     playNewMessageSound();
   }
   lastAdminUnreadCount = n;
@@ -633,7 +633,7 @@ async function sendAdminChatMessage(){
 
 
 async function deleteSelectedConversation(){
-  if(!currentUser || currentUser.role !== "admin"){
+  if(!currentUser || !isAdminUser(currentUser)){
     alert("No autorizado.");
     return;
   }
@@ -688,37 +688,27 @@ function startChatRefresh(){
   }, 7000);
 }
 
-
-function normalizeRole(value){
-  return String(value || "student").trim().toLowerCase();
-}
-
-function isAdminUser(user){
-  return normalizeRole(user?.role) === "admin" || String(user?.access_code || "").trim().toLowerCase() === "admin-nolo";
-}
-
-function normalizeUserForPortal(user){
-  if(!user) return user;
-  user.role = normalizeRole(user.role);
-  user.status = String(user.status || "active").trim().toLowerCase();
-  if(isAdminUser(user)){
-    user.role = "admin";
-    user.status = "active";
-    user.plan = user.plan || "VIP Premium";
-  }
-  return user;
-}
-let currentUser = normalizeUserForPortal(JSON.parse(localStorage.getItem("olon_current_user") || "null"));
+let currentUser = JSON.parse(localStorage.getItem("olon_current_user") || "null");
 let chart;
 let cachedRecords = [];
 let cachedUsers = [];
 
-const dateInputEl = document.getElementById("date");
-if(dateInputEl) dateInputEl.valueAsDate = new Date();
+document.getElementById("date").valueAsDate = new Date();
 
 function money(n){return "$" + Number(n||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}
 function pct(n){return Number(n||0).toFixed(2) + "%"}
 function showError(msg, error){ console.error(msg, error || ""); alert(msg + (error?.message ? "\n" + error.message : "")); }
+
+// ===== LOGIN / ROLE SAFE HELPERS =====
+function cleanText(value){ return String(value || "").trim(); }
+function normalizeRole(value){ const role = cleanText(value).toLowerCase(); return role === "admin" ? "admin" : "student"; }
+function normalizeStatus(value){ const status = cleanText(value).toLowerCase(); return status || "active"; }
+function isAdminUser(user){ const role = normalizeRole(user?.role); const code = cleanText(user?.access_code).toLowerCase(); return role === "admin" || code === "admin-nolo"; }
+function isActiveUser(user){ const status = normalizeStatus(user?.status); return status === "active" || status === "approved"; }
+function $(id){ return document.getElementById(id); }
+function setTextSafe(id, value){ const el = $(id); if(el) el.innerText = value; }
+function showSafe(id){ const el = $(id); if(el) el.classList.remove("hidden"); }
+function hideSafe(id){ const el = $(id); if(el) el.classList.add("hidden"); }
 
 let signupEmailVerified = false;
 let signupVerifiedEmail = "";
@@ -822,23 +812,23 @@ function updatePortalWelcome(){
   if(!currentUser) return;
 
   const fullName = currentUser.full_name || "Estudiante";
-  const isAdminUser = currentUser.role === "admin";
+  const adminView = isAdminUser(currentUser);
 
   // Topbar principal: evita duplicar el saludo.
   const pageTitle = document.getElementById("pageTitle");
   if(pageTitle){
-    pageTitle.innerText = isAdminUser ? "Panel Admin Profesional" : "Panel del Trader";
+    pageTitle.innerText = adminView ? "Panel Admin Profesional" : "Panel del Trader";
   }
 
   const pageSubtitle = document.getElementById("pageSubtitle");
   if(pageSubtitle){
-    pageSubtitle.innerText = isAdminUser
+    pageSubtitle.innerText = adminView
       ? "Panel administrativo listo para gestionar estudiantes."
       : "Control manual privado de depósito, ganancia, pérdida y progreso.";
   }
 
   const welcomeCard = document.getElementById("portalWelcomeCard");
-  if(welcomeCard){ welcomeCard.classList.toggle("hidden", isAdminUser); }
+  if(welcomeCard){ welcomeCard.classList.toggle("hidden", adminView); }
 
   // Card de bienvenida: un solo saludo limpio.
   const welcomeText = document.getElementById("portalWelcomeText");
@@ -859,36 +849,44 @@ function toggleAuth(mode){
 }
 
 async function login(){
-  const code = document.getElementById("loginCode").value.trim();
-  const pass = document.getElementById("loginPass").value.trim();
+  const code = cleanText($("loginCode")?.value);
+  const pass = cleanText($("loginPass")?.value);
+
   if(!code || !pass){ alert("Escribe tu código y password."); return; }
 
-  const { data, error } = await supabaseClient
-    .from("profiles")
-    .select("*")
-    .eq("access_code", code)
-    .eq("password", pass)
-    .single();
+  try{
+    const { data, error } = await supabaseClient
+      .from("profiles")
+      .select("*")
+      .ilike("access_code", code)
+      .eq("password", pass)
+      .maybeSingle();
 
-  if(error || !data){ showError("Código o password incorrecto.", error); return; }
+    if(error || !data){ showError("Código o password incorrecto.", error); return; }
 
-  normalizeUserForPortal(data);
+    const admin = isAdminUser(data);
+    const active = isActiveUser(data);
 
-  if(!isAdminUser(data) && data.status !== "active"){
-    const msg = data.status === "pending"
-      ? "Tu cuenta está pendiente de aprobación por el admin."
-      : "Tu cuenta no está activa. Contacta al admin.";
-    alert(msg);
-    return;
+    if(!admin && !active){
+      const status = normalizeStatus(data.status);
+      const msg = status === "pending" ? "Tu cuenta está pendiente de aprobación por el admin." : "Tu cuenta no está activa. Contacta al admin.";
+      alert(msg);
+      return;
+    }
+
+    currentUser = { ...data, role: admin ? "admin" : "student", status: admin ? "active" : normalizeStatus(data.status) };
+    localStorage.setItem("olon_current_user", JSON.stringify(currentUser));
+
+    setLoaderStudentName(currentUser.full_name, currentUser.plan);
+    showPortalEnterLoader();
+    await waitPortalLoading(1200);
+    await enterPortal();
+  }catch(err){
+    console.error("Login fatal error", err);
+    alert("No se pudo entrar al portal. Revisa Supabase o la consola del navegador.");
+  }finally{
+    hidePortalEnterLoader();
   }
-
-  currentUser = normalizeUserForPortal(data);
-  localStorage.setItem("olon_current_user", JSON.stringify(currentUser));
-
-  setLoaderStudentName(currentUser.full_name, currentUser.plan); showPortalEnterLoader();
-  await waitPortalLoading(4000);
-  await enterPortal();
-  hidePortalEnterLoader();
 }
 
 function generateAccessCode(){
@@ -964,28 +962,42 @@ function backToLogin(){
 
 async function enterPortal(){
   if(!currentUser) return;
-  applyPlanStyle(currentUser.plan);
-  document.getElementById("studentName").innerText = currentUser.full_name;
-  document.getElementById("avatarText").innerText = currentUser.full_name?.[0]?.toUpperCase() || "O";
-  document.getElementById("userCodeText").innerText = "Código: " + currentUser.access_code;
-  document.getElementById("planBadge").innerText = ((currentUser.plan || "VIP Regular").toLowerCase().includes("premium") || (currentUser.plan || "").toLowerCase().includes("admin")) ? "💎 VIP PREMIUM" : "🔥 VIP REGULAR";
-  document.getElementById("accessStatus").innerText = isAdminUser(currentUser) ? "Admin Activo" : (currentUser.plan || "VIP Regular") + " " + (currentUser.status === "active" ? "Activo" : currentUser.status);
-  document.getElementById("paymentDate").innerText = ": " + (currentUser.next_payment_date || "No asignado");
-  document.getElementById("auth").classList.add("hidden");
-  document.getElementById("portal").classList.remove("hidden");
-  document.getElementById("portal").classList.add("portalReady");
 
-  const isAdmin = isAdminUser(currentUser);
-  document.getElementById("portalMode").innerText = isAdmin ? "Admin Portal" : "Student Portal";
-  document.querySelectorAll(".studentNav").forEach(el => el.classList.toggle("hidden", isAdmin));
-  document.querySelectorAll(".adminNav").forEach(el => el.classList.toggle("hidden", !isAdmin));
-  document.querySelectorAll(".studentOnly").forEach(el => el.classList.toggle("hidden", isAdmin));
+  const admin = isAdminUser(currentUser);
+  currentUser.role = admin ? "admin" : "student";
+  currentUser.status = admin ? "active" : normalizeStatus(currentUser.status);
+  localStorage.setItem("olon_current_user", JSON.stringify(currentUser));
 
-  showPageById(isAdmin ? "admin" : "dashboard");
+  applyPlanStyle(currentUser.plan || (admin ? "VIP Premium" : "VIP Regular"));
+
+  setTextSafe("studentName", currentUser.full_name || "Estudiante");
+  setTextSafe("avatarText", currentUser.full_name?.[0]?.toUpperCase() || "O");
+  setTextSafe("userCodeText", "Código: " + (currentUser.access_code || "OLON"));
+  setTextSafe("planBadge", ((currentUser.plan || "VIP Regular").toLowerCase().includes("premium") || admin) ? "💎 VIP PREMIUM" : "🔥 VIP REGULAR");
+  setTextSafe("accessStatus", (currentUser.plan || (admin ? "Admin" : "VIP Regular")) + " " + (currentUser.status === "active" ? "Activo" : currentUser.status));
+  setTextSafe("paymentDate", ": " + (currentUser.next_payment_date || "No asignado"));
+
+  hideSafe("auth");
+  hideSafe("codeResult");
+  showSafe("portal");
+  const portal = $("portal");
+  if(portal) portal.classList.add("portalReady");
+
+  setTextSafe("portalMode", admin ? "Admin Portal" : "Student Portal");
+  document.querySelectorAll(".studentNav").forEach(el => el.classList.toggle("hidden", admin));
+  document.querySelectorAll(".adminNav").forEach(el => el.classList.toggle("hidden", !admin));
+  document.querySelectorAll(".studentOnly").forEach(el => el.classList.toggle("hidden", admin));
+
+  showPageById(admin ? "admin" : "dashboard");
   updatePortalWelcome();
-  await render();
-  startChatRefresh();
-  if(isAdminUser(currentUser)) loadAdminChatInbox(); else updateStudentUnreadCount();
+
+  try{ await render(); }
+  catch(err){ console.error("Render error después del login", err); }
+
+  try{
+    startChatRefresh();
+    if(admin) loadAdminChatInbox(); else updateStudentUnreadCount();
+  }catch(err){ console.warn("Chat refresh no iniciado", err); }
 }
 
 function logout(){
@@ -1012,7 +1024,7 @@ function showPageById(id){
 }
 
 async function fetchRecords(){
-  if(!currentUser || currentUser.role === "admin") return [];
+  if(!currentUser || isAdminUser(currentUser)) return [];
   const { data, error } = await supabaseClient
     .from("student_records")
     .select("*")
@@ -1657,10 +1669,20 @@ async function clearData(){
 setupEmailVerificationListeners();
 updateAuthRealStats();
 if(currentUser){
-  setLoaderStudentName(currentUser.full_name, currentUser.plan); showPortalEnterLoader();
-  waitPortalLoading(4000).then(async () => {
-    await enterPortal();
-    hidePortalEnterLoader();
+  setLoaderStudentName(currentUser.full_name, currentUser.plan);
+  showPortalEnterLoader();
+  waitPortalLoading(900).then(async () => {
+    try{
+      await enterPortal();
+    }catch(err){
+      console.error("Auto login error", err);
+      localStorage.removeItem("olon_current_user");
+      currentUser = null;
+      showSafe("auth");
+      hideSafe("portal");
+    }finally{
+      hidePortalEnterLoader();
+    }
   });
 }
 
@@ -1833,7 +1855,7 @@ const olonOriginalRender = window.render;
 if(typeof olonOriginalRender === 'function'){
   window.render = async function(){
     await olonOriginalRender.apply(this, arguments);
-    if(currentUser && currentUser.role !== 'admin') renderHistoryMobileCards(cachedRecords || []);
+    if(currentUser && !isAdminUser(currentUser)) renderHistoryMobileCards(cachedRecords || []);
   }
 }
 const olonOriginalRenderAdminTable = window.renderAdminTable;
