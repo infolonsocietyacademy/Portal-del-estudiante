@@ -21,6 +21,46 @@
 
 
 <link rel="stylesheet" href="./style.css">
+
+<style>
+/* Chat Público OLON */
+#publicChat .card{min-height:68vh}
+#publicChatMessages{
+  min-height:440px;
+  max-height:58vh;
+  overflow-y:auto;
+  padding:14px;
+  border-radius:20px;
+  background:rgba(0,0,0,.18);
+  border:1px solid rgba(255,255,255,.08);
+  margin:16px 0;
+}
+#publicChat .chatBubble{
+  max-width:86%;
+  margin:0 0 12px;
+  padding:12px 14px;
+  border-radius:18px;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.08);
+}
+#publicChat .chatBubble.admin{
+  background:rgba(246,196,83,.12);
+  border-color:rgba(246,196,83,.22);
+}
+#publicChat .chatBubble.me{
+  margin-left:auto;
+  background:rgba(59,130,246,.13);
+  border-color:rgba(59,130,246,.22);
+}
+#publicChat .chatBubble b{display:block;margin-bottom:5px;color:#f8fafc}
+#publicChat .chatBubble small{display:block;margin-top:6px;color:var(--muted);font-size:11px}
+#publicChat .chatInputArea textarea{min-height:52px}
+@media(max-width:700px){
+  #publicChatMessages{min-height:55vh;max-height:55vh}
+  #publicChat .chatBubble{max-width:95%}
+}
+</style>
+
 </head>
 <body>
 
@@ -455,25 +495,24 @@
       </div>
     </section>
 
-    
-<section id="publicChat" class="page hidden">
-  <div class="card">
-    <h3>🌍 Chat Público</h3>
-    <p style="color:var(--muted);margin:8px 0 14px">
-      Canal general donde todos pueden hablar en tiempo real.
-    </p>
 
-    <div id="publicChatMessages" class="chatMessages"></div>
+    <section id="publicChat" class="page hidden">
+      <div class="card">
+        <h3>🌍 Chat Público</h3>
+        <p style="color:var(--muted);margin:8px 0 14px">
+          Canal general donde todos los estudiantes y admins pueden hablar en tiempo real.
+        </p>
 
-    <div class="chatInputArea">
-      <textarea id="publicChatInput" placeholder="Escribe un mensaje..." onkeydown="handlePublicChatEnter(event)"></textarea>
-      <button onclick="sendPublicMessage()">Enviar</button>
-    </div>
-  </div>
-</section>
+        <div id="publicChatMessages" class="chatMessages"></div>
 
+        <div class="chatInputArea">
+          <textarea id="publicChatInput" placeholder="Escribe un mensaje al grupo..." onkeydown="handlePublicChatEnter(event)"></textarea>
+          <button type="button" onclick="sendPublicMessage()">Enviar</button>
+        </div>
+      </div>
+    </section>
 
-<section id="admin" class="page hidden">
+    <section id="admin" class="page hidden">
       <div class="adminHero">
         <div class="adminHeroTop">
           <div>
@@ -635,97 +674,6 @@
     lockCodeResult();
   }
 })();
-</script>
-
-
-<script>
-
-/* CHAT PUBLICO FIX */
-let publicChatSubscribed = false;
-
-async function sendPublicMessage() {
-  const input = document.getElementById("publicChatInput");
-  const message = input.value.trim();
-  if (!message) return;
-
-  await supabaseClient.from("general_chat_messages").insert([{
-    sender_id: currentUser.id,
-    sender_name: currentUser.full_name,
-    sender_role: currentUser.role,
-    message: message
-  }]);
-
-  input.value = "";
-}
-
-async function loadPublicChat() {
-  const box = document.getElementById("publicChatMessages");
-
-  const { data } = await supabaseClient
-    .from("general_chat_messages")
-    .select("*")
-    .order("created_at", { ascending: true });
-
-  box.innerHTML = "";
-
-  (data || []).forEach(msg => addPublicMessage(msg));
-
-  if (!publicChatSubscribed) {
-    subscribePublicChat();
-    publicChatSubscribed = true;
-  }
-}
-
-function addPublicMessage(msg) {
-  const box = document.getElementById("publicChatMessages");
-
-  const div = document.createElement("div");
-  div.className = "chatBubble " + (msg.sender_role === "admin" ? "admin" : "student");
-
-  div.innerHTML = `
-    <b>${msg.sender_name}</b><br>
-    ${msg.message}
-    <small>${msg.sender_role} · ${new Date(msg.created_at).toLocaleTimeString()}</small>
-  `;
-
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
-}
-
-function subscribePublicChat() {
-  supabaseClient
-    .channel('public-chat')
-    .on(
-      'postgres_changes',
-      {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'general_chat_messages'
-      },
-      payload => {
-        addPublicMessage(payload.new);
-        if (typeof playNewMessageSound === "function") playNewMessageSound();
-      }
-    )
-    .subscribe();
-}
-
-function handlePublicChatEnter(e) {
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();
-    sendPublicMessage();
-  }
-}
-
-// Hook al menu
-const originalShowPage = showPage;
-showPage = function(id, btn){
-  originalShowPage(id, btn);
-  if(id === "publicChat"){
-    setTimeout(loadPublicChat, 200);
-  }
-};
-
 </script>
 
 </body>

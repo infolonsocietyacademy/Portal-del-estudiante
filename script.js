@@ -1022,12 +1022,29 @@ function logout(){
 function toggleMenu(){document.getElementById("sidebar").classList.toggle("open")}
 function showPage(id,btn){
   document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-  document.getElementById("pageTitle").innerText = btn ? btn.textContent.replace(/[^\wÁÉÍÓÚáéíóúñÑ ]/g,"").trim() : id;
+  const targetPage = document.getElementById(id);
+  if(targetPage) targetPage.classList.remove("hidden");
+
+  const title = document.getElementById("pageTitle");
+  if(title){
+    title.innerText = btn ? btn.textContent.replace(/[^\wÁÉÍÓÚáéíóúñÑ ]/g,"").trim() : id;
+  }
+
   if(id === "dashboard" && currentUser){ updatePortalWelcome(); }
+
   document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
   if(btn) btn.classList.add("active");
-  document.getElementById("sidebar").classList.remove("open");
+
+  const sidebar = document.getElementById("sidebar");
+  if(sidebar) sidebar.classList.remove("open");
+
+  if(id === "publicChat" && typeof loadPublicChat === "function"){
+    setTimeout(loadPublicChat, 150);
+  }
+
+  if(id === "adminChat" && typeof loadAdminChatInbox === "function"){
+    setTimeout(loadAdminChatInbox, 150);
+  }
 }
 function showPageById(id){
   const buttons = [...document.querySelectorAll(".nav button")];
@@ -2190,3 +2207,149 @@ if(typeof olonOriginalRenderAdminTable === 'function'){
   else bindMobileLogin();
   window.addEventListener('pageshow', bindMobileLogin);
 })();
+
+
+
+/* =========================================
+   🌍 CHAT PÚBLICO OLON - SAFE FINAL
+   Compatible con tu variable: supabaseClient
+   ========================================= */
+let publicChatSubscribed = false;
+let publicChatLoading = false;
+
+function escapePublicChatHTML(str){
+  return String(str || "").replace(/[&<>"']/g, m => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#039;"
+  }[m]));
+}
+
+function publicChatTime(value){
+  try{
+    return new Date(value).toLocaleString("es-PR", {
+      month:"short",
+      day:"numeric",
+      hour:"numeric",
+      minute:"2-digit"
+    });
+  }catch(e){
+    return "";
+  }
+}
+
+async function sendPublicMessage(){
+  const input = document.getElementById("publicChatInput");
+  if(!input || !currentUser) return;
+
+  const message = input.value.trim();
+  if(!message) return;
+
+  const { error } = await supabaseClient
+    .from("general_chat_messages")
+    .insert([{
+      sender_id: currentUser.id,
+      sender_name: currentUser.full_name || "OLON Member",
+      sender_role: currentUser.role || "student",
+      message: message
+    }]);
+
+  if(error){
+    alert("No se pudo enviar el mensaje público. Revisa si corriste el SQL en Supabase.");
+    console.error("Public chat send error:", error);
+    return;
+  }
+
+  input.value = "";
+  if(typeof playClickSound === "function") playClickSound();
+}
+
+async function loadPublicChat(){
+  if(publicChatLoading) return;
+  const box = document.getElementById("publicChatMessages");
+  if(!box || typeof supabaseClient === "undefined") return;
+
+  publicChatLoading = true;
+
+  const { data, error } = await supabaseClient
+    .from("general_chat_messages")
+    .select("*")
+    .order("created_at", { ascending: true })
+    .limit(150);
+
+  publicChatLoading = false;
+
+  if(error){
+    box.innerHTML = `<div class="top3Empty">No se pudo cargar el Chat Público. Revisa la tabla general_chat_messages.</div>`;
+    console.error("Public chat load error:", error);
+    return;
+  }
+
+  box.innerHTML = "";
+
+  if(!data || !data.length){
+    box.innerHTML = `<div class="top3Empty">Todavía no hay mensajes. Sé el primero en escribir.</div>`;
+  }else{
+    data.forEach(addPublicMessage);
+  }
+
+  subscribePublicChat();
+}
+
+function addPublicMessage(msg){
+  const box = document.getElementById("publicChatMessages");
+  if(!box) return;
+
+  const empty = box.querySelector(".top3Empty");
+  if(empty) empty.remove();
+
+  if(msg?.id && box.querySelector(`[data-public-chat-id="${msg.id}"]`)) return;
+
+  const isMe = currentUser && msg.sender_id === currentUser.id;
+  const isAdmin = msg.sender_role === "admin";
+
+  const div = document.createElement("div");
+  div.className = "chatBubble " + (isAdmin ? "admin " : "student ") + (isMe ? "me" : "");
+  div.setAttribute("data-public-chat-id", msg.id || "");
+
+  div.innerHTML = `
+    <b>${escapePublicChatHTML(msg.sender_name || "OLON Member")}</b>
+    ${escapePublicChatHTML(msg.message || "")}
+    <small>${escapePublicChatHTML(msg.sender_role || "student")} · ${escapePublicChatHTML(publicChatTime(msg.created_at))}</small>
+  `;
+
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function subscribePublicChat(){
+  if(publicChatSubscribed || typeof supabaseClient === "undefined") return;
+
+  supabaseClient
+    .channel("olon-public-chat-live")
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "general_chat_messages"
+      },
+      payload => {
+        addPublicMessage(payload.new);
+        if(typeof playNewMessageSound === "function") playNewMessageSound();
+      }
+    )
+    .subscribe();
+
+  publicChatSubscribed = true;
+}
+
+function handlePublicChatEnter(e){
+  if(e.key === "Enter" && !e.shiftKey){
+    e.preventDefault();
+    sendPublicMessage();
+  }
+}
+
