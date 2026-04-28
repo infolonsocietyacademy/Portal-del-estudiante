@@ -2218,7 +2218,7 @@ body.light-mode .chatClose{color:#0f172a}
     <div class="topbar">
       <div>
         <button class="btn secondary mobileBtn" onclick="toggleMenu()">☰ Menú</button>
-        <h2 id="pageTitle">Dashboard</h2>
+        <h2 id="pageTitle">Panel del Trader</h2>
         <p id="pageSubtitle">Control manual privado de depósito, ganancia, pérdida y progreso.</p>
       </div>
       <div class="userPill">
@@ -2235,8 +2235,8 @@ body.light-mode .chatClose{color:#0f172a}
       <div id="portalWelcomeCard" class="card welcomeHeroCard">
         <div class="welcomeHeroContent">
           <div class="welcomeKicker">👋 Acceso confirmado</div>
-          <h2 id="portalWelcomeText" class="welcomeTitle">BIENVENIDO</h2>
-          <p id="portalWelcomeSub" class="welcomeSub">Tu portal privado está listo para registrar tu progreso.</p>
+          <h2 id="portalWelcomeText" class="welcomeTitle">Hola, Estudiante</h2>
+          <p id="portalWelcomeSub" class="welcomeSub">Panel del Trader</p>
         </div>
       </div>
 
@@ -3143,32 +3143,36 @@ function typeWelcomeMessage(el, text){
 
 function updatePortalWelcome(){
   if(!currentUser) return;
-  const firstName = getStudentFirstName(currentUser).toUpperCase();
-  const fullName = (currentUser.full_name || "Estudiante").toUpperCase();
-  const isAdminUser = currentUser.role === "admin";
-  const titleText = isAdminUser ? "BIENVENIDO, " + firstName : "BIENVENIDO, " + fullName;
 
+  const fullName = currentUser.full_name || "Estudiante";
+  const isAdminUser = currentUser.role === "admin";
+
+  // Topbar principal: evita duplicar el saludo.
   const pageTitle = document.getElementById("pageTitle");
-  if(pageTitle){ pageTitle.innerText = titleText; }
+  if(pageTitle){
+    pageTitle.innerText = isAdminUser ? "Panel Admin Profesional" : "Panel del Trader";
+  }
 
   const pageSubtitle = document.getElementById("pageSubtitle");
   if(pageSubtitle){
     pageSubtitle.innerText = isAdminUser
       ? "Panel administrativo listo para gestionar estudiantes."
-      : "Tu portal privado está listo para registrar tu progreso.";
+      : "Control manual privado de depósito, ganancia, pérdida y progreso.";
   }
 
   const welcomeCard = document.getElementById("portalWelcomeCard");
   if(welcomeCard){ welcomeCard.classList.toggle("hidden", isAdminUser); }
 
+  // Card de bienvenida: un solo saludo limpio.
   const welcomeText = document.getElementById("portalWelcomeText");
-  typeWelcomeMessage(welcomeText, titleText);
+  typeWelcomeMessage(welcomeText, "Hola, " + fullName);
 
   const welcomeSub = document.getElementById("portalWelcomeSub");
   if(welcomeSub){
-    welcomeSub.innerText = "Plan: " + (currentUser.plan || "VIP Regular") + " • Código: " + (currentUser.access_code || "");
+    welcomeSub.innerText = "Panel del Trader";
   }
 }
+
 
 function toggleAuth(mode){
   document.getElementById("tabLogin").classList.toggle("active", mode==="login");
