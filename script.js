@@ -361,7 +361,7 @@ function hidePortalEnterLoader(){
   if(loader) loader.classList.remove("show");
 }
 
-function waitPortalLoading(ms = 4000){
+function waitPortalLoading(ms = 4500){
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
