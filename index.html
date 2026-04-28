@@ -455,7 +455,7 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
   content:"";
   position:absolute;
   inset:0;
-  background:url("./assets/olon-logo.png") center/680px no-repeat;
+  background:url("./assets/bg-logo.png") center/680px no-repeat;
   opacity:.035;
   filter:grayscale(15%) blur(.2px);
   pointer-events:none;
@@ -480,7 +480,7 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
   content:"";
   position:absolute;
   inset:0;
-  background:url("./assets/olon-logo.png") center 45%/86% no-repeat;
+  background:url("./assets/bg-logo.png") center 45%/86% no-repeat;
   opacity:.09;
   filter:grayscale(10%);
   pointer-events:none;
@@ -539,6 +539,32 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
   .authLogo{width:190px}
 }
 
+
+/* ===== FOOTER CORPORATIVO OLON ===== */
+.portalFooter{
+  text-align:center;
+  padding:46px 20px 18px;
+  margin-top:28px;
+  color:#94a3b8;
+}
+.portalFooterSeal{
+  width:118px;
+  max-width:45vw;
+  opacity:.08;
+  display:block;
+  margin:0 auto 14px;
+  filter:drop-shadow(0 0 14px rgba(246,196,83,.20));
+}
+.portalFooter p{
+  margin:0;
+  font-size:12.5px;
+  letter-spacing:.45px;
+}
+@media(max-width:620px){
+  .portalFooter{padding:36px 16px 12px}
+  .portalFooterSeal{width:96px}
+}
+
 </style>
 </head>
 <body>
@@ -547,7 +573,7 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
   <div class="authShell">
     <div class="authHero">
       <div>
-        <img class="authLogo" src="./assets/olon-logo.png" alt="OLON Society Academy">
+        <img class="authLogo" src="./assets/bg-logo.png" alt="OLON Society Academy">
 
         <div class="authKicker">Bienvenido a</div>
         <h1 class="authTitle">OLON Society<br><span>Academy</span></h1>
@@ -641,7 +667,7 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
 
 <section id="codeResult" class="auth hidden">
   <div class="loginCard" style="width:min(520px,100%);padding:30px;border-radius:28px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.045));border:1px solid var(--line);box-shadow:var(--shadow)">
-    <img src="./assets/olon-logo.png" alt="OLON Society Academy" style="width:92px;display:block;margin:0 auto 14px;border-radius:18px;filter:drop-shadow(0 16px 30px rgba(246,196,83,.28));">
+    <img src="./assets/logo.png" alt="OLON Society Academy" style="width:92px;display:block;margin:0 auto 14px;border-radius:18px;filter:drop-shadow(0 16px 30px rgba(246,196,83,.28));">
     <h1 style="text-align:center;font-size:28px">Cuenta creada</h1>
     <p style="text-align:center;color:var(--muted);margin:10px 0 22px;line-height:1.6">
       Tu cuenta quedó pendiente de aprobación. Guarda este código para iniciar sesión cuando el admin te apruebe.
@@ -659,7 +685,7 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
 <section id="portal" class="app hidden">
   <aside id="sidebar" class="sidebar">
     <div class="brand">
-      <img src="./assets/olon-logo.png" style="width:70px;">
+      <img src="./assets/logo.png" alt="OLON Society Academy" style="width:70px;">
       <div>
         <h1>OLON Society</h1>
         <span id="portalMode">Student Portal</span>
@@ -964,7 +990,6 @@ function applyPlanStyle(plan){
   }
 }
 
-function toggleAuth(mode){
 function getStudentFirstName(user){
   const fullName = (user?.full_name || "Estudiante").trim();
   return fullName.split(" ")[0] || "Estudiante";
@@ -1012,6 +1037,7 @@ function updatePortalWelcome(){
   }
 }
 
+function toggleAuth(mode){
   document.getElementById("tabLogin").classList.toggle("active", mode==="login");
   document.getElementById("tabSignup").classList.toggle("active", mode==="signup");
   document.getElementById("loginForm").classList.toggle("active", mode==="login");
