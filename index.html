@@ -565,9 +565,134 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
   .portalFooterSeal{width:96px}
 }
 
+
+/* ===== LOADER PREMIUM OLON ===== */
+#olonLoader{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  display:grid;
+  place-items:center;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(246,196,83,.18), transparent 28%),
+    radial-gradient(circle at 50% 100%, rgba(59,130,246,.16), transparent 34%),
+    #020617;
+  transition:opacity .75s ease, visibility .75s ease;
+}
+#olonLoader.hide{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+.loaderBox{
+  text-align:center;
+  width:min(360px,88vw);
+  animation:loaderFloat 2.6s ease-in-out infinite;
+}
+.loaderLogoWrap{
+  width:152px;
+  height:152px;
+  margin:0 auto 22px;
+  border-radius:36px;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,rgba(246,196,83,.14),rgba(59,130,246,.10));
+  border:1px solid rgba(246,196,83,.32);
+  box-shadow:
+    0 0 45px rgba(246,196,83,.18),
+    inset 0 1px 0 rgba(255,255,255,.12);
+  position:relative;
+  overflow:hidden;
+}
+.loaderLogoWrap:before{
+  content:"";
+  position:absolute;
+  inset:-45%;
+  background:conic-gradient(from 0deg, transparent, rgba(246,196,83,.7), transparent, rgba(59,130,246,.55), transparent);
+  animation:loaderSpin 2.8s linear infinite;
+}
+.loaderLogoWrap:after{
+  content:"";
+  position:absolute;
+  inset:5px;
+  border-radius:31px;
+  background:#020617;
+}
+.loaderLogo{
+  width:112px;
+  max-width:78%;
+  position:relative;
+  z-index:2;
+  filter:drop-shadow(0 0 18px rgba(246,196,83,.38));
+  animation:logoPulse 1.7s ease-in-out infinite;
+}
+.loaderTitle{
+  font-size:22px;
+  font-weight:900;
+  letter-spacing:.5px;
+  color:#fff;
+}
+.loaderSub{
+  margin-top:8px;
+  color:#94a3b8;
+  font-size:13px;
+  font-weight:700;
+}
+.loaderBar{
+  margin:22px auto 0;
+  height:8px;
+  width:100%;
+  border-radius:999px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.10);
+  overflow:hidden;
+}
+.loaderBar span{
+  display:block;
+  height:100%;
+  width:42%;
+  border-radius:999px;
+  background:linear-gradient(90deg,var(--gold),var(--blue),var(--gold));
+  animation:loaderBarMove 1.45s ease-in-out infinite;
+}
+@keyframes loaderSpin{
+  to{transform:rotate(360deg)}
+}
+@keyframes logoPulse{
+  0%,100%{transform:scale(1);opacity:.95}
+  50%{transform:scale(1.06);opacity:1}
+}
+@keyframes loaderFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-8px)}
+}
+@keyframes loaderBarMove{
+  0%{transform:translateX(-120%)}
+  100%{transform:translateX(260%)}
+}
+@media(max-width:620px){
+  .loaderLogoWrap{width:128px;height:128px;border-radius:30px}
+  .loaderLogoWrap:after{border-radius:25px}
+  .loaderLogo{width:94px}
+  .loaderTitle{font-size:19px}
+}
+
 </style>
 </head>
 <body>
+
+<!-- LOADER PREMIUM OLON -->
+<div id="olonLoader">
+  <div class="loaderBox">
+    <div class="loaderLogoWrap">
+      <img class="loaderLogo" src="./assets/favicon.png" alt="OLON Society Academy">
+    </div>
+    <div class="loaderTitle">OLON Society Academy</div>
+    <div class="loaderSub">Cargando portal seguro...</div>
+    <div class="loaderBar"><span></span></div>
+  </div>
+</div>
+
 
 <section id="auth" class="auth">
   <div class="authShell">
@@ -865,6 +990,17 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
 </section>
 
 <script>
+
+// ===== LOADER PREMIUM OLON =====
+window.addEventListener("load", () => {
+  const loader = document.getElementById("olonLoader");
+  if(!loader) return;
+  setTimeout(() => {
+    loader.classList.add("hide");
+    setTimeout(() => loader.remove(), 900);
+  }, 1200);
+});
+
 const SUPABASE_URL = "https://bffojtcojnsvzxzwbdes.supabase.co";
 const SUPABASE_KEY = "sb_publishable_1qXUiQ6gXpBsyVkWdvq-rA_GwbAotcT";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
