@@ -2815,7 +2815,7 @@ function handlePublicChatEnter(e){
 })();
 
 // ===== OLON MARKET NEWS PRO - FINNHUB SECURE SUPABASE FUNCTION =====
-const OLON_NEWS_FUNCTION_URL = "https://bffojtcojnsvzxzwbdes.supabase.co/functions/v1/finnhub-news";
+const OLON_NEWS_FUNCTION_URL = "https://bffojtcojnsvzxzwbdes.supabase.co/functions/v1/quick-worker";
 let currentNewsCategory = "forex";
 let cachedNewsItems = [];
 
