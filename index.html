@@ -94,6 +94,28 @@ function playMechanicalKeySound(){
   }
 }
 
+
+function playBackspaceSound(){
+  const now = Date.now();
+  if(now - olonLastKeySound < 34) return;
+  olonLastKeySound = now;
+  playOlonTone(210, 0.045, 0.024, "triangle");
+  setTimeout(()=>playOlonTone(155, 0.035, 0.014, "sine"), 18);
+}
+
+function playPasteSound(){
+  playOlonTone(520, 0.045, 0.018, "sine");
+  setTimeout(()=>playOlonTone(760, 0.05, 0.016, "triangle"), 45);
+  setTimeout(()=>playOlonTone(980, 0.04, 0.012, "sine"), 90);
+}
+
+function playPortalLoadingSound(){
+  playOlonTone(180, 0.12, 0.020, "sine");
+  setTimeout(()=>playOlonTone(360, 0.12, 0.018, "triangle"), 150);
+  setTimeout(()=>playOlonTone(620, 0.16, 0.016, "sine"), 330);
+  setTimeout(()=>playOlonTone(880, 0.18, 0.014, "sine"), 560);
+}
+
 function playHoverSound(){
   const now = Date.now();
   if(now - olonLastHoverSound < 130) return;
@@ -113,10 +135,23 @@ function setupOlonUISounds(){
   document.addEventListener("keydown", (e)=>{
     const tag = (e.target?.tagName || "").toLowerCase();
     const isTyping = tag === "input" || tag === "textarea" || e.target?.isContentEditable;
-    if(isTyping && e.key.length === 1){
+    if(!isTyping) return;
+
+    if(e.key.length === 1){
       playMechanicalKeySound();
+    }else if(e.key === "Backspace" || e.key === "Delete"){
+      playBackspaceSound();
+    }else if(e.key === "Enter"){
+      playClickSound();
     }
   });
+
+  document.addEventListener("paste", (e)=>{
+    const tag = (e.target?.tagName || "").toLowerCase();
+    const isTyping = tag === "input" || tag === "textarea" || e.target?.isContentEditable;
+    if(isTyping) playPasteSound();
+  });
+
 
   document.addEventListener("mouseover", (e)=>{
     const target = e.target.closest("button,.card,.nav button,.userPill,.sideBox,.calDay:not(.empty),.reportRow,.aiItem,.v3Card");
@@ -1739,6 +1774,7 @@ function setLoaderStudentName(name, plan){
 function showPortalEnterLoader(){
   const loader = document.getElementById("portalEnterLoader");
   if(loader) loader.classList.add("show");
+  if(typeof playPortalLoadingSound === "function") playPortalLoadingSound();
 }
 
 function hidePortalEnterLoader(){
