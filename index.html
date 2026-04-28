@@ -1167,11 +1167,6 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
 .scoreBarTrack{height:8px;border-radius:999px;background:rgba(255,255,255,.09);overflow:hidden}
 .scoreBarTrack span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--blue))}
 .goalCard h3,.aiCard h3,.calendarCard h3{font-size:20px;letter-spacing:-.03em}
-.calendarHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-.calendarNavBtn{width:42px;height:42px;border-radius:15px;border:1px solid rgba(246,196,83,.28);background:linear-gradient(135deg,rgba(246,196,83,.14),rgba(59,130,246,.10));color:#fff;font-size:28px;font-weight:900;line-height:1;cursor:pointer;display:grid;place-items:center}
-.calendarNavBtn:hover{transform:translateY(-2px);border-color:rgba(246,196,83,.46)}
-.calendarWeekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin-top:14px}
-.calendarWeekdays span{font-size:11px;font-weight:900;color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:.25px}
 .goalBar{margin-top:14px;height:13px;border-radius:999px;background:rgba(255,255,255,.09);overflow:hidden;border:1px solid rgba(255,255,255,.08)}
 .goalBar span{display:block;height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--green))}
 .goalMeta{display:flex;justify-content:space-between;gap:10px;margin-top:12px;color:var(--muted);font-size:12px;font-weight:800}
@@ -1188,9 +1183,6 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
 .calDay.goodDay{background:rgba(34,197,94,.16);color:#bbf7d0;border-color:rgba(34,197,94,.26)}
 .calDay.badDay{background:rgba(239,68,68,.16);color:#fecaca;border-color:rgba(239,68,68,.26)}
 .calDay.flatDay{background:rgba(245,158,11,.16);color:#fde68a;border-color:rgba(245,158,11,.26)}
-.calDay.empty{opacity:.25;background:transparent;border-color:transparent;box-shadow:none}
-.calDay.today{outline:2px solid rgba(246,196,83,.75);outline-offset:2px;color:#fff}
-.calDay small{display:block;margin-top:3px;font-size:10px;color:inherit;opacity:.85}
 .proQuote{
   margin:16px 0;
   padding:17px 18px;
@@ -2033,6 +2025,26 @@ body.light-mode .chatClose{color:#0f172a}
   }
 }
 
+
+/* ===== MOBILE APP MODE — OLON TRADER APP ===== */
+.mobileCards{display:none}.mobileBottomNav{display:none}
+@media(max-width:760px){
+body{background:#050814!important;overflow-x:hidden}.app{display:block;min-height:100vh;padding-bottom:92px}.main{padding:86px 14px 96px!important;width:100%;overflow:visible}.sidebar{width:286px;left:-305px;border-radius:0 26px 26px 0;box-shadow:0 24px 80px rgba(0,0,0,.55)}
+.topbar{position:fixed!important;top:0;left:0;right:0;z-index:30;margin:0!important;padding:12px 14px!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;background:rgba(5,8,20,.82)!important;backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.10)}
+.topbar>div:first-child{display:flex;align-items:center;gap:10px;min-width:0}.mobileBtn{display:grid!important;place-items:center;width:42px;height:42px;padding:0;border-radius:15px;font-size:0!important;flex:none}.mobileBtn:before{content:"☰";font-size:20px;color:#fff}#pageTitle{font-size:17px!important;line-height:1.15;margin:0;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:165px}#pageSubtitle{display:none!important}
+.userPill{padding:6px 8px!important;border-radius:18px;background:rgba(255,255,255,.06)!important;gap:8px;max-width:150px;overflow:hidden}.avatar{width:34px;height:34px;font-size:13px;flex:none}.userPill b{font-size:12px;display:block;max-width:86px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.userPill small,#planBadge{display:none!important}
+.welcomeHeroCard{border-radius:28px!important;padding:20px!important;margin-bottom:14px;background:linear-gradient(135deg,rgba(255,216,107,.18),rgba(59,130,246,.12),rgba(168,85,247,.10))!important}.welcomeKicker{font-size:10px;padding:6px 10px}.welcomeTitle{font-size:28px!important;min-height:auto!important;margin-top:11px!important}.welcomeSub{font-size:14px;margin-top:6px!important}.proQuote{font-size:13px;border-radius:20px;margin:12px 0;padding:14px 15px}
+.v3Grid,.grid4{display:grid;grid-template-columns:1fr 1fr!important;gap:10px!important;margin:12px 0!important}.v3Card,.metric{border-radius:22px!important;padding:15px!important;box-shadow:0 14px 38px rgba(0,0,0,.24)}.v3Card small,.metric small{font-size:10px;letter-spacing:.25px}.v3Card h3,.metric h3{font-size:21px!important;margin-top:8px!important;word-break:break-word}.v3Card span,.metric span{font-size:10px!important;line-height:1.35}
+.selectedReportCard,.card{border-radius:24px!important}.reportToolbar{display:grid!important;grid-template-columns:1fr!important;gap:10px!important}.reportSwitch{display:grid!important;grid-template-columns:repeat(3,1fr);width:100%;padding:5px;border-radius:18px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10)}.reportSwitch button{padding:11px 8px!important;border-radius:14px!important;font-size:12px!important}.reportToolbar .btn{width:100%;min-height:46px;border-radius:16px}.selectedReportHead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-top:15px}.selectedReportHead h3{font-size:18px!important}.selectedReportHead p{font-size:12px!important;line-height:1.4;color:var(--muted)}.selectedReportBadge{font-size:10px;white-space:nowrap}.reportRow{border-radius:16px;padding:12px;font-size:12px;align-items:center}
+.proGrid,.layout,.reportGrid{grid-template-columns:1fr!important;gap:12px!important;margin:12px 0!important}.traderScoreInner{grid-template-columns:1fr!important;text-align:center;gap:12px!important}.scoreRing{width:118px;height:118px;margin:0 auto}.scoreRing span{width:90px;height:90px;font-size:24px}.scoreDetails h3{font-size:22px}.scoreDetails p{font-size:13px}.scoreBarTop{font-size:11px}.goalCard .field{margin-bottom:0}.field input,.field select,.field textarea{min-height:48px;border-radius:16px;font-size:15px}
+.calendarHeader{display:grid!important;grid-template-columns:44px 1fr 44px;align-items:center;gap:8px}.calendarNavBtn{width:44px!important;height:44px!important;border-radius:16px!important;font-size:24px!important}.calendarWeekdays{font-size:10px!important;margin-top:12px}.calendarGrid{gap:5px!important}.calDay{min-height:50px!important;border-radius:14px!important;font-size:11px!important;padding:4px!important}.chartBox{height:320px!important;padding:18px!important}.formGrid{grid-template-columns:1fr!important;gap:12px!important}.field label{font-size:12px}.field textarea{min-height:98px}
+.tableWrap{display:none!important}.mobileCards{display:grid;gap:12px;margin-top:14px}.mobileRecordCard,.mobileUserCard{position:relative;overflow:hidden;padding:15px;border-radius:22px;border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.035));box-shadow:0 14px 36px rgba(0,0,0,.24)}.mobileRecordTop,.mobileUserTop{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}.mobileRecordDate,.mobileUserName{font-size:15px;font-weight:900}.mobileRecordNote,.mobileUserMeta{color:var(--muted);font-size:12px;line-height:1.45;margin-top:4px}.mobileStats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.mobileStat{padding:10px;border-radius:15px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08)}.mobileStat small{display:block;color:var(--muted);font-size:10px;font-weight:900}.mobileStat b{display:block;margin-top:4px;font-size:13px}.mobileRecordCard .btn,.mobileUserCard .btn{min-height:40px;border-radius:14px;padding:10px 12px;font-size:12px}.mobileUserActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.mobileUserInfo{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.mobileInfoPill{padding:9px;border-radius:14px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08);font-size:11px;color:var(--muted)}.mobileInfoPill b{display:block;color:#fff;font-size:12px;margin-top:3px;word-break:break-word}
+.floatingAdd{bottom:88px!important;right:14px!important;border-radius:18px!important;padding:13px 14px!important}.chatFab{bottom:92px!important;right:14px!important}.studentChatPanel{width:calc(100vw - 20px)!important;right:10px!important;bottom:88px!important;border-radius:24px!important;max-height:70vh!important}
+.mobileBottomNav{position:fixed;left:10px;right:10px;bottom:10px;z-index:50;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:8px;border-radius:26px;border:1px solid rgba(255,255,255,.13);background:rgba(7,11,22,.88);backdrop-filter:blur(20px);box-shadow:0 18px 60px rgba(0,0,0,.45)}.mobileBottomNav button{border:0;background:transparent;color:#94a3b8;border-radius:20px;padding:8px 4px;display:grid;place-items:center;gap:3px;font-weight:900;cursor:pointer}.mobileBottomNav button span{font-size:19px;line-height:1}.mobileBottomNav button small{font-size:10px;color:inherit}.mobileBottomNav button.active{color:#fff;background:linear-gradient(135deg,rgba(246,196,83,.18),rgba(59,130,246,.15));box-shadow:inset 0 0 0 1px rgba(246,196,83,.18)}
+body.light-mode .mobileBottomNav{background:rgba(255,255,255,.90);border-color:rgba(15,23,42,.12)}body.light-mode .mobileRecordCard,body.light-mode .mobileUserCard{background:#fff;border-color:rgba(15,23,42,.10)}
+}
+@media(max-width:380px){#pageTitle{max-width:125px}.v3Grid,.grid4{grid-template-columns:1fr!important}.mobileBottomNav button small{font-size:9px}.mobileBottomNav{left:6px;right:6px;bottom:6px}}
+
 </style>
 </head>
 <body>
@@ -2369,17 +2381,8 @@ body.light-mode .chatClose{color:#0f172a}
         </div>
 
         <div class="card calendarCard">
-          <div class="calendarHeader">
-            <button class="calendarNavBtn" type="button" onclick="changeCalendarMonth(-1)">‹</button>
-            <div>
-              <h3 id="calendarMonthTitle">Calendario</h3>
-              <p style="color:var(--muted);margin-top:6px;font-size:13px">🟢 positivo · 🔴 negativo · 🟡 break even</p>
-            </div>
-            <button class="calendarNavBtn" type="button" onclick="changeCalendarMonth(1)">›</button>
-          </div>
-          <div class="calendarWeekdays">
-            <span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span>
-          </div>
+          <h3>Calendario del Mes</h3>
+          <p style="color:var(--muted);margin-top:8px;font-size:13px">🟢 positivo · 🔴 negativo · 🟡 break even</p>
           <div class="calendarGrid" id="tradingCalendar"></div>
         </div>
       </div>
@@ -2439,6 +2442,7 @@ body.light-mode .chatClose{color:#0f172a}
             <tbody id="historyBody"></tbody>
           </table>
         </div>
+        <div id="historyMobileCards" class="mobileCards"></div>
       </div>
     </section>
 
@@ -2509,6 +2513,7 @@ body.light-mode .chatClose{color:#0f172a}
             <tbody id="usersBody"></tbody>
           </table>
         </div>
+        <div id="usersMobileCards" class="mobileCards adminMobileCards"></div>
       </div>
     </section>
 
@@ -2568,6 +2573,14 @@ body.light-mode .chatClose{color:#0f172a}
       </div>
     </section>
 
+
+    <nav class="mobileBottomNav studentOnly" aria-label="Navegación móvil">
+      <button class="active" type="button" onclick="mobileGo('dashboard', this)"><span>⌂</span><small>Inicio</small></button>
+      <button type="button" onclick="mobileGo('registro', this)"><span>＋</span><small>Trade</small></button>
+      <button type="button" onclick="mobileGo('historial', this)"><span>▤</span><small>Historial</small></button>
+      <button type="button" onclick="mobileGo('comparacion', this)"><span>↗</span><small>Reporte</small></button>
+      <button type="button" onclick="mobileOpenAccount(this)"><span>◉</span><small>Cuenta</small></button>
+    </nav>
 
     <footer class="portalFooter">
       <img class="portalFooterSeal" src="./assets/footer-seal.png" alt="OLON Society Academy">
@@ -3084,7 +3097,6 @@ function startChatRefresh(){
 let currentUser = JSON.parse(localStorage.getItem("olon_current_user") || "null");
 let chart;
 let cachedRecords = [];
-let calendarViewDate = new Date();
 let cachedUsers = [];
 
 document.getElementById("date").valueAsDate = new Date();
@@ -3710,7 +3722,75 @@ async function downloadSelectedReportPDF(){
       pdf.save(`olon-${cfg.title.toLowerCase().replace(/\s+/g,"-")}-${safeName}.pdf`);
     }else{
       const printWindow = window.open("", "_blank");
-      printWindow.document.write(`<!DOCTYPE html><html><head><title>${cfg.title}</title><style>${document.querySelector("style")?.innerHTML || ""}</style></head><body>${buildPDFReportHTML()}</body></html>`);
+      printWindow.document.write(`<!DOCTYPE html><html><head><title>${cfg.title}</title><style>${document.querySelector("style")?.innerHTML || ""}</style></head><body>${buildPDFReportHTML()}
+<script>
+// ===== MOBILE APP MODE HELPERS =====
+function mobileGo(id, btn){
+  showPageById(id);
+  document.querySelectorAll('.mobileBottomNav button').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+}
+function mobileOpenAccount(btn){
+  showPageById('dashboard');
+  document.querySelectorAll('.mobileBottomNav button').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  setTimeout(()=>document.querySelector('.userPill')?.scrollIntoView({behavior:'smooth',block:'center'}),80);
+}
+function renderHistoryMobileCards(records){
+  const box = document.getElementById('historyMobileCards');
+  if(!box) return;
+  const list = (records || []).slice().reverse();
+  box.innerHTML = list.map(r=>{
+    const net = Number(r.gain||0) - Number(r.loss||0);
+    const cls = net >= 0 ? 'green' : 'red';
+    return `<div class="mobileRecordCard"><div class="mobileRecordTop"><div><div class="mobileRecordDate">${r.date || '-'}</div><div class="mobileRecordNote">${r.note || 'Sin nota'}</div></div><span class="badge ${cls}">${money(net)}</span></div><div class="mobileStats"><div class="mobileStat"><small>Depósito</small><b>${money(r.deposit||0)}</b></div><div class="mobileStat"><small>Ganancia</small><b class="good">${money(r.gain||0)}</b></div><div class="mobileStat"><small>Pérdida</small><b class="bad">${money(r.loss||0)}</b></div></div><button class="btn secondary full" onclick="delRecord('${r.id}')">Eliminar registro</button></div>`;
+  }).join('') || `<div class="mobileRecordCard"><div class="mobileRecordDate">No hay registros todavía.</div><div class="mobileRecordNote">Cuando guardes tu primer trade, aparecerá aquí como tarjeta móvil.</div></div>`;
+}
+function renderUsersMobileCards(users){
+  const box = document.getElementById('usersMobileCards');
+  if(!box) return;
+  box.innerHTML = (users || []).map(u=>{
+    const isMainAdmin = u.role === 'admin' && u.access_code === 'admin-nolo';
+    const initials = (u.full_name || 'O').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
+    let statusBadgeClass = 'blue';
+    if(u.status === 'active') statusBadgeClass = 'green';
+    if(u.status === 'suspended' || u.status === 'expired') statusBadgeClass = 'red';
+    const approveBtn = isMainAdmin ? '' : `<button class="btn success" onclick="updateUserStatus('${u.id}', 'active')">Aprobar</button>`;
+    const suspendBtn = isMainAdmin ? '' : `<button class="btn warnBtn" onclick="updateUserStatus('${u.id}', 'suspended')">Suspender</button>`;
+    const safeName = String(u.full_name || '').replace(/'/g,"\\'");
+    const deleteBtn = isMainAdmin ? `<span class="badge blue">Protegido</span>` : `<button class="btn danger" onclick="deleteUser('${u.id}', '${safeName}')">Borrar</button>`;
+    return `<div class="mobileUserCard"><div class="mobileUserTop"><div class="adminStudent"><div class="adminAvatar">${initials}</div><div><div class="mobileUserName">${u.full_name || 'Sin nombre'}</div><div class="mobileUserMeta">${u.email || 'Sin email'}</div></div></div><span class="badge ${statusBadgeClass}">${u.status || '-'}</span></div><div class="mobileUserInfo"><div class="mobileInfoPill">Código<b>${u.access_code || '-'}</b></div><div class="mobileInfoPill">Plan<b>${u.plan || '-'}</b></div><div class="mobileInfoPill">Rol<b>${u.role || '-'}</b></div><div class="mobileInfoPill">Pago<b>${u.next_payment_date || 'No asignado'}</b></div></div><div class="mobileUserActions">${approveBtn}${suspendBtn}${deleteBtn}</div></div>`;
+  }).join('') || `<div class="mobileUserCard"><div class="mobileUserName">No hay usuarios con ese filtro.</div></div>`;
+}
+const olonOriginalRender = window.render;
+if(typeof olonOriginalRender === 'function'){
+  window.render = async function(){
+    await olonOriginalRender.apply(this, arguments);
+    if(currentUser && currentUser.role !== 'admin') renderHistoryMobileCards(cachedRecords || []);
+  }
+}
+const olonOriginalRenderAdminTable = window.renderAdminTable;
+if(typeof olonOriginalRenderAdminTable === 'function'){
+  window.renderAdminTable = function(){
+    olonOriginalRenderAdminTable.apply(this, arguments);
+    const search = (document.getElementById('adminSearch')?.value || '').toLowerCase().trim();
+    const statusFilter = document.getElementById('adminStatusFilter')?.value || 'all';
+    const planFilter = document.getElementById('adminPlanFilter')?.value || 'all';
+    let users = (cachedUsers || []).filter(u=>{
+      const text = `${u.full_name || ''} ${u.email || ''} ${u.access_code || ''}`.toLowerCase();
+      const statusOk = statusFilter === 'all' || u.status === statusFilter;
+      const plan = String(u.plan || '').toLowerCase();
+      const role = String(u.role || '').toLowerCase();
+      const planOk = planFilter === 'all' || plan.includes(planFilter) || role.includes(planFilter);
+      const searchOk = !search || text.includes(search);
+      return statusOk && planOk && searchOk;
+    });
+    renderUsersMobileCards(users);
+  }
+}
+</script>
+
+</body></html>`);
       printWindow.document.close();
       printWindow.focus();
       printWindow.print();
@@ -3806,7 +3886,7 @@ function renderProDashboard(){
   const aiBox = document.getElementById("aiAnalysisList");
   if(aiBox) aiBox.innerHTML = ai.map(x=>`<div class="aiItem">${x}</div>`).join("");
 
-  renderTradingCalendar();
+  renderTradingCalendar(currentMonth);
   renderDailyQuote();
   renderV3Performance();
 }
@@ -3826,59 +3906,25 @@ function renderDailyQuote(){
   }
 }
 
-function renderTradingCalendar(){
+function renderTradingCalendar(records){
   const box = document.getElementById("tradingCalendar");
   if(!box) return;
-
-  const view = calendarViewDate instanceof Date ? calendarViewDate : new Date();
-  const year = view.getFullYear();
-  const month = view.getMonth();
-  const firstDay = new Date(year, month, 1);
-  const days = new Date(year, month + 1, 0).getDate();
-  const startOffset = firstDay.getDay();
-
-  const title = document.getElementById("calendarMonthTitle");
-  if(title){
-    title.innerText = firstDay.toLocaleDateString("es-ES", { month:"long", year:"numeric" }).replace(/^./, c => c.toUpperCase());
-  }
-
+  const now = new Date();
+  const days = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
   const map = {};
-  (cachedRecords || []).forEach(r=>{
-    const d = new Date(r.date + "T00:00:00");
-    if(d.getFullYear() !== year || d.getMonth() !== month) return;
-    const day = d.getDate();
-    if(!map[day]) map[day] = { net:0, trades:0 };
-    map[day].net += Number(r.gain||0) - Number(r.loss||0);
-    map[day].trades += 1;
+  records.forEach(r=>{
+    const d = new Date(r.date + "T00:00:00").getDate();
+    map[d] = (map[d] || 0) + Number(r.gain||0) - Number(r.loss||0);
   });
-
-  const today = new Date();
   let html = "";
-  for(let i=0; i<startOffset; i++){
-    html += '<div class="calDay empty"></div>';
-  }
-
   for(let d=1; d<=days; d++){
-    const info = map[d];
     let cls = "";
-    if(info){
-      if(info.net > 0) cls = "goodDay";
-      else if(info.net < 0) cls = "badDay";
-      else cls = "flatDay";
-    }
-    if(today.getFullYear() === year && today.getMonth() === month && today.getDate() === d){
-      cls += " today";
-    }
-    const mini = info ? '<small>' + money(info.net) + '</small>' : "";
-    html += '<div class="calDay ' + cls.trim() + '" title="' + (info ? money(info.net) : 'Sin registro') + '"><b>' + d + '</b>' + mini + '</div>';
+    if(map[d] > 0) cls = "goodDay";
+    else if(map[d] < 0) cls = "badDay";
+    else if(map[d] === 0 && map[d] !== undefined) cls = "flatDay";
+    html += `<div class="calDay ${cls}">${d}</div>`;
   }
   box.innerHTML = html;
-}
-
-function changeCalendarMonth(delta){
-  const view = calendarViewDate instanceof Date ? calendarViewDate : new Date();
-  calendarViewDate = new Date(view.getFullYear(), view.getMonth() + Number(delta || 0), 1);
-  renderTradingCalendar();
 }
 
 async function render(){
