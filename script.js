@@ -2242,19 +2242,36 @@ function publicChatTime(value){
 
 async function sendPublicMessage(){
   const input = document.getElementById("publicChatInput");
-  if(!input || !currentUser) return;
+  if(!input || !currentUser){
+    alert("No hay usuario activo. Vuelve a iniciar sesión.");
+    return;
+  }
 
   const message = input.value.trim();
   if(!message) return;
 
-  const { error } = await supabaseClient
+  const tempMsg = {
+    id: "temp-" + Date.now(),
+    sender_id: currentUser.id,
+    sender_name: currentUser.full_name || "OLON Member",
+    sender_role: currentUser.role || "student",
+    message: message,
+    created_at: new Date().toISOString()
+  };
+
+  addPublicMessage(tempMsg);
+  input.value = "";
+
+  const { data, error } = await supabaseClient
     .from("general_chat_messages")
     .insert([{
       sender_id: currentUser.id,
       sender_name: currentUser.full_name || "OLON Member",
       sender_role: currentUser.role || "student",
       message: message
-    }]);
+    }])
+    .select()
+    .single();
 
   if(error){
     alert("No se pudo enviar el mensaje público. Revisa si corriste el SQL en Supabase.");
@@ -2262,7 +2279,8 @@ async function sendPublicMessage(){
     return;
   }
 
-  input.value = "";
+  setTimeout(loadPublicChat, 250);
+
   if(typeof playClickSound === "function") playClickSound();
 }
 
