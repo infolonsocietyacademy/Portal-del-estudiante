@@ -27,6 +27,8 @@ if(originalShowPageForChat){
 
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
 // ===== OLON AUDIO ENGINE FIXED MULTI USER =====
@@ -1302,6 +1304,31 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
   font-size:12px!important;
   font-weight:900!important;
 }
+
+/* ===== SELECTOR DE REPORTES + PDF PREMIUM ===== */
+.reportToolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 14px}
+.reportSwitch{display:flex;gap:8px;flex-wrap:wrap}
+.reportSwitch button{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.055);color:#cbd5e1;padding:10px 13px;border-radius:999px;font-weight:900;font-size:12px;cursor:pointer}
+.reportSwitch button.active{color:#020617;background:linear-gradient(135deg,var(--gold),#fff1a8);border-color:rgba(246,196,83,.55);box-shadow:0 12px 30px rgba(246,196,83,.16)}
+.selectedReportCard{position:relative;overflow:hidden;border-color:rgba(246,196,83,.22)}
+.selectedReportCard:before{content:"";position:absolute;right:-90px;top:-90px;width:240px;height:240px;border-radius:50%;background:rgba(246,196,83,.12);filter:blur(14px)}
+.selectedReportHead{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px}
+.selectedReportHead h3{font-size:22px;letter-spacing:-.03em}
+.selectedReportHead p{color:var(--muted);font-size:13px;margin-top:5px}
+.selectedReportBadge{display:inline-flex;padding:8px 11px;border-radius:999px;border:1px solid rgba(246,196,83,.30);background:rgba(246,196,83,.10);color:#fde68a;font-size:12px;font-weight:900;white-space:nowrap}
+#selectedReport{position:relative;z-index:1}
+.pdfReport{width:794px;min-height:1123px;background:#fff;color:#0f172a;padding:44px;font-family:Inter,Arial,sans-serif}
+.pdfReportHeader{border-radius:26px;padding:28px;background:linear-gradient(135deg,#070b16,#111827);color:white;margin-bottom:24px}
+.pdfReportHeader small{color:#f6c453;font-weight:900;letter-spacing:.45px;text-transform:uppercase}
+.pdfReportHeader h1{margin-top:10px;font-size:30px;letter-spacing:-.04em}
+.pdfReportHeader p{margin-top:8px;color:#cbd5e1}
+.pdfMeta{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px}
+.pdfMetaBox{border:1px solid #e5e7eb;border-radius:18px;padding:16px;background:#f8fafc}
+.pdfMetaBox span{display:block;color:#64748b;font-size:12px;font-weight:800}.pdfMetaBox b{display:block;margin-top:5px;font-size:17px}
+.pdfRows{display:grid;gap:10px}.pdfRow{display:flex;justify-content:space-between;gap:12px;border:1px solid #e5e7eb;border-radius:16px;padding:15px;background:#fff;font-weight:800}.pdfRow span{color:#64748b}
+.pdfFooter{margin-top:26px;padding-top:14px;border-top:1px solid #e5e7eb;color:#64748b;font-size:12px;text-align:center}
+@media(max-width:620px){.reportToolbar{align-items:stretch}.reportSwitch{display:grid;grid-template-columns:1fr;gap:7px;width:100%}.reportToolbar .btn{width:100%}.selectedReportHead{flex-direction:column}}
+
 @media(max-width:1180px){
   .v3Grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .reportGrid{grid-template-columns:1fr}
@@ -2265,20 +2292,25 @@ body.light-mode .chatClose{color:#0f172a}
         </div>
       </div>
 
-      <div class="reportGrid">
-        <div class="card reportCard">
-          <h3>Reporte Semanal</h3>
-          <div class="reportRows" id="weeklyReport"></div>
+      <div class="card reportCard selectedReportCard">
+        <div class="reportToolbar">
+          <div class="reportSwitch" aria-label="Selector de reporte">
+            <button type="button" id="reportBtnWeekly" class="active" onclick="setReportView('weekly')">Semanal</button>
+            <button type="button" id="reportBtnMonthly" onclick="setReportView('monthly')">Mensual</button>
+            <button type="button" id="reportBtnYtd" onclick="setReportView('ytd')">YTD</button>
+          </div>
+          <button type="button" class="btn secondary" onclick="downloadSelectedReportPDF()">📄 Descargar PDF</button>
         </div>
-        <div class="card reportCard">
-          <h3>Reporte Mensual</h3>
-          <div class="reportRows" id="monthlyReport"></div>
-        </div>
-      </div>
 
-      <div class="card reportCard">
-        <h3>Reporte YTD</h3>
-        <div class="reportRows" id="ytdReport"></div>
+        <div class="selectedReportHead">
+          <div>
+            <h3 id="selectedReportTitle">Reporte Semanal</h3>
+            <p id="selectedReportSubtitle">Resumen de tu rendimiento de esta semana.</p>
+          </div>
+          <span id="selectedReportBadge" class="selectedReportBadge">Vista Semanal</span>
+        </div>
+
+        <div class="reportRows" id="selectedReport"></div>
       </div>
 
 
@@ -3548,6 +3580,131 @@ async function renderStudentRanking(){
   }
 }
 
+
+let currentReportView = "weekly";
+const reportViewConfig = {
+  weekly:{title:"Reporte Semanal", subtitle:"Resumen de tu rendimiento de esta semana.", badge:"Vista Semanal", label:"semanal"},
+  monthly:{title:"Reporte Mensual", subtitle:"Resumen de tu rendimiento del mes actual.", badge:"Vista Mensual", label:"mensual"},
+  ytd:{title:"Reporte YTD", subtitle:"Resumen acumulado desde el inicio del año.", badge:"Year To Date", label:"YTD"}
+};
+
+function getSelectedReportRecords(){
+  if(currentReportView === "monthly") return monthRecords(0);
+  if(currentReportView === "ytd") return yearRecords();
+  return weekRecords();
+}
+
+function setReportView(view){
+  currentReportView = reportViewConfig[view] ? view : "weekly";
+  [["weekly","reportBtnWeekly"],["monthly","reportBtnMonthly"],["ytd","reportBtnYtd"]].forEach(([v,id])=>{
+    const btn = document.getElementById(id);
+    if(btn) btn.classList.toggle("active", v === currentReportView);
+  });
+  renderSelectedReport();
+}
+
+function renderSelectedReport(){
+  const cfg = reportViewConfig[currentReportView] || reportViewConfig.weekly;
+  const records = getSelectedReportRecords();
+  const title = document.getElementById("selectedReportTitle");
+  const sub = document.getElementById("selectedReportSubtitle");
+  const badge = document.getElementById("selectedReportBadge");
+  const box = document.getElementById("selectedReport");
+
+  if(title) title.innerText = cfg.title;
+  if(sub) sub.innerText = cfg.subtitle;
+  if(badge) badge.innerText = cfg.badge;
+  if(box) box.innerHTML = reportHTML(records, cfg.label);
+}
+
+function buildPDFReportHTML(){
+  const cfg = reportViewConfig[currentReportView] || reportViewConfig.weekly;
+  const records = getSelectedReportRecords();
+  const t = totals(records);
+  const wr = winRateFromRecords(records);
+  const bw = bestWorst(records);
+  const student = currentUser?.full_name || document.getElementById("studentName")?.innerText || "Estudiante";
+  const plan = currentUser?.plan || document.getElementById("planBadge")?.innerText || "VIP";
+  const today = new Date().toLocaleDateString("es-PR", {year:"numeric", month:"long", day:"numeric"});
+
+  return `
+    <div class="pdfReport" id="pdfReportCapture">
+      <div class="pdfReportHeader">
+        <small>OLON Society Academy</small>
+        <h1>${cfg.title}</h1>
+        <p>Reporte profesional generado para ${student} · ${today}</p>
+      </div>
+
+      <div class="pdfMeta">
+        <div class="pdfMetaBox"><span>Trader</span><b>${student}</b></div>
+        <div class="pdfMetaBox"><span>Plan</span><b>${plan}</b></div>
+        <div class="pdfMetaBox"><span>Balance actual</span><b>${money(t.balance)}</b></div>
+        <div class="pdfMetaBox"><span>Rendimiento</span><b>${pct(t.growth)}</b></div>
+      </div>
+
+      <div class="pdfRows">
+        <div class="pdfRow"><span>Neto ${cfg.label}</span><b>${money(t.net)}</b></div>
+        <div class="pdfRow"><span>Total depositado</span><b>${money(t.deposit)}</b></div>
+        <div class="pdfRow"><span>Total ganado</span><b>${money(t.gain)}</b></div>
+        <div class="pdfRow"><span>Total perdido</span><b>${money(t.loss)}</b></div>
+        <div class="pdfRow"><span>Winrate</span><b>${pct(wr.winrate)}</b></div>
+        <div class="pdfRow"><span>Wins / Losses</span><b>${wr.wins} / ${wr.losses}</b></div>
+        <div class="pdfRow"><span>Mejor día</span><b>${money(bw.best)}</b></div>
+        <div class="pdfRow"><span>Peor día</span><b>${money(bw.worst)}</b></div>
+        <div class="pdfRow"><span>Días registrados</span><b>${records.length}</b></div>
+      </div>
+
+      <div class="pdfFooter">Documento generado automáticamente desde el Portal del Estudiante · OLON Society Academy</div>
+    </div>`;
+}
+
+async function downloadSelectedReportPDF(){
+  const cfg = reportViewConfig[currentReportView] || reportViewConfig.weekly;
+  const holder = document.createElement("div");
+  holder.style.position = "fixed";
+  holder.style.left = "-9999px";
+  holder.style.top = "0";
+  holder.innerHTML = buildPDFReportHTML();
+  document.body.appendChild(holder);
+
+  try{
+    if(window.html2canvas && window.jspdf?.jsPDF){
+      const target = holder.querySelector("#pdfReportCapture");
+      const canvas = await html2canvas(target, {scale:2, backgroundColor:"#ffffff", useCORS:true});
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new window.jspdf.jsPDF("p", "pt", "a4");
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const imgW = pageW;
+      const imgH = canvas.height * imgW / canvas.width;
+      let y = 0;
+
+      pdf.addImage(imgData, "PNG", 0, y, imgW, imgH);
+      let heightLeft = imgH - pageH;
+      while(heightLeft > 0){
+        y = heightLeft - imgH;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, y, imgW, imgH);
+        heightLeft -= pageH;
+      }
+
+      const safeName = (currentUser?.full_name || "estudiante").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+      pdf.save(`olon-${cfg.title.toLowerCase().replace(/\s+/g,"-")}-${safeName}.pdf`);
+    }else{
+      const printWindow = window.open("", "_blank");
+      printWindow.document.write(`<!DOCTYPE html><html><head><title>${cfg.title}</title><style>${document.querySelector("style")?.innerHTML || ""}</style></head><body>${buildPDFReportHTML()}</body></html>`);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+    }
+  }catch(err){
+    console.error("Error generando PDF", err);
+    alert("No se pudo generar el PDF. Intenta de nuevo.");
+  }finally{
+    holder.remove();
+  }
+}
+
 function renderV3Performance(){
   renderStudentRanking();
   if(!currentUser || currentUser.role === "admin") return;
@@ -3575,14 +3732,7 @@ function renderV3Performance(){
   const ytdStats = document.getElementById("ytdStats");
   if(ytdStats) ytdStats.innerText = ywr.wins + " wins / " + ywr.losses + " losses";
 
-  const weekly = document.getElementById("weeklyReport");
-  if(weekly) weekly.innerHTML = reportHTML(weekRecords(), "semanal");
-
-  const monthly = document.getElementById("monthlyReport");
-  if(monthly) monthly.innerHTML = reportHTML(monthRecords(0), "mensual");
-
-  const ytdBox = document.getElementById("ytdReport");
-  if(ytdBox) ytdBox.innerHTML = reportHTML(ytd, "YTD");
+  renderSelectedReport();
 }
 
 function renderProDashboard(){
