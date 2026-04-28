@@ -1834,4 +1834,58 @@ body.light-mode .mobileBottomNav{background:rgba(255,255,255,.90);border-color:r
 
 
 
-${document.querySelector("style")?.innerHTML || ""}
+${document.querySelector("style")?.innerHTML || ""}/* ===== AUTH PREMIUM V3 - LOGIN / SIGNUP MODERNO ANIMADO ===== */
+.authPremiumV3{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(255,216,107,.24), transparent 31%),
+    radial-gradient(circle at 88% 14%, rgba(59,130,246,.22), transparent 33%),
+    radial-gradient(circle at 50% 92%, rgba(168,85,247,.15), transparent 36%),
+    linear-gradient(135deg,#020617 0%,#07101f 46%,#020617 100%)!important;
+}
+.authParticles{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.authParticles .orb{position:absolute;border-radius:999px;filter:blur(26px);opacity:.8;animation:authOrbFloat 9s ease-in-out infinite}
+.orb1{width:260px;height:260px;left:5%;top:8%;background:rgba(246,196,83,.18)}
+.orb2{width:310px;height:310px;right:-70px;top:22%;background:rgba(59,130,246,.18);animation-delay:-2.4s!important}
+.orb3{width:230px;height:230px;left:38%;bottom:-80px;background:rgba(168,85,247,.14);animation-delay:-4.2s!important}
+.floatNumber{position:absolute;font-weight:900;font-size:clamp(42px,8vw,118px);letter-spacing:-.08em;color:rgba(255,255,255,.055);text-shadow:0 0 45px rgba(246,196,83,.10);animation:floatNumberMove 7.5s ease-in-out infinite}
+.fn1{left:7%;bottom:12%}.fn2{right:10%;top:10%;animation-delay:-1.5s}.fn3{right:18%;bottom:10%;animation-delay:-3s}.fn4{left:44%;top:6%;animation-delay:-4.5s;color:rgba(246,196,83,.075)}
+.gridGlow{position:absolute;inset:-2px;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:46px 46px;mask-image:radial-gradient(circle at center, black, transparent 72%);opacity:.45;animation:gridDrift 18s linear infinite}
+.authPremiumV3 .authShell{position:relative;z-index:1;animation:authShellEnter .72s cubic-bezier(.2,.9,.2,1) both;border-color:rgba(255,216,107,.34)!important;box-shadow:0 35px 120px rgba(0,0,0,.60),0 0 70px rgba(246,196,83,.10),inset 0 1px 0 rgba(255,255,255,.10)!important;backdrop-filter:blur(22px)}
+.authPremiumV3 .authHero{animation:authHeroIn .8s ease both;position:relative}
+.authPremiumV3 .authPanelPremium{position:relative;overflow:hidden;animation:authPanelIn .86s ease both}
+.authPremiumV3 .authPanelPremium:before{content:"";position:absolute;left:-80%;top:0;width:55%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);transform:skewX(-18deg);animation:authSweep 4.2s ease-in-out infinite;pointer-events:none}
+.authPremiumV3 .authLogo{animation:logoBreath 3.2s ease-in-out infinite;transform-origin:center;}
+.authPremiumV3 .authFeature,.authPremiumV3 .authStats,.authPremiumV3 .authQuote,.authPremiumV3 .top3Container,.authPremiumV3 .authLegal{backdrop-filter:blur(16px);transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
+.authPremiumV3 .authFeature:hover,.authPremiumV3 .top3Container:hover,.authPremiumV3 .authLegal:hover{transform:translateY(-4px);border-color:rgba(246,196,83,.34);box-shadow:0 18px 42px rgba(0,0,0,.22)}
+.authPremiumV3 .tabs{position:relative;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.authPremiumV3 .tabs button{position:relative;z-index:1;overflow:hidden;transition:transform .22s ease,color .22s ease,background .22s ease}
+.authPremiumV3 .tabs button:hover{transform:translateY(-2px)}
+.authPremiumV3 .tabs button.active:before{content:"";position:absolute;inset:-40%;z-index:-1;background:conic-gradient(from 180deg,rgba(246,196,83,.32),rgba(59,130,246,.25),rgba(168,85,247,.22),rgba(246,196,83,.32));animation:tabGlowSpin 4s linear infinite}
+.authPremiumV3 .tabs button.active:after{content:"";position:absolute;inset:2px;border-radius:12px;z-index:-1;background:linear-gradient(135deg,rgba(246,196,83,.24),rgba(59,130,246,.25));}
+.authPremiumV3 .form{display:block!important;opacity:0;transform:translateX(34px) scale(.985);filter:blur(6px);pointer-events:none;position:absolute;left:48px;right:48px;top:128px;transition:opacity .42s ease,transform .42s ease,filter .42s ease;}
+.authPremiumV3 .form.active{opacity:1;transform:translateX(0) scale(1);filter:blur(0);pointer-events:auto;position:relative;left:auto;right:auto;top:auto;animation:formPop .48s ease both;}
+.authPremiumV3 .field input,.authPremiumV3 .field select,.authPremiumV3 .field textarea{transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease,background .22s ease}
+.authPremiumV3 .field input:hover,.authPremiumV3 .field select:hover,.authPremiumV3 .field textarea:hover{border-color:rgba(246,196,83,.34);background:rgba(2,6,23,.56)}
+.authPremiumV3 .field input:focus,.authPremiumV3 .field select:focus,.authPremiumV3 .field textarea:focus{transform:translateY(-2px);border-color:rgba(255,216,107,.65)!important;box-shadow:0 0 0 4px rgba(246,196,83,.11),0 16px 35px rgba(0,0,0,.22)!important}
+.authPremiumV3 .btn.full{position:relative;overflow:hidden;transition:transform .23s ease,box-shadow .23s ease}
+.authPremiumV3 .btn.full:before{content:"";position:absolute;top:0;left:-80%;width:45%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);transform:skewX(-18deg);transition:left .55s ease}
+.authPremiumV3 .btn.full:hover{transform:translateY(-3px);box-shadow:0 20px 46px rgba(59,130,246,.24),0 0 30px rgba(246,196,83,.12)}
+.authPremiumV3 .btn.full:hover:before{left:130%}
+.authPremiumV3 .top3Container{animation:softPulseBorder 3.4s ease-in-out infinite}
+@keyframes authOrbFloat{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(22px,-34px,0) scale(1.08)}}
+@keyframes floatNumberMove{0%,100%{transform:translateY(0) rotate(0deg);opacity:.75}50%{transform:translateY(-28px) rotate(2deg);opacity:1}}
+@keyframes gridDrift{to{transform:translate(46px,46px)}}
+@keyframes authShellEnter{from{opacity:0;transform:translateY(26px) scale(.965)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes authHeroIn{from{opacity:0;transform:translateX(-22px)}to{opacity:1;transform:translateX(0)}}
+@keyframes authPanelIn{from{opacity:0;transform:translateX(22px)}to{opacity:1;transform:translateX(0)}}
+@keyframes authSweep{0%,55%{left:-90%}100%{left:130%}}
+@keyframes logoBreath{0%,100%{transform:scale(1);filter:drop-shadow(0 18px 34px rgba(246,196,83,.24))}50%{transform:scale(1.035);filter:drop-shadow(0 24px 44px rgba(246,196,83,.38))}}
+@keyframes tabGlowSpin{to{transform:rotate(360deg)}}
+@keyframes formPop{from{opacity:.4;transform:translateY(10px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes softPulseBorder{0%,100%{box-shadow:0 18px 45px rgba(0,0,0,.18)}50%{box-shadow:0 18px 55px rgba(246,196,83,.13)}}
+@media(max-width:980px){.authPremiumV3 .form{left:32px;right:32px;top:106px}.floatNumber{opacity:.55}.fn4{display:none}}
+@media(max-width:620px){.authPremiumV3 .form{left:18px;right:18px;top:88px}.authPremiumV3 .authShell{border-radius:26px}.authPremiumV3 .authHero{max-height:none}.floatNumber{font-size:48px}.fn1{left:5%;bottom:5%}.fn2{right:8%;top:4%}.fn3{display:none}.authPremiumV3 .authPanelPremium:before{display:none}}
+@media(prefers-reduced-motion:reduce){.authPremiumV3 *,.authPremiumV3 *:before,.authPremiumV3 *:after{animation:none!important;transition:none!important}}

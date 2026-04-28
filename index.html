@@ -21,6 +21,8 @@
 
 
 <link rel="stylesheet" href="./style.css">
+
+
 </head>
 <body>
 
@@ -87,7 +89,17 @@
 </div>
 
 
-<section id="auth" class="auth">
+<section id="auth" class="auth authPremiumV3">
+  <div class="authParticles" aria-hidden="true">
+    <span class="orb orb1"></span>
+    <span class="orb orb2"></span>
+    <span class="orb orb3"></span>
+    <span class="floatNumber fn1">01</span>
+    <span class="floatNumber fn2">02</span>
+    <span class="floatNumber fn3">03</span>
+    <span class="floatNumber fn4">OS</span>
+    <span class="gridGlow"></span>
+  </div>
   <div class="authShell">
     <div class="authHero">
       <div>
@@ -125,7 +137,7 @@
       </div>
     </div>
 
-    <div class="authPanel">
+    <div class="authPanel authPanelPremium">
       <div class="tabs">
         <button id="tabLogin" class="active" onclick="toggleAuth('login')">🔐 Iniciar Sesión</button>
         <button id="tabSignup" onclick="toggleAuth('signup')">👤 Crear Cuenta</button>
@@ -564,6 +576,35 @@
   </main>
 </section>
 
+
+
+<script>
+/* AUTH PREMIUM V3 - transición segura login/signup */
+function toggleAuth(type){
+  const loginForm = document.getElementById('loginForm');
+  const signupForm = document.getElementById('signupForm');
+  const tabLogin = document.getElementById('tabLogin');
+  const tabSignup = document.getElementById('tabSignup');
+  if(!loginForm || !signupForm || !tabLogin || !tabSignup) return;
+
+  loginForm.classList.remove('active');
+  signupForm.classList.remove('active');
+  tabLogin.classList.remove('active');
+  tabSignup.classList.remove('active');
+
+  if(type === 'signup'){
+    signupForm.classList.add('active');
+    tabSignup.classList.add('active');
+  }else{
+    loginForm.classList.add('active');
+    tabLogin.classList.add('active');
+  }
+
+  try{
+    if(typeof playClickSound === 'function') playClickSound();
+  }catch(e){}
+}
+</script>
 
 <script src="./script.js" defer></script>
 </body>
