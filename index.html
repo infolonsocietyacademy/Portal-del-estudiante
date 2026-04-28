@@ -1018,126 +1018,102 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
 }
 
 
-/* ===== CALENDARIO REAL PRO CON GANANCIA / PERDIDA ===== */
-.calendarCard{
+/* ===== OLON V3 PERFORMANCE / RANKING / REPORTES ===== */
+.v3Grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:16px;
+  margin:16px 0;
+}
+.v3Card{
+  position:relative;
   overflow:hidden;
 }
-.calendarHead{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  margin-top:12px;
-  padding:12px 14px;
-  border-radius:18px;
-  border:1px solid rgba(255,255,255,.10);
-  background:rgba(255,255,255,.045);
+.v3Card:before{
+  content:"";
+  position:absolute;
+  right:-50px;
+  top:-55px;
+  width:135px;
+  height:135px;
+  border-radius:50%;
+  background:rgba(246,196,83,.10);
+  filter:blur(12px);
 }
-.calendarMonthTitle{
-  font-weight:900;
-  color:#fff;
-  letter-spacing:-.02em;
-}
-.calendarTotal{
-  font-size:12px;
-  font-weight:900;
+.v3Card small{
+  position:relative;
+  z-index:1;
+  display:block;
   color:var(--muted);
-}
-.calendarWeekdays{
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  gap:7px;
-  margin-top:14px;
-}
-.calendarWeekdays div{
-  text-align:center;
-  color:var(--muted);
-  font-size:11px;
   font-weight:900;
   text-transform:uppercase;
-  letter-spacing:.4px;
+  letter-spacing:.35px;
+  font-size:11px;
 }
-.calendarGrid{
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  gap:7px;
-  margin-top:8px;
+.v3Card h3{
+  position:relative;
+  z-index:1;
+  margin-top:10px;
+  font-size:27px;
+  letter-spacing:-.04em;
 }
-.calDay{
-  min-height:82px!important;
-  border-radius:16px!important;
-  padding:8px!important;
-  display:flex!important;
-  flex-direction:column!important;
-  align-items:stretch!important;
-  justify-content:space-between!important;
-  border:1px solid rgba(255,255,255,.10)!important;
-  background:rgba(255,255,255,.04)!important;
-  color:#94a3b8!important;
-  font-size:12px!important;
-  font-weight:900!important;
-  text-align:left!important;
-  transition:.22s ease;
-}
-.calDay:hover{
-  transform:translateY(-3px);
-  border-color:rgba(246,196,83,.32)!important;
-  box-shadow:0 14px 32px rgba(0,0,0,.25);
-}
-.calDay.empty{
-  background:transparent!important;
-  border:1px solid transparent!important;
-  box-shadow:none!important;
-  pointer-events:none;
-}
-.dayNum{
-  color:#94a3b8;
+.v3Card span{
+  position:relative;
+  z-index:1;
+  display:block;
+  margin-top:6px;
   font-size:12px;
-  font-weight:900;
+  font-weight:800;
+  color:var(--muted);
 }
-.dayValue{
-  display:block;
-  margin-top:8px;
-  text-align:right;
+.reportGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  margin:16px 0;
+}
+.reportCard h3{
+  font-size:20px;
+  letter-spacing:-.03em;
+}
+.reportRows{
+  display:grid;
+  gap:10px;
+  margin-top:14px;
+}
+.reportRow{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.045);
+  color:#cbd5e1;
   font-size:13px;
-  font-weight:900;
-  letter-spacing:-.02em;
-}
-.dayTrades{
-  display:block;
-  margin-top:4px;
-  text-align:right;
-  font-size:10px;
-  color:rgba(226,232,240,.72);
   font-weight:800;
 }
-.calDay.goodDay{
-  background:linear-gradient(180deg,rgba(34,197,94,.22),rgba(34,197,94,.08))!important;
-  color:#bbf7d0!important;
-  border-color:rgba(34,197,94,.34)!important;
+.reportRow b{
+  color:#fff;
 }
-.calDay.badDay{
-  background:linear-gradient(180deg,rgba(239,68,68,.24),rgba(239,68,68,.08))!important;
-  color:#fecaca!important;
-  border-color:rgba(239,68,68,.34)!important;
-}
-.calDay.flatDay{
-  background:linear-gradient(180deg,rgba(245,158,11,.22),rgba(245,158,11,.08))!important;
+.rankBadge{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:7px 10px;
+  border-radius:999px;
+  background:rgba(246,196,83,.11);
+  border:1px solid rgba(246,196,83,.24);
   color:#fde68a!important;
-  border-color:rgba(245,158,11,.34)!important;
+  font-size:12px!important;
+  font-weight:900!important;
 }
-.calDay.goodDay .dayValue{color:#bbf7d0}
-.calDay.badDay .dayValue{color:#fecaca}
-.calDay.flatDay .dayValue{color:#fde68a}
+@media(max-width:1180px){
+  .v3Grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .reportGrid{grid-template-columns:1fr}
+}
 @media(max-width:620px){
-  .calendarWeekdays,.calendarGrid{gap:5px}
-  .calDay{
-    min-height:64px!important;
-    border-radius:13px!important;
-    padding:6px!important;
-  }
-  .dayValue{font-size:10.5px}
-  .dayTrades{display:none}
+  .v3Grid{grid-template-columns:1fr}
 }
 
 </style>
@@ -1348,6 +1324,46 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
 
       <div class="proQuote" id="dailyQuote">🔥 La disciplina te paga lo que la emoción te quita.</div>
 
+      <div class="v3Grid">
+        <div class="card v3Card">
+          <small>Top Ranking</small>
+          <h3 id="topRanking">Top --%</h3>
+          <span id="topRankingNote">Basado en ganancia sobre depósito</span>
+        </div>
+        <div class="card v3Card">
+          <small>Rendimiento</small>
+          <h3 id="depositReturn">0%</h3>
+          <span>Ganancia neta ÷ total depositado</span>
+        </div>
+        <div class="card v3Card">
+          <small>Drawdown</small>
+          <h3 id="maxDrawdown">$0</h3>
+          <span id="drawdownPct">0% del depósito</span>
+        </div>
+        <div class="card v3Card">
+          <small>YTD Winrate</small>
+          <h3 id="ytdWinrate">0%</h3>
+          <span id="ytdStats">0 wins / 0 losses</span>
+        </div>
+      </div>
+
+      <div class="reportGrid">
+        <div class="card reportCard">
+          <h3>Reporte Semanal</h3>
+          <div class="reportRows" id="weeklyReport"></div>
+        </div>
+        <div class="card reportCard">
+          <h3>Reporte Mensual</h3>
+          <div class="reportRows" id="monthlyReport"></div>
+        </div>
+      </div>
+
+      <div class="card reportCard">
+        <h3>Reporte YTD</h3>
+        <div class="reportRows" id="ytdReport"></div>
+      </div>
+
+
       <div class="proGrid">
         <div class="card traderScoreCard">
           <div class="traderScoreInner">
@@ -1396,14 +1412,7 @@ body.plan-premium .planBadge{color:#ffd86b;border-color:rgba(255,216,107,.40);ba
 
         <div class="card calendarCard">
           <h3>Calendario del Mes</h3>
-          <p style="color:var(--muted);margin-top:8px;font-size:13px">Solo muestra los días que registras en “Agregar Día”.</p>
-          <div class="calendarHead">
-            <div class="calendarMonthTitle" id="calendarMonthTitle">Mes actual</div>
-            <div class="calendarTotal" id="calendarMonthTotal">$0</div>
-          </div>
-          <div class="calendarWeekdays">
-            <div>Dom</div><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div>
-          </div>
+          <p style="color:var(--muted);margin-top:8px;font-size:13px">🟢 positivo · 🔴 negativo · 🟡 break even</p>
           <div class="calendarGrid" id="tradingCalendar"></div>
         </div>
       </div>
@@ -1994,6 +2003,131 @@ function buildJournalNote(){
 
 function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
 
+
+function recordsBetween(start, end){
+  return (cachedRecords || []).filter(r=>{
+    const d = new Date(r.date + "T00:00:00");
+    return d >= start && d <= end;
+  });
+}
+
+function yearRecords(){
+  const now = new Date();
+  return recordsBetween(new Date(now.getFullYear(),0,1), new Date(now.getFullYear(),11,31,23,59,59));
+}
+
+function weekRecords(){
+  const now = new Date();
+  const day = now.getDay();
+  const start = new Date(now);
+  start.setDate(now.getDate() - day);
+  start.setHours(0,0,0,0);
+  const end = new Date(start);
+  end.setDate(start.getDate()+6);
+  end.setHours(23,59,59,999);
+  return recordsBetween(start,end);
+}
+
+function winRateFromRecords(records){
+  let wins = 0, losses = 0, flat = 0;
+  records.forEach(r=>{
+    const net = Number(r.gain||0) - Number(r.loss||0);
+    if(net > 0) wins++;
+    else if(net < 0) losses++;
+    else flat++;
+  });
+  const total = wins + losses;
+  return { wins, losses, flat, winrate: total ? (wins / total) * 100 : 0 };
+}
+
+function maxDrawdownFromRecords(records){
+  let equity = 0;
+  let peak = 0;
+  let maxDD = 0;
+  records.forEach(r=>{
+    equity += Number(r.deposit||0) + Number(r.gain||0) - Number(r.loss||0);
+    peak = Math.max(peak, equity);
+    maxDD = Math.max(maxDD, peak - equity);
+  });
+  return maxDD;
+}
+
+function bestWorst(records){
+  let best = 0, worst = 0;
+  records.forEach(r=>{
+    const net = Number(r.gain||0) - Number(r.loss||0);
+    best = Math.max(best, net);
+    worst = Math.min(worst, net);
+  });
+  return {best, worst};
+}
+
+function rankingFromReturn(returnPct){
+  if(returnPct >= 100) return {label:"Top 1%", note:"Rendimiento élite sobre depósito"};
+  if(returnPct >= 60) return {label:"Top 5%", note:"Rendimiento muy fuerte sobre depósito"};
+  if(returnPct >= 35) return {label:"Top 10%", note:"Rendimiento fuerte sobre depósito"};
+  if(returnPct >= 20) return {label:"Top 20%", note:"Buen rendimiento sobre depósito"};
+  if(returnPct >= 10) return {label:"Top 35%", note:"Crecimiento positivo sobre depósito"};
+  if(returnPct > 0) return {label:"Top 50%", note:"En crecimiento positivo"};
+  return {label:"En progreso", note:"Todavía construyendo rendimiento"};
+}
+
+function reportHTML(records, label){
+  const t = totals(records);
+  const wr = winRateFromRecords(records);
+  const bw = bestWorst(records);
+  return `
+    <div class="reportRow"><span>Neto ${label}</span><b class="${t.net >= 0 ? 'good':'bad'}">${money(t.net)}</b></div>
+    <div class="reportRow"><span>Winrate</span><b>${pct(wr.winrate)}</b></div>
+    <div class="reportRow"><span>Wins / Losses</span><b>${wr.wins} / ${wr.losses}</b></div>
+    <div class="reportRow"><span>Mejor día</span><b class="good">${money(bw.best)}</b></div>
+    <div class="reportRow"><span>Peor día</span><b class="bad">${money(bw.worst)}</b></div>
+    <div class="reportRow"><span>Días registrados</span><b>${records.length}</b></div>
+  `;
+}
+
+function renderV3Performance(){
+  if(!currentUser || currentUser.role === "admin") return;
+  const records = cachedRecords || [];
+  const all = totals(records);
+  const returnPct = all.deposit > 0 ? (all.net / all.deposit) * 100 : 0;
+  const rank = rankingFromReturn(returnPct);
+
+  const topRanking = document.getElementById("topRanking");
+  if(topRanking) topRanking.innerText = rank.label;
+  const topRankingNote = document.getElementById("topRankingNote");
+  if(topRankingNote) topRankingNote.innerText = rank.note;
+
+  const depositReturn = document.getElementById("depositReturn");
+  if(depositReturn){
+    depositReturn.innerText = pct(returnPct);
+    depositReturn.className = returnPct >= 0 ? "good" : "bad";
+  }
+
+  const dd = maxDrawdownFromRecords(records);
+  const maxDD = document.getElementById("maxDrawdown");
+  if(maxDD) maxDD.innerText = money(dd);
+  const ddPct = all.deposit > 0 ? (dd / all.deposit) * 100 : 0;
+  const drawdownPct = document.getElementById("drawdownPct");
+  if(drawdownPct) drawdownPct.innerText = pct(ddPct) + " del depósito";
+
+  const ytd = yearRecords();
+  const ywr = winRateFromRecords(ytd);
+  const ytdWinrate = document.getElementById("ytdWinrate");
+  if(ytdWinrate) ytdWinrate.innerText = pct(ywr.winrate);
+  const ytdStats = document.getElementById("ytdStats");
+  if(ytdStats) ytdStats.innerText = ywr.wins + " wins / " + ywr.losses + " losses";
+
+  const weekly = document.getElementById("weeklyReport");
+  if(weekly) weekly.innerHTML = reportHTML(weekRecords(), "semanal");
+
+  const monthly = document.getElementById("monthlyReport");
+  if(monthly) monthly.innerHTML = reportHTML(monthRecords(0), "mensual");
+
+  const ytdBox = document.getElementById("ytdReport");
+  if(ytdBox) ytdBox.innerHTML = reportHTML(ytd, "YTD");
+}
+
 function renderProDashboard(){
   if(!currentUser || currentUser.role === "admin") return;
   const records = cachedRecords || [];
@@ -2049,6 +2183,7 @@ function renderProDashboard(){
 
   renderTradingCalendar(currentMonth);
   renderDailyQuote();
+  renderV3Performance();
 }
 
 function renderDailyQuote(){
@@ -2069,72 +2204,21 @@ function renderDailyQuote(){
 function renderTradingCalendar(records){
   const box = document.getElementById("tradingCalendar");
   if(!box) return;
-
   const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-
-  const monthNames = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-  const title = document.getElementById("calendarMonthTitle");
-  if(title) title.innerText = monthNames[month] + " " + year;
-
-  const firstDay = new Date(year, month, 1).getDay();
-  const totalDays = new Date(year, month + 1, 0).getDate();
-
+  const days = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
   const map = {};
   records.forEach(r=>{
     const d = new Date(r.date + "T00:00:00").getDate();
-    const net = Number(r.gain||0) - Number(r.loss||0);
-    if(!map[d]) map[d] = { net:0, trades:0 };
-    map[d].net += net;
-    map[d].trades += 1;
+    map[d] = (map[d] || 0) + Number(r.gain||0) - Number(r.loss||0);
   });
-
-  const monthTotal = Object.values(map).reduce((a,x)=>a + Number(x.net||0),0);
-  const totalEl = document.getElementById("calendarMonthTotal");
-  if(totalEl){
-    totalEl.innerText = (monthTotal >= 0 ? "+" : "-") + money(Math.abs(monthTotal));
-    totalEl.className = "calendarTotal " + (monthTotal >= 0 ? "good" : "bad");
-  }
-
   let html = "";
-
-  for(let i=0; i<firstDay; i++){
-    html += `<div class="calDay empty"></div>`;
-  }
-
-  for(let d=1; d<=totalDays; d++){
-    const dayData = map[d];
+  for(let d=1; d<=days; d++){
     let cls = "";
-    let value = "";
-    let tradesText = "";
-
-    if(dayData){
-      const net = Number(dayData.net || 0);
-      if(net > 0){
-        cls = "goodDay";
-        value = "+" + money(net);
-      }else if(net < 0){
-        cls = "badDay";
-        value = "-" + money(Math.abs(net));
-      }else{
-        cls = "flatDay";
-        value = money(0);
-      }
-      tradesText = dayData.trades === 1 ? "1 registro" : dayData.trades + " registros";
-    }
-
-    html += `
-      <div class="calDay ${cls}" title="${dayData ? value + ' · ' + tradesText : 'Sin registro'}">
-        <span class="dayNum">${d}</span>
-        <div>
-          <small class="dayValue">${value}</small>
-          <small class="dayTrades">${tradesText}</small>
-        </div>
-      </div>
-    `;
+    if(map[d] > 0) cls = "goodDay";
+    else if(map[d] < 0) cls = "badDay";
+    else if(map[d] === 0 && map[d] !== undefined) cls = "flatDay";
+    html += `<div class="calDay ${cls}">${d}</div>`;
   }
-
   box.innerHTML = html;
 }
 
