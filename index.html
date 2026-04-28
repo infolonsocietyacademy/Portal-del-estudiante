@@ -12,20 +12,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>OLON Society Academy | Portal del Estudiante</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js">
-
-
-
-// Chat page hook
-const originalShowPageForChat = typeof showPage === "function" ? showPage : null;
-if(originalShowPageForChat){
-  window.showPage = function(id, btn){
-    originalShowPageForChat(id, btn);
-    if(id === "adminChat") loadAdminChatInbox();
-  }
-}
-
-</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -3722,8 +3709,19 @@ async function downloadSelectedReportPDF(){
       pdf.save(`olon-${cfg.title.toLowerCase().replace(/\s+/g,"-")}-${safeName}.pdf`);
     }else{
       const printWindow = window.open("", "_blank");
-      printWindow.document.write(`<!DOCTYPE html><html><head><title>${cfg.title}</title><style>${document.querySelector("style")?.innerHTML || ""}</style></head><body>${buildPDFReportHTML()}
-<script>
+      printWindow.document.write(`<!DOCTYPE html><html><head><title>${cfg.title}</title><style>${document.querySelector("style")?.innerHTML || ""}</style></head><body>${buildPDFReportHTML()}</body></html>`);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+    }
+  }catch(err){
+    console.error("Error generando PDF", err);
+    alert("No se pudo generar el PDF. Intenta de nuevo.");
+  }finally{
+    holder.remove();
+  }
+}
+
 // ===== MOBILE APP MODE HELPERS =====
 function mobileGo(id, btn){
   showPageById(id);
@@ -3788,23 +3786,7 @@ if(typeof olonOriginalRenderAdminTable === 'function'){
     renderUsersMobileCards(users);
   }
 }
-</script>
-
-</body></html>`);
-      printWindow.document.close();
-      printWindow.focus();
-      printWindow.print();
-    }
-  }catch(err){
-    console.error("Error generando PDF", err);
-    alert("No se pudo generar el PDF. Intenta de nuevo.");
-  }finally{
-    holder.remove();
-  }
-}
-
 function renderV3Performance(){
-  renderStudentRanking();
   if(!currentUser || currentUser.role === "admin") return;
   const records = cachedRecords || [];
   const all = totals(records);
