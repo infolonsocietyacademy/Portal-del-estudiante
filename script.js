@@ -398,7 +398,7 @@ function toggleStudentChat(){
 }
 
 async function loadStudentChatMessages(){
-  if(!currentUser || currentUser.role === "admin") return;
+  if(!currentUser || isAdminUser(currentUser)) return;
   const box = document.getElementById("studentChatMessages");
   if(!box) return;
 
@@ -425,7 +425,7 @@ async function loadStudentChatMessages(){
 }
 
 async function sendStudentChatMessage(){
-  if(!currentUser || currentUser.role === "admin") return;
+  if(!currentUser || isAdminUser(currentUser)) return;
   const input = document.getElementById("studentChatInput");
   const msg = input?.value.trim();
   if(!msg) return;
@@ -444,7 +444,7 @@ async function sendStudentChatMessage(){
 async function markStudentMessagesRead(){
   lastStudentUnreadCount = 0;
   localStorage.setItem("olon_last_student_unread", "0");
-  if(!currentUser || currentUser.role === "admin") return;
+  if(!currentUser || isAdminUser(currentUser)) return;
   await supabaseClient
     .from("chat_messages")
     .update({is_read:true})
@@ -462,7 +462,7 @@ function updateStudentUnreadBadge(messages){
 }
 
 async function updateStudentUnreadCount(){
-  if(!currentUser || currentUser.role === "admin") return;
+  if(!currentUser || isAdminUser(currentUser)) return;
   const { data } = await supabaseClient
     .from("chat_messages")
     .select("id,sender_role,is_read")
@@ -486,7 +486,7 @@ async function updateStudentUnreadCount(){
 }
 
 async function loadAdminChatInbox(){
-  if(!currentUser || currentUser.role !== "admin") return;
+  if(!currentUser || !isAdminUser(currentUser)) return;
   const list = document.getElementById("adminChatList");
   if(!list) return;
 
@@ -611,7 +611,7 @@ async function loadAdminChatMessages(){
 }
 
 async function sendAdminChatMessage(){
-  if(!currentUser || currentUser.role !== "admin" || !selectedChatStudentId){
+  if(!currentUser || !isAdminUser(currentUser) || !selectedChatStudentId){
     alert("Selecciona un estudiante primero.");
     return;
   }
@@ -677,7 +677,7 @@ function startChatRefresh(){
   if(chatRefreshTimer) clearInterval(chatRefreshTimer);
   chatRefreshTimer = setInterval(()=>{
     if(!currentUser) return;
-    if(currentUser.role === "admin"){
+    if(isAdminUser(currentUser)){
       loadAdminChatInbox();
       if(selectedChatStudentId) loadAdminChatMessages();
     }else{
@@ -688,12 +688,33 @@ function startChatRefresh(){
   }, 7000);
 }
 
-let currentUser = JSON.parse(localStorage.getItem("olon_current_user") || "null");
+
+function normalizeRole(value){
+  return String(value || "student").trim().toLowerCase();
+}
+
+function isAdminUser(user){
+  return normalizeRole(user?.role) === "admin" || String(user?.access_code || "").trim().toLowerCase() === "admin-nolo";
+}
+
+function normalizeUserForPortal(user){
+  if(!user) return user;
+  user.role = normalizeRole(user.role);
+  user.status = String(user.status || "active").trim().toLowerCase();
+  if(isAdminUser(user)){
+    user.role = "admin";
+    user.status = "active";
+    user.plan = user.plan || "VIP Premium";
+  }
+  return user;
+}
+let currentUser = normalizeUserForPortal(JSON.parse(localStorage.getItem("olon_current_user") || "null"));
 let chart;
 let cachedRecords = [];
 let cachedUsers = [];
 
-document.getElementById("date").valueAsDate = new Date();
+const dateInputEl = document.getElementById("date");
+if(dateInputEl) dateInputEl.valueAsDate = new Date();
 
 function money(n){return "$" + Number(n||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}
 function pct(n){return Number(n||0).toFixed(2) + "%"}
@@ -851,7 +872,9 @@ async function login(){
 
   if(error || !data){ showError("Código o password incorrecto.", error); return; }
 
-  if(data.role !== "admin" && data.status !== "active"){
+  normalizeUserForPortal(data);
+
+  if(!isAdminUser(data) && data.status !== "active"){
     const msg = data.status === "pending"
       ? "Tu cuenta está pendiente de aprobación por el admin."
       : "Tu cuenta no está activa. Contacta al admin.";
@@ -859,7 +882,7 @@ async function login(){
     return;
   }
 
-  currentUser = data;
+  currentUser = normalizeUserForPortal(data);
   localStorage.setItem("olon_current_user", JSON.stringify(currentUser));
 
   setLoaderStudentName(currentUser.full_name, currentUser.plan); showPortalEnterLoader();
@@ -946,13 +969,13 @@ async function enterPortal(){
   document.getElementById("avatarText").innerText = currentUser.full_name?.[0]?.toUpperCase() || "O";
   document.getElementById("userCodeText").innerText = "Código: " + currentUser.access_code;
   document.getElementById("planBadge").innerText = ((currentUser.plan || "VIP Regular").toLowerCase().includes("premium") || (currentUser.plan || "").toLowerCase().includes("admin")) ? "💎 VIP PREMIUM" : "🔥 VIP REGULAR";
-  document.getElementById("accessStatus").innerText = (currentUser.plan || "VIP Regular") + " " + (currentUser.status === "active" ? "Activo" : currentUser.status);
+  document.getElementById("accessStatus").innerText = isAdminUser(currentUser) ? "Admin Activo" : (currentUser.plan || "VIP Regular") + " " + (currentUser.status === "active" ? "Activo" : currentUser.status);
   document.getElementById("paymentDate").innerText = ": " + (currentUser.next_payment_date || "No asignado");
   document.getElementById("auth").classList.add("hidden");
   document.getElementById("portal").classList.remove("hidden");
   document.getElementById("portal").classList.add("portalReady");
 
-  const isAdmin = currentUser.role === "admin";
+  const isAdmin = isAdminUser(currentUser);
   document.getElementById("portalMode").innerText = isAdmin ? "Admin Portal" : "Student Portal";
   document.querySelectorAll(".studentNav").forEach(el => el.classList.toggle("hidden", isAdmin));
   document.querySelectorAll(".adminNav").forEach(el => el.classList.toggle("hidden", !isAdmin));
@@ -962,7 +985,7 @@ async function enterPortal(){
   updatePortalWelcome();
   await render();
   startChatRefresh();
-  if(currentUser.role === 'admin') loadAdminChatInbox(); else updateStudentUnreadCount();
+  if(isAdminUser(currentUser)) loadAdminChatInbox(); else updateStudentUnreadCount();
 }
 
 function logout(){
@@ -1002,7 +1025,7 @@ async function fetchRecords(){
 }
 
 async function addRecord(){
-  if(!currentUser || currentUser.role === "admin") return;
+  if(!currentUser || isAdminUser(currentUser)) return;
   const rec = {
     student_id: currentUser.id,
     record_date: document.getElementById("date").value || new Date().toISOString().slice(0,10),
@@ -1149,7 +1172,7 @@ function reportHTML(records, label){
 
 
 async function renderStudentRanking(){
-  if(!currentUser || currentUser.role === "admin") return;
+  if(!currentUser || isAdminUser(currentUser)) return;
 
   const topRanking = document.getElementById("topRanking");
   const topRankingNote = document.getElementById("topRankingNote");
@@ -1332,7 +1355,7 @@ async function downloadSelectedReportPDF(){
 
 function renderV3Performance(){
   renderStudentRanking();
-  if(!currentUser || currentUser.role === "admin") return;
+  if(!currentUser || isAdminUser(currentUser)) return;
   const records = cachedRecords || [];
   const all = totals(records);
   const returnPct = all.deposit > 0 ? (all.net / all.deposit) * 100 : 0;
@@ -1361,7 +1384,7 @@ function renderV3Performance(){
 }
 
 function renderProDashboard(){
-  if(!currentUser || currentUser.role === "admin") return;
+  if(!currentUser || isAdminUser(currentUser)) return;
   const records = cachedRecords || [];
   const t = totals(records);
   const currentMonth = monthRecords(0);
@@ -1456,7 +1479,7 @@ function renderTradingCalendar(records){
 
 async function render(){
   if(!currentUser) return;
-  if(currentUser.role === "admin"){ await renderUsers(); return; }
+  if(isAdminUser(currentUser)){ await renderUsers(); return; }
   await fetchRecords();
   const records = cachedRecords, t = totals(records);
   document.getElementById("mDeposited").innerText = money(t.deposit);
@@ -1581,7 +1604,7 @@ function renderAdminTable(){
 }
 
 async function updateUserStatus(userId, newStatus){
-  if(!currentUser || currentUser.role !== "admin") return;
+  if(!currentUser || !isAdminUser(currentUser)) return;
 
   const target = cachedUsers.find(u => u.id === userId);
   if(!target) return;
@@ -1602,7 +1625,7 @@ async function updateUserStatus(userId, newStatus){
 }
 
 async function deleteUser(userId, userName){
-  if(!currentUser || currentUser.role !== "admin") return;
+  if(!currentUser || !isAdminUser(currentUser)) return;
 
   const target = cachedUsers.find(u => u.id === userId);
   if(!target) return;
@@ -1624,7 +1647,7 @@ async function deleteUser(userId, userName){
   await renderUsers();
 }
 async function clearData(){
-  if(!currentUser || currentUser.role === "admin") return;
+  if(!currentUser || isAdminUser(currentUser)) return;
   if(confirm("¿Borrar todos tus registros?")){
     const { error } = await supabaseClient.from("student_records").delete().eq("student_id", currentUser.id);
     if(error){ showError("No se pudieron borrar los registros.", error); return; }
