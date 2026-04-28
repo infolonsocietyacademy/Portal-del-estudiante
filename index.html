@@ -165,7 +165,7 @@
         <p>Inicia sesión para continuar en tu portal.</p>
         <div class="field"><label>Código de acceso</label><input id="loginCode" placeholder="Ej: OLON-12345" autocomplete="username"></div>
         <div class="field"><label>Password</label><input id="loginPass" type="password" placeholder="Tu password" autocomplete="current-password"></div>
-        <button class="btn full" onclick="login()">Entrar al Portal →</button>
+        <button id="loginSubmitBtn" class="btn full" type="button" onclick="login()">Entrar al Portal →</button>
 
         <div class="authLegal">
           <div class="authLegalItem">
@@ -196,7 +196,7 @@
         </div>
         <div class="field"><label>Password</label><input id="signupPass" type="password" placeholder="Crea tu password" autocomplete="new-password"></div>
         <div class="field"><label>Tipo de VIP</label><select id="signupPlan"><option value="VIP Regular">🔥 VIP Regular</option><option value="VIP Premium">💎 VIP Premium</option></select></div>
-        <button class="btn full" onclick="signup()">Crear mi cuenta →</button>
+        <button id="signupSubmitBtn" class="btn full" type="button" onclick="signup()">Crear mi cuenta →</button>
         <div class="authLegal">
           <div class="authLegalItem">
             <div class="authLegalIcon">🛡️</div>

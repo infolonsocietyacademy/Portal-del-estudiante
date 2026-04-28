@@ -2572,3 +2572,112 @@ body #codeResult.auth.hidden{
   visibility:visible!important;
   opacity:1!important;
 }
+
+
+/* ===== MOBILE LOGIN ACCESS FIX FINAL =====
+   Permite scroll real en celular y evita que overlays bloqueen el botón Entrar.
+*/
+@media(max-width:620px){
+  html, body{
+    width:100%;
+    min-height:100%;
+    overflow-x:hidden!important;
+    -webkit-text-size-adjust:100%;
+  }
+  body{
+    touch-action:manipulation;
+  }
+  .auth{
+    min-height:100vh!important;
+    min-height:100svh!important;
+    height:auto!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    -webkit-overflow-scrolling:touch;
+    align-items:start!important;
+    place-items:start center!important;
+    padding:12px!important;
+  }
+  .auth::before,
+  .auth::after,
+  .authHero::before,
+  .authShell::before,
+  .authShell::after{
+    pointer-events:none!important;
+  }
+  .authShell{
+    width:100%!important;
+    min-height:auto!important;
+    height:auto!important;
+    overflow:visible!important;
+    display:block!important;
+    border-radius:26px!important;
+    margin:0 auto 22px!important;
+  }
+  .authHero{
+    min-height:auto!important;
+    height:auto!important;
+    overflow:visible!important;
+    padding:20px!important;
+  }
+  .authLogo{
+    width:230px!important;
+    max-width:86vw!important;
+    margin:0 auto 18px!important;
+  }
+  .authTitle{
+    font-size:28px!important;
+    text-align:center;
+  }
+  .authKicker,
+  .authText{
+    text-align:center;
+  }
+  .authFeatures,
+  .authQuote{
+    display:none!important;
+  }
+  .authStats{
+    margin-top:14px!important;
+  }
+  .authPanel{
+    position:relative!important;
+    z-index:20!important;
+    min-height:auto!important;
+    height:auto!important;
+    overflow:visible!important;
+    padding:18px!important;
+    padding-bottom:28px!important;
+  }
+  .tabs,
+  .form,
+  .field,
+  .btn,
+  #loginSubmitBtn,
+  #signupSubmitBtn{
+    position:relative!important;
+    z-index:30!important;
+    pointer-events:auto!important;
+    touch-action:manipulation;
+  }
+  #loginSubmitBtn,
+  #signupSubmitBtn{
+    min-height:56px!important;
+    font-size:16px!important;
+    margin-top:10px!important;
+  }
+  input,select,textarea,button{
+    font-size:16px!important;
+  }
+  #portalEnterLoader.forceClose,
+  #olonLoader.forceClose{
+    display:none!important;
+    visibility:hidden!important;
+    opacity:0!important;
+    pointer-events:none!important;
+  }
+  #portal{
+    min-height:100vh!important;
+    min-height:100svh!important;
+  }
+}

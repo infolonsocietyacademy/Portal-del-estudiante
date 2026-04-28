@@ -2125,3 +2125,56 @@ if(typeof olonOriginalRenderAdminTable === 'function'){
     if(btn){ btn.onclick = function(ev){ ev.preventDefault(); window.login(); }; }
   });
 })();
+
+
+/* ===== MOBILE TAP LOGIN FIX FINAL =====
+   En iPhone/Android a veces el onclick se pierde por overlays/teclado.
+   Este handler usa touchend/pointerup y fuerza cerrar loaders.
+*/
+(function(){
+  function qs(id){ return document.getElementById(id); }
+  function closeAllLoaders(){
+    ['portalEnterLoader','olonLoader'].forEach(id=>{
+      const x = qs(id);
+      if(x){
+        x.classList.remove('show');
+        x.classList.add('forceClose','hide');
+        x.style.display = 'none';
+        x.style.visibility = 'hidden';
+        x.style.opacity = '0';
+        x.style.pointerEvents = 'none';
+      }
+    });
+  }
+  function bindMobileLogin(){
+    const loginBtn = qs('loginSubmitBtn') || [...document.querySelectorAll('button')].find(b => (b.getAttribute('onclick') || '').includes('login()'));
+    if(loginBtn && !loginBtn.dataset.mobileLoginFixed){
+      loginBtn.dataset.mobileLoginFixed = '1';
+      loginBtn.setAttribute('type','button');
+      loginBtn.style.pointerEvents = 'auto';
+      loginBtn.style.touchAction = 'manipulation';
+      const handler = function(ev){
+        try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
+        try{ document.activeElement && document.activeElement.blur(); }catch(e){}
+        setTimeout(()=>{
+          if(typeof window.login === 'function') window.login();
+          setTimeout(closeAllLoaders, 4500);
+        }, 60);
+      };
+      loginBtn.addEventListener('touchend', handler, {passive:false});
+      loginBtn.addEventListener('pointerup', function(ev){ if(ev.pointerType === 'touch') handler(ev); }, {passive:false});
+    }
+
+    const signupBtn = qs('signupSubmitBtn');
+    if(signupBtn && !signupBtn.dataset.mobileSignupFixed){
+      signupBtn.dataset.mobileSignupFixed = '1';
+      signupBtn.setAttribute('type','button');
+      signupBtn.style.pointerEvents = 'auto';
+      signupBtn.style.touchAction = 'manipulation';
+    }
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindMobileLogin);
+  else bindMobileLogin();
+  window.addEventListener('pageshow', bindMobileLogin);
+})();
