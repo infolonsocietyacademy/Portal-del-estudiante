@@ -13,47 +13,7 @@
 <title>OLON Society Academy | Portal del Estudiante</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js">
-// ===== SETTINGS FLOATING OLON =====
-function isSoundEnabled(){
-  return localStorage.getItem("olon_sound_enabled") !== "false";
-}
 
-function applySoundSwitch(){
-  const sw = document.getElementById("soundSwitch");
-  if(sw) sw.classList.toggle("on", isSoundEnabled());
-}
-
-function toggleSoundSetting(){
-  const next = !isSoundEnabled();
-  localStorage.setItem("olon_sound_enabled", next ? "true" : "false");
-  applySoundSwitch();
-  if(next && typeof playClickSound === "function") playClickSound();
-}
-
-function setThemeMode(mode){
-  localStorage.setItem("olon_theme_mode", mode);
-  applyThemeMode();
-}
-
-function applyThemeMode(){
-  const mode = localStorage.getItem("olon_theme_mode") || "dark";
-  document.body.classList.toggle("light-mode", mode === "light");
-  const darkBtn = document.getElementById("darkThemeBtn");
-  const lightBtn = document.getElementById("lightThemeBtn");
-  if(darkBtn) darkBtn.classList.toggle("active", mode === "dark");
-  if(lightBtn) lightBtn.classList.toggle("active", mode === "light");
-}
-
-function toggleSettingsPanel(){
-  const panel = document.getElementById("settingsPanel");
-  if(panel) panel.classList.toggle("show");
-  if(typeof playClickSound === "function") playClickSound();
-}
-
-window.addEventListener("DOMContentLoaded", ()=>{
-  applySoundSwitch();
-  applyThemeMode();
-});
 
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1478,12 +1438,24 @@ body.light-mode small{
   .settingsPanel{right:14px;top:68px}
 }
 
+
+/* ===== SETTINGS PANEL CLICK FIX ===== */
+.settingsPanel.show{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+.settingsFab{
+  pointer-events:auto!important;
+}
+
 </style>
 </head>
 <body>
 
 <!-- SETTINGS FLOATING OLON -->
-<button class="settingsFab" onclick="toggleSettingsPanel()" title="Configuración">⚙️</button>
+<button id="settingsFab" class="settingsFab" type="button" title="Configuración">⚙️</button>
 <div id="settingsPanel" class="settingsPanel">
   <h3>Configuración</h3>
   <p>Personaliza tu experiencia dentro del portal.</p>
@@ -1493,7 +1465,7 @@ body.light-mode small{
       <b>Sonidos del portal</b>
       <small>Teclado, hover, click y loading</small>
     </div>
-    <button id="soundSwitch" class="switch on" onclick="toggleSoundSetting()"><span></span></button>
+    <button id="soundSwitch" class="switch on" type="button"><span></span></button>
   </div>
 
   <div class="settingRow" style="display:block">
@@ -1502,8 +1474,8 @@ body.light-mode small{
       <small>Modo oscuro o claro</small>
     </div>
     <div class="themeButtons">
-      <button id="darkThemeBtn" onclick="setThemeMode('dark')">🌙 Dark</button>
-      <button id="lightThemeBtn" onclick="setThemeMode('light')">☀️ Light</button>
+      <button id="darkThemeBtn" type="button">🌙 Dark</button>
+      <button id="lightThemeBtn" type="button">☀️ Light</button>
     </div>
   </div>
 </div>
@@ -2897,6 +2869,89 @@ function showWelcome(user){
     if(i >= text.length) clearInterval(typing);
   }, 30);
 }
+</script>
+
+
+<script>
+// ===== SETTINGS FLOATING OLON FIX =====
+(function(){
+  function isSoundEnabled(){
+    return localStorage.getItem("olon_sound_enabled") !== "false";
+  }
+
+  window.isSoundEnabled = isSoundEnabled;
+
+  function applySoundSwitch(){
+    const sw = document.getElementById("soundSwitch");
+    if(sw) sw.classList.toggle("on", isSoundEnabled());
+  }
+
+  function safeClickSound(){
+    try{
+      if(isSoundEnabled() && typeof window.playClickSound === "function"){
+        window.playClickSound();
+      }
+    }catch(e){}
+  }
+
+  function toggleSoundSetting(){
+    const next = !isSoundEnabled();
+    localStorage.setItem("olon_sound_enabled", next ? "true" : "false");
+    applySoundSwitch();
+    safeClickSound();
+  }
+
+  function setThemeMode(mode){
+    localStorage.setItem("olon_theme_mode", mode);
+    applyThemeMode();
+    safeClickSound();
+  }
+
+  function applyThemeMode(){
+    const mode = localStorage.getItem("olon_theme_mode") || "dark";
+    document.body.classList.toggle("light-mode", mode === "light");
+
+    const darkBtn = document.getElementById("darkThemeBtn");
+    const lightBtn = document.getElementById("lightThemeBtn");
+
+    if(darkBtn) darkBtn.classList.toggle("active", mode === "dark");
+    if(lightBtn) lightBtn.classList.toggle("active", mode === "light");
+  }
+
+  function toggleSettingsPanel(){
+    const panel = document.getElementById("settingsPanel");
+    if(panel) panel.classList.toggle("show");
+    safeClickSound();
+  }
+
+  window.toggleSettingsPanel = toggleSettingsPanel;
+  window.toggleSoundSetting = toggleSoundSetting;
+  window.setThemeMode = setThemeMode;
+
+  document.addEventListener("DOMContentLoaded", function(){
+    const fab = document.getElementById("settingsFab");
+    const soundSwitch = document.getElementById("soundSwitch");
+    const darkBtn = document.getElementById("darkThemeBtn");
+    const lightBtn = document.getElementById("lightThemeBtn");
+
+    if(fab) fab.addEventListener("click", toggleSettingsPanel);
+    if(soundSwitch) soundSwitch.addEventListener("click", toggleSoundSetting);
+    if(darkBtn) darkBtn.addEventListener("click", function(){ setThemeMode("dark"); });
+    if(lightBtn) lightBtn.addEventListener("click", function(){ setThemeMode("light"); });
+
+    applySoundSwitch();
+    applyThemeMode();
+
+    document.addEventListener("click", function(e){
+      const panel = document.getElementById("settingsPanel");
+      const btn = document.getElementById("settingsFab");
+      if(!panel || !btn) return;
+      if(panel.classList.contains("show") && !panel.contains(e.target) && !btn.contains(e.target)){
+        panel.classList.remove("show");
+      }
+    });
+  });
+})();
 </script>
 
 </body>
