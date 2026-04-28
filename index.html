@@ -853,43 +853,136 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
 })();
 
 </script>
+
 <script>
 
 /* =====================================================
-   MOBILE MENU BUTTON FINAL FIX
+   MENU TOGGLE WEB + MOBILE + IPAD - FINAL
    ===================================================== */
 (function(){
-  function updateMobileMenuIcon(){
-    const sidebar = document.getElementById("sidebar");
-    const icon = document.getElementById("mobileMenuIcon");
-    const btn = document.getElementById("mobileMenuToggle");
-    const opened = !!(sidebar && sidebar.classList.contains("open"));
+  function getPortal(){ return document.getElementById("portal"); }
+  function getSidebar(){ return document.getElementById("sidebar"); }
+  function getIcon(){ return document.getElementById("mobileMenuIcon"); }
+  function getBtn(){ return document.getElementById("mobileMenuToggle"); }
+
+  function isDesktop(){
+    return window.matchMedia("(min-width: 981px)").matches;
+  }
+
+  function isOpen(){
+    const portal = getPortal();
+    const sidebar = getSidebar();
+
+    if(isDesktop()){
+      return !(portal && portal.classList.contains("sidebar-closed"));
+    }
+
+    return !!(sidebar && sidebar.classList.contains("open"));
+  }
+
+  function updateMenuUI(){
+    const opened = isOpen();
+    const icon = getIcon();
+    const btn = getBtn();
 
     if(icon) icon.textContent = opened ? "×" : "☰";
     if(btn) btn.setAttribute("aria-label", opened ? "Cerrar menú" : "Abrir menú");
-    document.body.classList.toggle("menu-open", opened);
+
+    document.body.classList.toggle("menu-open", opened && !isDesktop());
   }
 
   window.toggleMenu = function(){
-    const sidebar = document.getElementById("sidebar");
-    if(!sidebar) return;
-    sidebar.classList.toggle("open");
-    updateMobileMenuIcon();
+    const portal = getPortal();
+    const sidebar = getSidebar();
+    if(!portal || !sidebar) return;
+
+    if(isDesktop()){
+      portal.classList.toggle("sidebar-closed");
+      sidebar.classList.remove("open");
+      document.body.classList.remove("menu-open");
+    }else{
+      sidebar.classList.toggle("open");
+      portal.classList.remove("sidebar-closed");
+    }
+
+    updateMenuUI();
+  };
+
+  window.closeMenu = function(){
+    const portal = getPortal();
+    const sidebar = getSidebar();
+
+    if(isDesktop()){
+      if(portal) portal.classList.add("sidebar-closed");
+    }else{
+      if(sidebar) sidebar.classList.remove("open");
+      document.body.classList.remove("menu-open");
+    }
+
+    updateMenuUI();
+  };
+
+  window.openMenu = function(){
+    const portal = getPortal();
+    const sidebar = getSidebar();
+
+    if(isDesktop()){
+      if(portal) portal.classList.remove("sidebar-closed");
+    }else{
+      if(sidebar) sidebar.classList.add("open");
+    }
+
+    updateMenuUI();
   };
 
   document.addEventListener("click", function(e){
-    if(!document.body.classList.contains("menu-open")) return;
-
-    const sidebar = document.getElementById("sidebar");
-    const btn = document.getElementById("mobileMenuToggle");
-
-    if(sidebar && !sidebar.contains(e.target) && btn && !btn.contains(e.target)){
-      sidebar.classList.remove("open");
-      updateMobileMenuIcon();
+    const btn = e.target.closest("#mobileMenuToggle");
+    if(btn){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      window.toggleMenu();
+      return false;
     }
+
+    if(!isDesktop() && document.body.classList.contains("menu-open")){
+      const sidebar = getSidebar();
+      if(sidebar && !sidebar.contains(e.target) && !e.target.closest("#mobileMenuToggle")){
+        sidebar.classList.remove("open");
+        updateMenuUI();
+      }
+    }
+  }, true);
+
+  document.addEventListener("DOMContentLoaded", function(){
+    const portal = getPortal();
+    const sidebar = getSidebar();
+
+    // Desktop comienza abierto; móvil comienza cerrado
+    if(isDesktop()){
+      if(portal) portal.classList.remove("sidebar-closed");
+      if(sidebar) sidebar.classList.remove("open");
+    }else{
+      if(sidebar) sidebar.classList.remove("open");
+      if(portal) portal.classList.remove("sidebar-closed");
+      document.body.classList.remove("menu-open");
+    }
+
+    updateMenuUI();
   });
 
-  document.addEventListener("DOMContentLoaded", updateMobileMenuIcon);
+  window.addEventListener("resize", function(){
+    const portal = getPortal();
+    const sidebar = getSidebar();
+
+    if(isDesktop()){
+      if(sidebar) sidebar.classList.remove("open");
+      document.body.classList.remove("menu-open");
+    }else{
+      if(portal) portal.classList.remove("sidebar-closed");
+    }
+
+    updateMenuUI();
+  });
 })();
 
 </script>
