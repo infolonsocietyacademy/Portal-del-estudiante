@@ -212,7 +212,7 @@
   </div>
 </section>
 
-<section id="codeResult" class="auth hidden">
+<section id="codeResult" class="auth hidden" style="display:none!important;">
   <div class="loginCard" style="width:min(520px,100%);padding:30px;border-radius:28px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.045));border:1px solid var(--line);box-shadow:var(--shadow)">
     <img src="./assets/logo.png" alt="OLON Society Academy" style="width:92px;display:block;margin:0 auto 14px;border-radius:18px;filter:drop-shadow(0 16px 30px rgba(246,196,83,.28));">
     <h1 style="text-align:center;font-size:28px">Cuenta creada</h1>
@@ -587,5 +587,36 @@
 
 
 <script src="./script.js" defer></script>
+
+<script>
+/* FIX FUERTE: La pantalla de código NO se muestra al cargar.
+   Solo aparece cuando el sistema quite la clase .hidden después de crear la cuenta. */
+(function(){
+  function lockCodeResult(){
+    var el = document.getElementById('codeResult');
+    if(!el) return;
+
+    function sync(){
+      if(el.classList.contains('hidden')){
+        el.style.setProperty('display','none','important');
+        el.setAttribute('aria-hidden','true');
+      }else{
+        el.style.removeProperty('display');
+        el.removeAttribute('aria-hidden');
+      }
+    }
+
+    sync();
+    new MutationObserver(sync).observe(el,{attributes:true,attributeFilter:['class']});
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', lockCodeResult);
+  }else{
+    lockCodeResult();
+  }
+})();
+</script>
+
 </body>
 </html>
