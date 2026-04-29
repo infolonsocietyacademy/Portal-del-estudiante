@@ -3131,48 +3131,103 @@ window.currentNewsCategory = currentNewsCategory;
 
 
 
-/* ===== NOLO IA PRO - FLOATING + LIMITE 30/DIA REAL EN SUPABASE + PERFIL + ADMIN ===== */
+/* ===== NOLO IA PRO - FIX FINAL FRONTEND + SMART-API COMPATIBLE ===== */
 (function(){
   const NOLO_AI_FUNCTION_URL = (typeof SUPABASE_URL !== "undefined" ? SUPABASE_URL : "https://bffojtcojnsvzxzwbdes.supabase.co") + "/functions/v1/smart-api";
-  const DAILY_LIMIT = 30;
+  const DEFAULT_DAILY_LIMIT = 30;
   const NOLO_IDLE_MS = 3 * 60 * 1000;
   const NOLO_COOLDOWN_MS = 5 * 1000;
   let noloIdleTimer = null;
   let noloCooldownUntil = 0;
-  window.noloUsage = { used: 0, remaining: DAILY_LIMIT, loaded: false };
-  function esc(v){ return String(v||"").replace(/[&<>\"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m])); }
-  function stripHtml(s){ const d=document.createElement("div"); d.innerHTML=String(s||""); return d.textContent||d.innerText||""; }
-  function getUser(){ try{return window.currentUser||JSON.parse(localStorage.getItem("olon_current_user")||"null");}catch(e){return null;} }
-  function playNoloSound(){ try{ if(typeof playNewMessageSound==="function") return playNewMessageSound(); if(typeof playClickSound==="function") return playClickSound(); }catch(e){} }
-  function getNewsContext(){ const list=Array.isArray(window.olonLatestNewsList)?window.olonLatestNewsList:[]; return list.slice(0,8).map(n=>({headline:n.headline||n.title||"",summary:stripHtml(n.summary||n.description||""),url:n.url||"",datetime:n.datetime||n.published_at||""})); }
-  function getPerformanceProfile(){
-    const user=getUser()||{}, records=(typeof cachedRecords!=="undefined"&&Array.isArray(cachedRecords))?cachedRecords:[];
-    const sum=k=>records.reduce((a,r)=>a+Number(r?.[k]||0),0), deposit=sum("deposit"), gain=sum("gain"), loss=sum("loss"), net=gain-loss, days=records.length;
-    const positiveDays=records.filter(r=>(Number(r.gain||0)-Number(r.loss||0))>0).length, negativeDays=records.filter(r=>(Number(r.gain||0)-Number(r.loss||0))<0).length;
-    const consistency=days?Math.round((positiveDays/days)*100):0, riskControl=gain>0?Math.max(0,Math.min(100,Math.round(100-((loss/gain)*55)))):(loss>0?25:70), growth=deposit>0?Math.round((net/deposit)*10000)/100:0;
-    const traderScore=Math.round((consistency*.45)+(riskControl*.35)+(Math.max(0,Math.min(100,50+growth))*0.20));
-    let suggestion="Registra más días para que Nolo IA pueda medir tu progreso con más precisión.";
-    if(days>=3){ if(consistency<55) suggestion="Mejora la consistencia: busca menos entradas impulsivas y registra cada día."; else if(riskControl<60) suggestion="Tu punto principal es control de riesgo: reduce pérdidas grandes y respeta stop loss."; else if(net<0) suggestion="Aunque tienes días positivos, el neto está negativo. Revisa tamaño de pérdida vs ganancia."; else suggestion="Vas bien. Mantén disciplina, evita sobreoperar y protege el capital."; }
-    return {studentName:user.full_name||"Estudiante",plan:user.plan||"VIP Regular",status:user.status||"",days,deposit,gain,loss,net,balance:deposit+net,growth,positiveDays,negativeDays,consistency,riskControl,traderScore,suggestion,recentNotes:records.slice(-5).map(r=>({date:r.record_date||r.date,gain:r.gain||0,loss:r.loss||0,note:r.note||"",emotion:r.emotion||""}))};
+  let noloResetClockTimer = null;
+
+  window.noloUsage = window.noloUsage || { used: 0, remaining: DEFAULT_DAILY_LIMIT, limit: DEFAULT_DAILY_LIMIT, loaded: false };
+
+  function esc(v){
+    return String(v || "").replace(/[&<>\"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
   }
-  function getPuertoRicoParts(){
-    const parts = new Intl.DateTimeFormat("en-US", {
-      timeZone:"America/Puerto_Rico",
-      year:"numeric",
-      month:"numeric",
-      day:"numeric"
-    }).formatToParts(new Date()).reduce((a,p)=>{ a[p.type]=p.value; return a; },{});
+
+  function getUser(){
+    try{
+      return window.currentUser || JSON.parse(localStorage.getItem("olon_current_user") || "null");
+    }catch(e){ return null; }
+  }
+
+  function playNoloSound(){
+    try{
+      if(typeof playNewMessageSound === "function") return playNewMessageSound();
+      if(typeof playClickSound === "function") return playClickSound();
+    }catch(e){}
+  }
+
+  function stripHtml(s){
+    const d = document.createElement("div");
+    d.innerHTML = String(s || "");
+    return d.textContent || d.innerText || "";
+  }
+
+  function getNewsContext(){
+    const list = Array.isArray(window.olonLatestNewsList) ? window.olonLatestNewsList : [];
+    return list.slice(0, 8).map(n => ({
+      headline: n.headline || n.title || "",
+      summary: stripHtml(n.summary || n.description || ""),
+      url: n.url || "",
+      datetime: n.datetime || n.published_at || ""
+    }));
+  }
+
+  function getPerformanceProfile(){
+    const user = getUser() || {};
+    const records = (typeof cachedRecords !== "undefined" && Array.isArray(cachedRecords)) ? cachedRecords : [];
+    const sum = key => records.reduce((a,r) => a + Number(r?.[key] || 0), 0);
+    const deposit = sum("deposit");
+    const gain = sum("gain");
+    const loss = sum("loss");
+    const net = gain - loss;
+    const days = records.length;
+    const positiveDays = records.filter(r => (Number(r.gain || 0) - Number(r.loss || 0)) > 0).length;
+    const negativeDays = records.filter(r => (Number(r.gain || 0) - Number(r.loss || 0)) < 0).length;
+    const growth = deposit > 0 ? Math.round((net / deposit) * 10000) / 100 : 0;
+    const consistency = days ? Math.round((positiveDays / days) * 100) : 0;
+    const riskControl = gain > 0 ? Math.max(0, Math.min(100, Math.round(100 - ((loss / Math.max(gain, 1)) * 55)))) : (loss > 0 ? 25 : 70);
+    const traderScore = Math.round((consistency * .45) + (riskControl * .35) + (Math.max(0, Math.min(100, 50 + growth)) * .20));
+
+    let suggestion = "Registra más días para que Nolo IA pueda medir tu progreso con más precisión.";
+    if(days >= 3){
+      if(consistency < 55) suggestion = "Mejora la consistencia: busca menos entradas impulsivas y registra cada día.";
+      else if(riskControl < 60) suggestion = "Tu punto principal es control de riesgo: reduce pérdidas grandes y respeta stop loss.";
+      else if(net < 0) suggestion = "Aunque tienes días positivos, el neto está negativo. Revisa tamaño de pérdida vs ganancia.";
+      else suggestion = "Vas bien. Mantén disciplina, evita sobreoperar y protege el capital.";
+    }
+
     return {
-      year:Number(parts.year),
-      month:Number(parts.month),
-      day:Number(parts.day)
+      studentName: user.full_name || "Estudiante",
+      plan: user.plan || "VIP Regular",
+      status: user.status || "",
+      days, deposit, gain, loss, net,
+      balance: deposit + net,
+      growth, positiveDays, negativeDays,
+      consistency, riskControl, traderScore,
+      suggestion,
+      recentNotes: records.slice(-5).map(r => ({
+        date: r.record_date || r.date,
+        gain: r.gain || 0,
+        loss: r.loss || 0,
+        note: r.note || "",
+        emotion: r.emotion || ""
+      }))
     };
   }
 
   function getNextNoloResetDate(){
-    const pr = getPuertoRicoParts();
-    // Puerto Rico usa UTC-4 todo el año. Medianoche PR = 04:00 UTC.
-    return new Date(Date.UTC(pr.year, pr.month - 1, pr.day + 1, 4, 0, 0));
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Puerto_Rico",
+      year: "numeric",
+      month: "numeric",
+      day: "numeric"
+    }).formatToParts(new Date()).reduce((a,p) => { a[p.type] = p.value; return a; }, {});
+
+    return new Date(Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day) + 1, 4, 0, 0));
   }
 
   function formatNoloCountdown(ms){
@@ -3189,33 +3244,14 @@ window.currentNewsCategory = currentNewsCategory;
     const style = document.createElement("style");
     style.id = "noloResetClockStyle";
     style.textContent = `
-      .noloResetClock{
-        margin-top:8px;
-        display:inline-flex;
-        align-items:center;
-        gap:8px;
-        padding:8px 12px;
-        border-radius:999px;
-        background:rgba(246,196,83,.11);
-        border:1px solid rgba(246,196,83,.24);
-        color:#fde68a;
-        font-size:12px;
-        font-weight:800;
-        letter-spacing:.2px;
-        box-shadow:0 10px 28px rgba(246,196,83,.08);
-      }
-      .noloResetClock b{color:#fff;font-size:13px;}
-      .noloResetClock.empty{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.25);color:#fecaca;}
-      .noloResetClock.ready{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.25);color:#bbf7d0;}
-      .noloClockWrap{margin-top:7px;}
-      .noloFloatClock{display:block;margin-top:4px;color:#fde68a;font-size:11px;font-weight:800;}
+      .noloResetClock{margin-top:8px;display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(246,196,83,.11);border:1px solid rgba(246,196,83,.24);color:#fde68a;font-size:12px;font-weight:800;letter-spacing:.2px;box-shadow:0 10px 28px rgba(246,196,83,.08)}
+      .noloResetClock b{color:#fff;font-size:13px}.noloResetClock.empty{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.25);color:#fecaca}.noloResetClock.ready{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.25);color:#bbf7d0}.noloClockWrap{margin-top:7px}.noloFloatClock{display:block;margin-top:4px;color:#fde68a;font-size:11px;font-weight:800}
     `;
     document.head.appendChild(style);
   }
 
   function ensureNoloResetClock(){
     injectNoloResetClockStyle();
-
     const pill = document.getElementById("noloLimitPill");
     if(pill && !document.getElementById("noloResetClock")){
       const wrap = document.createElement("div");
@@ -3234,32 +3270,29 @@ window.currentNewsCategory = currentNewsCategory;
     }
   }
 
-  let noloResetClockTimer = null;
   function startNoloResetClock(){
     ensureNoloResetClock();
     if(noloResetClockTimer) clearInterval(noloResetClockTimer);
 
-    const tick = async () => {
+    const tick = () => {
       const nextReset = getNextNoloResetDate();
       const left = nextReset.getTime() - Date.now();
       const txt = formatNoloCountdown(left);
+      const empty = window.noloUsage?.loaded && Number(window.noloUsage.remaining || 0) <= 0;
       const main = document.getElementById("noloResetClock");
       const float = document.getElementById("noloFloatResetClock");
-      const empty = window.noloUsage?.loaded && Number(window.noloUsage.remaining || 0) <= 0;
 
       if(main){
         main.classList.toggle("empty", empty);
         main.classList.toggle("ready", left <= 1000);
         main.innerHTML = left <= 1000 ? `✅ Límite reiniciado` : `⏱️ Reset en <b>${txt}</b>`;
       }
-      if(float){
-        float.textContent = left <= 1000 ? "✅ Límite reiniciado" : `⏱️ Reset en ${txt}`;
-      }
+      if(float) float.textContent = left <= 1000 ? "✅ Límite reiniciado" : `⏱️ Reset en ${txt}`;
 
       if(left <= 1000){
         clearInterval(noloResetClockTimer);
         noloResetClockTimer = null;
-        setTimeout(()=>{ if(typeof refreshUsage === "function") refreshUsage(); }, 1500);
+        setTimeout(() => refreshUsage(), 1500);
       }
     };
 
@@ -3267,62 +3300,369 @@ window.currentNewsCategory = currentNewsCategory;
     noloResetClockTimer = setInterval(tick, 1000);
   }
 
-  function setStatus(remaining,used){
-    const rem=Math.max(0,Number(remaining??DAILY_LIMIT)), u=Math.max(0,Number(used??(DAILY_LIMIT-rem)));
-    window.noloUsage={used:u,remaining:rem,loaded:true};
-    const msg=rem>0?`Te quedan ${rem} mensajes de ${DAILY_LIMIT} hoy.`:`Llegaste al límite diario de ${DAILY_LIMIT} mensajes.`;
-    ["noloStatus","noloFloatStatus"].forEach(id=>{const el=document.getElementById(id); if(el)el.textContent=msg;});
-    const pill=document.getElementById("noloLimitPill"); if(pill){pill.textContent=`${rem} / ${DAILY_LIMIT}`; pill.classList.toggle("low",rem>0&&rem<=5); pill.classList.toggle("empty",rem<=0);}
-    ["noloSendBtn","noloFloatSendBtn"].forEach(id=>{const el=document.getElementById(id); if(el)el.disabled=rem<=0;});
+  function normalizeUsage(data){
+    const limit = Number(data?.limit ?? data?.dailyLimit ?? data?.daily_limit ?? window.noloUsage?.limit ?? DEFAULT_DAILY_LIMIT) || DEFAULT_DAILY_LIMIT;
+    const remaining = Math.max(0, Number(data?.remaining ?? Math.max(limit - Number(data?.used ?? data?.used_count ?? 0), 0)) || 0);
+    const used = Math.max(0, Number(data?.used ?? data?.used_count ?? (limit - remaining)) || 0);
+    return { limit, remaining, used };
+  }
+
+  function setStatus(dataOrRemaining, usedMaybe, limitMaybe){
+    const data = typeof dataOrRemaining === "object"
+      ? normalizeUsage(dataOrRemaining)
+      : normalizeUsage({ remaining: dataOrRemaining, used: usedMaybe, limit: limitMaybe });
+
+    window.noloUsage = { ...data, loaded: true };
+    const msg = data.remaining > 0
+      ? `Te quedan ${data.remaining} mensajes de ${data.limit} hoy.`
+      : `Llegaste al límite diario de ${data.limit} mensajes.`;
+
+    ["noloStatus","noloFloatStatus"].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.textContent = msg;
+    });
+
+    const pill = document.getElementById("noloLimitPill");
+    if(pill){
+      pill.textContent = `${data.remaining} / ${data.limit}`;
+      pill.classList.toggle("low", data.remaining > 0 && data.remaining <= 5);
+      pill.classList.toggle("empty", data.remaining <= 0);
+    }
+
+    ["noloSendBtn","noloFloatSendBtn"].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.disabled = data.remaining <= 0;
+    });
+
     startNoloResetClock();
   }
-  function setSendButtons(disabled){["noloSendBtn","noloFloatSendBtn"].forEach(id=>{const el=document.getElementById(id); if(el)el.disabled=!!disabled;});}
-  function setNoloStatusText(msg){["noloStatus","noloFloatStatus"].forEach(id=>{const el=document.getElementById(id); if(el)el.textContent=msg;});}
+
+  function setSendButtons(disabled){
+    ["noloSendBtn","noloFloatSendBtn"].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.disabled = !!disabled;
+    });
+  }
+
+  function setNoloStatusText(msg){
+    ["noloStatus","noloFloatStatus"].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.textContent = msg;
+    });
+  }
+
   function startNoloCooldown(){
     noloCooldownUntil = Date.now() + NOLO_COOLDOWN_MS;
     setSendButtons(true);
-    const tick=()=>{
-      const left=Math.ceil((noloCooldownUntil-Date.now())/1000);
-      if(left>0){ setNoloStatusText(`Espera ${left}s para enviar otro mensaje y evitar spam.`); setTimeout(tick,250); }
-      else { noloCooldownUntil=0; setSendButtons(window.noloUsage.loaded && window.noloUsage.remaining<=0); setStatus(window.noloUsage.remaining, window.noloUsage.used); }
+    const tick = () => {
+      const left = Math.ceil((noloCooldownUntil - Date.now()) / 1000);
+      if(left > 0){
+        setNoloStatusText(`Espera ${left}s para enviar otro mensaje y evitar spam.`);
+        setTimeout(tick, 250);
+      }else{
+        noloCooldownUntil = 0;
+        setSendButtons(window.noloUsage.loaded && window.noloUsage.remaining <= 0);
+        setStatus(window.noloUsage);
+      }
     };
     tick();
   }
+
   function resetNoloIdleTimer(){
     clearTimeout(noloIdleTimer);
-    noloIdleTimer = setTimeout(()=>{ window.clearNoloMemoryDueToIdle?.(); }, NOLO_IDLE_MS);
+    noloIdleTimer = setTimeout(() => {
+      if(typeof window.clearNoloMemoryDueToIdle === "function") window.clearNoloMemoryDueToIdle();
+    }, NOLO_IDLE_MS);
   }
-  function setCheckingStatus(){["noloStatus","noloFloatStatus"].forEach(id=>{const el=document.getElementById(id); if(el)el.textContent="Verificando límite diario en Supabase...";});}
-  function messageBoxes(){return [document.getElementById("noloMessages"),document.getElementById("noloFloatMessages")].filter(Boolean);}
-  function addBubble(role,text,time){ const who=role==="user"?"Tú":"Nolo IA", stamp=time?new Date(time).toLocaleString("es-PR",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"ahora", html=`<b>${who}</b><p>${esc(text)}</p><small>${stamp}</small>`; messageBoxes().forEach(box=>{const div=document.createElement("div"); div.className=`noloBubble ${role==="user"?"user":"ai"}`; div.innerHTML=html; box.appendChild(div); box.scrollTop=box.scrollHeight;});}
-  function setTyping(on){messageBoxes().forEach(box=>{let el=box.querySelector(".noloTyping"); if(on&&!el){el=document.createElement("div"); el.className="noloBubble ai noloTyping"; el.innerHTML="<b>Nolo IA</b><p>Analizando tu perfil, memoria y noticias...</p><small>escribiendo</small>"; box.appendChild(el); box.scrollTop=box.scrollHeight;} if(!on&&el)el.remove();});}
+
+  function setCheckingStatus(){
+    setNoloStatusText("Verificando límite diario en Supabase...");
+  }
+
+  function messageBoxes(){
+    return [document.getElementById("noloMessages"), document.getElementById("noloFloatMessages")].filter(Boolean);
+  }
+
+  function addBubble(role, text, time){
+    const who = role === "user" ? "Tú" : "Nolo IA";
+    const stamp = time ? new Date(time).toLocaleString("es-PR", {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}) : "ahora";
+    const html = `<b>${who}</b><p>${esc(text)}</p><small>${stamp}</small>`;
+    messageBoxes().forEach(box => {
+      const div = document.createElement("div");
+      div.className = `noloBubble ${role === "user" ? "user" : "ai"}`;
+      div.innerHTML = html;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    });
+  }
+
+  function setTyping(on){
+    messageBoxes().forEach(box => {
+      let el = box.querySelector(".noloTyping");
+      if(on && !el){
+        el = document.createElement("div");
+        el.className = "noloBubble ai noloTyping";
+        el.innerHTML = "<b>Nolo IA</b><p>Analizando tu perfil, memoria y noticias...</p><small>escribiendo</small>";
+        box.appendChild(el);
+        box.scrollTop = box.scrollHeight;
+      }
+      if(!on && el) el.remove();
+    });
+  }
+
+  async function callNoloApi(payload){
+    const res = await fetch(NOLO_AI_FUNCTION_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json().catch(() => ({}));
+    if(!res.ok){
+      const msg = data?.error || data?.details || `HTTP ${res.status}`;
+      const err = new Error(msg);
+      err.status = res.status;
+      err.data = data;
+      throw err;
+    }
+    return data;
+  }
+
   async function refreshUsage(){
-    const user=getUser(); if(!user?.id){setStatus(DAILY_LIMIT,0); return;} setCheckingStatus();
-    try{const res=await fetch(NOLO_AI_FUNCTION_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"usage",userId:user.id,dailyLimit:DAILY_LIMIT})}); const data=await res.json().catch(()=>({})); if(!res.ok)throw new Error(data.error||"No se pudo verificar el uso"); setStatus(data.remaining,data.used);}
-    catch(e){console.error("refreshUsage",e); ["noloStatus","noloFloatStatus"].forEach(id=>{const el=document.getElementById(id); if(el)el.textContent="No pude verificar el límite. Revisa smart-api y el SQL.";}); ["noloSendBtn","noloFloatSendBtn"].forEach(id=>{const el=document.getElementById(id); if(el)el.disabled=false;});}
+    const user = getUser();
+    if(!user?.id){ setStatus({ remaining: DEFAULT_DAILY_LIMIT, used: 0, limit: DEFAULT_DAILY_LIMIT }); return; }
+    setCheckingStatus();
+    try{
+      const data = await callNoloApi({ action: "usage", userId: user.id, user_id: user.id, dailyLimit: DEFAULT_DAILY_LIMIT });
+      setStatus(data);
+    }catch(e){
+      console.error("refreshUsage", e);
+      ["noloStatus","noloFloatStatus"].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.textContent = "No pude verificar el límite. Revisa smart-api y el SQL.";
+      });
+      setSendButtons(false);
+      startNoloResetClock();
+    }
   }
-  function clearBoxes(){messageBoxes().forEach(box=>box.innerHTML="");}
-  window.loadNoloHistory=async function(force){ const user=getUser(); if(force)clearBoxes(); if(!user?.id||typeof supabaseClient==="undefined"){addBubble("ai","Estoy listo. Inicia sesión para guardar memoria y usar el límite diario."); await refreshUsage(); return;} try{const {data,error}=await supabaseClient.from("nolo_messages").select("role,message,created_at").eq("user_id",user.id).order("created_at",{ascending:true}).limit(80); if(error)throw error; clearBoxes(); if(!data||!data.length){ const profile=getPerformanceProfile(); addBubble("ai",`Hola ${profile.studentName} 👋 Soy Nolo IA. Puedo leer tu perfil, consistencia, control de riesgo, noticias y disciplina. ¿Cómo te puedo ayudar hoy?`); } else data.forEach(m=>addBubble(m.role==="user"?"user":"ai",m.message,m.created_at)); await refreshUsage();}catch(err){console.error("loadNoloHistory",err); addBubble("ai","No pude cargar la memoria ahora mismo. Verifica la tabla nolo_messages en Supabase."); await refreshUsage();} };
-  function getInputText(){const a=document.getElementById("noloFloatInput"),b=document.getElementById("noloInput"); return ((a?.value||"").trim()||(b?.value||"").trim());}
-  function clearInputs(){["noloFloatInput","noloInput"].forEach(id=>{const el=document.getElementById(id); if(el)el.value="";});}
-  window.askNoloQuick=function(text){const input=document.getElementById("noloFloatInput")||document.getElementById("noloInput"); if(input)input.value=text; window.sendNoloMessage();};
-  window.handleNoloEnter=function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault(); window.sendNoloMessage();}};
-  window.sendNoloMessage=async function(){
-    const user=getUser(), text=getInputText(); if(!text)return; if(!user?.id){addBubble("ai","Debes iniciar sesión para usar Nolo IA.");return;}
-    resetNoloIdleTimer();
-    const waitMs = noloCooldownUntil - Date.now();
-    if(waitMs > 0){ setNoloStatusText(`Espera ${Math.ceil(waitMs/1000)}s para enviar otro mensaje y evitar spam.`); return; }
-    if(window.noloUsage.loaded&&window.noloUsage.remaining<=0){setStatus(0,DAILY_LIMIT); addBubble("ai",`Llegaste al límite diario de ${DAILY_LIMIT} mensajes. Puedes hablar con admin si necesitas ayuda.`); return;}
-    startNoloCooldown();
-    clearInputs(); addBubble("user",text); setTyping(true);
-    try{const res=await fetch(NOLO_AI_FUNCTION_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"chat",userId:user.id,userName:user.full_name||user.name||"Estudiante",plan:user.plan||"VIP Regular",message:text,newsContext:getNewsContext(),performanceProfile:getPerformanceProfile(),dailyLimit:DAILY_LIMIT})}); const data=await res.json().catch(()=>({})); setTyping(false); if(res.status===429){setStatus(data.remaining??0,data.used??DAILY_LIMIT); addBubble("ai",`Llegaste al límite diario de ${DAILY_LIMIT} mensajes. Usa el botón Hablar con admin si necesitas ayuda.`); playNoloSound(); return;} if(!res.ok)throw new Error(data.error||"Error conectando Nolo IA"); addBubble("ai",data.reply||"No recibí respuesta de Nolo IA."); playNoloSound(); setStatus(data.remaining,data.used); resetNoloIdleTimer();}
-    catch(err){setTyping(false); console.error("sendNoloMessage",err); addBubble("ai","No pude conectar con Nolo IA. Revisa que subiste smart-api.ts actualizado y corriste el SQL nuevo en Supabase."); playNoloSound(); await refreshUsage();}
+
+  function clearBoxes(){ messageBoxes().forEach(box => box.innerHTML = ""); }
+
+  window.loadNoloHistory = async function(force){
+    const user = getUser();
+    if(force) clearBoxes();
+    if(!user?.id || typeof supabaseClient === "undefined"){
+      addBubble("ai", "Estoy listo. Inicia sesión para guardar memoria y usar el límite diario.");
+      await refreshUsage();
+      return;
+    }
+
+    try{
+      const { data, error } = await supabaseClient
+        .from("nolo_messages")
+        .select("role,message,created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: true })
+        .limit(80);
+
+      if(error) throw error;
+      clearBoxes();
+
+      if(!data || !data.length){
+        const profile = getPerformanceProfile();
+        addBubble("ai", `Hola ${profile.studentName} 👋 Soy Nolo IA. Puedo leer tu perfil, consistencia, control de riesgo, noticias y disciplina. ¿Cómo te puedo ayudar hoy?`);
+      }else{
+        data.forEach(m => addBubble(m.role === "user" ? "user" : "ai", m.message, m.created_at));
+      }
+      await refreshUsage();
+    }catch(err){
+      console.error("loadNoloHistory", err);
+      addBubble("ai", "No pude cargar la memoria ahora mismo. Verifica la tabla nolo_messages en Supabase.");
+      await refreshUsage();
+    }
   };
-  window.openNoloAdminContact=function(){if(window.openNoloFloatingChat)window.openNoloFloatingChat(); const box=document.getElementById("noloAdminBox"); if(box)box.classList.toggle("hidden"); const input=document.getElementById("noloAdminInput"); if(input)setTimeout(()=>input.focus(),80);};
-  window.sendNoloAdminMessage=async function(){ const user=getUser(), input=document.getElementById("noloAdminInput"), msg=(input?.value||"").trim(); if(!user?.id){addBubble("ai","Debes iniciar sesión para hablar con admin.");return;} if(!msg){if(input)input.focus();return;} try{const fullMsg=`Mensaje enviado desde Nolo IA:\n${msg}`; const {error}=await supabaseClient.from("chat_messages").insert([{student_id:user.id,sender_role:"student",message:fullMsg,is_read:false}]); if(error)throw error; if(input)input.value=""; addBubble("ai","Listo. Tu mensaje fue enviado al portal del admin. Te responderán por el chat privado."); playNoloSound(); if(typeof loadStudentChatMessages==="function")loadStudentChatMessages();}catch(e){console.error(e); addBubble("ai","No pude enviar el mensaje al admin. Verifica la tabla chat_messages en Supabase.");} };
-  function ensureFloatingNolo(){document.getElementById("aiMentorBtn")?.remove(); document.getElementById("aiMentorPanel")?.remove(); if(document.getElementById("noloFloatingBtn"))return; const btn=document.createElement("button"); btn.id="noloFloatingBtn"; btn.type="button"; btn.innerHTML="🤖<span>Nolo IA</span>"; btn.onclick=window.toggleNoloFloatingChat; document.body.appendChild(btn); const panel=document.createElement("div"); panel.id="noloFloatingPanel"; panel.className="noloFloatPanel hidden"; panel.innerHTML=`<div class="noloFloatHeader"><div><b>🤖 Nolo IA</b><small id="noloFloatStatus">Verificando límite diario...</small></div><button type="button" onclick="toggleNoloFloatingChat()">✕</button></div><div id="noloFloatMessages" class="noloFloatMessages"></div><div class="noloFloatQuick"><button type="button" onclick="askNoloQuick('Lee mi perfil y dime qué debo mejorar en consistencia, control de riesgo y disciplina')">Mi perfil</button><button type="button" onclick="askNoloQuick('Analiza las noticias actuales')">Noticias</button><button type="button" onclick="askNoloQuick('Cómo afecta esto al oro XAUUSD')">Oro</button><button type="button" onclick="openNoloAdminContact()">Hablar con admin</button></div><div id="noloAdminBox" class="noloAdminBox hidden"><textarea id="noloAdminInput" placeholder="Escribe tu duda para el admin..."></textarea><button class="btn" type="button" onclick="sendNoloAdminMessage()">Enviar al portal admin</button></div><div class="noloFloatInput"><input id="noloFloatInput" placeholder="Escribe a Nolo IA..." onkeydown="if(event.key==='Enter') sendNoloMessage()"><button id="noloFloatSendBtn" type="button" onclick="sendNoloMessage()">Enviar</button></div>`; document.body.appendChild(panel); window.loadNoloHistory(false); refreshUsage();}
-  window.toggleNoloFloatingChat=function(){ensureFloatingNolo(); const p=document.getElementById("noloFloatingPanel"); p?.classList.toggle("hidden"); if(p&&!p.classList.contains("hidden")){window.loadNoloHistory(false); resetNoloIdleTimer();} else {clearTimeout(noloIdleTimer);} };
-  window.openNoloFloatingChat=function(){ensureFloatingNolo(); document.getElementById("noloFloatingPanel")?.classList.remove("hidden"); window.loadNoloHistory(false); resetNoloIdleTimer();};
-  function hookShowPage(){const old=window.showPage; window.showPage=function(id,btn){const r=typeof old==="function"?old(id,btn):undefined; if(id==="noloAIPage"){const title=document.getElementById("pageTitle"),sub=document.getElementById("pageSubtitle"); if(title)title.textContent="Nolo IA Pro"; if(sub)sub.textContent="Asistente inteligente con perfil, memoria, noticias, sonido y límite diario."; setTimeout(()=>window.loadNoloHistory(true),80);} return r;};}
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{ensureFloatingNolo(); hookShowPage();}); else {ensureFloatingNolo(); hookShowPage();}
+
+  function getInputText(){
+    const a = document.getElementById("noloFloatInput");
+    const b = document.getElementById("noloInput");
+    return ((a?.value || "").trim() || (b?.value || "").trim());
+  }
+
+  function clearInputs(){
+    ["noloFloatInput","noloInput"].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.value = "";
+    });
+  }
+
+  window.askNoloQuick = function(text){
+    const input = document.getElementById("noloFloatInput") || document.getElementById("noloInput");
+    if(input) input.value = text;
+    window.sendNoloMessage();
+  };
+
+  window.handleNoloEnter = function(e){
+    if(e.key === "Enter" && !e.shiftKey){
+      e.preventDefault();
+      window.sendNoloMessage();
+    }
+  };
+
+  window.sendNoloMessage = async function(){
+    const user = getUser();
+    const text = getInputText();
+    if(!text) return;
+    if(!user?.id){ addBubble("ai", "Debes iniciar sesión para usar Nolo IA."); return; }
+
+    resetNoloIdleTimer();
+
+    const waitMs = noloCooldownUntil - Date.now();
+    if(waitMs > 0){
+      setNoloStatusText(`Espera ${Math.ceil(waitMs / 1000)}s para enviar otro mensaje y evitar spam.`);
+      return;
+    }
+
+    if(window.noloUsage.loaded && Number(window.noloUsage.remaining || 0) <= 0){
+      setStatus(window.noloUsage);
+      addBubble("ai", `Llegaste al límite diario de ${window.noloUsage.limit || DEFAULT_DAILY_LIMIT} mensajes. Puedes hablar con admin si necesitas ayuda.`);
+      return;
+    }
+
+    startNoloCooldown();
+    clearInputs();
+    addBubble("user", text);
+    setTyping(true);
+
+    try{
+      const data = await callNoloApi({
+        action: "chat",
+        userId: user.id,
+        user_id: user.id,
+        userName: user.full_name || user.name || "Estudiante",
+        plan: user.plan || "VIP Regular",
+        message: text,
+        newsContext: getNewsContext(),
+        performanceProfile: getPerformanceProfile(),
+        dailyLimit: window.noloUsage?.limit || DEFAULT_DAILY_LIMIT
+      });
+
+      setTyping(false);
+      addBubble("ai", data.reply || "No recibí respuesta de Nolo IA.");
+      playNoloSound();
+      setStatus(data);
+      resetNoloIdleTimer();
+    }catch(err){
+      setTyping(false);
+      console.error("sendNoloMessage", err);
+
+      if(err.status === 429 || err.data?.remaining === 0){
+        setStatus(err.data || { remaining: 0, limit: window.noloUsage?.limit || DEFAULT_DAILY_LIMIT });
+        addBubble("ai", `Llegaste al límite diario. Usa el botón Hablar con admin si necesitas ayuda.`);
+      }else{
+        addBubble("ai", `No pude conectar con Nolo IA. Detalle: ${esc(err.message || "Error desconocido")}`);
+      }
+
+      playNoloSound();
+      await refreshUsage();
+    }
+  };
+
+  window.openNoloAdminContact = function(){
+    if(window.openNoloFloatingChat) window.openNoloFloatingChat();
+    const box = document.getElementById("noloAdminBox");
+    if(box) box.classList.toggle("hidden");
+    const input = document.getElementById("noloAdminInput");
+    if(input) setTimeout(() => input.focus(), 80);
+  };
+
+  window.sendNoloAdminMessage = async function(){
+    const user = getUser();
+    const input = document.getElementById("noloAdminInput");
+    const msg = (input?.value || "").trim();
+    if(!user?.id){ addBubble("ai", "Debes iniciar sesión para hablar con admin."); return; }
+    if(!msg){ if(input) input.focus(); return; }
+
+    try{
+      const fullMsg = `Mensaje enviado desde Nolo IA:\n${msg}`;
+      const { error } = await supabaseClient
+        .from("chat_messages")
+        .insert([{ student_id: user.id, sender_role: "student", message: fullMsg, is_read: false }]);
+      if(error) throw error;
+      if(input) input.value = "";
+      addBubble("ai", "Listo. Tu mensaje fue enviado al portal del admin. Te responderán por el chat privado.");
+      playNoloSound();
+      if(typeof loadStudentChatMessages === "function") loadStudentChatMessages();
+    }catch(e){
+      console.error(e);
+      addBubble("ai", "No pude enviar el mensaje al admin. Verifica la tabla chat_messages en Supabase.");
+    }
+  };
+
+  function ensureFloatingNolo(){
+    document.getElementById("aiMentorBtn")?.remove();
+    document.getElementById("aiMentorPanel")?.remove();
+    if(document.getElementById("noloFloatingBtn")) return;
+
+    const btn = document.createElement("button");
+    btn.id = "noloFloatingBtn";
+    btn.type = "button";
+    btn.innerHTML = "🤖<span>Nolo IA</span>";
+    btn.onclick = window.toggleNoloFloatingChat;
+    document.body.appendChild(btn);
+
+    const panel = document.createElement("div");
+    panel.id = "noloFloatingPanel";
+    panel.className = "noloFloatPanel hidden";
+    panel.innerHTML = `
+      <div class="noloFloatHeader"><div><b>🤖 Nolo IA</b><small id="noloFloatStatus">Verificando límite diario...</small></div><button type="button" onclick="toggleNoloFloatingChat()">✕</button></div>
+      <div id="noloFloatMessages" class="noloFloatMessages"></div>
+      <div class="noloFloatQuick"><button type="button" onclick="askNoloQuick('Lee mi perfil y dime qué debo mejorar en consistencia, control de riesgo y disciplina')">Mi perfil</button><button type="button" onclick="askNoloQuick('Analiza las noticias actuales')">Noticias</button><button type="button" onclick="askNoloQuick('Cómo afecta esto al oro XAUUSD')">Oro</button><button type="button" onclick="openNoloAdminContact()">Hablar con admin</button></div>
+      <div id="noloAdminBox" class="noloAdminBox hidden"><textarea id="noloAdminInput" placeholder="Escribe tu duda para el admin..."></textarea><button class="btn" type="button" onclick="sendNoloAdminMessage()">Enviar al portal admin</button></div>
+      <div class="noloFloatInput"><input id="noloFloatInput" placeholder="Escribe a Nolo IA..." onkeydown="if(event.key==='Enter') sendNoloMessage()"><button id="noloFloatSendBtn" type="button" onclick="sendNoloMessage()">Enviar</button></div>
+    `;
+    document.body.appendChild(panel);
+    window.loadNoloHistory(false);
+    refreshUsage();
+  }
+
+  window.toggleNoloFloatingChat = function(){
+    ensureFloatingNolo();
+    const p = document.getElementById("noloFloatingPanel");
+    p?.classList.toggle("hidden");
+    if(p && !p.classList.contains("hidden")){
+      window.loadNoloHistory(false);
+      resetNoloIdleTimer();
+    }else{
+      clearTimeout(noloIdleTimer);
+    }
+  };
+
+  window.openNoloFloatingChat = function(){
+    ensureFloatingNolo();
+    document.getElementById("noloFloatingPanel")?.classList.remove("hidden");
+    window.loadNoloHistory(false);
+    resetNoloIdleTimer();
+  };
+
+  function hookShowPage(){
+    const old = window.showPage;
+    window.showPage = function(id, btn){
+      const r = typeof old === "function" ? old(id, btn) : undefined;
+      if(id === "noloAIPage"){
+        const title = document.getElementById("pageTitle");
+        const sub = document.getElementById("pageSubtitle");
+        if(title) title.textContent = "Nolo IA Pro";
+        if(sub) sub.textContent = "Asistente inteligente con perfil, memoria, noticias, sonido y límite diario.";
+        setTimeout(() => window.loadNoloHistory(true), 80);
+      }
+      return r;
+    };
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", () => { ensureFloatingNolo(); hookShowPage(); });
+  }else{
+    ensureFloatingNolo();
+    hookShowPage();
+  }
 })();
+
