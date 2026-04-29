@@ -3155,6 +3155,118 @@ window.currentNewsCategory = currentNewsCategory;
     if(days>=3){ if(consistency<55) suggestion="Mejora la consistencia: busca menos entradas impulsivas y registra cada día."; else if(riskControl<60) suggestion="Tu punto principal es control de riesgo: reduce pérdidas grandes y respeta stop loss."; else if(net<0) suggestion="Aunque tienes días positivos, el neto está negativo. Revisa tamaño de pérdida vs ganancia."; else suggestion="Vas bien. Mantén disciplina, evita sobreoperar y protege el capital."; }
     return {studentName:user.full_name||"Estudiante",plan:user.plan||"VIP Regular",status:user.status||"",days,deposit,gain,loss,net,balance:deposit+net,growth,positiveDays,negativeDays,consistency,riskControl,traderScore,suggestion,recentNotes:records.slice(-5).map(r=>({date:r.record_date||r.date,gain:r.gain||0,loss:r.loss||0,note:r.note||"",emotion:r.emotion||""}))};
   }
+  function getPuertoRicoParts(){
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone:"America/Puerto_Rico",
+      year:"numeric",
+      month:"numeric",
+      day:"numeric"
+    }).formatToParts(new Date()).reduce((a,p)=>{ a[p.type]=p.value; return a; },{});
+    return {
+      year:Number(parts.year),
+      month:Number(parts.month),
+      day:Number(parts.day)
+    };
+  }
+
+  function getNextNoloResetDate(){
+    const pr = getPuertoRicoParts();
+    // Puerto Rico usa UTC-4 todo el año. Medianoche PR = 04:00 UTC.
+    return new Date(Date.UTC(pr.year, pr.month - 1, pr.day + 1, 4, 0, 0));
+  }
+
+  function formatNoloCountdown(ms){
+    ms = Math.max(0, Number(ms || 0));
+    const total = Math.floor(ms / 1000);
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = total % 60;
+    return String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+  }
+
+  function injectNoloResetClockStyle(){
+    if(document.getElementById("noloResetClockStyle")) return;
+    const style = document.createElement("style");
+    style.id = "noloResetClockStyle";
+    style.textContent = `
+      .noloResetClock{
+        margin-top:8px;
+        display:inline-flex;
+        align-items:center;
+        gap:8px;
+        padding:8px 12px;
+        border-radius:999px;
+        background:rgba(246,196,83,.11);
+        border:1px solid rgba(246,196,83,.24);
+        color:#fde68a;
+        font-size:12px;
+        font-weight:800;
+        letter-spacing:.2px;
+        box-shadow:0 10px 28px rgba(246,196,83,.08);
+      }
+      .noloResetClock b{color:#fff;font-size:13px;}
+      .noloResetClock.empty{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.25);color:#fecaca;}
+      .noloResetClock.ready{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.25);color:#bbf7d0;}
+      .noloClockWrap{margin-top:7px;}
+      .noloFloatClock{display:block;margin-top:4px;color:#fde68a;font-size:11px;font-weight:800;}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function ensureNoloResetClock(){
+    injectNoloResetClockStyle();
+
+    const pill = document.getElementById("noloLimitPill");
+    if(pill && !document.getElementById("noloResetClock")){
+      const wrap = document.createElement("div");
+      wrap.className = "noloClockWrap";
+      wrap.innerHTML = `<div id="noloResetClock" class="noloResetClock">⏱️ Reset en <b>--:--:--</b></div>`;
+      pill.insertAdjacentElement("afterend", wrap);
+    }
+
+    const floatStatus = document.getElementById("noloFloatStatus");
+    if(floatStatus && !document.getElementById("noloFloatResetClock")){
+      const small = document.createElement("small");
+      small.id = "noloFloatResetClock";
+      small.className = "noloFloatClock";
+      small.textContent = "⏱️ Reset en --:--:--";
+      floatStatus.insertAdjacentElement("afterend", small);
+    }
+  }
+
+  let noloResetClockTimer = null;
+  function startNoloResetClock(){
+    ensureNoloResetClock();
+    if(noloResetClockTimer) clearInterval(noloResetClockTimer);
+
+    const tick = async () => {
+      const nextReset = getNextNoloResetDate();
+      const left = nextReset.getTime() - Date.now();
+      const txt = formatNoloCountdown(left);
+      const main = document.getElementById("noloResetClock");
+      const float = document.getElementById("noloFloatResetClock");
+      const empty = window.noloUsage?.loaded && Number(window.noloUsage.remaining || 0) <= 0;
+
+      if(main){
+        main.classList.toggle("empty", empty);
+        main.classList.toggle("ready", left <= 1000);
+        main.innerHTML = left <= 1000 ? `✅ Límite reiniciado` : `⏱️ Reset en <b>${txt}</b>`;
+      }
+      if(float){
+        float.textContent = left <= 1000 ? "✅ Límite reiniciado" : `⏱️ Reset en ${txt}`;
+      }
+
+      if(left <= 1000){
+        clearInterval(noloResetClockTimer);
+        noloResetClockTimer = null;
+        setTimeout(()=>{ if(typeof refreshUsage === "function") refreshUsage(); }, 1500);
+      }
+    };
+
+    tick();
+    noloResetClockTimer = setInterval(tick, 1000);
+  }
+
   function setStatus(remaining,used){
     const rem=Math.max(0,Number(remaining??DAILY_LIMIT)), u=Math.max(0,Number(used??(DAILY_LIMIT-rem)));
     window.noloUsage={used:u,remaining:rem,loaded:true};
@@ -3162,6 +3274,7 @@ window.currentNewsCategory = currentNewsCategory;
     ["noloStatus","noloFloatStatus"].forEach(id=>{const el=document.getElementById(id); if(el)el.textContent=msg;});
     const pill=document.getElementById("noloLimitPill"); if(pill){pill.textContent=`${rem} / ${DAILY_LIMIT}`; pill.classList.toggle("low",rem>0&&rem<=5); pill.classList.toggle("empty",rem<=0);}
     ["noloSendBtn","noloFloatSendBtn"].forEach(id=>{const el=document.getElementById(id); if(el)el.disabled=rem<=0;});
+    startNoloResetClock();
   }
   function setSendButtons(disabled){["noloSendBtn","noloFloatSendBtn"].forEach(id=>{const el=document.getElementById(id); if(el)el.disabled=!!disabled;});}
   function setNoloStatusText(msg){["noloStatus","noloFloatStatus"].forEach(id=>{const el=document.getElementById(id); if(el)el.textContent=msg;});}
