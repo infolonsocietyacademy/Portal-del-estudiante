@@ -4769,3 +4769,520 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
   }
 }
 
+
+
+
+/* =====================================================
+   OLON LIGHT MODE FIX FINAL — 100% VISIBLE
+   Pega al final. Corrige contraste en modo claro.
+   ===================================================== */
+
+body.light-mode{
+  --bg:#f4f7fb!important;
+  --panel:#ffffff!important;
+  --panel2:#eef3f8!important;
+  --line:rgba(15,23,42,.14)!important;
+  --text:#0f172a!important;
+  --muted:#475569!important;
+  --blue:#2563eb!important;
+  --cyan:#0891b2!important;
+  --green:#15803d!important;
+  --red:#dc2626!important;
+  --yellow:#b45309!important;
+  --purple:#7c3aed!important;
+  --gold:#b7791f!important;
+  --shadow:0 22px 65px rgba(15,23,42,.10)!important;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(246,196,83,.16), transparent 34%),
+    radial-gradient(circle at 88% 12%, rgba(37,99,235,.12), transparent 34%),
+    #f4f7fb!important;
+  color:#0f172a!important;
+}
+
+body.light-mode *,
+body.light-mode *::before,
+body.light-mode *::after{
+  border-color:rgba(15,23,42,.14);
+}
+
+body.light-mode .auth,
+body.light-mode .authFullScreenPro{
+  background:
+    radial-gradient(circle at 8% 5%, rgba(246,196,83,.16), transparent 28%),
+    radial-gradient(circle at 92% 92%, rgba(37,99,235,.13), transparent 30%),
+    linear-gradient(135deg,#f8fafc 0%,#eef3f8 48%,#ffffff 100%)!important;
+  color:#0f172a!important;
+}
+
+body.light-mode .auth::before,
+body.light-mode .authHero::before,
+body.light-mode #portalEnterLoader:before{
+  opacity:.045!important;
+  filter:grayscale(20%)!important;
+}
+
+body.light-mode .authShell,
+body.light-mode .authPanel,
+body.light-mode .authPanelGlass,
+body.light-mode .authHero,
+body.light-mode .card,
+body.light-mode .loginCard,
+body.light-mode .settingsPanel,
+body.light-mode .studentChatPanel,
+body.light-mode .publicChatPanel,
+body.light-mode .adminHero,
+body.light-mode .adminMetric,
+body.light-mode .adminPanelCard,
+body.light-mode .selectedReportCard,
+body.light-mode .welcomeHeroCard,
+body.light-mode .traderScoreCard,
+body.light-mode .goalCard,
+body.light-mode .aiCard,
+body.light-mode .calendarCard,
+body.light-mode .v3Card{
+  background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(248,250,252,.92))!important;
+  color:#0f172a!important;
+  border-color:rgba(15,23,42,.13)!important;
+  box-shadow:0 20px 55px rgba(15,23,42,.10)!important;
+}
+
+body.light-mode .authShell{
+  background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(248,250,252,.84))!important;
+  border-color:rgba(183,121,31,.24)!important;
+}
+
+body.light-mode .authHero{
+  background:
+    linear-gradient(135deg,rgba(246,196,83,.14),rgba(37,99,235,.08),rgba(255,255,255,.70))!important;
+}
+
+body.light-mode .sidebar{
+  background:linear-gradient(180deg,#ffffff,#f1f5f9)!important;
+  color:#0f172a!important;
+  border-right:1px solid rgba(15,23,42,.12)!important;
+  box-shadow:10px 0 35px rgba(15,23,42,.06)!important;
+}
+
+body.light-mode .main,
+body.light-mode .topbar{
+  color:#0f172a!important;
+}
+
+body.light-mode .topbar{
+  background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(248,250,252,.88))!important;
+  border-bottom:1px solid rgba(15,23,42,.10)!important;
+}
+
+body.light-mode h1,
+body.light-mode h2,
+body.light-mode h3,
+body.light-mode h4,
+body.light-mode b,
+body.light-mode strong,
+body.light-mode .authTitle,
+body.light-mode .form h2,
+body.light-mode .topbar h2,
+body.light-mode .adminHero h3,
+body.light-mode .welcomeTitle,
+body.light-mode .selectedReportHead h3,
+body.light-mode .goalCard h3,
+body.light-mode .aiCard h3,
+body.light-mode .calendarCard h3,
+body.light-mode .v3Card h3,
+body.light-mode .scoreDetails h3{
+  color:#0f172a!important;
+}
+
+body.light-mode p,
+body.light-mode small,
+body.light-mode span,
+body.light-mode label,
+body.light-mode .authText,
+body.light-mode .form p,
+body.light-mode .authPanelIntro p,
+body.light-mode .welcomeSub,
+body.light-mode .topbar p,
+body.light-mode .sideBox small,
+body.light-mode .adminHero p,
+body.light-mode .adminMetric span,
+body.light-mode .adminMetric small,
+body.light-mode .v3Card span,
+body.light-mode .v3Card small,
+body.light-mode .selectedReportHead p,
+body.light-mode .goalMeta,
+body.light-mode .reportRow span,
+body.light-mode .authFeature small,
+body.light-mode .authLegal p,
+body.light-mode .authHelp,
+body.light-mode .portalFooter p,
+body.light-mode .portalFooter{
+  color:#475569!important;
+}
+
+/* Keep premium gold labels readable */
+body.light-mode .authKicker,
+body.light-mode .adminKicker,
+body.light-mode .welcomeKicker,
+body.light-mode .selectedReportBadge,
+body.light-mode .rankBadge,
+body.light-mode .loginPremiumVerse small,
+body.light-mode .dailyVerseBox small,
+body.light-mode .authQuote span,
+body.light-mode .authLegal b{
+  color:#92400e!important;
+  background:rgba(246,196,83,.16)!important;
+  border-color:rgba(183,121,31,.24)!important;
+}
+
+/* Gradient title remains visible */
+body.light-mode .authTitle span,
+body.light-mode .welcomeTitle,
+body.light-mode .authStat b{
+  background:linear-gradient(90deg,#92400e,#b7791f,#2563eb,#92400e)!important;
+  background-size:220% auto!important;
+  -webkit-background-clip:text!important;
+  background-clip:text!important;
+  color:transparent!important;
+}
+
+/* Inputs / selects / textareas */
+body.light-mode input,
+body.light-mode select,
+body.light-mode textarea,
+body.light-mode .field input,
+body.light-mode .field select,
+body.light-mode .field textarea,
+body.light-mode .adminSearch,
+body.light-mode .adminSelect,
+body.light-mode .mobileReportSelect{
+  background:#ffffff!important;
+  color:#0f172a!important;
+  border:1px solid rgba(15,23,42,.16)!important;
+  box-shadow:0 1px 0 rgba(255,255,255,.70) inset, 0 8px 20px rgba(15,23,42,.04)!important;
+}
+
+body.light-mode input::placeholder,
+body.light-mode textarea::placeholder{
+  color:#64748b!important;
+}
+
+body.light-mode input:focus,
+body.light-mode select:focus,
+body.light-mode textarea:focus,
+body.light-mode .field input:focus,
+body.light-mode .field select:focus,
+body.light-mode .field textarea:focus{
+  border-color:#b7791f!important;
+  box-shadow:0 0 0 4px rgba(183,121,31,.13), 0 8px 24px rgba(15,23,42,.08)!important;
+}
+
+/* Buttons */
+body.light-mode .btn,
+body.light-mode button.btn,
+body.light-mode #loginSubmitBtn,
+body.light-mode #signupSubmitBtn,
+body.light-mode .floatingAdd,
+body.light-mode .chatFab{
+  color:#ffffff!important;
+  background:linear-gradient(135deg,#b7791f,#2563eb,#7c3aed)!important;
+  border-color:transparent!important;
+  box-shadow:0 16px 34px rgba(37,99,235,.18)!important;
+}
+
+body.light-mode .btn.secondary,
+body.light-mode button.secondary,
+body.light-mode .themeButtons button,
+body.light-mode .reportSwitch button,
+body.light-mode .reportTapBtn{
+  background:#ffffff!important;
+  color:#0f172a!important;
+  border:1px solid rgba(15,23,42,.14)!important;
+  box-shadow:0 8px 18px rgba(15,23,42,.06)!important;
+}
+
+body.light-mode .reportSwitch button.active,
+body.light-mode .reportTapBtn.active,
+body.light-mode .themeButtons button.active,
+body.light-mode .tabs button.active,
+body.light-mode .authSegmented button.active{
+  background:linear-gradient(135deg,#f6c453,#2563eb)!important;
+  color:#ffffff!important;
+  border-color:transparent!important;
+}
+
+/* Navigation */
+body.light-mode .nav button{
+  color:#334155!important;
+  background:transparent!important;
+  border:1px solid transparent!important;
+}
+
+body.light-mode .nav button.active,
+body.light-mode .nav button:hover{
+  color:#0f172a!important;
+  background:rgba(246,196,83,.20)!important;
+  border:1px solid rgba(183,121,31,.22)!important;
+}
+
+/* User / side boxes */
+body.light-mode .userPill,
+body.light-mode .sideBox,
+body.light-mode .authQuote,
+body.light-mode .authFeature,
+body.light-mode .authLegal,
+body.light-mode .top3Container,
+body.light-mode .loginPremiumVerse,
+body.light-mode .dailyVerseBox,
+body.light-mode .proQuote{
+  background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(241,245,249,.88))!important;
+  color:#0f172a!important;
+  border-color:rgba(15,23,42,.13)!important;
+  box-shadow:0 14px 34px rgba(15,23,42,.08)!important;
+}
+
+/* Tables */
+body.light-mode table,
+body.light-mode .tableWrap{
+  color:#0f172a!important;
+}
+
+body.light-mode th{
+  color:#475569!important;
+  background:rgba(241,245,249,.75)!important;
+}
+
+body.light-mode td{
+  color:#0f172a!important;
+  border-bottom:1px solid rgba(15,23,42,.10)!important;
+}
+
+body.light-mode tr:hover td{
+  background:rgba(246,196,83,.08)!important;
+}
+
+/* Badges */
+body.light-mode .badge.green,
+body.light-mode .good{
+  color:#15803d!important;
+}
+body.light-mode .badge.red,
+body.light-mode .bad{
+  color:#dc2626!important;
+}
+body.light-mode .badge.blue{
+  color:#2563eb!important;
+}
+body.light-mode .warn{
+  color:#b45309!important;
+}
+
+body.light-mode .badge.green{
+  background:rgba(22,163,74,.12)!important;
+}
+body.light-mode .badge.red{
+  background:rgba(220,38,38,.11)!important;
+}
+body.light-mode .badge.blue{
+  background:rgba(37,99,235,.11)!important;
+}
+
+/* Dashboard details */
+body.light-mode .scoreRing span{
+  background:#ffffff!important;
+  color:#0f172a!important;
+  border-color:rgba(15,23,42,.12)!important;
+}
+
+body.light-mode .scoreBarTrack,
+body.light-mode .goalBar{
+  background:rgba(15,23,42,.10)!important;
+  border-color:rgba(15,23,42,.10)!important;
+}
+
+body.light-mode .reportRow,
+body.light-mode .aiItem,
+body.light-mode .settingRow,
+body.light-mode .portalStep,
+body.light-mode .calDay{
+  background:#ffffff!important;
+  color:#0f172a!important;
+  border-color:rgba(15,23,42,.12)!important;
+}
+
+body.light-mode .reportRow b{
+  color:#0f172a!important;
+}
+
+body.light-mode .calDay{
+  color:#334155!important;
+}
+body.light-mode .calDay.goodDay{
+  background:rgba(22,163,74,.12)!important;
+  color:#15803d!important;
+  border-color:rgba(22,163,74,.22)!important;
+}
+body.light-mode .calDay.badDay{
+  background:rgba(220,38,38,.10)!important;
+  color:#dc2626!important;
+  border-color:rgba(220,38,38,.22)!important;
+}
+body.light-mode .calDay.flatDay{
+  background:rgba(180,83,9,.10)!important;
+  color:#b45309!important;
+  border-color:rgba(180,83,9,.22)!important;
+}
+
+/* Top 3 */
+body.light-mode .top3Title,
+body.light-mode .topName,
+body.light-mode .topRank{
+  color:#0f172a!important;
+}
+body.light-mode .topReturn{
+  color:#334155!important;
+  background:rgba(15,23,42,.06)!important;
+}
+body.light-mode .topCard{
+  background:#ffffff!important;
+  border-color:rgba(15,23,42,.12)!important;
+}
+body.light-mode .topCard.gold{
+  background:rgba(246,196,83,.16)!important;
+  border-color:rgba(183,121,31,.28)!important;
+}
+body.light-mode .topCard.silver{
+  background:rgba(148,163,184,.14)!important;
+}
+body.light-mode .topCard.bronze{
+  background:rgba(251,146,60,.13)!important;
+}
+
+/* Chat and Nolo IA */
+body.light-mode .chatBubble,
+body.light-mode .noloBubble,
+body.light-mode .publicChatMessage,
+body.light-mode .adminChatUser,
+body.light-mode #studentChatMessages,
+body.light-mode #adminChatMessages,
+body.light-mode #publicChatMessages,
+body.light-mode #noloMessages,
+body.light-mode .noloChatBox,
+body.light-mode .noloPanel,
+body.light-mode .noloHeader,
+body.light-mode .noloInputArea{
+  background:#ffffff!important;
+  color:#0f172a!important;
+  border-color:rgba(15,23,42,.12)!important;
+}
+
+body.light-mode .chatBubble.admin,
+body.light-mode .noloBubble.ai{
+  background:rgba(246,196,83,.14)!important;
+  color:#0f172a!important;
+  border-color:rgba(183,121,31,.22)!important;
+}
+
+body.light-mode .chatBubble.student,
+body.light-mode .chatBubble.me,
+body.light-mode .noloBubble.user{
+  background:rgba(37,99,235,.10)!important;
+  color:#0f172a!important;
+  border-color:rgba(37,99,235,.20)!important;
+}
+
+body.light-mode .chatBubble small,
+body.light-mode .noloBubble small{
+  color:#64748b!important;
+}
+
+/* Nolo usage pills */
+body.light-mode #noloStatus,
+body.light-mode #noloLimitPill,
+body.light-mode #noloResetClock,
+body.light-mode .noloLimitPill,
+body.light-mode .noloStatus{
+  color:#0f172a!important;
+  background:rgba(246,196,83,.16)!important;
+  border-color:rgba(183,121,31,.22)!important;
+}
+
+/* Admin */
+body.light-mode .adminCountPill,
+body.light-mode .codePill,
+body.light-mode .passPill{
+  background:#f1f5f9!important;
+  color:#0f172a!important;
+  border-color:rgba(15,23,42,.12)!important;
+}
+
+body.light-mode .btn.danger{
+  background:rgba(220,38,38,.10)!important;
+  color:#b91c1c!important;
+  border:1px solid rgba(220,38,38,.20)!important;
+}
+body.light-mode .btn.success{
+  background:rgba(22,163,74,.10)!important;
+  color:#15803d!important;
+  border:1px solid rgba(22,163,74,.20)!important;
+}
+body.light-mode .btn.warnBtn{
+  background:rgba(180,83,9,.10)!important;
+  color:#92400e!important;
+  border:1px solid rgba(180,83,9,.20)!important;
+}
+
+/* PDF preview not affected */
+body.light-mode .pdfReport,
+body.light-mode .pdfReport *{
+  color:#0f172a!important;
+}
+
+/* Mobile bottom/menu */
+body.light-mode .mobileBottomNav,
+body.light-mode .mobileMenuToggle{
+  background:#ffffff!important;
+  color:#0f172a!important;
+  border-color:rgba(15,23,42,.14)!important;
+  box-shadow:0 12px 30px rgba(15,23,42,.12)!important;
+}
+
+body.light-mode .mobileBottomNav button{
+  color:#334155!important;
+}
+
+body.light-mode .mobileBottomNav button.active{
+  color:#b7791f!important;
+}
+
+/* Footer seal contrast */
+body.light-mode .portalFooterSeal{
+  opacity:.45!important;
+  filter:drop-shadow(0 0 12px rgba(183,121,31,.18))!important;
+}
+
+/* Loader stays dark premium, not forced light */
+body.light-mode #olonLoader,
+body.light-mode #portalEnterLoader{
+  color:#ffffff!important;
+}
+body.light-mode #olonLoader *,
+body.light-mode #portalEnterLoader *{
+  color:inherit;
+}
+
+/* Fix any forced white text */
+body.light-mode [style*="color:white"],
+body.light-mode [style*="color: white"],
+body.light-mode [style*="color:#fff"],
+body.light-mode [style*="color: #fff"]{
+  color:#0f172a!important;
+}
+
+/* But keep button text white */
+body.light-mode .btn[style*="color"],
+body.light-mode button.btn[style*="color"],
+body.light-mode #loginSubmitBtn[style*="color"],
+body.light-mode #signupSubmitBtn[style*="color"]{
+  color:#ffffff!important;
+}
+
