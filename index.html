@@ -675,38 +675,87 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
       </div>
     </section>
 
-<section id="admin" class="page hidden">
-      <div class="adminHero">
-        <div class="adminHeroTop">
+<section id="admin" class="page hidden adminProPage">
+      <div class="adminGodHero">
+        <div class="adminGodGlow"></div>
+        <div class="adminGodHeroTop">
           <div>
-            <div class="adminKicker">👑 Admin Control Center</div>
-            <h3>Panel Admin Profesional</h3>
-            <p>Controla estudiantes, códigos de acceso, planes VIP, estados de pago y aprobaciones desde una vista más limpia, premium y lista para móvil.</p>
+            <div class="adminKicker">👑 Admin Command Center</div>
+            <h3>Panel Admin Nivel Pro</h3>
+            <p>Control total de estudiantes, aprobaciones, planes VIP, pagos, consumo de Nolo IA y alertas operativas desde una vista premium lista para web, móvil e iPad.</p>
           </div>
-          <div class="adminActions">
-            <button class="btn secondary" onclick="renderUsers()">Actualizar</button>
-            <button class="btn" onclick="filterAdminUsers('pending')">Ver pendientes</button>
+          <div class="adminActions adminGodActions">
+            <button class="btn secondary" onclick="renderUsers()">🔄 Actualizar</button>
+            <button class="btn" onclick="filterAdminUsers('pending')">⏳ Pendientes</button>
+            <button class="btn secondary" onclick="approveAllPendingUsers()">✅ Aprobar pendientes</button>
+          </div>
+        </div>
+
+        <div class="adminHeroStrip">
+          <div><span>Modo</span><b>Academy Control</b></div>
+          <div><span>Seguridad</span><b>Admin protegido</b></div>
+          <div><span>Vista</span><b>Mobile Ready</b></div>
+        </div>
+      </div>
+
+      <div class="adminMetrics adminGodMetrics">
+        <button class="adminMetric adminMetricBtn" onclick="filterAdminUsers('all')"><small>Total estudiantes</small><b id="adminTotalUsers">0</b><span>Usuarios registrados</span></button>
+        <button class="adminMetric adminMetricBtn" onclick="filterAdminUsers('active')"><small>Activos</small><b id="adminActiveUsers">0</b><span>Acceso aprobado</span></button>
+        <button class="adminMetric adminMetricBtn" onclick="filterAdminUsers('pending')"><small>Pendientes</small><b id="adminPendingUsers">0</b><span>Esperando aprobación</span></button>
+        <button class="adminMetric adminMetricBtn" onclick="filterAdminUsers('suspended')"><small>Suspendidos</small><b id="adminSuspendedUsers">0</b><span>Acceso pausado</span></button>
+        <button class="adminMetric adminMetricBtn" onclick="filterAdminPlan('premium')"><small>Premium</small><b id="adminPremiumUsers">0</b><span>VIP Premium</span></button>
+        <div class="adminMetric"><small>Expirados</small><b id="adminExpiredUsers">0</b><span>Pago vencido</span></div>
+        <div class="adminMetric"><small>Pagos próximos</small><b id="adminDueSoonUsers">0</b><span>Próximos 7 días</span></div>
+        <div class="adminMetric"><small>Nolo IA hoy</small><b id="adminNoloToday">0</b><span>Mensajes consumidos</span></div>
+      </div>
+
+      <div class="adminOpsGrid">
+        <div class="card adminAlertCard">
+          <div class="adminPanelHead miniHead">
+            <div>
+              <h4>Centro de alertas</h4>
+              <p>Acciones que debes revisar hoy.</p>
+            </div>
+            <span class="adminCountPill">Live</span>
+          </div>
+          <div id="adminAlertList" class="adminAlertList">
+            <div class="adminAlertItem">Cargando alertas...</div>
+          </div>
+        </div>
+
+        <div class="card adminAiUsageCard">
+          <div class="adminPanelHead miniHead">
+            <div>
+              <h4>Consumo Nolo IA</h4>
+              <p>Top estudiantes por mensajes usados hoy.</p>
+            </div>
+            <button class="btn secondary miniBtn" onclick="renderAdminNoloUsage()">Actualizar</button>
+          </div>
+          <div id="adminNoloUsageList" class="adminNoloUsageList">
+            <div class="adminAlertItem">Cargando uso de IA...</div>
           </div>
         </div>
       </div>
 
-      <div class="adminMetrics">
-        <div class="adminMetric"><small>Total estudiantes</small><b id="adminTotalUsers">0</b><span>Usuarios registrados</span></div>
-        <div class="adminMetric"><small>Activos</small><b id="adminActiveUsers">0</b><span>Acceso aprobado</span></div>
-        <div class="adminMetric"><small>Pendientes</small><b id="adminPendingUsers">0</b><span>Esperando aprobación</span></div>
-        <div class="adminMetric"><small>Premium</small><b id="adminPremiumUsers">0</b><span>Plan VIP Premium</span></div>
-      </div>
-
-      <div class="card adminPanelCard">
+      <div class="card adminPanelCard adminGodTableCard">
         <div class="adminPanelHead">
           <div>
             <h4>Gestión de estudiantes</h4>
-            <p>Aprobar, suspender o eliminar estudiantes. El password se oculta y se muestra al pasar el mouse.</p>
+            <p>Busca, filtra, aprueba, suspende, cambia plan y revisa pagos desde un solo lugar.</p>
           </div>
           <span id="adminCountPill" class="adminCountPill">0 resultados</span>
         </div>
+
+        <div class="adminQuickFilters">
+          <button type="button" onclick="filterAdminUsers('all')">Todos</button>
+          <button type="button" onclick="filterAdminUsers('pending')">Pendientes</button>
+          <button type="button" onclick="filterAdminUsers('active')">Activos</button>
+          <button type="button" onclick="filterAdminUsers('expired')">Expirados</button>
+          <button type="button" onclick="filterAdminPlan('premium')">Premium</button>
+        </div>
+
         <div style="padding:18px 20px">
-          <div class="adminTools">
+          <div class="adminTools adminGodTools">
             <input id="adminSearch" class="adminSearch" placeholder="Buscar por nombre, email o código..." oninput="renderAdminTable()">
             <select id="adminStatusFilter" class="adminSelect" onchange="renderAdminTable()">
               <option value="all">Todos los estados</option>
@@ -723,16 +772,16 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
             </select>
           </div>
         </div>
-        <div class="tableWrap adminTable">
+
+        <div class="tableWrap adminTable adminGodTable">
           <table>
-            <thead><tr><th>Estudiante</th><th>Código</th><th>Password</th><th>Rol</th><th>Plan</th><th>Estado</th><th></th><th>Acción</th></tr></thead>
+            <thead><tr><th>Estudiante</th><th>Código</th><th>Password</th><th>Plan</th><th>Estado</th><th>Próximo pago</th><th>Riesgo</th><th>Acción</th></tr></thead>
             <tbody id="usersBody"></tbody>
           </table>
         </div>
         <div id="usersMobileCards" class="mobileCards adminMobileCards"></div>
       </div>
     </section>
-
 
     <button id="chatFab" class="chatFab studentOnly" onclick="toggleStudentChat()">💬 Chat <span id="studentChatBadge" class="chatFabBadge">0</span></button>
 
