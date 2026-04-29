@@ -3173,7 +3173,7 @@ window.currentNewsCategory = currentNewsCategory;
 
 /* ===== NOLO IA PRO - MEMORIA + NOTICIAS + LIMITE 30/DIA ===== */
 (function(){
-  const NOLO_AI_FUNCTION_URL = (typeof SUPABASE_URL !== "undefined" ? SUPABASE_URL : "https://bffojtcojnsvzxzwbdes.supabase.co") + "/functions/v1/nolo-ia";
+  const NOLO_AI_FUNCTION_URL = (typeof SUPABASE_URL !== "undefined" ? SUPABASE_URL : "https://bffojtcojnsvzxzwbdes.supabase.co") + "/functions/v1/smart-api";
   const DAILY_LIMIT = 30;
 
   function esc(v){ return String(v || "").replace(/[&<>\"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m])); }
@@ -3269,7 +3269,7 @@ window.currentNewsCategory = currentNewsCategory;
       setStatus(data.remaining, data.used);
     }catch(err){
       setTyping(false); console.error("sendNoloMessage", err);
-      addBubble("ai", "No pude conectar con Nolo IA. Verifica la Edge Function nolo-ia y las variables OPENAI_API_KEY y SUPABASE_SERVICE_ROLE_KEY.");
+      addBubble("ai", "No pude conectar con Nolo IA. Verifica la Edge Function smart-api y las variables OPENAI_API_KEY y SUPABASE_SERVICE_ROLE_KEY.");
       await refreshUsage();
     }
   };
