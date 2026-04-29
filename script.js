@@ -2857,7 +2857,7 @@ function renderNews(items){
 
   container.innerHTML = clean.slice(0, 24).map(n => {
     const img = n.image || "https://placehold.co/700x420/070b16/f6c453?text=OLON+Market+News";
-    const source = escapeNewsText(n.source || "Market News");
+    const source = "OLON Market Feed";
     const headline = escapeNewsText(n.headline || "Noticia del mercado");
     const summary = escapeNewsText(n.summary || "Abre la noticia para leer más detalles del mercado.");
     const url = String(n.url || "#");
@@ -2890,20 +2890,20 @@ async function loadNews(category = "forex", force = false){
   if(!container) return;
 
   container.innerHTML = `<div class="newsLoading">Cargando noticias del mercado...</div>`;
-  if(status) status.textContent = "Conectando con Finnhub vía Supabase...";
+  if(status) status.textContent = "Cargando flujo de mercado...";
 
   try{
     const res = await fetch(`${OLON_NEWS_FUNCTION_URL}?category=${encodeURIComponent(currentNewsCategory)}`);
     const data = await res.json();
 
     if(!res.ok || data?.error){
-      throw new Error(data?.error || "No se pudo cargar Finnhub");
+      throw new Error(data?.error || "No se pudo cargar el flujo de noticias");
     }
 
     renderNews(data);
   }catch(err){
-    console.error("Finnhub news error", err);
-    container.innerHTML = `<div class="newsError">No se pudieron cargar las noticias. Verifica que la Edge Function esté deployed, Verify JWT esté OFF y el secret FINNHUB_API_KEY esté guardado.</div>`;
+    console.error("Market news error", err);
+    container.innerHTML = `<div class="newsError">No se pudieron cargar las noticias. Verifica tu conexión e intenta de nuevo.</div>`;
     if(status) status.textContent = "Error de conexión con noticias.";
   }
 }
@@ -2957,11 +2957,11 @@ window.currentNewsCategory = currentNewsCategory;
     page.innerHTML = `
       <div class="marketNewsHero card">
         <div>
-          <span class="newsKicker">FINNHUB LIVE FEED</span>
+          <span class="newsKicker">OLON MARKET FEED</span>
           <h2>📰 Noticias del Mercado</h2>
-          <p>Noticias en vivo conectadas a Supabase mediante <b>quick-worker</b>.</p>
+          <p>Noticias financieras en tiempo real para apoyar tus decisiones de trading.</p>
         </div>
-        <button class="btn secondary" type="button" onclick="loadNews(window.currentNewsCategory || 'forex', true)">↻ Actualizar</button>
+        <div class="newsHeroActions"><div class="newsHeroActions"><button class="btn secondary" type="button" onclick="loadNews(window.currentNewsCategory || 'forex', true)">↻ Actualizar</button><a class="btn secondary forexFactoryBtn" href="https://www.forexfactory.com/calendar" target="_blank" rel="noopener noreferrer">📅 Forex Factory</a></div><a class="btn secondary forexFactoryBtn" href="https://www.forexfactory.com/calendar" target="_blank" rel="noopener noreferrer">📅 Forex Factory</a></div>
       </div>
       <div class="newsProToolbar card">
         <div class="newsFilters">
@@ -3038,8 +3038,8 @@ window.currentNewsCategory = currentNewsCategory;
     const status = document.getElementById("newsStatus");
     if(!container) return;
 
-    container.innerHTML = `<div class="newsLoading">Cargando noticias desde quick-worker...</div>`;
-    if(status) status.textContent = "Conectando con Finnhub vía Supabase...";
+    container.innerHTML = `<div class="newsLoading">Cargando noticias del mercado...</div>`;
+    if(status) status.textContent = "Cargando flujo de mercado...";
 
     try{
       const response = await fetch(`${NEWS_URL}?category=${encodeURIComponent(newsCategory)}&t=${Date.now()}`, { cache:"no-store" });
@@ -3053,12 +3053,12 @@ window.currentNewsCategory = currentNewsCategory;
       if(status) status.textContent = `${list.length} noticias cargadas · ${newsCategory.toUpperCase()}`;
 
       if(!list.length){
-        container.innerHTML = `<div class="newsEmpty">La función respondió, pero no llegaron noticias. Prueba General o Crypto.</div>`;
+        container.innerHTML = `<div class="newsEmpty">No llegaron noticias para esta categoría ahora mismo. Prueba General o Crypto.</div>`;
         return;
       }
 
       container.innerHTML = list.slice(0, 24).map(n=>{
-        const source = esc(n.source || "Market News");
+        const source = "OLON Market Feed";
         const headline = esc(n.headline || "Noticia del mercado");
         const summaryRaw = stripHtml(n.summary || "Abre la noticia para leer más detalles.");
         const summary = esc(summaryRaw.length > 145 ? summaryRaw.slice(0,145) + "..." : summaryRaw);
@@ -3079,9 +3079,9 @@ window.currentNewsCategory = currentNewsCategory;
       }).join("");
       window.filterNewsCards();
     }catch(err){
-      console.error("OLON News quick-worker error", err);
+      console.error("OLON Market News error", err);
       if(status) status.textContent = "Error conectando noticias.";
-      container.innerHTML = `<div class="newsError"><b>Error de conexión de noticias.</b><br>La función quick-worker sí debe abrir en Safari. Si abre allá, sube este ZIP completo y limpia caché con <b>index.html?v=10</b>.<br><small>${esc(err.message)}</small></div>`;
+      container.innerHTML = `<div class="newsError"><b>Error de conexión de noticias.</b><br>Verifica tu conexión e intenta actualizar la página.<br><small>${esc(err.message)}</small></div>`;
     }
   };
 
@@ -3095,7 +3095,7 @@ window.currentNewsCategory = currentNewsCategory;
       const title = document.getElementById("pageTitle");
       const sub = document.getElementById("pageSubtitle");
       if(title) title.textContent = "Noticias del Mercado";
-      if(sub) sub.textContent = "Feed en vivo conectado a Finnhub por Supabase.";
+      if(sub) sub.textContent = "Flujo de información en tiempo real sobre mercados globales.";
       setTimeout(()=>window.loadNews(window.currentNewsCategory || "forex", true), 80);
     }
   }
