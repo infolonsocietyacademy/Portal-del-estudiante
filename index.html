@@ -322,15 +322,17 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
       <button data-page="publicChat" class="studentNav" onclick="showPage('publicChat',this)">🌍 Chat Público</button>
       <button data-page="newsProPage" class="studentNav" onclick="showPage('newsProPage',this)">📰 Noticias</button>
       <button data-page="noloAIPage" class="studentNav" onclick="showPage('noloAIPage',this)">🤖 Nolo IA</button>
-      <button data-page="admin" class="adminNav hidden" onclick="showPage('admin',this)">⚙️ Admin</button>
-      <button data-page="adminChat" class="adminNav hidden" onclick="showPage('adminChat',this)">💬 Chat Live <span id="adminChatBadge" class="adminUnread" style="display:none">0</span></button>
+      <button data-page="admin" class="adminNav hidden" onclick="showPage('admin',this)">👑 Command Center</button>
+      <button data-page="admin" class="adminNav hidden" onclick="showPage('admin',this); setTimeout(()=>document.getElementById('adminStudentsBlock')?.scrollIntoView({behavior:'smooth'}),120)">👥 Estudiantes</button>
+      <button data-page="admin" class="adminNav hidden" onclick="showPage('admin',this); setTimeout(()=>document.getElementById('adminNoloUsageBlock')?.scrollIntoView({behavior:'smooth'}),120)">🤖 Consumo IA</button>
+      <button data-page="adminChat" class="adminNav hidden" onclick="showPage('adminChat',this)">👑 Chat Live <span id="adminChatBadge" class="adminUnread" style="display:none">0</span></button>
       <button onclick="logout()">🚪 Salir</button>
     </div>
 
-    <div class="sideBox">
-      <small>Estado del acceso</small>
+    <div class="sideBox kingSideBox">
+      <small>👑 Estado del acceso</small>
       <h3 id="accessStatus">VIP Premium Activo</h3>
-      <small id="paymentDate">: 15 de mayo 2026</small>
+      <small>Mentoría privada · Portal seguro</small>
     </div>
   </aside>
 
@@ -682,7 +684,7 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
           <div>
             <div class="adminKicker">👑 Admin Command Center</div>
             <h3>Panel Admin Nivel Pro</h3>
-            <p>Control total de estudiantes, aprobaciones, planes VIP, pagos, consumo de Nolo IA y alertas operativas desde una vista premium lista para web, móvil e iPad.</p>
+            <p>Control total de estudiantes, aprobaciones, planes VIP, consumo de Nolo IA y alertas operativas desde una vista premium lista para web, móvil e iPad.</p>
           </div>
           <div class="adminActions adminGodActions">
             <button class="btn secondary" onclick="renderUsers()">🔄 Actualizar</button>
@@ -704,8 +706,8 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
         <button class="adminMetric adminMetricBtn" onclick="filterAdminUsers('pending')"><small>Pendientes</small><b id="adminPendingUsers">0</b><span>Esperando aprobación</span></button>
         <button class="adminMetric adminMetricBtn" onclick="filterAdminUsers('suspended')"><small>Suspendidos</small><b id="adminSuspendedUsers">0</b><span>Acceso pausado</span></button>
         <button class="adminMetric adminMetricBtn" onclick="filterAdminPlan('premium')"><small>Premium</small><b id="adminPremiumUsers">0</b><span>VIP Premium</span></button>
-        <div class="adminMetric"><small>Expirados</small><b id="adminExpiredUsers">0</b><span>Pago vencido</span></div>
-        <div class="adminMetric"><small>Pagos próximos</small><b id="adminDueSoonUsers">0</b><span>Próximos 7 días</span></div>
+        <div class="adminMetric"><small>Live Chat</small><b id="adminChatMetric">0</b><span>Mensajes pendientes</span></div>
+        <div class="adminMetric"><small>Nolo IA</small><b id="adminNoloMetric">0</b><span>Uso diario total</span></div>
         <div class="adminMetric"><small>Nolo IA hoy</small><b id="adminNoloToday">0</b><span>Mensajes consumidos</span></div>
       </div>
 
@@ -741,7 +743,7 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
         <div class="adminPanelHead">
           <div>
             <h4>Gestión de estudiantes</h4>
-            <p>Busca, filtra, aprueba, suspende, cambia plan y revisa pagos desde un solo lugar.</p>
+            <p>Busca, filtra, aprueba, suspende, cambia plan y gestiona estudiantes desde un solo lugar.</p>
           </div>
           <span id="adminCountPill" class="adminCountPill">0 resultados</span>
         </div>
@@ -775,7 +777,7 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
 
         <div class="tableWrap adminTable adminGodTable">
           <table>
-            <thead><tr><th>Estudiante</th><th>Código</th><th>Password</th><th>Plan</th><th>Estado</th><th>Próximo pago</th><th>Riesgo</th><th>Acción</th></tr></thead>
+            <thead><tr><th>Estudiante</th><th>Código</th><th>Password</th><th>Plan</th><th>Estado</th><th>Mentoría</th><th>Riesgo</th><th>Acción</th></tr></thead>
             <tbody id="usersBody"></tbody>
           </table>
         </div>
@@ -783,19 +785,19 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
       </div>
     </section>
 
-    <button id="chatFab" class="chatFab studentOnly" onclick="toggleStudentChat()">💬 Chat <span id="studentChatBadge" class="chatFabBadge">0</span></button>
+    <button id="chatFab" class="chatFab studentOnly" onclick="toggleStudentChat()">👑 Mentor Live <span id="studentChatBadge" class="chatFabBadge">0</span></button>
 
     <div id="studentChatPanel" class="studentChatPanel studentOnly">
       <div class="chatHead">
         <div>
-          <h3>💬 Chat con mentor</h3>
-          <small>Escríbenos y el admin te responde desde el portal.</small>
+          <h3>👑 Mensaje directo al Mentor</h3>
+          <small>Habla con el equipo OLON. Tu progreso merece seguimiento premium.</small>
         </div>
         <button class="chatClose" onclick="toggleStudentChat()">✕</button>
       </div>
       <div id="studentChatMessages" class="chatMessages"></div>
       <div class="chatInputArea">
-        <textarea id="studentChatInput" placeholder="Escribe tu mensaje..."></textarea>
+        <textarea id="studentChatInput" placeholder="Escribe tu mensaje al mentor..."></textarea>
         <button onclick="sendStudentChatMessage()">Enviar</button>
       </div>
     </div>
@@ -805,9 +807,9 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
       <div class="adminHero">
         <div class="adminHeroTop">
           <div>
-            <div class="adminKicker">💬 Live Chat Center</div>
+            <div class="adminKicker">👑 Live Chat Center</div>
             <h3>Mensajes de estudiantes</h3>
-            <p>Lee mensajes, selecciona un estudiante y responde directamente desde el portal admin.</p>
+            <p>Comunicación directa con estudiantes. Responde como mentor principal y mantén el seguimiento organizado.</p>
           </div>
           <div class="adminActions">
             <button class="btn secondary" onclick="loadAdminChatInbox()">Actualizar</button>
@@ -830,7 +832,7 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
             </div>
             <div id="adminChatMessages" class="chatMessages"></div>
             <div class="adminReplyArea">
-              <textarea id="adminChatInput" placeholder="Escribe tu respuesta..."></textarea>
+              <textarea id="adminChatInput" placeholder="Escribe tu respuesta como mentor..."></textarea>
               <button onclick="sendAdminChatMessage()">Responder</button>
             </div>
           </div>

@@ -3438,3 +3438,92 @@ function adminUserRowHTML(u){ const isMainAdmin = u.role === "admin" && u.access
 function adminUserMobileHTML(u){ const isMainAdmin = u.role === "admin" && u.access_code === "admin-nolo"; const initials = (u.full_name || "O").split(" ").map(x=>x[0]).join("").slice(0,2).toUpperCase(); const risk = adminRiskForUser(u); const safeName = String(u.full_name || "").replace(/'/g, "\\'"); return `<div class="adminMobileCard"><div class="adminMobileTop"><div class="adminAvatar">${initials}</div><div><b>${escapeHTML(u.full_name || "Sin nombre")}</b><small>${escapeHTML(u.email || "Sin email")}</small></div></div><div class="adminMobileMeta"><span>Código <b>${escapeHTML(u.access_code || "-")}</b></span><span>Plan <b>${escapeHTML(u.plan || "-")}</b></span><span>Estado <b>${escapeHTML(u.status || "-")}</b></span><span>Pago <b>${escapeHTML(u.next_payment_date || "No asignado")}</b></span><span>Riesgo <b class="adminRiskPill ${risk.cls}">${risk.label}</b></span></div><div class="adminMobileActions">${isMainAdmin ? `<span class="badge blue">Protegido</span>` : `<button class="btn success" onclick="updateUserStatus('${u.id}','active')">Aprobar</button><button class="btn warnBtn" onclick="updateUserStatus('${u.id}','suspended')">Suspender</button><button class="btn danger" onclick="deleteUser('${u.id}','${safeName}')">Borrar</button>`}</div></div>`; }
 async function updateUserPlan(userId, newPlan){ if(!currentUser || !isAdminUser(currentUser)) return; const target = cachedUsers.find(u => u.id === userId); if(!target) return; if(target.role === "admin" && target.access_code === "admin-nolo"){ alert("No puedes modificar el admin principal."); renderAdminTable(); return; } const { error } = await supabaseClient.from("profiles").update({ plan:newPlan }).eq("id", userId); if(error){ showError("No se pudo actualizar el plan.", error); return; } await renderUsers(); }
 async function approveAllPendingUsers(){ if(!currentUser || !isAdminUser(currentUser)) return; const pending = (cachedUsers || []).filter(u => u.status === "pending" && !(u.role === "admin" && u.access_code === "admin-nolo")); if(!pending.length){ alert("No hay estudiantes pendientes."); return; } if(!confirm(`¿Aprobar ${pending.length} estudiante(s) pendiente(s)?`)) return; const { error } = await supabaseClient.from("profiles").update({ status:"active" }).in("id", pending.map(u=>u.id)); if(error){ showError("No se pudieron aprobar todos.", error); return; } await renderUsers(); }
+
+/* ===== OLON ADMIN CLEAN KING OVERRIDE ===== */
+function adminRiskForUser(u){
+  if(String(u.role||"").toLowerCase()==="admin") return {cls:"good", label:"Protegido"};
+  if(u.status === "suspended") return {cls:"bad", label:"Suspendido"};
+  if(u.status === "expired") return {cls:"bad", label:"Revisar"};
+  if(u.status === "pending") return {cls:"warn", label:"Pendiente"};
+  return {cls:"good", label:"Activo"};
+}
+
+async function renderUsers(){
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .select("id, email, full_name, access_code, password, role, plan, status, created_at")
+    .order("created_at", { ascending:false });
+  if(error){ showError("No se pudieron cargar los estudiantes.", error); return; }
+  cachedUsers = data || [];
+  updateAdminMetrics();
+  renderAdminTable();
+  renderAdminAlerts();
+  renderAdminNoloUsage();
+  updateAdminChatMetric();
+}
+
+function updateAdminMetrics(){
+  const users = cachedUsers || [];
+  const students = users.filter(u => String(u.role || "").toLowerCase() !== "admin");
+  const active = students.filter(u => u.status === "active").length;
+  const pending = students.filter(u => u.status === "pending").length;
+  const suspended = students.filter(u => u.status === "suspended").length;
+  const premium = students.filter(u => String(u.plan || "").toLowerCase().includes("premium")).length;
+  adminAnimateMetric("adminTotalUsers", students.length);
+  adminAnimateMetric("adminActiveUsers", active);
+  adminAnimateMetric("adminPendingUsers", pending);
+  adminAnimateMetric("adminSuspendedUsers", suspended);
+  adminAnimateMetric("adminPremiumUsers", premium);
+}
+
+async function updateAdminChatMetric(){
+  const el = document.getElementById("adminChatMetric");
+  if(!el) return;
+  try{
+    const { data } = await supabaseClient
+      .from("chat_messages")
+      .select("id,sender_role,is_read")
+      .eq("sender_role", "student")
+      .eq("is_read", false);
+    adminAnimateMetric("adminChatMetric", (data || []).length);
+  }catch(e){ el.innerText = "0"; }
+}
+
+function renderAdminAlerts(){
+  const box = document.getElementById("adminAlertList");
+  if(!box) return;
+  const students = (cachedUsers || []).filter(u => String(u.role || "").toLowerCase() !== "admin");
+  const pending = students.filter(u => u.status === "pending");
+  const suspended = students.filter(u => u.status === "suspended");
+  const premium = students.filter(u => String(u.plan||"").toLowerCase().includes("premium"));
+  const rows = [];
+  if(pending.length) rows.push(`<div class="adminAlertItem warn"><span>⏳ <b>${pending.length}</b> cuenta(s) pendiente(s) de aprobación</span><button class="btn secondary miniBtn" onclick="filterAdminUsers('pending')">Ver</button></div>`);
+  if(suspended.length) rows.push(`<div class="adminAlertItem bad"><span>🛑 <b>${suspended.length}</b> estudiante(s) suspendido(s)</span><button class="btn secondary miniBtn" onclick="filterAdminUsers('suspended')">Ver</button></div>`);
+  rows.push(`<div class="adminAlertItem good"><span>💎 <b>${premium.length}</b> estudiante(s) Premium</span><button class="btn secondary miniBtn" onclick="filterAdminPlan('premium')">Ver</button></div>`);
+  rows.push(`<div class="adminAlertItem good"><span>👑 Centro de mando limpio: sin módulo de pagos visible.</span></div>`);
+  box.innerHTML = rows.join("");
+}
+
+function adminUserRowHTML(u){
+  const isMainAdmin = u.role === "admin" && u.access_code === "admin-nolo";
+  const initials = (u.full_name || "O").split(" ").map(x=>x[0]).join("").slice(0,2).toUpperCase();
+  const risk = adminRiskForUser(u);
+  const safeName = String(u.full_name || "").replace(/'/g, "\\'");
+  const mentorText = isMainAdmin ? "Cuenta maestra" : (u.status === "active" ? "Seguimiento activo" : u.status === "pending" ? "Esperando aprobación" : "Revisar cuenta");
+  const actions = isMainAdmin ? `<span class="badge blue">Protegido</span>` : `<div class="actionRow"><button class="btn success" onclick="updateUserStatus('${u.id}','active')">Aprobar</button><button class="btn warnBtn" onclick="updateUserStatus('${u.id}','suspended')">Suspender</button><button class="btn danger" onclick="deleteUser('${u.id}','${safeName}')">Borrar</button></div>`;
+  return `<tr><td><div class="adminStudent"><div class="adminAvatar">${initials}</div><div><b>${escapeHTML(u.full_name || "Sin nombre")}</b><small>${escapeHTML(u.email || "Sin email")}</small></div></div></td><td><span class="codePill">${escapeHTML(u.access_code || "-")}</span></td><td><span class="codePill passPill">${escapeHTML(u.password || "-")}</span></td><td><select class="adminPlanSelect" onchange="updateUserPlan('${u.id}', this.value)" ${isMainAdmin ? 'disabled' : ''}><option value="VIP Regular" ${u.plan==='VIP Regular'?'selected':''}>VIP Regular</option><option value="VIP Premium" ${u.plan==='VIP Premium'?'selected':''}>VIP Premium</option><option value="Admin" ${u.plan==='Admin'?'selected':''}>Admin</option></select></td><td><select class="adminStatusSelect" onchange="updateUserStatus('${u.id}', this.value)" ${isMainAdmin ? 'disabled' : ''}><option value="pending" ${u.status==='pending'?'selected':''}>Pendiente</option><option value="active" ${u.status==='active'?'selected':''}>Activo</option><option value="suspended" ${u.status==='suspended'?'selected':''}>Suspendido</option><option value="expired" ${u.status==='expired'?'selected':''}>Revisar</option></select></td><td>${escapeHTML(mentorText)}</td><td><span class="adminRiskPill ${risk.cls}">${risk.label}</span></td><td>${actions}</td></tr>`;
+}
+
+function adminUserMobileHTML(u){
+  const isMainAdmin = u.role === "admin" && u.access_code === "admin-nolo";
+  const initials = (u.full_name || "O").split(" ").map(x=>x[0]).join("").slice(0,2).toUpperCase();
+  const risk = adminRiskForUser(u);
+  const safeName = String(u.full_name || "").replace(/'/g, "\\'");
+  const mentorText = isMainAdmin ? "Cuenta maestra" : (u.status === "active" ? "Seguimiento activo" : u.status === "pending" ? "Esperando aprobación" : "Revisar cuenta");
+  return `<div class="adminMobileCard"><div class="adminMobileTop"><div class="adminAvatar">${initials}</div><div><b>${escapeHTML(u.full_name || "Sin nombre")}</b><small>${escapeHTML(u.email || "Sin email")}</small></div></div><div class="adminMobileMeta"><span>Código <b>${escapeHTML(u.access_code || "-")}</b></span><span>Plan <b>${escapeHTML(u.plan || "-")}</b></span><span>Estado <b>${escapeHTML(u.status || "-")}</b></span><span>Mentoría <b>${escapeHTML(mentorText)}</b></span><span>Riesgo <b class="adminRiskPill ${risk.cls}">${risk.label}</b></span></div><div class="adminMobileActions">${isMainAdmin ? `<span class="badge blue">Protegido</span>` : `<button class="btn success" onclick="updateUserStatus('${u.id}','active')">Aprobar</button><button class="btn warnBtn" onclick="updateUserStatus('${u.id}','suspended')">Suspender</button><button class="btn danger" onclick="deleteUser('${u.id}','${safeName}')">Borrar</button>`}</div></div>`;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const payment = document.getElementById("paymentDate");
+  if(payment) payment.innerText = "Mentoría privada · Portal seguro";
+});
