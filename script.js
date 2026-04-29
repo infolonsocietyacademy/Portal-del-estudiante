@@ -3527,3 +3527,72 @@ document.addEventListener("DOMContentLoaded", () => {
   const payment = document.getElementById("paymentDate");
   if(payment) payment.innerText = "Mentoría privada · Portal seguro";
 });
+
+
+/* =====================================================
+   OLON DASHBOARD WAO JS
+   Pega este JS AL FINAL de tu script.js
+   ===================================================== */
+
+function olonDashboardAnimateTextMoney(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+
+  const raw = String(el.innerText || "").replace(/[^0-9.-]/g,"");
+  const target = Number(raw || 0);
+  const isMoney = String(el.innerText || "").includes("$");
+  const isPct = String(el.innerText || "").includes("%");
+
+  let start = 0;
+  const startTime = performance.now();
+  const duration = 1000;
+
+  function frame(now){
+    const p = Math.min((now - startTime) / duration, 1);
+    const eased = 1 - Math.pow(1 - p, 3);
+    const val = start + (target - start) * eased;
+
+    if(isMoney){
+      el.innerText = "$" + val.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
+    }else if(isPct){
+      el.innerText = val.toFixed(2) + "%";
+    }else{
+      el.innerText = Math.round(val).toLocaleString("en-US");
+    }
+
+    if(p < 1) requestAnimationFrame(frame);
+  }
+
+  requestAnimationFrame(frame);
+}
+
+function olonDashboardWaoRefresh(){
+  [
+    "mDeposited",
+    "mNet",
+    "mLoss",
+    "mGrowth",
+    "depositReturn",
+    "maxDrawdown",
+    "ytdWinrate",
+    "traderScore"
+  ].forEach(olonDashboardAnimateTextMoney);
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+  setTimeout(olonDashboardWaoRefresh, 1200);
+});
+
+/* Hook suave: si render() existe, lo envuelve para animar luego de renderizar */
+setTimeout(function(){
+  if(typeof window.render === "function" && !window.__olonDashboardWaoHooked){
+    const oldRender = window.render;
+    window.render = async function(){
+      const result = await oldRender.apply(this, arguments);
+      setTimeout(olonDashboardWaoRefresh, 250);
+      return result;
+    };
+    window.__olonDashboardWaoHooked = true;
+  }
+}, 500);
+
