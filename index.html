@@ -616,13 +616,13 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
       <div class="noloHero card">
         <div>
           <span class="noloKicker">NOLO IA PRO</span>
-          <h2>🤖 Nolo IA — Inteligencia de mercado</h2>
-          <p>Chat privado con memoria, análisis de noticias y límite diario de 30 mensajes por estudiante.</p>
+          <h2>🤖 Nolo IA — Asistente inteligente</h2>
+          <p>Chat privado con memoria, análisis de noticias, lectura del perfil del estudiante y límite diario de 30 mensajes.</p>
         </div>
         <div class="noloHeroActions">
           <button class="btn secondary" type="button" onclick="loadNoloHistory(true)">↻ Cargar memoria</button>
           <button class="btn secondary" type="button" onclick="askNoloQuick('Analiza las noticias actuales y dime qué debo vigilar antes de operar')">📰 Analizar noticias</button>
-          <button class="btn secondary" type="button" onclick="toggleStudentChat()">📩 Contactar soporte</button>
+          <button class="btn secondary" type="button" onclick="openNoloAdminContact()">👨‍💼 Hablar con admin</button>
         </div>
       </div>
 
@@ -649,6 +649,8 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
             <button type="button" onclick="askNoloQuick('Cómo afecta esto al oro XAUUSD')">Oro / XAUUSD</button>
             <button type="button" onclick="askNoloQuick('Qué impacto tiene en USD hoy')">USD</button>
             <button type="button" onclick="askNoloQuick('Dame disciplina antes de entrar a una operación')">Disciplina</button>
+            <button type="button" onclick="askNoloQuick('Lee mi perfil y dime qué debo mejorar en consistencia, control de riesgo y disciplina')">Mi perfil</button>
+            <button type="button" onclick="openNoloAdminContact()">Hablar con admin</button>
           </div>
 
           <div class="noloComposer">
@@ -659,11 +661,10 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
 
         <div class="card noloSideCard">
           <h3>🧠 Memoria de Nolo IA</h3>
-          <p>Nolo IA recuerda el contexto reciente de tu conversación y usa las noticias cargadas en el portal para darte una lectura más clara.</p>
+          <p>Nolo IA recuerda el contexto reciente, usa noticias cargadas y lee tu perfil de rendimiento para decirte qué mejorar.</p>
           <div class="noloInfoBox"><b>Límite diario</b><span>30 mensajes por estudiante</span></div>
           <div class="noloInfoBox"><b>Noticias</b><span>Usa el feed de la pestaña Noticias</span></div>
           <div class="noloInfoBox"><b>Privado</b><span>Cada estudiante ve su propio historial</span></div>
-          <div class="noloInfoBox"><b>¿Tienes una duda?</b><span>Usa Contactar soporte y el mensaje llega al portal admin.</span></div>
           <a class="btn secondary full" href="https://www.forexfactory.com/calendar" target="_blank" rel="noopener noreferrer">📅 Abrir Forex Factory</a>
         </div>
       </div>
@@ -728,19 +729,19 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
     </section>
 
 
-    <button id="noloFab" class="chatFab studentOnly" onclick="showPage('noloAIPage', this)">🤖 Nolo IA</button>
+    <button id="chatFab" class="chatFab studentOnly" onclick="toggleStudentChat()">💬 Chat <span id="studentChatBadge" class="chatFabBadge">0</span></button>
 
     <div id="studentChatPanel" class="studentChatPanel studentOnly">
       <div class="chatHead">
         <div>
-          <h3>📩 Contactar soporte</h3>
-          <small>Si tienes una duda, escríbela aquí y llegará al portal del admin.</small>
+          <h3>💬 Chat con mentor</h3>
+          <small>Escríbenos y el admin te responde desde el portal.</small>
         </div>
         <button class="chatClose" onclick="toggleStudentChat()">✕</button>
       </div>
       <div id="studentChatMessages" class="chatMessages"></div>
       <div class="chatInputArea">
-        <textarea id="studentChatInput" placeholder="Escribe tu duda para el equipo OLON..."></textarea>
+        <textarea id="studentChatInput" placeholder="Escribe tu mensaje..."></textarea>
         <button onclick="sendStudentChatMessage()">Enviar</button>
       </div>
     </div>
