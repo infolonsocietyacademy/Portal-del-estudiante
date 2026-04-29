@@ -316,6 +316,7 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
       <button data-page="comparacion" class="studentNav" onclick="showPage('comparacion',this)">📈 Comparación Mensual</button>
       <button data-page="publicChat" class="studentNav" onclick="showPage('publicChat',this)">🌍 Chat Público</button>
       <button data-page="newsProPage" class="studentNav" onclick="showPage('newsProPage',this)">📰 Noticias</button>
+      <button data-page="noloAIPage" class="studentNav" onclick="showPage('noloAIPage',this)">🤖 Nolo IA</button>
       <button data-page="admin" class="adminNav hidden" onclick="showPage('admin',this)">⚙️ Admin</button>
       <button data-page="adminChat" class="adminNav hidden" onclick="showPage('adminChat',this)">💬 Chat Live <span id="adminChatBadge" class="adminUnread" style="display:none">0</span></button>
       <button onclick="logout()">🚪 Salir</button>
@@ -610,6 +611,62 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
       <div id="newsContainer" class="newsGrid"></div>
     </section>
 
+
+    <section id="noloAIPage" class="page hidden">
+      <div class="noloHero card">
+        <div>
+          <span class="noloKicker">NOLO IA PRO</span>
+          <h2>🤖 Nolo IA — Mentor inteligente</h2>
+          <p>Chat privado con memoria, análisis de noticias y límite diario de 30 mensajes por estudiante.</p>
+        </div>
+        <div class="noloHeroActions">
+          <button class="btn secondary" type="button" onclick="loadNoloHistory(true)">↻ Cargar memoria</button>
+          <button class="btn secondary" type="button" onclick="askNoloQuick('Analiza las noticias actuales y dime qué debo vigilar antes de operar')">📰 Analizar noticias</button>
+        </div>
+      </div>
+
+      <div class="noloLayout">
+        <div class="card noloChatCard">
+          <div class="noloChatHeader">
+            <div>
+              <h3>Chat privado</h3>
+              <p id="noloStatus">Tienes 30 mensajes disponibles hoy.</p>
+            </div>
+            <span id="noloLimitPill" class="noloLimitPill">30 / 30</span>
+          </div>
+
+          <div id="noloMessages" class="noloMessages">
+            <div class="noloBubble ai">
+              <b>Nolo IA</b>
+              <p>Estoy listo. Pregúntame por noticias, oro, USD, disciplina, análisis de trade o qué vigilar antes de operar.</p>
+              <small>Mentor IA</small>
+            </div>
+          </div>
+
+          <div class="noloQuickBtns">
+            <button type="button" onclick="askNoloQuick('Analiza las noticias actuales')">Analiza noticias</button>
+            <button type="button" onclick="askNoloQuick('Cómo afecta esto al oro XAUUSD')">Oro / XAUUSD</button>
+            <button type="button" onclick="askNoloQuick('Qué impacto tiene en USD hoy')">USD</button>
+            <button type="button" onclick="askNoloQuick('Dame disciplina antes de entrar a una operación')">Disciplina</button>
+          </div>
+
+          <div class="noloComposer">
+            <textarea id="noloInput" placeholder="Escribe a Nolo IA..." onkeydown="handleNoloEnter(event)"></textarea>
+            <button id="noloSendBtn" class="btn" type="button" onclick="sendNoloMessage()">Enviar</button>
+          </div>
+        </div>
+
+        <div class="card noloSideCard">
+          <h3>🧠 Memoria del mentor</h3>
+          <p>Nolo IA recuerda el contexto reciente de tu conversación y usa las noticias cargadas en el portal para darte una lectura más clara.</p>
+          <div class="noloInfoBox"><b>Límite diario</b><span>30 mensajes por estudiante</span></div>
+          <div class="noloInfoBox"><b>Noticias</b><span>Usa el feed de la pestaña Noticias</span></div>
+          <div class="noloInfoBox"><b>Privado</b><span>Cada estudiante ve su propio historial</span></div>
+          <a class="btn secondary full" href="https://www.forexfactory.com/calendar" target="_blank" rel="noopener noreferrer">📅 Abrir Forex Factory</a>
+        </div>
+      </div>
+    </section>
+
 <section id="admin" class="page hidden">
       <div class="adminHero">
         <div class="adminHeroTop">
@@ -731,6 +788,7 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
       <button type="button" onclick="mobileGo('historial', this)"><span>▤</span><small>Historial</small></button>
       <button type="button" onclick="mobileGo('comparacion', this)"><span>↗</span><small>Reporte</small></button>
       <button type="button" onclick="mobileGo('newsProPage', this)"><span>📰</span><small>Noticias</small></button>
+      <button type="button" onclick="mobileGo('noloAIPage', this)"><span>🤖</span><small>Nolo IA</small></button>
       <button type="button" onclick="mobileOpenAccount(this)"><span>◉</span><small>Cuenta</small></button>
     </nav>
 
