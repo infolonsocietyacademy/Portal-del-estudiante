@@ -3050,6 +3050,7 @@ window.currentNewsCategory = currentNewsCategory;
       }
 
       const list = Array.isArray(data) ? data.filter(n => n && n.headline && n.url) : [];
+      window.olonLatestNewsList = list;
       if(status) status.textContent = `${list.length} noticias cargadas · ${newsCategory.toUpperCase()}`;
 
       if(!list.length){
@@ -3123,4 +3124,48 @@ window.currentNewsCategory = currentNewsCategory;
 
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", installNewsHardFix);
   else installNewsHardFix();
+})();
+
+/* ===== OLON AI MENTOR - MARKET NEWS ASSISTANT ===== */
+(function(){
+  function esc(v){ return String(v || "").replace(/[&<>\"']/g, function(m){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]; }); }
+  function stripHtml(s){ const div=document.createElement("div"); div.innerHTML=String(s||""); return div.textContent||div.innerText||""; }
+  function normalize(s){ return String(s||"").toLowerCase(); }
+  function getLatestNewsText(){ const list=Array.isArray(window.olonLatestNewsList)?window.olonLatestNewsList:[]; return list.slice(0,6).map(n => (n.headline||"") + " " + stripHtml(n.summary||"")).join(" "); }
+  function analyzeImpact(text){
+    const t=normalize(text); let impact="Bajo", asset="Mercado general", bias="Neutral", reason="La noticia no muestra una señal macro fuerte todavía.";
+    const high=["fed","fomc","rate","rates","interest","inflation","cpi","ppi","nfp","payroll","unemployment","jobs","gdp","tariff","war","oil","yields","powell","central bank"];
+    const med=["growth","deficit","budget","retail sales","pmi","manufacturing","services","consumer","confidence","housing"];
+    if(high.some(w=>t.includes(w))) impact="Alto"; else if(med.some(w=>t.includes(w))) impact="Medio";
+    if(t.includes("gold")||t.includes("xau")) asset="Oro / XAUUSD";
+    else if(t.includes("dollar")||t.includes("usd")||t.includes("fed")||t.includes("yields")) asset="USD / Pares Forex / Oro";
+    else if(t.includes("bitcoin")||t.includes("crypto")||t.includes("btc")) asset="Crypto";
+    else if(t.includes("oil")||t.includes("crude")) asset="Petróleo / CAD / Inflación";
+    else if(t.includes("canada")||t.includes("cad")) asset="CAD / USD-CAD";
+    else if(t.includes("euro")||t.includes("ecb")||t.includes("eur")) asset="EUR";
+    else if(t.includes("japan")||t.includes("boj")||t.includes("yen")||t.includes("jpy")) asset="JPY";
+    if(t.includes("higher inflation")||t.includes("hot inflation")||t.includes("rates rise")||t.includes("hawkish")||t.includes("strong dollar")||t.includes("yields rise")){ bias="USD fuerte / Oro con presión bajista"; reason="Datos fuertes o tasas altas suelen fortalecer el USD y presionar el oro."; }
+    else if(t.includes("weak")||t.includes("slower growth")||t.includes("growth forecasts")||t.includes("cut rates")||t.includes("dovish")||t.includes("deficit")){ bias="Volatilidad / posible presión sobre la moneda afectada"; reason="Crecimiento débil o tono dovish puede mover fuerte divisas y metales."; }
+    else if(t.includes("bitcoin")||t.includes("crypto")){ bias="Volatilidad en crypto"; reason="Noticias crypto suelen aumentar volatilidad, especialmente en BTC."; }
+    return {impact,asset,bias,reason};
+  }
+  function aiResponse(question){
+    const q=normalize(question); const a=analyzeImpact(q+" "+getLatestNewsText());
+    if(q.includes("resumen")||q.includes("noticia")||q.includes("analiza")||q.includes("impacto")) return `Análisis rápido:\n⚠️ Impacto: ${a.impact}\n🎯 Activo sensible: ${a.asset}\n📊 Bias: ${a.bias}\n\n${a.reason}\n\nEspera confirmación técnica antes de operar.`;
+    if(q.includes("oro")||q.includes("xau")) return `Para Oro / XAUUSD:\n⚠️ Impacto actual: ${a.impact}\n📊 Lectura: ${a.bias}\n\nLo más importante para oro ahora mismo es USD, tasas, inflación y rendimientos. Espera reacción en el chart antes de tomar entrada.`;
+    if(q.includes("usd")||q.includes("dolar")||q.includes("dollar")) return `Para USD:\n⚠️ Impacto: ${a.impact}\n🎯 Zona sensible: noticias de tasas, inflación, empleo y crecimiento.\n\nSi USD se fortalece, puede presionar oro y mover pares mayores.`;
+    if(q.includes("forex factory")||q.includes("calendario")) return `Puedes usar el botón “Forex Factory” en Market Intelligence para revisar eventos de calendario. Enfócate en noticias rojas y datos de USD si operas oro o pares mayores.`;
+    return `Estoy listo para ayudarte con noticias del mercado. Pregúntame: “analiza las noticias”, “cómo afecta al oro”, “qué impacto tiene en USD” o “qué debo vigilar antes de operar”.`;
+  }
+  function addMsg(role,text){ const box=document.getElementById("aiMentorMessages"); if(!box)return; const div=document.createElement("div"); div.className=`aiMentorMsg ${role}`; div.innerHTML=`<div>${esc(text).replace(/\n/g,"<br>")}</div>`; box.appendChild(div); box.scrollTop=box.scrollHeight; }
+  function ensureAI(){
+    if(document.getElementById("aiMentorBtn")) return;
+    const btn=document.createElement("button"); btn.id="aiMentorBtn"; btn.type="button"; btn.innerHTML="🤖<span>AI Mentor</span>"; btn.onclick=window.toggleAIMentor; document.body.appendChild(btn);
+    const panel=document.createElement("div"); panel.id="aiMentorPanel"; panel.className="aiMentorPanel hidden"; panel.innerHTML=`<div class="aiMentorHeader"><div><b>AI Mentor</b><small>Analiza noticias y mercado</small></div><button type="button" onclick="toggleAIMentor()">✕</button></div><div id="aiMentorMessages" class="aiMentorMessages"><div class="aiMentorMsg bot"><div>Estoy listo. Pregúntame por noticias, oro, USD, crypto o impacto de mercado.</div></div></div><div class="aiMentorQuick"><button type="button" onclick="askAIMentor('Analiza las noticias actuales')">Analiza noticias</button><button type="button" onclick="askAIMentor('Cómo afecta al oro XAUUSD')">Oro</button><button type="button" onclick="askAIMentor('Qué impacto tiene en USD')">USD</button></div><div class="aiMentorInput"><input id="aiMentorInput" placeholder="Pregunta al AI Mentor..." onkeydown="if(event.key==='Enter') sendAIMentor()"><button type="button" onclick="sendAIMentor()">Enviar</button></div>`; document.body.appendChild(panel);
+  }
+  window.toggleAIMentor=function(){ ensureAI(); document.getElementById("aiMentorPanel")?.classList.toggle("hidden"); };
+  window.openAIMentorWithNews=function(){ ensureAI(); document.getElementById("aiMentorPanel")?.classList.remove("hidden"); setTimeout(function(){ window.askAIMentor("Analiza las noticias actuales"); },120); };
+  window.askAIMentor=function(text){ ensureAI(); addMsg("user",text); setTimeout(function(){ addMsg("bot",aiResponse(text)); },250); };
+  window.sendAIMentor=function(){ ensureAI(); const input=document.getElementById("aiMentorInput"); const text=(input?.value||"").trim(); if(!text)return; input.value=""; window.askAIMentor(text); };
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",ensureAI); else ensureAI();
 })();
