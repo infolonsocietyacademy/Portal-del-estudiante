@@ -195,7 +195,7 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
         <div class="authStats">
           <div class="authStat"><b id="authActiveStudents">0</b><small>Estudiantes<br>Activos</small></div>
           <div class="authStat"><b id="authTradesRegistered">+0</b><small>Trades<br>Registrados</small></div>
-          <div class="authStat"><b>98%</b><small>Enfoque en<br>Disciplina</small></div>
+          <div class="authStat"><b id="authDisciplinePercent">0%</b><small>Enfoque en<br>Disciplina</small></div>
         </div>
 
         <div class="authQuote">
@@ -228,6 +228,11 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
 
         <h2>¡Bienvenido de vuelta!</h2>
         <p>Inicia sesión para continuar en tu portal.</p>
+        <div class="loginPremiumVerse">
+          <small>Versículo del día</small>
+          <p id="loginDailyVerse">Cargando versículo...</p>
+        </div>
+
         <div class="field"><label>Código de acceso</label><input id="loginCode" placeholder="Ej: OLON-12345" autocomplete="username"></div>
         <div class="field"><label>Password</label><input id="loginPass" type="password" placeholder="Tu password" autocomplete="current-password"></div>
         <button id="loginSubmitBtn" class="btn full" type="button" onclick="login()">Entrar al Portal →</button>
