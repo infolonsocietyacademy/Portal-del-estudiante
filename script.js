@@ -2931,3 +2931,196 @@ window.currentNewsCategory = currentNewsCategory;
     }
   };
 })();
+
+/* ===== OLON NEWS HARD FIX V2 - QUICK WORKER VERIFIED ===== */
+(function(){
+  const NEWS_URL = "https://bffojtcojnsvzxzwbdes.supabase.co/functions/v1/quick-worker";
+  let newsCategory = "forex";
+  let installed = false;
+
+  function esc(v){
+    return String(v || "").replace(/[&<>\"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
+  }
+
+  function ensureNewsPage(){
+    const main = document.querySelector("main.main") || document.querySelector("#portal .main");
+    if(!main) return;
+
+    let page = document.getElementById("newsProPage");
+    if(!page){
+      page = document.createElement("section");
+      page.id = "newsProPage";
+      page.className = "page hidden";
+      main.appendChild(page);
+    }
+
+    page.innerHTML = `
+      <div class="marketNewsHero card">
+        <div>
+          <span class="newsKicker">FINNHUB LIVE FEED</span>
+          <h2>📰 Noticias del Mercado</h2>
+          <p>Noticias en vivo conectadas a Supabase mediante <b>quick-worker</b>.</p>
+        </div>
+        <button class="btn secondary" type="button" onclick="loadNews(window.currentNewsCategory || 'forex', true)">↻ Actualizar</button>
+      </div>
+      <div class="newsProToolbar card">
+        <div class="newsFilters">
+          <button class="newsFilterBtn active" type="button" data-news-category="forex" onclick="loadNews('forex', true)">💱 Forex</button>
+          <button class="newsFilterBtn" type="button" data-news-category="crypto" onclick="loadNews('crypto', true)">🪙 Crypto</button>
+          <button class="newsFilterBtn" type="button" data-news-category="general" onclick="loadNews('general', true)">🌎 General</button>
+        </div>
+        <div class="newsSearchBox">
+          <input id="newsSearchInput" type="search" placeholder="Buscar: gold, USD, bitcoin..." oninput="filterNewsCards()">
+        </div>
+      </div>
+      <div id="newsStatus" class="newsStatus">Listo para cargar noticias.</div>
+      <div id="newsContainer" class="newsGrid"></div>
+    `;
+  }
+
+  function ensureNewsButtons(){
+    const nav = document.querySelector(".sidebar .nav") || document.querySelector(".nav");
+    if(nav && !nav.querySelector('[data-page="newsProPage"], .olonNewsNavBtn')){
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "studentNav olonNewsNavBtn";
+      btn.setAttribute("data-page", "newsProPage");
+      btn.innerHTML = "📰 Noticias";
+      btn.onclick = function(){ window.showPage("newsProPage", btn); };
+      const logout = Array.from(nav.children).find(x => String(x.textContent || "").includes("Salir"));
+      if(logout) nav.insertBefore(btn, logout); else nav.appendChild(btn);
+    }
+
+    const bottom = document.querySelector(".mobileBottomNav");
+    if(bottom && !bottom.querySelector('[onclick*="newsProPage"], .olonNewsMobileBtn')){
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "olonNewsMobileBtn";
+      btn.innerHTML = "<span>📰</span><small>Noticias</small>";
+      btn.onclick = function(){ window.showPage("newsProPage", btn); };
+      bottom.appendChild(btn);
+    }
+  }
+
+  function setActiveNewsButton(category){
+    document.querySelectorAll(".newsFilterBtn").forEach(btn=>{
+      btn.classList.toggle("active", btn.getAttribute("data-news-category") === category);
+    });
+  }
+
+  function formatDate(ts){
+    try{
+      return new Date(Number(ts) * 1000).toLocaleString("es-PR", {month:"short", day:"numeric", hour:"numeric", minute:"2-digit"});
+    }catch(e){ return "Ahora"; }
+  }
+
+  function stripHtml(s){
+    const div = document.createElement("div");
+    div.innerHTML = String(s || "");
+    return div.textContent || div.innerText || "";
+  }
+
+  window.filterNewsCards = function(){
+    const q = (document.getElementById("newsSearchInput")?.value || "").trim().toLowerCase();
+    document.querySelectorAll(".newsCard").forEach(card=>{
+      const text = card.getAttribute("data-news-text") || "";
+      card.style.display = !q || text.includes(q) ? "" : "none";
+    });
+  };
+
+  window.loadNews = async function(category = "forex", force = false){
+    ensureNewsPage();
+    newsCategory = category || "forex";
+    window.currentNewsCategory = newsCategory;
+    setActiveNewsButton(newsCategory);
+
+    const container = document.getElementById("newsContainer");
+    const status = document.getElementById("newsStatus");
+    if(!container) return;
+
+    container.innerHTML = `<div class="newsLoading">Cargando noticias desde quick-worker...</div>`;
+    if(status) status.textContent = "Conectando con Finnhub vía Supabase...";
+
+    try{
+      const response = await fetch(`${NEWS_URL}?category=${encodeURIComponent(newsCategory)}&t=${Date.now()}`, { cache:"no-store" });
+      const data = await response.json();
+
+      if(!response.ok || data?.error){
+        throw new Error(data?.error || `HTTP ${response.status}`);
+      }
+
+      const list = Array.isArray(data) ? data.filter(n => n && n.headline && n.url) : [];
+      if(status) status.textContent = `${list.length} noticias cargadas · ${newsCategory.toUpperCase()}`;
+
+      if(!list.length){
+        container.innerHTML = `<div class="newsEmpty">La función respondió, pero no llegaron noticias. Prueba General o Crypto.</div>`;
+        return;
+      }
+
+      container.innerHTML = list.slice(0, 24).map(n=>{
+        const source = esc(n.source || "Market News");
+        const headline = esc(n.headline || "Noticia del mercado");
+        const summaryRaw = stripHtml(n.summary || "Abre la noticia para leer más detalles.");
+        const summary = esc(summaryRaw.length > 145 ? summaryRaw.slice(0,145) + "..." : summaryRaw);
+        const img = esc(n.image || "https://placehold.co/700x420/070b16/f6c453?text=OLON+Market+News");
+        const url = esc(n.url || "#");
+        const date = esc(formatDate(n.datetime));
+        const dataText = esc(`${source} ${headline} ${summary}`.toLowerCase());
+        return `
+          <article class="newsCard" data-news-text="${dataText}">
+            <div class="newsImageWrap"><img src="${img}" alt="${headline}" loading="lazy" onerror="this.src='https://placehold.co/700x420/070b16/f6c453?text=OLON+Market+News'"></div>
+            <div class="newsContent">
+              <div class="newsMeta"><span class="newsSource">${source}</span><span>${date}</span></div>
+              <h4>${headline}</h4>
+              <p>${summary}</p>
+              <a href="${url}" target="_blank" rel="noopener noreferrer">Leer más →</a>
+            </div>
+          </article>`;
+      }).join("");
+      window.filterNewsCards();
+    }catch(err){
+      console.error("OLON News quick-worker error", err);
+      if(status) status.textContent = "Error conectando noticias.";
+      container.innerHTML = `<div class="newsError"><b>Error de conexión de noticias.</b><br>La función quick-worker sí debe abrir en Safari. Si abre allá, sube este ZIP completo y limpia caché con <b>index.html?v=10</b>.<br><small>${esc(err.message)}</small></div>`;
+    }
+  };
+
+  function localShowPage(id, btn){
+    document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
+    const page = document.getElementById(id);
+    if(page) page.classList.remove("hidden");
+    document.querySelectorAll(".nav button,.mobileBottomNav button").forEach(b => b.classList.remove("active"));
+    if(btn) btn.classList.add("active");
+    if(id === "newsProPage"){
+      const title = document.getElementById("pageTitle");
+      const sub = document.getElementById("pageSubtitle");
+      if(title) title.textContent = "Noticias del Mercado";
+      if(sub) sub.textContent = "Feed en vivo conectado a Finnhub por Supabase.";
+      setTimeout(()=>window.loadNews(window.currentNewsCategory || "forex", true), 80);
+    }
+  }
+
+  function installNewsHardFix(){
+    if(installed) return;
+    installed = true;
+    ensureNewsPage();
+    ensureNewsButtons();
+
+    const originalShowPage = window.showPage;
+    window.showPage = function(id, btn){
+      if(id === "newsProPage"){
+        ensureNewsPage();
+        ensureNewsButtons();
+        localShowPage(id, btn);
+        return;
+      }
+      if(typeof originalShowPage === "function") return originalShowPage(id, btn);
+      localShowPage(id, btn);
+    };
+
+    window.mobileGo = function(id, btn){ window.showPage(id, btn); };
+  }
+
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", installNewsHardFix);
+  else installNewsHardFix();
+})();
