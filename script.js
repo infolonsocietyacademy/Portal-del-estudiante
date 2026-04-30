@@ -827,14 +827,14 @@ function updatePortalWelcome(){
   // Topbar principal: evita duplicar el saludo.
   const pageTitle = document.getElementById("pageTitle");
   if(pageTitle){
-    pageTitle.innerText = adminView ? "OLON Admin Command" : "OLON Trader Command";
+    pageTitle.innerText = adminView ? "Panel Admin Profesional" : "OLON Command Center";
   }
 
   const pageSubtitle = document.getElementById("pageSubtitle");
   if(pageSubtitle){
     pageSubtitle.innerText = adminView
-      ? "Command Center para gestionar estudiantes, accesos y rendimiento."
-      : "Centro privado para medir rendimiento, disciplina y progreso del trader.";
+      ? "Panel administrativo listo para gestionar estudiantes."
+      : "Control privado de rendimiento, disciplina, reportes y progreso del trader.";
   }
 
   const welcomeCard = document.getElementById("portalWelcomeCard");
@@ -846,7 +846,7 @@ function updatePortalWelcome(){
 
   const welcomeSub = document.getElementById("portalWelcomeSub");
   if(welcomeSub){
-    welcomeSub.innerText = "Tu centro profesional de control, disciplina y rendimiento.";
+    welcomeSub.innerText = "OLON Command Center";
   }
 }
 
@@ -995,7 +995,7 @@ async function enterPortal(){
   const portal = $("portal");
   if(portal) portal.classList.add("portalReady");
 
-  setTextSafe("portalMode", admin ? "Executive Command" : "Private Trading Portal");
+  setTextSafe("portalMode", admin ? "Admin Portal" : "Student Portal");
   document.querySelectorAll(".studentNav").forEach(el => el.classList.toggle("hidden", admin));
   document.querySelectorAll(".adminNav").forEach(el => el.classList.toggle("hidden", !admin));
   document.querySelectorAll(".studentOnly").forEach(el => el.classList.toggle("hidden", admin));
@@ -1315,9 +1315,9 @@ async function renderStudentRanking(){
 
 let currentReportView = "weekly";
 const reportViewConfig = {
-  weekly:{title:"Reporte Semanal", subtitle:"Resumen de tu rendimiento de esta semana.", badge:"Vista Semanal", label:"semanal"},
-  monthly:{title:"Reporte Mensual", subtitle:"Resumen de tu rendimiento del mes actual.", badge:"Vista Mensual", label:"mensual"},
-  ytd:{title:"Reporte YTD", subtitle:"Resumen acumulado desde el inicio del año.", badge:"Year To Date", label:"YTD"}
+  weekly:{title:"Reporte Semanal Premium", subtitle:"Resumen ejecutivo de tu rendimiento de esta semana.", badge:"Vista Semanal", label:"semanal"},
+  monthly:{title:"Reporte Mensual Premium", subtitle:"Resumen ejecutivo de tu rendimiento del mes actual.", badge:"Vista Mensual", label:"mensual"},
+  ytd:{title:"Reporte YTD Premium", subtitle:"Resumen acumulado profesional desde el inicio del año.", badge:"Year To Date", label:"YTD"}
 };
 
 function getSelectedReportRecords(){
@@ -1349,6 +1349,47 @@ function renderSelectedReport(){
   if(box) box.innerHTML = reportHTML(records, cfg.label);
 }
 
+function getPortalLogoSrc(){
+  const selectors = [
+    ".brand img",
+    ".authLogo",
+    ".loaderLogo",
+    ".portalEnterLogo img",
+    "img[alt*='OLON']",
+    "link[rel='apple-touch-icon']",
+    "link[rel='icon']"
+  ];
+
+  for(const selector of selectors){
+    const el = document.querySelector(selector);
+    const raw = el?.tagName?.toLowerCase() === "link" ? el.getAttribute("href") : (el?.getAttribute("src") || el?.src);
+    if(raw){
+      try{
+        return new URL(raw, window.location.href).href;
+      }catch(e){
+        return raw;
+      }
+    }
+  }
+
+  return new URL("./assets/logo.png", window.location.href).href;
+}
+
+function waitForPDFImages(container){
+  const imgs = Array.from(container.querySelectorAll("img"));
+  if(!imgs.length) return Promise.resolve();
+
+  return Promise.all(imgs.map(img => new Promise(resolve => {
+    if(img.complete && img.naturalWidth > 0) return resolve();
+    img.onload = () => resolve();
+    img.onerror = () => {
+      img.classList.add("pdfImgMissing");
+      resolve();
+    };
+    setTimeout(resolve, 1800);
+  })));
+}
+
 function buildPDFReportHTML(){
   const cfg = reportViewConfig[currentReportView] || reportViewConfig.weekly;
   const records = getSelectedReportRecords();
@@ -1358,38 +1399,81 @@ function buildPDFReportHTML(){
   const student = currentUser?.full_name || document.getElementById("studentName")?.innerText || "Estudiante";
   const plan = currentUser?.plan || document.getElementById("planBadge")?.innerText || "VIP";
   const today = new Date().toLocaleDateString("es-PR", {year:"numeric", month:"long", day:"numeric"});
+  const netClass = Number(t.net || 0) >= 0 ? "positive" : "negative";
+  const growthClass = Number(t.growth || 0) >= 0 ? "positive" : "negative";
+  const avgNet = records.length ? Number(t.net || 0) / records.length : 0;
+  const logoSrc = getPortalLogoSrc();
+  const summary = Number(t.net || 0) >= 0 ? "Rendimiento positivo durante el periodo seleccionado. Mantén la disciplina, controla el riesgo y protege el capital." : "Periodo de ajuste. Revisa gestión de riesgo, calidad de entradas y consistencia antes de aumentar exposición.";
 
   return `
-    <div class="pdfReport" id="pdfReportCapture">
-      <div class="pdfReportHeader">
-        <small>OLON Society Academy</small>
-        <h1>${cfg.title}</h1>
-        <p>Reporte profesional generado para ${student} · ${today}</p>
+    <div class="pdfReport pdfReportPremium" id="pdfReportCapture">
+      <div class="pdfWatermark">OLON</div>
+
+      <div class="pdfPremiumHeader">
+        <div class="pdfBrandBlock">
+          <div class="pdfLogoMark pdfLogoWrap">
+            <img class="pdfLogoImg" src="${logoSrc}" crossorigin="anonymous" alt="OLON Society Academy Logo">
+            <span class="pdfLogoFallback">OS</span>
+          </div>
+          <div>
+            <small>OLON Society Academy</small>
+            <h1>${cfg.title}</h1>
+            <p>Private Trading Education Portal · ${today}</p>
+          </div>
+        </div>
+        <div class="pdfStatusBadge">${cfg.badge}</div>
       </div>
 
-      <div class="pdfMeta">
-        <div class="pdfMetaBox"><span>Trader</span><b>${student}</b></div>
-        <div class="pdfMetaBox"><span>Plan</span><b>${plan}</b></div>
-        <div class="pdfMetaBox"><span>Balance actual</span><b>${money(t.balance)}</b></div>
-        <div class="pdfMetaBox"><span>Rendimiento</span><b>${pct(t.growth)}</b></div>
+      <div class="pdfStudentPanel">
+        <div><span>Trader</span><b>${student}</b></div>
+        <div><span>Plan</span><b>${plan}</b></div>
+        <div><span>Periodo</span><b>${cfg.label.toUpperCase()}</b></div>
       </div>
 
-      <div class="pdfRows">
-        <div class="pdfRow"><span>Neto ${cfg.label}</span><b>${money(t.net)}</b></div>
-        <div class="pdfRow"><span>Total depositado</span><b>${money(t.deposit)}</b></div>
-        <div class="pdfRow"><span>Total ganado</span><b>${money(t.gain)}</b></div>
-        <div class="pdfRow"><span>Total perdido</span><b>${money(t.loss)}</b></div>
-        <div class="pdfRow"><span>Winrate</span><b>${pct(wr.winrate)}</b></div>
-        <div class="pdfRow"><span>Wins / Losses</span><b>${wr.wins} / ${wr.losses}</b></div>
-        <div class="pdfRow"><span>Mejor día</span><b>${money(bw.best)}</b></div>
-        <div class="pdfRow"><span>Peor día</span><b>${money(bw.worst)}</b></div>
-        <div class="pdfRow"><span>Días registrados</span><b>${records.length}</b></div>
+      <div class="pdfExecutiveGrid">
+        <div class="pdfKpi main ${netClass}"><span>Neto</span><b>${money(t.net)}</b><small>Ganancia - pérdida</small></div>
+        <div class="pdfKpi"><span>Balance actual</span><b>${money(t.balance)}</b><small>Depósito + neto</small></div>
+        <div class="pdfKpi ${growthClass}"><span>Rendimiento</span><b>${pct(t.growth)}</b><small>Neto ÷ depósito</small></div>
+        <div class="pdfKpi"><span>Winrate</span><b>${pct(wr.winrate)}</b><small>${wr.wins} wins / ${wr.losses} losses</small></div>
       </div>
 
-      <div class="pdfFooter">Documento generado automáticamente desde el Portal del Estudiante · OLON Society Academy</div>
+      <div class="pdfSectionTitle">Resumen ejecutivo</div>
+      <div class="pdfSummaryBox">${summary}</div>
+
+      <div class="pdfTwoColumns">
+        <div class="pdfColumnCard">
+          <h3>Capital y resultados</h3>
+          <div class="pdfRow"><span>Total depositado</span><b>${money(t.deposit)}</b></div>
+          <div class="pdfRow"><span>Total ganado</span><b>${money(t.gain)}</b></div>
+          <div class="pdfRow"><span>Total perdido</span><b>${money(t.loss)}</b></div>
+          <div class="pdfRow"><span>Promedio neto por día</span><b>${money(avgNet)}</b></div>
+        </div>
+
+        <div class="pdfColumnCard">
+          <h3>Disciplina y consistencia</h3>
+          <div class="pdfRow"><span>Días registrados</span><b>${records.length}</b></div>
+          <div class="pdfRow"><span>Mejor día</span><b>${money(bw.best)}</b></div>
+          <div class="pdfRow"><span>Peor día</span><b>${money(bw.worst)}</b></div>
+          <div class="pdfRow"><span>Wins / Losses</span><b>${wr.wins} / ${wr.losses}</b></div>
+        </div>
+      </div>
+
+      <div class="pdfSignature">
+        <div class="pdfSignatureBrand">
+          <img src="${logoSrc}" crossorigin="anonymous" alt="OLON Society Academy Logo">
+          <div>
+            <b>OLON Society Academy</b>
+            <span>Control · Disciplina · Progreso</span>
+          </div>
+        </div>
+
+        <div class="pdfSignatureRight">
+          <div class="pdfSignatureLine">OLON Society Academy</div>
+          <small>Documento educativo generado automáticamente desde el portal del estudiante.</small>
+        </div>
+      </div>
     </div>`;
 }
-
 async function downloadSelectedReportPDF(){
   const cfg = reportViewConfig[currentReportView] || reportViewConfig.weekly;
   const holder = document.createElement("div");
@@ -1402,7 +1486,8 @@ async function downloadSelectedReportPDF(){
   try{
     if(window.html2canvas && window.jspdf?.jsPDF){
       const target = holder.querySelector("#pdfReportCapture");
-      const canvas = await html2canvas(target, {scale:2, backgroundColor:"#ffffff", useCORS:true});
+      await waitForPDFImages(target);
+      const canvas = await html2canvas(target, {scale:2, backgroundColor:"#ffffff", useCORS:true, allowTaint:false});
       const imgData = canvas.toDataURL("image/png");
       const pdf = new window.jspdf.jsPDF("p", "pt", "a4");
       const pageW = pdf.internal.pageSize.getWidth();
@@ -1996,7 +2081,7 @@ if(typeof olonOriginalRenderAdminTable === 'function'){
     safeText('planBadge', role === 'admin' || clean(currentUser.plan).toLowerCase().includes('premium') ? '💎 VIP PREMIUM' : '🔥 VIP REGULAR');
     safeText('accessStatus', (currentUser.plan || (role === 'admin' ? 'Admin' : 'VIP Regular')) + ' Activo');
     safeText('paymentDate', ': ' + (currentUser.next_payment_date || 'No asignado'));
-    safeText('portalMode', role === 'admin' ? 'Executive Command' : 'Private Trading Portal');
+    safeText('portalMode', role === 'admin' ? 'Admin Portal' : 'Student Portal');
 
     safeHide('auth');
     safeHide('codeResult');
@@ -2011,8 +2096,8 @@ if(typeof olonOriginalRenderAdminTable === 'function'){
     document.querySelectorAll('.studentOnly').forEach(el => el.classList.toggle('hidden', isAdmin));
 
     forcePage(isAdmin ? 'admin' : 'dashboard');
-    safeText('pageTitle', isAdmin ? 'OLON Admin Command' : 'OLON Trader Command');
-    safeText('pageSubtitle', isAdmin ? 'Command Center para gestionar estudiantes, accesos y rendimiento.' : 'Centro privado para medir rendimiento, disciplina y progreso del trader.');
+    safeText('pageTitle', isAdmin ? 'Panel Admin Profesional' : 'OLON Command Center');
+    safeText('pageSubtitle', isAdmin ? 'Panel administrativo listo para gestionar estudiantes.' : 'Control privado de rendimiento, disciplina, reportes y progreso del trader.');
     if(!isAdmin) safeText('portalWelcomeText', 'Hola, ' + (currentUser.full_name || 'Estudiante'));
 
     setTimeout(async () => {
@@ -2134,9 +2219,9 @@ if(typeof olonOriginalRenderAdminTable === 'function'){
     txt('planBadge', isAdmin || clean(currentUser.plan).toLowerCase().includes('premium') ? '💎 VIP PREMIUM' : '🔥 VIP REGULAR');
     txt('accessStatus', (currentUser.plan || (isAdmin ? 'Admin' : 'VIP Regular')) + ' Activo');
     txt('paymentDate', ': ' + (currentUser.next_payment_date || 'No asignado'));
-    txt('portalMode', isAdmin ? 'Executive Command' : 'Private Trading Portal');
-    txt('pageTitle', isAdmin ? 'OLON Admin Command' : 'OLON Trader Command');
-    txt('pageSubtitle', isAdmin ? 'Command Center para gestionar estudiantes, accesos y rendimiento.' : 'Centro privado para medir rendimiento, disciplina y progreso del trader.');
+    txt('portalMode', isAdmin ? 'Admin Portal' : 'Student Portal');
+    txt('pageTitle', isAdmin ? 'Panel Admin Profesional' : 'OLON Command Center');
+    txt('pageSubtitle', isAdmin ? 'Panel administrativo listo para gestionar estudiantes.' : 'Control privado de rendimiento, disciplina, reportes y progreso del trader.');
     txt('portalWelcomeText', 'Hola, ' + (currentUser.full_name || 'Estudiante'));
 
     hide('auth');
@@ -2263,7 +2348,7 @@ if(typeof olonOriginalRenderAdminTable === 'function'){
   function clean(t){ return String(t||"").replace(/[^\wÁÉÍÓÚáéíóúñÑ# ]/g,"").replace(/\s+/g," ").trim(); }
 
   const subtitles = {
-    dashboard:"Centro privado para medir rendimiento, disciplina y progreso del trader.",
+    dashboard:"Control privado de rendimiento, disciplina, reportes y progreso del trader.",
     registro:"Registra depósito, ganancia, pérdida y notas del día.",
     historial:"Consulta tu historial individual.",
     comparacion:"Compara tu mes actual con el mes anterior.",

@@ -11,7 +11,7 @@
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>OLON Society Academy | Portal del Estudiante</title>
+<title>OLON Society Academy | Private Trading Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -309,8 +309,8 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
     <div class="brand">
       <img src="./assets/logo.png" alt="OLON Society Academy" style="width:70px;">
       <div>
-        <h1>OLON Society Academy</h1>
-        <span id="portalMode">Private Trading Portal</span>
+        <h1>OLON Society</h1>
+        <span id="portalMode">Student Portal</span>
       </div>
     </div>
 
@@ -339,8 +339,8 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
   <main class="main">
     <div class="topbar">
       <div>
-        <h2 id="pageTitle" class="premiumPageTitle">OLON Trader Command</h2>
-        <p id="pageSubtitle">Centro privado para medir rendimiento, disciplina y progreso del trader.</p>
+        <h2 id="pageTitle">OLON Command Center</h2>
+        <p id="pageSubtitle">Control privado de rendimiento, disciplina, reportes y progreso del trader.</p>
       </div>
       <div class="userPill">
         <div class="avatar" id="avatarText">E</div>
@@ -355,13 +355,22 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
     <section id="dashboard" class="page">
       <div id="portalWelcomeCard" class="card welcomeHeroCard">
         <div class="welcomeHeroContent">
-          <div class="welcomeKicker">👋 Acceso confirmado</div>
+          <div class="welcomeKicker">👑 Private Trading Portal</div>
           <h2 id="portalWelcomeText" class="welcomeTitle">Hola, Estudiante</h2>
-          <p id="portalWelcomeSub" class="welcomeSub">Tu centro profesional de control, disciplina y rendimiento.</p>
+          <p id="portalWelcomeSub" class="welcomeSub">Tu centro privado de disciplina, métricas y progreso profesional.</p>
         </div>
       </div>
 
-      <div class="proQuote" id="dailyQuote">🔥 La disciplina te paga lo que la emoción te quita.</div>
+
+      <div class="olonIdentityStrip">
+        <div>
+          <b>OLON Society Academy</b>
+          <span>Private Trading Education · Performance Tracking · Student Command Center</span>
+        </div>
+        <small>10/10 Brand System</small>
+      </div>
+
+      <div class="proQuote" id="dailyQuote">👑 Control, disciplina y progreso: la diferencia entre operar y construir consistencia.</div>
 
       <div class="v3Grid">
         <div class="card v3Card">
@@ -400,7 +409,7 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
             <option value="ytd">Reporte YTD</option>
           </select>
 
-          <button type="button" class="btn secondary" onclick="downloadSelectedReportPDF()">📄 Descargar PDF</button>
+          <button type="button" class="btn secondary" onclick="downloadSelectedReportPDF()">📄 Descargar Reporte Premium</button>
         </div>
 
         <div class="selectedReportHead">
@@ -900,7 +909,7 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
   function clean(t){ return String(t||"").replace(/[^\wÁÉÍÓÚáéíóúñÑ# ]/g,"").replace(/\s+/g," ").trim(); }
 
   const subtitles = {
-    dashboard:"Control manual privado de depósito, ganancia, pérdida y progreso.",
+    dashboard:"Control privado de rendimiento, disciplina, reportes y progreso del trader.",
     registro:"Registra depósito, ganancia, pérdida y notas del día.",
     historial:"Consulta tu historial individual.",
     comparacion:"Compara tu mes actual con el mes anterior.",
