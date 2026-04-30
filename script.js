@@ -3799,10 +3799,16 @@ setTimeout(function(){
 
     const gameCanvas = $('entGameCanvas');
     const g = gameCanvas.getContext('2d');
+
+    // Logo OLON dentro del Lamborghini. Si existe ./assets/logo.png, lo dibuja encima del carro.
+    const lamboLogo = new Image();
+    lamboLogo.src = './assets/logo.png';
+    let lamboLogoReady = false;
+    lamboLogo.onload = function(){ lamboLogoReady = true; };
     const scoreText = $('entScoreText');
     const bestText = $('entBestText');
-    const game = {running:false,over:false,score:0,best:Number(localStorage.getItem('olon_ent_flappy_best')||0),frame:0,bird:{x:92,y:250,w:72,h:34,r:14,vy:0},pipes:[],clouds:[],groundX:0,gravity:.17,jump:-4.45,pipeSpeed:1.05,pipeGap:235,pipeEvery:170};
-    if(bestText) bestText.textContent=game.best;
+    const game = {running:false,over:false,score:0,best:Number(localStorage.getItem('olon_ent_flappy_best')||0),frame:0,bird:{x:92,y:250,w:72,h:34,r:14,vy:0},pipes:[],clouds:[],groundX:0,gravity:.17,jump:-4.45,pipeSpeed:1.05,pipeGap:185,pipeEvery:150};
+    if(bestText) bestText.textContent='$' + (game.best * 0.25).toFixed(2);
     function roundedRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
     function drawCloud(x,y,s){g.save();g.translate(x,y);g.scale(s,s);g.fillStyle='rgba(255,255,255,.72)';g.beginPath();g.arc(0,8,18,0,Math.PI*2);g.arc(21,0,25,0,Math.PI*2);g.arc(52,10,18,0,Math.PI*2);g.rect(-3,8,58,18);g.fill();g.restore();}
     window.entDrawGame = function(){
@@ -3816,11 +3822,11 @@ setTimeout(function(){
           grad.addColorStop(0,'#16a34a'); grad.addColorStop(.5,'#22c55e'); grad.addColorStop(1,'#15803d');
           g.fillStyle=grad; roundedRect(g,x,y,w,h,12); g.fill();
           g.strokeStyle='rgba(255,255,255,.22)'; g.lineWidth=2;
-          for(let yy=y+14; yy<y+h-8; yy+=28){
-            roundedRect(g,x+8,yy,w-16,18,7); g.stroke();
+          for(let yy=y+10; yy<y+h-8; yy+=22){
+            roundedRect(g,x+6,yy,w-12,16,6); g.stroke();
             g.fillStyle='rgba(250,204,21,.82)';
             g.font='900 14px Inter, Arial'; g.textAlign='center';
-            if(yy > -10 && yy < H+10) g.fillText('$',x+w/2,yy+14);
+            if(yy > -10 && yy < H+10) g.fillText('$',x+w/2,yy+12);
             g.fillStyle=grad;
           }
           g.fillStyle='rgba(255,255,255,.18)'; g.fillRect(x+12,y+8,7,Math.max(0,h-16));
@@ -3876,6 +3882,23 @@ setTimeout(function(){
       g.fillStyle='rgba(2,6,23,.35)';
       g.fillRect(x+44,y+23,18,4);
 
+      // Logo en el Lamborghini
+      if(lamboLogoReady){
+        try{
+          g.save();
+          g.beginPath();
+          roundedRect(g,x+26,y+17,24,12,4);
+          g.clip();
+          g.drawImage(lamboLogo,x+26,y+17,24,12);
+          g.restore();
+        }catch(e){}
+      }else{
+        g.fillStyle='#020617';
+        g.font='900 8px Inter, Arial';
+        g.textAlign='center';
+        g.fillText('OLON',x+39,y+26);
+      }
+
       // luces
       g.fillStyle='#fde68a';
       g.beginPath(); g.ellipse(x+68,y+20,5,3,0,0,Math.PI*2); g.fill();
@@ -3898,13 +3921,13 @@ setTimeout(function(){
       if(!game.running) overlay(game.over?'GAME OVER':'LAMBO MONEY',game.over?'Toca para reiniciar':'Toca, espacio o botón para subir');
     };
     function overlay(title,sub){const W=gameCanvas.width;g.save();g.fillStyle='rgba(2,6,23,.52)';roundedRect(g,36,210,W-72,145,24);g.fill();g.strokeStyle='rgba(246,196,83,.32)';g.lineWidth=2;g.stroke();g.textAlign='center';g.fillStyle='#fff';g.font='900 30px Inter, Arial';g.fillText(title,W/2,265);g.fillStyle='#fde68a';g.font='800 15px Inter, Arial';g.fillText(sub,W/2,300);g.restore();}
-    function resetGame(){game.running=true;game.over=false;game.score=0;game.frame=0;game.bird={x:92,y:250,w:72,h:34,r:14,vy:0};game.pipes=[];game.clouds=[{x:40,y:90,s:1.1},{x:210,y:145,s:.85},{x:330,y:70,s:.7}];if(scoreText)scoreText.textContent='0';window.entDrawGame();}
+    function resetGame(){game.running=true;game.over=false;game.score=0;game.frame=0;game.bird={x:92,y:250,w:72,h:34,r:14,vy:0};game.pipes=[];game.clouds=[{x:40,y:90,s:1.1},{x:210,y:145,s:.85},{x:330,y:70,s:.7}];if(scoreText)scoreText.textContent='$0.00';window.entDrawGame();}
     function jump(){if(!$('entretenimiento') || $('entretenimiento').classList.contains('hidden')) return; if(!game.running||game.over){resetGame();return;} game.bird.vy=game.jump;}
     function spawnPipe(){const margin=80;const topH=margin+Math.random()*(gameCanvas.height-game.pipeGap-margin*2-110);game.pipes.push({x:gameCanvas.width+20,w:76,top:topH,bottom:topH+game.pipeGap,passed:false});}
     function hitTest(){const b=game.bird;const w=b.w||72,h=b.h||34;const left=b.x-w/2+6,right=b.x+w/2-6,top=b.y-h/2+4,bottom=b.y+h/2-2;if(top<0||bottom>gameCanvas.height-56)return true;for(const p of game.pipes){const withinX=right>p.x&&left<p.x+p.w;if(withinX&&(top<p.top||bottom>p.bottom))return true;}return false;}
-    function updateGame(){if(!game.running||game.over)return;game.frame++;game.groundX-=game.pipeSpeed;game.clouds.forEach(c=>{c.x-=.22*c.s;if(c.x<-90)c.x=gameCanvas.width+70});game.bird.vy+=game.gravity;game.bird.y+=game.bird.vy;if(game.frame%game.pipeEvery===1)spawnPipe();game.pipes.forEach(p=>{p.x-=game.pipeSpeed;if(!p.passed&&p.x+p.w<game.bird.x){p.passed=true;game.score++;if(scoreText)scoreText.textContent=game.score;if(game.score>game.best){game.best=game.score;localStorage.setItem('olon_ent_flappy_best',String(game.best));if(bestText)bestText.textContent=game.best;}}});game.pipes=game.pipes.filter(p=>p.x+p.w>-40);if(hitTest()){game.over=true;game.running=false;}}
+    function updateGame(){if(!game.running||game.over)return;game.frame++;game.groundX-=game.pipeSpeed;game.clouds.forEach(c=>{c.x-=.22*c.s;if(c.x<-90)c.x=gameCanvas.width+70});game.bird.vy+=game.gravity;game.bird.y+=game.bird.vy;if(game.frame%game.pipeEvery===1)spawnPipe();game.pipes.forEach(p=>{p.x-=game.pipeSpeed;if(!p.passed&&p.x+p.w<game.bird.x){p.passed=true;game.score++;const earned=(game.score*0.25).toFixed(2);if(scoreText)scoreText.textContent='$'+earned;if(game.score>game.best){game.best=game.score;localStorage.setItem('olon_ent_flappy_best',String(game.best));if(bestText)bestText.textContent='$'+(game.best*0.25).toFixed(2);}}});game.pipes=game.pipes.filter(p=>p.x+p.w>-40);if(hitTest()){game.over=true;game.running=false;}}
     function loop(){updateGame();window.entDrawGame();requestAnimationFrame(loop)}
-    $('entStartGameBtn')?.addEventListener('click',resetGame); $('entJumpBtn')?.addEventListener('click',jump); $('entResetBestBtn')?.addEventListener('click',function(){game.best=0;localStorage.removeItem('olon_ent_flappy_best');if(bestText)bestText.textContent='0';entToast('Récord borrado.');});
+    $('entStartGameBtn')?.addEventListener('click',resetGame); $('entJumpBtn')?.addEventListener('click',jump); $('entResetBestBtn')?.addEventListener('click',function(){game.best=0;localStorage.removeItem('olon_ent_flappy_best');if(bestText)bestText.textContent='$0.00';entToast('Récord borrado.');});
     gameCanvas.addEventListener('pointerdown',function(e){e.preventDefault();jump();},{passive:false});
     window.addEventListener('keydown',function(e){if(!$('entretenimiento')||$('entretenimiento').classList.contains('hidden'))return;if(e.code==='Space'||e.code==='ArrowUp'){e.preventDefault();jump();}});
     window.entDrawGame(); loop();
