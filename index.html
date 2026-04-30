@@ -628,60 +628,83 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
     </section>
 
 
-    <section id="noloAIPage" class="page hidden">
-      <div class="noloHero card">
-        <div>
-          <span class="noloKicker">NOLO IA PRO</span>
-          <h2>🤖 Nolo IA — Asistente inteligente</h2>
-          <p>Chat privado con memoria, análisis de noticias, lectura del perfil del estudiante y límite diario de 30 mensajes.</p>
+    <section id="noloAIPage" class="page hidden noloSerioPage">
+      <div class="noloHero card noloSerioHero">
+        <div class="noloHeroMain">
+          <span class="noloKicker">NOLO IA MINI · PROTOCOL MODE</span>
+          <h2>🤖 Nolo IA — Trading Intelligence Desk</h2>
+          <p>Asistente educativo avanzado con modelo mini: analiza tu perfil, noticias, disciplina, gestión de riesgo y contexto del mercado sin prometer resultados ni dar garantías.</p>
+          <div class="noloTrustRow">
+            <span>🧠 Memoria privada</span>
+            <span>📊 Perfil del trader</span>
+            <span>📰 Noticias cargadas</span>
+            <span>🛡️ Modo educativo</span>
+          </div>
         </div>
-        <div class="noloHeroActions">
-          <button class="btn secondary" type="button" onclick="loadNoloHistory(true)">↻ Cargar memoria</button>
-          <button class="btn secondary" type="button" onclick="askNoloQuick('Analiza las noticias actuales y dime qué debo vigilar antes de operar')">📰 Analizar noticias</button>
-          <button class="btn secondary" type="button" onclick="openNoloAdminContact()">👨‍💼 Hablar con admin</button>
+        <div class="noloHeroActions noloSerioActions">
+          <button class="btn secondary" type="button" onclick="loadNoloHistory(true)">↻ Sincronizar memoria</button>
+          <button class="btn secondary" type="button" onclick="askNoloQuick('Hazme un briefing serio antes de operar usando mi perfil, las noticias cargadas y el riesgo del día')">⚡ Briefing serio</button>
+          <button class="btn secondary" type="button" onclick="askNoloQuick('Analiza las noticias actuales y dime qué debo vigilar antes de operar, sin darme señales garantizadas')">📰 Noticias + riesgo</button>
+          <button class="btn secondary" type="button" onclick="openNoloAdminContact()">👨‍💼 Escalar al admin</button>
         </div>
       </div>
 
-      <div class="noloLayout">
-        <div class="card noloChatCard">
-          <div class="noloChatHeader">
+      <div class="noloMissionGrid">
+        <div class="noloMissionCard"><b>01 · Perfil</b><span>Lee balance, neto, consistencia, días operados y emociones registradas.</span></div>
+        <div class="noloMissionCard"><b>02 · Riesgo</b><span>Te recuerda disciplina, pérdida máxima, paciencia y control antes de operar.</span></div>
+        <div class="noloMissionCard"><b>03 · Noticias</b><span>Resume noticias cargadas y las traduce a escenarios educativos.</span></div>
+        <div class="noloMissionCard"><b>04 · Mentoría</b><span>Si hace falta, manda tu caso al admin desde el mismo panel.</span></div>
+      </div>
+
+      <div class="noloLayout noloSerioLayout">
+        <div class="card noloChatCard noloSerioChatCard">
+          <div class="noloChatHeader noloSerioHeader">
             <div>
-              <h3>Chat privado</h3>
+              <h3>Command Chat</h3>
               <p id="noloStatus">Tienes 30 mensajes disponibles hoy.</p>
             </div>
-            <span id="noloLimitPill" class="noloLimitPill">30 / 30</span>
-          </div>
-
-          <div id="noloMessages" class="noloMessages">
-            <div class="noloBubble ai">
-              <b>Nolo IA</b>
-              <p>Estoy listo. Pregúntame por noticias, oro, USD, disciplina, análisis de trade o qué vigilar antes de operar.</p>
-              <small>Nolo IA</small>
+            <div class="noloHeaderRight">
+              <span class="noloModelPill">Modelo mini</span>
+              <span id="noloLimitPill" class="noloLimitPill">30 / 30</span>
             </div>
           </div>
 
-          <div class="noloQuickBtns">
-            <button type="button" onclick="askNoloQuick('Analiza las noticias actuales')">Analiza noticias</button>
-            <button type="button" onclick="askNoloQuick('Cómo afecta esto al oro XAUUSD')">Oro / XAUUSD</button>
-            <button type="button" onclick="askNoloQuick('Qué impacto tiene en USD hoy')">USD</button>
-            <button type="button" onclick="askNoloQuick('Dame disciplina antes de entrar a una operación')">Disciplina</button>
-            <button type="button" onclick="askNoloQuick('Lee mi perfil y dime qué debo mejorar en consistencia, control de riesgo y disciplina')">Mi perfil</button>
-            <button type="button" onclick="openNoloAdminContact()">Hablar con admin</button>
+          <div id="noloMessages" class="noloMessages noloSerioMessages">
+            <div class="noloBubble ai noloWelcomeBubble">
+              <b>Nolo IA</b>
+              <p>Estoy en modo serio. Puedo revisar tu perfil, noticias, disciplina, riesgo y darte un briefing educativo antes de operar. No doy garantías; te ayudo a pensar con más control.</p>
+              <small>Nolo IA · Mini</small>
+            </div>
           </div>
 
-          <div class="noloComposer">
-            <textarea id="noloInput" placeholder="Escribe a Nolo IA..." onkeydown="handleNoloEnter(event)"></textarea>
+          <div class="noloQuickBtns noloSerioQuickBtns">
+            <button type="button" onclick="askNoloQuick('Hazme un briefing serio antes de operar usando noticias, perfil y disciplina')">Briefing serio</button>
+            <button type="button" onclick="askNoloQuick('Lee mi perfil y dame 3 mejoras concretas para consistencia y control de riesgo')">Mi perfil</button>
+            <button type="button" onclick="askNoloQuick('Analiza noticias actuales y separa impacto alto, medio y bajo')">Noticias</button>
+            <button type="button" onclick="askNoloQuick('Dime qué debo vigilar en XAUUSD hoy desde una perspectiva educativa')">XAUUSD</button>
+            <button type="button" onclick="askNoloQuick('Crea una checklist de disciplina antes de entrar a una operación')">Checklist</button>
+            <button type="button" onclick="askNoloQuick('Explícame mi riesgo del día y cómo evitar sobreoperar')">Riesgo del día</button>
+            <button type="button" onclick="openNoloAdminContact()">Escalar al admin</button>
+          </div>
+
+          <div class="noloComposer noloSerioComposer">
+            <textarea id="noloInput" placeholder="Escribe tu pregunta para Nolo IA Mini..." onkeydown="handleNoloEnter(event)"></textarea>
             <button id="noloSendBtn" class="btn" type="button" onclick="sendNoloMessage()">Enviar</button>
           </div>
         </div>
 
-        <div class="card noloSideCard">
-          <h3>🧠 Memoria de Nolo IA</h3>
-          <p>Nolo IA recuerda el contexto reciente, usa noticias cargadas y lee tu perfil de rendimiento para decirte qué mejorar.</p>
-          <div class="noloInfoBox"><b>Límite diario</b><span>30 mensajes por estudiante</span></div>
-          <div class="noloInfoBox"><b>Noticias</b><span>Usa el feed de la pestaña Noticias</span></div>
-          <div class="noloInfoBox"><b>Privado</b><span>Cada estudiante ve su propio historial</span></div>
-          <a class="btn secondary full" href="https://www.forexfactory.com/calendar" target="_blank" rel="noopener noreferrer">📅 Abrir Forex Factory</a>
+        <div class="card noloSideCard noloSerioSideCard">
+          <div class="noloSideTop">
+            <span class="noloKicker">AI CONTROL</span>
+            <h3>🧠 Nolo IA Mini serio</h3>
+            <p>Diseñado para educación, disciplina y administración de estudiantes. Mantiene límite diario y historial privado.</p>
+          </div>
+          <div class="noloInfoBox"><b>Modelo</b><span>Mini para ahorrar tokens y mantener velocidad.</span></div>
+          <div class="noloInfoBox"><b>Modo seguro</b><span>No promete ganancias, no sustituye criterio humano y evita señales garantizadas.</span></div>
+          <div class="noloInfoBox"><b>Memoria</b><span>Historial guardado por estudiante en Supabase.</span></div>
+          <div class="noloInfoBox"><b>Límite diario</b><span>30 mensajes por estudiante con reset automático.</span></div>
+          <div class="noloInfoBox"><b>Admin</b><span>El estudiante puede escalar dudas al chat privado del admin.</span></div>
+          <a class="btn secondary full" href="https://www.forexfactory.com/calendar" target="_blank" rel="noopener noreferrer">📅 Abrir calendario económico</a>
         </div>
       </div>
     </section>

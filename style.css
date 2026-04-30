@@ -5370,3 +5370,68 @@ body.light-mode #signupSubmitBtn[style*="color"]{
   font-size:11px!important;
   line-height:1.4!important;
 }
+
+
+/* ===== NOLO IA MINI SERIO — UPGRADE 10/10 ===== */
+.noloSerioPage{position:relative}
+.noloSerioHero{
+  border-color:rgba(246,196,83,.32)!important;
+  background:
+    linear-gradient(135deg,rgba(246,196,83,.18),rgba(59,130,246,.12),rgba(168,85,247,.12)),
+    radial-gradient(circle at 88% 12%,rgba(255,216,107,.20),transparent 30%),
+    rgba(2,6,23,.40)!important;
+}
+.noloSerioHero:after{
+  content:"NOLO";
+  position:absolute;
+  right:24px;
+  bottom:-18px;
+  font-size:78px;
+  font-weight:1000;
+  letter-spacing:-.08em;
+  color:rgba(255,255,255,.035);
+  pointer-events:none;
+}
+.noloHeroMain{max-width:780px}
+.noloTrustRow{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+.noloTrustRow span,.noloModelPill{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 11px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(2,6,23,.32);
+  color:#e5e7eb;font-size:12px;font-weight:900;
+}
+.noloSerioActions .btn{border-color:rgba(246,196,83,.24)}
+.noloMissionGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 16px}
+.noloMissionCard{
+  padding:15px;border-radius:20px;
+  border:1px solid rgba(255,255,255,.10);
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.035));
+  box-shadow:0 16px 36px rgba(0,0,0,.18)
+}
+.noloMissionCard b{display:block;color:#fff;margin-bottom:6px;font-size:13px;letter-spacing:.2px}
+.noloMissionCard span{display:block;color:var(--muted);font-size:12px;line-height:1.45}
+.noloSerioChatCard{border-color:rgba(246,196,83,.22)!important}
+.noloSerioHeader{background:linear-gradient(135deg,rgba(246,196,83,.10),rgba(59,130,246,.07))}
+.noloHeaderRight{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.noloModelPill{color:#fde68a;border-color:rgba(246,196,83,.25);background:rgba(246,196,83,.10)}
+.noloSerioMessages{background:
+  radial-gradient(circle at 15% 0%,rgba(246,196,83,.08),transparent 26%),
+  linear-gradient(180deg,rgba(2,6,23,.18),rgba(2,6,23,.44))!important;
+}
+.noloWelcomeBubble{box-shadow:0 16px 34px rgba(246,196,83,.08)}
+.noloSerioQuickBtns button{border-color:rgba(246,196,83,.14);background:rgba(246,196,83,.055)}
+.noloSerioComposer textarea:focus{border-color:rgba(246,196,83,.55);box-shadow:0 0 0 4px rgba(246,196,83,.08)}
+.noloSerioSideCard{
+  border-color:rgba(246,196,83,.22)!important;
+  background:linear-gradient(180deg,rgba(246,196,83,.065),rgba(255,255,255,.03))!important;
+}
+.noloSideTop h3{margin-top:10px;margin-bottom:8px}
+#noloFloatingBtn{
+  background:linear-gradient(135deg,#f6c453,#3b82f6,#8b5cf6)!important;
+  box-shadow:0 18px 50px rgba(246,196,83,.18),0 18px 45px rgba(0,0,0,.38)!important;
+}
+.noloFloatPanel{border-color:rgba(246,196,83,.35)!important}
+.noloFloatHeader{background:linear-gradient(135deg,rgba(246,196,83,.16),rgba(59,130,246,.12),rgba(168,85,247,.08))!important}
+@media(max-width:1180px){.noloMissionGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.noloMissionGrid{grid-template-columns:1fr}.noloTrustRow span{font-size:11px}.noloHeaderRight{justify-content:flex-start}.noloSerioHero:after{font-size:52px;right:14px}}
