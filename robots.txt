@@ -1,2 +1,15 @@
-User-agent: *
-Allow: /
+{
+  "name": "OLON Society Academy",
+  "short_name": "OLON",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#070b16",
+  "theme_color": "#070b16",
+  "icons": [
+    {
+      "src": "./assets/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
