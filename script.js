@@ -827,14 +827,14 @@ function updatePortalWelcome(){
   // Topbar principal: evita duplicar el saludo.
   const pageTitle = document.getElementById("pageTitle");
   if(pageTitle){
-    pageTitle.innerText = adminView ? "Panel Admin Profesional" : "Panel del Trader";
+    pageTitle.innerText = adminView ? "OLON Admin Command" : "OLON Trader Command";
   }
 
   const pageSubtitle = document.getElementById("pageSubtitle");
   if(pageSubtitle){
     pageSubtitle.innerText = adminView
-      ? "Panel administrativo listo para gestionar estudiantes."
-      : "Control manual privado de depósito, ganancia, pérdida y progreso.";
+      ? "Command Center para gestionar estudiantes, accesos y rendimiento."
+      : "Centro privado para medir rendimiento, disciplina y progreso del trader.";
   }
 
   const welcomeCard = document.getElementById("portalWelcomeCard");
@@ -846,7 +846,7 @@ function updatePortalWelcome(){
 
   const welcomeSub = document.getElementById("portalWelcomeSub");
   if(welcomeSub){
-    welcomeSub.innerText = "Panel del Trader";
+    welcomeSub.innerText = "Tu centro profesional de control, disciplina y rendimiento.";
   }
 }
 
@@ -995,7 +995,7 @@ async function enterPortal(){
   const portal = $("portal");
   if(portal) portal.classList.add("portalReady");
 
-  setTextSafe("portalMode", admin ? "Admin Portal" : "Student Portal");
+  setTextSafe("portalMode", admin ? "Executive Command" : "Private Trading Portal");
   document.querySelectorAll(".studentNav").forEach(el => el.classList.toggle("hidden", admin));
   document.querySelectorAll(".adminNav").forEach(el => el.classList.toggle("hidden", !admin));
   document.querySelectorAll(".studentOnly").forEach(el => el.classList.toggle("hidden", admin));
@@ -1996,7 +1996,7 @@ if(typeof olonOriginalRenderAdminTable === 'function'){
     safeText('planBadge', role === 'admin' || clean(currentUser.plan).toLowerCase().includes('premium') ? '💎 VIP PREMIUM' : '🔥 VIP REGULAR');
     safeText('accessStatus', (currentUser.plan || (role === 'admin' ? 'Admin' : 'VIP Regular')) + ' Activo');
     safeText('paymentDate', ': ' + (currentUser.next_payment_date || 'No asignado'));
-    safeText('portalMode', role === 'admin' ? 'Admin Portal' : 'Student Portal');
+    safeText('portalMode', role === 'admin' ? 'Executive Command' : 'Private Trading Portal');
 
     safeHide('auth');
     safeHide('codeResult');
@@ -2011,8 +2011,8 @@ if(typeof olonOriginalRenderAdminTable === 'function'){
     document.querySelectorAll('.studentOnly').forEach(el => el.classList.toggle('hidden', isAdmin));
 
     forcePage(isAdmin ? 'admin' : 'dashboard');
-    safeText('pageTitle', isAdmin ? 'Panel Admin Profesional' : 'Panel del Trader');
-    safeText('pageSubtitle', isAdmin ? 'Panel administrativo listo para gestionar estudiantes.' : 'Control manual privado de depósito, ganancia, pérdida y progreso.');
+    safeText('pageTitle', isAdmin ? 'OLON Admin Command' : 'OLON Trader Command');
+    safeText('pageSubtitle', isAdmin ? 'Command Center para gestionar estudiantes, accesos y rendimiento.' : 'Centro privado para medir rendimiento, disciplina y progreso del trader.');
     if(!isAdmin) safeText('portalWelcomeText', 'Hola, ' + (currentUser.full_name || 'Estudiante'));
 
     setTimeout(async () => {
@@ -2134,9 +2134,9 @@ if(typeof olonOriginalRenderAdminTable === 'function'){
     txt('planBadge', isAdmin || clean(currentUser.plan).toLowerCase().includes('premium') ? '💎 VIP PREMIUM' : '🔥 VIP REGULAR');
     txt('accessStatus', (currentUser.plan || (isAdmin ? 'Admin' : 'VIP Regular')) + ' Activo');
     txt('paymentDate', ': ' + (currentUser.next_payment_date || 'No asignado'));
-    txt('portalMode', isAdmin ? 'Admin Portal' : 'Student Portal');
-    txt('pageTitle', isAdmin ? 'Panel Admin Profesional' : 'Panel del Trader');
-    txt('pageSubtitle', isAdmin ? 'Panel administrativo listo para gestionar estudiantes.' : 'Control manual privado de depósito, ganancia, pérdida y progreso.');
+    txt('portalMode', isAdmin ? 'Executive Command' : 'Private Trading Portal');
+    txt('pageTitle', isAdmin ? 'OLON Admin Command' : 'OLON Trader Command');
+    txt('pageSubtitle', isAdmin ? 'Command Center para gestionar estudiantes, accesos y rendimiento.' : 'Centro privado para medir rendimiento, disciplina y progreso del trader.');
     txt('portalWelcomeText', 'Hola, ' + (currentUser.full_name || 'Estudiante'));
 
     hide('auth');
@@ -2263,7 +2263,7 @@ if(typeof olonOriginalRenderAdminTable === 'function'){
   function clean(t){ return String(t||"").replace(/[^\wÁÉÍÓÚáéíóúñÑ# ]/g,"").replace(/\s+/g," ").trim(); }
 
   const subtitles = {
-    dashboard:"Control manual privado de depósito, ganancia, pérdida y progreso.",
+    dashboard:"Centro privado para medir rendimiento, disciplina y progreso del trader.",
     registro:"Registra depósito, ganancia, pérdida y notas del día.",
     historial:"Consulta tu historial individual.",
     comparacion:"Compara tu mes actual con el mes anterior.",
@@ -3595,4 +3595,3 @@ setTimeout(function(){
     window.__olonDashboardWaoHooked = true;
   }
 }, 500);
-
