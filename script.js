@@ -3682,3 +3682,169 @@ setTimeout(function(){
     window.__olonDashboardWaoHooked = true;
   }
 }, 500);
+
+/* =====================================================
+   OLON ENTRETENIMIENTO: RULETA + FLAPPY JS
+   ===================================================== */
+(function(){
+  const $ = (id) => document.getElementById(id);
+  let entReady = false;
+
+  window.switchEntertainmentTab = function(tab){
+    const active = tab === 'flappy' ? 'flappy' : 'wheel';
+    $('entWheelPanel')?.classList.toggle('active', active === 'wheel');
+    $('entFlappyPanel')?.classList.toggle('active', active === 'flappy');
+    $('entTabWheel')?.classList.toggle('active', active === 'wheel');
+    $('entTabFlappy')?.classList.toggle('active', active === 'flappy');
+    setTimeout(function(){
+      if(active === 'wheel') window.entDrawWheel?.();
+      if(active === 'flappy') window.entDrawGame?.();
+    }, 60);
+  };
+
+  function entToast(msg){
+    if(typeof window.showToast === 'function') return window.showToast(msg);
+    if(typeof window.toast === 'function') return window.toast(msg);
+    console.log(msg);
+  }
+
+  function initEntertainment(){
+    if(entReady || !$('entWheelCanvas') || !$('entGameCanvas')) return;
+    entReady = true;
+
+    const wheelCanvas = $('entWheelCanvas');
+    const wctx = wheelCanvas.getContext('2d');
+    const spinBtn = $('entSpinBtn');
+    const prizesInput = $('entPrizesInput');
+    const savePrizesBtn = $('entSavePrizesBtn');
+    const winnerText = $('entWinnerText');
+    const historyList = $('entHistoryList');
+    const clearHistoryBtn = $('entClearHistoryBtn');
+    const colors = ['#f6c453','#22d3ee','#a855f7','#22c55e','#fb7185','#60a5fa','#f97316','#14b8a6','#e879f9','#84cc16'];
+    let prizes = JSON.parse(localStorage.getItem('olon_ent_prizes') || 'null') || ['Premium 15 días','Mentoría 1 a 1','Indicador gratis 7 días','Descuento 50%','Acceso VIP','Premio sorpresa','Clase privada','Entrada al grupo'];
+    let history = JSON.parse(localStorage.getItem('olon_ent_history') || '[]');
+    let angle = 0;
+    let spinning = false;
+    prizesInput.value = prizes.join('\n');
+
+    window.entDrawWheel = function(){
+      if(!wctx || !prizes.length) return;
+      const cx = wheelCanvas.width/2, cy = wheelCanvas.height/2, radius = Math.min(cx,cy)-26;
+      const slice = Math.PI*2/prizes.length;
+      wctx.clearRect(0,0,wheelCanvas.width,wheelCanvas.height);
+      wctx.save(); wctx.translate(cx,cy); wctx.rotate(angle);
+      for(let i=0;i<prizes.length;i++){
+        const start=i*slice, end=start+slice;
+        wctx.beginPath(); wctx.moveTo(0,0); wctx.arc(0,0,radius,start,end); wctx.closePath();
+        wctx.fillStyle=colors[i%colors.length]; wctx.fill();
+        wctx.strokeStyle='rgba(2,6,23,.42)'; wctx.lineWidth=5; wctx.stroke();
+        wctx.save(); wctx.rotate(start+slice/2); wctx.textAlign='right'; wctx.textBaseline='middle';
+        wctx.fillStyle='#07111f'; wctx.font='900 24px Inter, Arial, sans-serif';
+        let label=prizes[i]; if(label.length>18) label=label.slice(0,17)+'…';
+        wctx.fillText(label, radius-30, 0); wctx.restore();
+      }
+      wctx.beginPath(); wctx.arc(0,0,radius,0,Math.PI*2); wctx.strokeStyle='rgba(255,255,255,.42)'; wctx.lineWidth=10; wctx.stroke();
+      wctx.restore();
+    };
+
+    function renderHistory(){
+      if(!historyList) return;
+      historyList.innerHTML='';
+      if(!history.length){historyList.innerHTML='<div class="entHistoryItem"><span>Sin historial</span><span>—</span></div>';return;}
+      history.forEach(function(item){
+        const row=document.createElement('div'); row.className='entHistoryItem';
+        row.innerHTML='<span>'+String(item.prize).replace(/[<>]/g,'')+'</span><span>'+String(item.time).replace(/[<>]/g,'')+'</span>';
+        historyList.appendChild(row);
+      });
+    }
+
+    function pickWinner(){
+      const normalized=((angle%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
+      const pointerAngle=(Math.PI*1.5-normalized+Math.PI*2)%(Math.PI*2);
+      const index=Math.floor(pointerAngle/(Math.PI*2/prizes.length))%prizes.length;
+      return prizes[index];
+    }
+
+    savePrizesBtn?.addEventListener('click', function(){
+      const list=prizesInput.value.split('\n').map(x=>x.trim()).filter(Boolean);
+      if(list.length<2){entToast('Pon mínimo 2 premios.');return;}
+      prizes=list; localStorage.setItem('olon_ent_prizes',JSON.stringify(prizes));
+      window.entDrawWheel(); entToast('Premios guardados.');
+    });
+
+    clearHistoryBtn?.addEventListener('click', function(){
+      history=[]; localStorage.removeItem('olon_ent_history'); renderHistory(); entToast('Historial borrado.');
+    });
+
+    spinBtn?.addEventListener('click', function(){
+      if(spinning) return;
+      spinning=true; spinBtn.disabled=true;
+      const start=angle, target=angle+(6+Math.random()*5)*Math.PI*2+Math.random()*Math.PI*2;
+      const duration=5200, startTime=performance.now();
+      function ease(t){return 1-Math.pow(1-t,3)}
+      function anim(now){
+        const t=Math.min((now-startTime)/duration,1);
+        angle=start+(target-start)*ease(t); window.entDrawWheel();
+        if(t<1) requestAnimationFrame(anim); else{
+          spinning=false; spinBtn.disabled=false; angle=angle%(Math.PI*2);
+          const winner=pickWinner(); winnerText.textContent='🏆 '+winner;
+          history.unshift({prize:winner,time:new Date().toLocaleString('es-PR',{hour:'numeric',minute:'2-digit',month:'short',day:'numeric'})});
+          history=history.slice(0,20); localStorage.setItem('olon_ent_history',JSON.stringify(history)); renderHistory(); entToast('Ganador: '+winner);
+        }
+      }
+      requestAnimationFrame(anim);
+    });
+
+    window.entDrawWheel(); renderHistory();
+
+    const gameCanvas = $('entGameCanvas');
+    const g = gameCanvas.getContext('2d');
+    const scoreText = $('entScoreText');
+    const bestText = $('entBestText');
+    const game = {running:false,over:false,score:0,best:Number(localStorage.getItem('olon_ent_flappy_best')||0),frame:0,bird:{x:92,y:250,r:18,vy:0},pipes:[],clouds:[],groundX:0,gravity:.26,jump:-5.7,pipeSpeed:1.75,pipeGap:185,pipeEvery:132};
+    if(bestText) bestText.textContent=game.best;
+    function roundedRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+    function drawCloud(x,y,s){g.save();g.translate(x,y);g.scale(s,s);g.fillStyle='rgba(255,255,255,.72)';g.beginPath();g.arc(0,8,18,0,Math.PI*2);g.arc(21,0,25,0,Math.PI*2);g.arc(52,10,18,0,Math.PI*2);g.rect(-3,8,58,18);g.fill();g.restore();}
+    window.entDrawGame = function(){
+      const W=gameCanvas.width,H=gameCanvas.height;
+      const sky=g.createLinearGradient(0,0,0,H); sky.addColorStop(0,'#38bdf8'); sky.addColorStop(.64,'#0ea5e9'); sky.addColorStop(1,'#0369a1'); g.fillStyle=sky; g.fillRect(0,0,W,H);
+      game.clouds.forEach(c=>drawCloud(c.x,c.y,c.s));
+      g.fillStyle='rgba(15,23,42,.16)'; for(let i=0;i<8;i++){const bw=58,bh=60+(i%4)*22,x=i*64-(game.frame*.25%64);g.fillRect(x,H-92-bh,bw,bh)}
+      game.pipes.forEach(function(p){const pg=g.createLinearGradient(p.x,0,p.x+p.w,0);pg.addColorStop(0,'#16a34a');pg.addColorStop(.55,'#22c55e');pg.addColorStop(1,'#15803d');g.fillStyle=pg;roundedRect(g,p.x,-18,p.w,p.top+18,14);g.fill();roundedRect(g,p.x-8,p.top-22,p.w+16,28,13);g.fill();roundedRect(g,p.x,p.bottom,p.w,H-p.bottom-56,14);g.fill();roundedRect(g,p.x-8,p.bottom-6,p.w+16,28,13);g.fill();g.fillStyle='rgba(255,255,255,.18)';g.fillRect(p.x+12,0,8,p.top);g.fillRect(p.x+12,p.bottom,8,H-p.bottom-56);});
+      g.fillStyle='#0f766e';g.fillRect(0,H-56,W,56);g.fillStyle='#facc15';g.fillRect(0,H-62,W,8);g.fillStyle='rgba(2,6,23,.18)';for(let x=-40+(game.groundX%40);x<W;x+=40)g.fillRect(x,H-42,24,7);
+      const b=game.bird;g.save();g.translate(b.x,b.y);g.rotate(Math.max(-.45,Math.min(.55,b.vy/10)));const body=g.createRadialGradient(-7,-8,2,0,0,28);body.addColorStop(0,'#fef3c7');body.addColorStop(1,'#facc15');g.fillStyle=body;g.beginPath();g.arc(0,0,b.r,0,Math.PI*2);g.fill();g.fillStyle='#f97316';g.beginPath();g.moveTo(15,0);g.lineTo(33,8);g.lineTo(15,14);g.closePath();g.fill();g.fillStyle='#fff';g.beginPath();g.arc(7,-7,6,0,Math.PI*2);g.fill();g.fillStyle='#020617';g.beginPath();g.arc(9,-7,2.6,0,Math.PI*2);g.fill();g.fillStyle='rgba(245,158,11,.75)';g.beginPath();g.ellipse(-10,7,12,7,.25,0,Math.PI*2);g.fill();g.restore();
+      if(!game.running) overlay(game.over?'GAME OVER':'FLAPPY CHALLENGE',game.over?'Toca para reiniciar':'Toca, espacio o botón para iniciar');
+    };
+    function overlay(title,sub){const W=gameCanvas.width;g.save();g.fillStyle='rgba(2,6,23,.52)';roundedRect(g,36,210,W-72,145,24);g.fill();g.strokeStyle='rgba(246,196,83,.32)';g.lineWidth=2;g.stroke();g.textAlign='center';g.fillStyle='#fff';g.font='900 30px Inter, Arial';g.fillText(title,W/2,265);g.fillStyle='#fde68a';g.font='800 15px Inter, Arial';g.fillText(sub,W/2,300);g.restore();}
+    function resetGame(){game.running=true;game.over=false;game.score=0;game.frame=0;game.bird={x:92,y:250,r:18,vy:0};game.pipes=[];game.clouds=[{x:40,y:90,s:1.1},{x:210,y:145,s:.85},{x:330,y:70,s:.7}];if(scoreText)scoreText.textContent='0';window.entDrawGame();}
+    function jump(){if(!$('entretenimiento') || $('entretenimiento').classList.contains('hidden')) return; if(!game.running||game.over){resetGame();return;} game.bird.vy=game.jump;}
+    function spawnPipe(){const margin=80;const topH=margin+Math.random()*(gameCanvas.height-game.pipeGap-margin*2-110);game.pipes.push({x:gameCanvas.width+20,w:72,top:topH,bottom:topH+game.pipeGap,passed:false});}
+    function hitTest(){const b=game.bird;if(b.y-b.r<0||b.y+b.r>gameCanvas.height-56)return true;for(const p of game.pipes){const withinX=b.x+b.r>p.x&&b.x-b.r<p.x+p.w;if(withinX&&(b.y-b.r<p.top||b.y+b.r>p.bottom))return true;}return false;}
+    function updateGame(){if(!game.running||game.over)return;game.frame++;game.groundX-=game.pipeSpeed;game.clouds.forEach(c=>{c.x-=.22*c.s;if(c.x<-90)c.x=gameCanvas.width+70});game.bird.vy+=game.gravity;game.bird.y+=game.bird.vy;if(game.frame%game.pipeEvery===1)spawnPipe();game.pipes.forEach(p=>{p.x-=game.pipeSpeed;if(!p.passed&&p.x+p.w<game.bird.x){p.passed=true;game.score++;if(scoreText)scoreText.textContent=game.score;if(game.score>game.best){game.best=game.score;localStorage.setItem('olon_ent_flappy_best',String(game.best));if(bestText)bestText.textContent=game.best;}}});game.pipes=game.pipes.filter(p=>p.x+p.w>-40);if(hitTest()){game.over=true;game.running=false;}}
+    function loop(){updateGame();window.entDrawGame();requestAnimationFrame(loop)}
+    $('entStartGameBtn')?.addEventListener('click',resetGame); $('entJumpBtn')?.addEventListener('click',jump); $('entResetBestBtn')?.addEventListener('click',function(){game.best=0;localStorage.removeItem('olon_ent_flappy_best');if(bestText)bestText.textContent='0';entToast('Récord borrado.');});
+    gameCanvas.addEventListener('pointerdown',function(e){e.preventDefault();jump();},{passive:false});
+    window.addEventListener('keydown',function(e){if(!$('entretenimiento')||$('entretenimiento').classList.contains('hidden'))return;if(e.code==='Space'||e.code==='ArrowUp'){e.preventDefault();jump();}});
+    window.entDrawGame(); loop();
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){initEntertainment();setTimeout(function(){window.entDrawWheel?.();window.entDrawGame?.();}, 800);});
+
+  setTimeout(function(){
+    const old = window.showPage;
+    if(typeof old === 'function' && !window.__entertainmentShowPageHooked){
+      window.showPage = function(id, btn){
+        const r = old.apply(this, arguments);
+        if(id === 'entretenimiento'){
+          initEntertainment();
+          const title = $('pageTitle'), sub = $('pageSubtitle');
+          if(title) title.textContent = '🎮 Entretenimiento';
+          if(sub) sub.textContent = 'Área de juegos, retos y premios para la comunidad.';
+          setTimeout(function(){window.entDrawWheel?.();window.entDrawGame?.();}, 80);
+        }
+        return r;
+      };
+      window.__entertainmentShowPageHooked = true;
+    }
+  }, 900);
+})();

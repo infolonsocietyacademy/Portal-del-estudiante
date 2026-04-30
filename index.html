@@ -322,6 +322,7 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
       <button data-page="publicChat" class="studentNav" onclick="showPage('publicChat',this)">🌍 Chat Público</button>
       <button data-page="newsProPage" class="studentNav" onclick="showPage('newsProPage',this)">📰 Noticias</button>
       <button data-page="noloAIPage" class="studentNav" onclick="showPage('noloAIPage',this)">🤖 Nolo IA</button>
+      <button data-page="entretenimiento" class="studentNav" onclick="showPage('entretenimiento',this)">🎮 Entretenimiento</button>
       <button data-page="admin" class="adminNav hidden" onclick="showPage('admin',this)">👑 Command Center</button>
       <button data-page="admin" class="adminNav hidden" onclick="showPage('admin',this); setTimeout(()=>document.getElementById('adminStudentsBlock')?.scrollIntoView({behavior:'smooth'}),120)">👥 Estudiantes</button>
       <button data-page="admin" class="adminNav hidden" onclick="showPage('admin',this); setTimeout(()=>document.getElementById('adminNoloUsageBlock')?.scrollIntoView({behavior:'smooth'}),120)">🤖 Consumo IA</button>
@@ -709,6 +710,96 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
       </div>
     </section>
 
+    <section id="entretenimiento" class="page hidden entretenimientoPage">
+      <div class="entHero card">
+        <div>
+          <span class="entKicker">🎮 ÁREA DE ENTRETENIMIENTO</span>
+          <h2>Juegos, retos y premios para la comunidad</h2>
+          <p>Un espacio dentro del portal para que los estudiantes participen, jueguen, compitan y ganen premios de la academia.</p>
+          <div class="entTrustRow">
+            <span>🏆 Ruleta de premios</span>
+            <span>🐦 Flappy Challenge</span>
+            <span>📱 Móvil / iPad / PC</span>
+            <span>👑 Comunidad VIP</span>
+          </div>
+        </div>
+        <div class="entHeroActions">
+          <button class="btn" type="button" onclick="switchEntertainmentTab('wheel')">🎁 Abrir ruleta</button>
+          <button class="btn secondary" type="button" onclick="switchEntertainmentTab('flappy')">🎮 Jugar Flappy</button>
+        </div>
+      </div>
+
+      <div class="entTabs card">
+        <button id="entTabWheel" class="active" type="button" onclick="switchEntertainmentTab('wheel')">🎁 Ruleta de Premios</button>
+        <button id="entTabFlappy" type="button" onclick="switchEntertainmentTab('flappy')">🐦 Flappy Challenge</button>
+      </div>
+
+      <div id="entWheelPanel" class="entPanel active">
+        <div class="entGrid">
+          <div class="card entGameCard">
+            <div class="entSectionTitle">
+              <div>
+                <span class="entKicker">PREMIOS</span>
+                <h3>Ruleta de la Comunidad</h3>
+                <p>Edita los premios, guarda y gira. Ideal para dinámicas, retos y giveaways.</p>
+              </div>
+            </div>
+            <div class="entWheelStage">
+              <div class="entPointer"></div>
+              <canvas id="entWheelCanvas" width="700" height="700"></canvas>
+              <div class="entWheelCenter">OLON<br>SPIN</div>
+            </div>
+          </div>
+
+          <div class="card entControlCard">
+            <div class="entWinnerBox">
+              <small>Ganador actual</small>
+              <h3 id="entWinnerText">Todavía no hay ganador</h3>
+            </div>
+            <button id="entSpinBtn" class="btn full entGoldBtn" type="button">GIRAR RULETA</button>
+            <label class="entLabel">Premios disponibles</label>
+            <textarea id="entPrizesInput" class="entTextarea" spellcheck="false">Premium 15 días
+Mentoría 1 a 1
+Indicador gratis 7 días
+Descuento 50%
+Acceso VIP
+Premio sorpresa
+Clase privada
+Entrada al grupo</textarea>
+            <button id="entSavePrizesBtn" class="btn secondary full" type="button">Guardar premios</button>
+            <button id="entClearHistoryBtn" class="btn danger full" type="button">Borrar historial</button>
+            <div class="entHistoryHead">Historial de ganadores</div>
+            <div id="entHistoryList" class="entHistoryList"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="entFlappyPanel" class="entPanel">
+        <div class="entGrid entFlappyGrid">
+          <div class="card entGameCard entFlappyCanvasCard">
+            <canvas id="entGameCanvas" width="430" height="620"></canvas>
+          </div>
+
+          <div class="card entControlCard">
+            <span class="entKicker">RETO</span>
+            <h3>Flappy Challenge</h3>
+            <p class="entMuted">Versión más lenta y cómoda para que la comunidad pueda competir por puntos.</p>
+            <div class="entScoreGrid">
+              <div class="entScoreCard"><small>Puntos</small><strong id="entScoreText">0</strong></div>
+              <div class="entScoreCard"><small>Récord</small><strong id="entBestText">0</strong></div>
+            </div>
+            <button id="entStartGameBtn" class="btn full entGoldBtn" type="button">Iniciar / Reiniciar</button>
+            <button id="entJumpBtn" class="btn secondary full" type="button">Saltar</button>
+            <button id="entResetBestBtn" class="btn danger full" type="button">Borrar récord</button>
+            <div class="entHowBox">
+              <b>Cómo jugar:</b><br>
+              Toca la pantalla, presiona espacio o usa el botón de saltar. Pasa por los tubos sin chocar.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
 <section id="admin" class="page hidden adminProPage">
       <div class="adminGodHero">
         <div class="adminGodGlow"></div>
@@ -880,6 +971,7 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
       <button type="button" onclick="mobileGo('comparacion', this)"><span>↗</span><small>Reporte</small></button>
       <button type="button" onclick="mobileGo('newsProPage', this)"><span>📰</span><small>Noticias</small></button>
       <button type="button" onclick="mobileGo('noloAIPage', this)"><span>🤖</span><small>Nolo IA</small></button>
+      <button type="button" onclick="mobileGo('entretenimiento', this)"><span>🎮</span><small>Juegos</small></button>
       <button type="button" onclick="mobileOpenAccount(this)"><span>◉</span><small>Cuenta</small></button>
     </nav>
 
