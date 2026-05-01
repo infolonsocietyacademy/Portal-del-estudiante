@@ -719,6 +719,7 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
           <div class="entTrustRow">
             <span>🎁 Gira y Gana</span>
             <span>🏎️ Lambo Money Challenge</span>
+            <span>🏀 Basketball Challenge</span>
             <span>📱 Móvil / iPad / PC</span>
             <span>👑 Comunidad VIP</span>
           </div>
@@ -726,12 +727,14 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
         <div class="entHeroActions">
           <button class="btn" type="button" onclick="switchEntertainmentTab('wheel')">🎁 Gira y Gana</button>
           <button class="btn secondary" type="button" onclick="switchEntertainmentTab('flappy')">🏎️ Jugar Lambo</button>
+          <button class="btn secondary" type="button" onclick="switchEntertainmentTab('basket')">🏀 Basketball</button>
         </div>
       </div>
 
       <div class="entTabs card">
         <button id="entTabWheel" class="active" type="button" onclick="switchEntertainmentTab('wheel')">🎁 Gira y Gana</button>
         <button id="entTabFlappy" type="button" onclick="switchEntertainmentTab('flappy')">🏎️ Lambo Money Challenge</button>
+        <button id="entTabBasket" type="button" onclick="switchEntertainmentTab('basket')">🏀 Basketball Challenge</button>
       </div>
 
       <div id="entWheelPanel" class="entPanel active">
@@ -807,6 +810,35 @@ Entrada al grupo</textarea>
           </div>
         </div>
       </div>
+
+      <div id="entBasketPanel" class="entPanel">
+        <div class="entGrid entBasketGrid">
+          <div class="card entGameCard entBasketCanvasCard">
+            <canvas id="entBasketCanvas" width="430" height="620"></canvas>
+          </div>
+
+          <div class="card entControlCard">
+            <span class="entKicker">🏀 RETO</span>
+            <h3>Basketball Challenge</h3>
+            <p class="entMuted">Lanza la bola y encesta para sumar puntos. El aro se mueve para hacerlo más divertido.</p>
+
+            <div class="entScoreGrid">
+              <div class="entScoreCard"><small>Puntos</small><strong id="entBasketScoreText">0</strong></div>
+              <div class="entScoreCard"><small>Récord</small><strong id="entBasketBestText">0</strong></div>
+            </div>
+
+            <button id="entBasketStartBtn" class="btn full entGoldBtn" type="button">Iniciar / Reiniciar</button>
+            <button id="entBasketShootBtn" class="btn secondary full" type="button">Lanzar</button>
+            <button id="entBasketResetBestBtn" class="btn danger full" type="button">Borrar récord</button>
+
+            <div class="entHowBox">
+              <b>Cómo jugar:</b><br>
+              Toca la pantalla o presiona el botón de lanzar para tirar la bola al aro. Cada canasto suma 1 punto.
+            </div>
+          </div>
+        </div>
+      </div>
+
     </section>
 
 <section id="admin" class="page hidden adminProPage">
