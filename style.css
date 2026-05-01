@@ -5550,3 +5550,42 @@ body.light-mode #signupSubmitBtn[style*="color"]{
 #entBasketShootBtn,#entBasketStartBtn,#entBasketResetBestBtn{position:relative;z-index:5;pointer-events:auto!important}
 .entBasketCanvasCard{pointer-events:auto!important}
 #entBasketCanvas{pointer-events:auto!important}
+
+
+/* ===== BASKETBALL PRO MODERN FIX ===== */
+.entBasketGrid{grid-template-columns:minmax(0,1fr) 340px;gap:18px}
+.entBasketCanvasCard{
+  display:grid;
+  place-items:center;
+  padding:18px!important;
+  background:
+    radial-gradient(circle at top left, rgba(14,165,233,.14), transparent 34%),
+    linear-gradient(180deg, rgba(15,23,42,.82), rgba(2,6,23,.92))!important;
+}
+#entBasketCanvas{
+  width:min(430px,100%);
+  max-width:100%;
+  height:auto;
+  display:block;
+  border-radius:26px;
+  border:1px solid rgba(255,255,255,.10);
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+  box-shadow:0 28px 60px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.08);
+  cursor:pointer;
+  touch-action:none;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-touch-callout:none;
+}
+.basketHowBox{
+  border:1px solid rgba(14,165,233,.16)!important;
+  background:linear-gradient(135deg, rgba(14,165,233,.10), rgba(246,196,83,.08))!important;
+}
+#entBasketShootBtn,#entBasketStartBtn,#entBasketResetBestBtn{
+  position:relative;
+  z-index:4;
+  pointer-events:auto!important;
+}
+@media(max-width:980px){
+  .entBasketGrid{grid-template-columns:1fr}
+}
