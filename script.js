@@ -3983,16 +3983,15 @@ setTimeout(function(){
     }
 
     function shootBasket(){
-      if(!$('entretenimiento') || $('entretenimiento').classList.contains('hidden')) return;
       if(!basket.running){
         resetBasketGame();
-        return;
       }
       if(basket.ball.active) return;
       basket.ball.active = true;
       basket.ball.vx = 5.65;
       basket.ball.vy = -10.4;
       basket.ball.scored = false;
+      window.entDrawBasket?.();
     }
 
     function basketOverlay(title, sub){
@@ -4162,27 +4161,36 @@ setTimeout(function(){
     updateBasketStats();
     window.entDrawBasket();
 
-    basketStartBtn?.addEventListener('click', resetBasketGame);
-    basketShootBtn?.addEventListener('click', shootBasket);
-    basketResetBestBtn?.addEventListener('click', function(){
+    window.entBasketStart = resetBasketGame;
+    window.entBasketShoot = shootBasket;
+    window.entBasketResetBest = function(){
       basket.best = 0;
       localStorage.removeItem('olon_basket_best');
       updateBasketStats();
       entToast('Récord de basketball borrado.');
+    };
+
+    basketStartBtn?.addEventListener('click', function(e){ e.preventDefault(); resetBasketGame(); });
+    basketShootBtn?.addEventListener('click', function(e){ e.preventDefault(); shootBasket(); });
+    basketResetBestBtn?.addEventListener('click', function(e){
+      e.preventDefault();
+      window.entBasketResetBest();
     });
 
     basketCanvas.addEventListener('pointerdown', function(e){
       e.preventDefault();
-      if(!basket.running) resetBasketGame();
-      else shootBasket();
+      shootBasket();
     }, {passive:false});
+    basketCanvas.addEventListener('click', function(e){
+      e.preventDefault();
+      shootBasket();
+    });
 
     window.addEventListener('keydown', function(e){
-      if(!$('entretenimiento') || $('entretenimiento').classList.contains('hidden')) return;
-      if(e.code === 'KeyB'){
+      if(!$('entBasketPanel') || !$('entBasketPanel').classList.contains('active')) return;
+      if(e.code === 'KeyB' || e.code === 'Space' || e.code === 'Enter'){
         e.preventDefault();
-        if(!basket.running) resetBasketGame();
-        else shootBasket();
+        shootBasket();
       }
     });
 

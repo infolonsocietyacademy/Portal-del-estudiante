@@ -814,7 +814,7 @@ Entrada al grupo</textarea>
       <div id="entBasketPanel" class="entPanel">
         <div class="entGrid entBasketGrid">
           <div class="card entGameCard entBasketCanvasCard">
-            <canvas id="entBasketCanvas" width="430" height="620"></canvas>
+            <canvas id="entBasketCanvas" width="430" height="620" onclick="window.entBasketShoot?.()"></canvas>
           </div>
 
           <div class="card entControlCard">
@@ -827,9 +827,9 @@ Entrada al grupo</textarea>
               <div class="entScoreCard"><small>Récord</small><strong id="entBasketBestText">0</strong></div>
             </div>
 
-            <button id="entBasketStartBtn" class="btn full entGoldBtn" type="button">Iniciar / Reiniciar</button>
-            <button id="entBasketShootBtn" class="btn secondary full" type="button">Lanzar</button>
-            <button id="entBasketResetBestBtn" class="btn danger full" type="button">Borrar récord</button>
+            <button id="entBasketStartBtn" class="btn full entGoldBtn" type="button" onclick="window.entBasketStart?.()">Iniciar / Reiniciar</button>
+            <button id="entBasketShootBtn" class="btn secondary full" type="button" onclick="window.entBasketShoot?.()">Lanzar</button>
+            <button id="entBasketResetBestBtn" class="btn danger full" type="button" onclick="window.entBasketResetBest?.()">Borrar récord</button>
 
             <div class="entHowBox">
               <b>Cómo jugar:</b><br>
