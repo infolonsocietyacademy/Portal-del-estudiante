@@ -5589,3 +5589,795 @@ body.light-mode #signupSubmitBtn[style*="color"]{
 @media(max-width:980px){
   .entBasketGrid{grid-template-columns:1fr}
 }
+
+/* ======================================================================
+   OLON SOCIETY — FINTECH OS 2026
+   Modern visual override. Designed to sit at the END of the current CSS.
+   Keeps existing HTML / JS behavior and interaction fixes intact.
+   ====================================================================== */
+
+:root{
+  --bg:#06070a;
+  --panel:#0d1016;
+  --panel2:#121722;
+  --panel3:#171d29;
+  --line:rgba(255,255,255,.085);
+  --line-strong:rgba(255,255,255,.14);
+  --text:#f7f8fb;
+  --muted:#8f9aad;
+  --blue:#5b8cff;
+  --cyan:#5ce1e6;
+  --green:#35d07f;
+  --red:#ff6677;
+  --yellow:#f6bd4f;
+  --purple:#9a7cff;
+  --gold:#e8c36a;
+  --gold-2:#f7dda0;
+  --surface:rgba(13,16,22,.78);
+  --surface-2:rgba(18,23,34,.82);
+  --shadow:0 24px 70px rgba(0,0,0,.36);
+  --shadow-soft:0 14px 38px rgba(0,0,0,.24);
+  --ring:0 0 0 4px rgba(232,195,106,.10);
+  --radius-xl:24px;
+  --radius-lg:18px;
+  --radius-md:14px;
+}
+
+html{
+  background:var(--bg);
+  scroll-behavior:smooth;
+}
+
+body{
+  background:
+    radial-gradient(circle at 78% -10%,rgba(91,140,255,.075),transparent 30%),
+    radial-gradient(circle at 8% 0%,rgba(232,195,106,.055),transparent 26%),
+    linear-gradient(180deg,#07080b 0%,#050609 100%) !important;
+  color:var(--text);
+  font-feature-settings:"tnum" 1,"ss01" 1,"cv11" 1;
+  letter-spacing:-.008em;
+}
+
+::selection{background:rgba(232,195,106,.26);color:#fff}
+
+*{
+  scrollbar-width:thin;
+  scrollbar-color:rgba(255,255,255,.18) transparent;
+}
+*::-webkit-scrollbar{width:8px;height:8px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:999px}
+*::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.24)}
+
+button,input,select,textarea{font:inherit}
+button{letter-spacing:-.01em}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
+  outline:none !important;
+  box-shadow:var(--ring) !important;
+  border-color:rgba(232,195,106,.52) !important;
+}
+
+/* ---------- APP SHELL ---------- */
+#portal.app,.app{
+  background:transparent !important;
+  min-height:100svh;
+}
+
+.sidebar{
+  background:linear-gradient(180deg,rgba(10,12,17,.98),rgba(7,9,13,.985)) !important;
+  border-right:1px solid rgba(255,255,255,.065) !important;
+  box-shadow:18px 0 60px rgba(0,0,0,.14);
+  padding:22px 18px !important;
+}
+
+.brand{
+  margin-bottom:28px !important;
+  padding:4px 8px 18px;
+  border-bottom:1px solid rgba(255,255,255,.065);
+}
+.brand .logo{
+  width:42px !important;height:42px !important;border-radius:13px !important;
+  background:linear-gradient(145deg,#f4d98b,#b88c34) !important;
+  color:#111318 !important;
+  box-shadow:0 10px 28px rgba(232,195,106,.13) !important;
+}
+.brand h1{font-size:15px !important;font-weight:850;letter-spacing:-.025em}
+.brand span{font-size:11px !important;color:#707b8e !important}
+
+.nav{gap:5px !important}
+.nav button{
+  min-height:45px;
+  border:1px solid transparent !important;
+  border-radius:13px !important;
+  padding:11px 13px !important;
+  color:#8e98aa !important;
+  background:transparent !important;
+  font-weight:750 !important;
+  transition:background .18s ease,border-color .18s ease,color .18s ease,transform .18s ease !important;
+}
+.nav button:hover{
+  color:#edf1f7 !important;
+  background:rgba(255,255,255,.045) !important;
+  border-color:rgba(255,255,255,.06) !important;
+  transform:translateX(2px) !important;
+}
+.nav button.active{
+  color:#fff !important;
+  background:linear-gradient(90deg,rgba(232,195,106,.115),rgba(232,195,106,.035)) !important;
+  border-color:rgba(232,195,106,.18) !important;
+  box-shadow:inset 3px 0 0 var(--gold) !important;
+  transform:none !important;
+}
+
+.sideBox{
+  border-radius:17px !important;
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.025)) !important;
+  border:1px solid rgba(255,255,255,.075) !important;
+  box-shadow:none !important;
+}
+
+.main{
+  background:transparent !important;
+  max-width:1660px !important;
+  padding:32px 34px 54px !important;
+}
+
+.topbar{
+  min-height:72px;
+  margin:-32px -34px 28px !important;
+  padding:15px 34px 15px 76px !important;
+  background:rgba(6,7,10,.78) !important;
+  border-bottom:1px solid rgba(255,255,255,.065) !important;
+  backdrop-filter:blur(22px) saturate(135%) !important;
+  -webkit-backdrop-filter:blur(22px) saturate(135%) !important;
+  box-shadow:0 12px 34px rgba(0,0,0,.10);
+}
+.topbar h2{
+  font-size:27px !important;
+  font-weight:850 !important;
+  letter-spacing:-.045em !important;
+}
+.topbar p{font-size:12.5px;color:#7f8a9c !important}
+
+.userPill{
+  border:1px solid rgba(255,255,255,.075) !important;
+  background:rgba(255,255,255,.035) !important;
+  border-radius:14px !important;
+  padding:7px 10px !important;
+  box-shadow:none !important;
+}
+.avatar{
+  width:34px !important;height:34px !important;
+  background:linear-gradient(145deg,#e8c36a,#9f7626) !important;
+  color:#111318 !important;
+  border:1px solid rgba(255,255,255,.18);
+}
+
+.mobileMenuToggle{
+  width:44px !important;height:44px !important;
+  border-radius:13px !important;
+  border:1px solid rgba(255,255,255,.10) !important;
+  background:rgba(15,18,25,.88) !important;
+  box-shadow:0 10px 30px rgba(0,0,0,.22) !important;
+  backdrop-filter:blur(18px) !important;
+}
+body.menu-open .mobileMenuToggle{
+  background:var(--gold) !important;
+  color:#111318 !important;
+  border-color:transparent !important;
+}
+
+/* ---------- CARDS / BENTO ---------- */
+.card,.adminMetric,.adminHero,.welcomeHeroCard,.selectedReportCard,.marketNewsHero,
+.entHero,.entGameCard,.entControlCard,.yearlyGoalCard,.noloSerioHero,.noloSerioChatCard,
+.waChatShell,.settingsPanel,.studentChatPanel,.adminChatBox{
+  border:1px solid rgba(255,255,255,.075) !important;
+  background:linear-gradient(180deg,rgba(16,20,28,.86),rgba(10,13,19,.92)) !important;
+  box-shadow:var(--shadow-soft) !important;
+  border-radius:var(--radius-xl) !important;
+}
+
+.card{
+  padding:20px !important;
+  position:relative;
+}
+.card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.025),transparent 42%);
+}
+.card:hover,.adminMetric:hover,.adminHero:hover{
+  transform:translateY(-2px) !important;
+  border-color:rgba(255,255,255,.12) !important;
+  box-shadow:0 20px 48px rgba(0,0,0,.28) !important;
+}
+
+.grid4,.v3Grid,.adminMetrics{gap:14px !important}
+.layout,.proGrid,.reportGrid{gap:14px !important}
+.metric small,.v3Card small,.adminMetric small{
+  color:#818b9d !important;
+  font-size:11px !important;
+  letter-spacing:.055em !important;
+  text-transform:uppercase;
+}
+.metric h3,.v3Card h3,.adminMetric b{
+  color:#fff !important;
+  font-size:clamp(24px,2.3vw,32px) !important;
+  font-weight:850 !important;
+  letter-spacing:-.055em !important;
+  background:none !important;
+  -webkit-text-fill-color:initial !important;
+}
+.metric span,.v3Card span{font-size:11.5px !important}
+.good{color:#48db8b !important}.bad{color:#ff7382 !important}.warn{color:#f2bd58 !important}
+
+/* ---------- WELCOME / HERO ---------- */
+.welcomeHeroCard,.adminHero,.marketNewsHero,.noloSerioHero,.entHero{
+  overflow:hidden;
+  isolation:isolate;
+}
+.welcomeHeroCard::before,.adminHero::before,.marketNewsHero::before{
+  opacity:.42 !important;
+  filter:blur(45px) !important;
+}
+.welcomeKicker,.adminKicker,.newsKicker,.entKicker,.portalEnterKicker{
+  border-color:rgba(232,195,106,.20) !important;
+  background:rgba(232,195,106,.07) !important;
+  color:#e9c979 !important;
+  font-size:10.5px !important;
+  letter-spacing:.07em !important;
+}
+.welcomeTitle,.adminHero h3,.marketNewsHero h2{
+  color:#fff !important;
+  letter-spacing:-.055em !important;
+}
+.welcomeSub,.adminHero p,.marketNewsHero p{color:#8994a6 !important}
+
+/* ---------- BUTTONS ---------- */
+.btn{
+  min-height:44px;
+  border-radius:13px !important;
+  padding:11px 15px !important;
+  background:linear-gradient(135deg,#edce7a,#c79b43) !important;
+  color:#111318 !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+  font-weight:850 !important;
+  box-shadow:0 10px 24px rgba(172,128,44,.15) !important;
+  transition:transform .16s ease,filter .16s ease,box-shadow .16s ease,border-color .16s ease !important;
+}
+.btn:hover{transform:translateY(-1px) !important;filter:brightness(1.035);box-shadow:0 14px 30px rgba(172,128,44,.19) !important}
+.btn:active{transform:translateY(0) scale(.985) !important}
+.btn.secondary{
+  background:rgba(255,255,255,.045) !important;
+  color:#e9edf4 !important;
+  border-color:rgba(255,255,255,.09) !important;
+  box-shadow:none !important;
+}
+.btn.secondary:hover{background:rgba(255,255,255,.075) !important}
+.btn.danger{background:rgba(255,102,119,.095) !important;color:#ff9aa5 !important;border-color:rgba(255,102,119,.18) !important;box-shadow:none !important}
+.btn.success{background:rgba(53,208,127,.095) !important;color:#78e6aa !important;border-color:rgba(53,208,127,.18) !important;box-shadow:none !important}
+.btn.warnBtn{background:rgba(246,189,79,.095) !important;color:#f5cc7d !important;border-color:rgba(246,189,79,.18) !important;box-shadow:none !important}
+
+/* ---------- FORMS ---------- */
+.field label,.entLabel{color:#9aa4b5 !important;font-size:12px !important;font-weight:750 !important}
+.field input,.field select,.field textarea,.adminSearch,.adminSelect,.entTextarea,.waComposer textarea,
+.newsSearch input,#yearlyGoalInput{
+  background:#0a0d13 !important;
+  border:1px solid rgba(255,255,255,.09) !important;
+  color:#f4f6fa !important;
+  border-radius:13px !important;
+  min-height:46px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+.field input::placeholder,.field textarea::placeholder,.waComposer textarea::placeholder{color:#596477}
+.field input:hover,.field select:hover,.field textarea:hover,.adminSearch:hover,.adminSelect:hover{
+  border-color:rgba(255,255,255,.15) !important;
+}
+.field input:focus,.field select:focus,.field textarea:focus,.adminSearch:focus,.adminSelect:focus{
+  border-color:rgba(232,195,106,.42) !important;
+  box-shadow:var(--ring) !important;
+}
+
+/* ---------- TABLES ---------- */
+.tableWrap,.adminTable{
+  border-radius:18px !important;
+  border:1px solid rgba(255,255,255,.065);
+  background:rgba(7,9,13,.48);
+}
+table{border-collapse:separate !important;border-spacing:0 !important}
+th{
+  color:#727e91 !important;
+  background:rgba(255,255,255,.022);
+  font-size:10.5px !important;
+  letter-spacing:.075em !important;
+  font-weight:800 !important;
+}
+th,td{border-bottom:1px solid rgba(255,255,255,.055) !important;padding:13px 14px !important}
+tbody tr{transition:background .15s ease}
+tbody tr:hover{background:rgba(255,255,255,.025)}
+tbody tr:last-child td{border-bottom:0 !important}
+.codePill,.badge,.rankBadge,.selectedReportBadge,.planBadge,.adminCountPill{
+  border-radius:9px !important;
+  box-shadow:none !important;
+}
+
+/* ---------- PERFORMANCE / SCORE ---------- */
+.traderScoreCard{
+  background:
+    radial-gradient(circle at 15% 0%,rgba(232,195,106,.10),transparent 32%),
+    linear-gradient(180deg,rgba(16,20,28,.94),rgba(10,13,19,.96)) !important;
+}
+.traderScoreCard::before{display:none !important}
+.scoreRing{
+  width:126px !important;height:126px !important;
+  background:conic-gradient(var(--gold) calc(var(--score,0)*1%),rgba(255,255,255,.055) 0) !important;
+  box-shadow:0 0 0 1px rgba(255,255,255,.055),0 18px 34px rgba(0,0,0,.22) !important;
+}
+.scoreRing span{
+  width:98px !important;height:98px !important;
+  background:#0b0e14 !important;
+  border-color:rgba(255,255,255,.065) !important;
+  font-size:27px !important;
+}
+.scoreBarTrack,.goalBar,.portalProgress,.loaderBar{
+  background:rgba(255,255,255,.055) !important;
+  border-color:rgba(255,255,255,.055) !important;
+}
+.scoreBarTrack span,.goalBar span{
+  background:linear-gradient(90deg,#d6ab50,#f2d383) !important;
+}
+.aiItem,.reportRow,.calDay,.entScoreCard,.entHistoryItem{
+  border-color:rgba(255,255,255,.065) !important;
+  background:rgba(255,255,255,.028) !important;
+}
+.calDay{border-radius:11px !important}
+.calDay.goodDay{background:rgba(53,208,127,.10) !important;border-color:rgba(53,208,127,.15) !important}
+.calDay.badDay{background:rgba(255,102,119,.10) !important;border-color:rgba(255,102,119,.15) !important}
+.calDay.flatDay{background:rgba(246,189,79,.10) !important;border-color:rgba(246,189,79,.15) !important}
+
+/* ---------- REPORTS ---------- */
+.reportSwitch{gap:6px !important}
+.reportSwitch button,.newsFilterBtn,.entTabs button,.themeButtons button,.reportTapBtn{
+  min-height:40px;
+  border-radius:11px !important;
+  border:1px solid rgba(255,255,255,.075) !important;
+  background:rgba(255,255,255,.035) !important;
+  color:#929dae !important;
+  box-shadow:none !important;
+}
+.reportSwitch button:hover,.newsFilterBtn:hover,.entTabs button:hover,.themeButtons button:hover,.reportTapBtn:hover{
+  color:#fff !important;background:rgba(255,255,255,.06) !important;border-color:rgba(255,255,255,.12) !important;
+}
+.reportSwitch button.active,.newsFilterBtn.active,.entTabs button.active,.themeButtons button.active,.reportTapBtn.active{
+  color:#17130a !important;
+  background:linear-gradient(135deg,#ead080,#cda245) !important;
+  border-color:rgba(232,195,106,.34) !important;
+  box-shadow:0 8px 20px rgba(174,130,45,.12) !important;
+}
+.selectedReportCard::before{opacity:.25 !important;filter:blur(38px) !important}
+
+/* ---------- LOGIN / SIGNUP ---------- */
+.auth,.authFullScreenPro{
+  background:
+    radial-gradient(circle at 18% 15%,rgba(232,195,106,.085),transparent 26%),
+    radial-gradient(circle at 86% 84%,rgba(91,140,255,.07),transparent 28%),
+    linear-gradient(135deg,#050609 0%,#080a0f 48%,#050609 100%) !important;
+}
+.auth::before,.authHero::before{opacity:.018 !important}
+.authShell{
+  width:min(1180px,94vw) !important;
+  min-height:700px !important;
+  border-radius:30px !important;
+  border:1px solid rgba(255,255,255,.085) !important;
+  background:rgba(9,11,16,.92) !important;
+  box-shadow:0 36px 100px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.035) !important;
+  backdrop-filter:blur(24px) saturate(120%) !important;
+  -webkit-backdrop-filter:blur(24px) saturate(120%) !important;
+}
+.authHero{
+  background:
+    radial-gradient(circle at 32% 26%,rgba(232,195,106,.075),transparent 34%),
+    linear-gradient(180deg,rgba(255,255,255,.018),transparent) !important;
+  border-right:1px solid rgba(255,255,255,.065) !important;
+  padding:48px !important;
+}
+.authPanel{
+  background:#090c11 !important;
+  padding:50px !important;
+}
+.authLogo{
+  filter:drop-shadow(0 16px 38px rgba(232,195,106,.16)) !important;
+}
+.authKicker{color:#d9bb72 !important;font-size:13px !important;letter-spacing:.065em;text-transform:uppercase}
+.authTitle{
+  font-size:clamp(38px,4vw,52px) !important;
+  letter-spacing:-.065em !important;
+  line-height:.98 !important;
+}
+.authTitle span{color:#e8c36a !important}
+.authText{color:#8c97a8 !important;line-height:1.68 !important}
+.authFeature{
+  border-radius:15px !important;
+  background:rgba(255,255,255,.025) !important;
+  border-color:rgba(255,255,255,.065) !important;
+  backdrop-filter:none !important;
+}
+.authFeatureIcon{
+  border-radius:11px !important;
+  background:rgba(232,195,106,.065) !important;
+  border-color:rgba(232,195,106,.14) !important;
+}
+.authStats{
+  border-radius:17px !important;
+  border-color:rgba(255,255,255,.07) !important;
+  background:rgba(255,255,255,.02) !important;
+  box-shadow:none !important;
+}
+.authStat{border-color:rgba(255,255,255,.06) !important}
+.authStat b{color:#e7c875 !important;font-size:23px !important}
+.authStat small{color:#8792a4 !important}
+.authQuote,.loginPremiumVerse,.dailyVerseBox{
+  border-radius:15px !important;
+  border-color:rgba(255,255,255,.07) !important;
+  background:rgba(255,255,255,.025) !important;
+  box-shadow:none !important;
+}
+.tabs,.authSegmented{
+  background:#07090d !important;
+  border-color:rgba(255,255,255,.075) !important;
+  border-radius:14px !important;
+  padding:4px !important;
+}
+.tabs button,.authSegmented button{border-radius:10px !important}
+.tabs button.active,.authSegmented button.active{
+  color:#17130a !important;
+  background:linear-gradient(135deg,#ead080,#cda245) !important;
+  box-shadow:0 8px 22px rgba(174,130,45,.13) !important;
+}
+.authLegal{
+  border-radius:15px !important;
+  border-color:rgba(255,255,255,.07) !important;
+  background:rgba(255,255,255,.02) !important;
+}
+.authLegal b{color:#d8b966 !important}
+
+/* ---------- LOADERS ---------- */
+#olonLoader,#portalEnterLoader{
+  background:
+    radial-gradient(circle at 50% 36%,rgba(232,195,106,.085),transparent 25%),
+    #050609 !important;
+  backdrop-filter:none !important;
+}
+.loaderLogoWrap,.portalEnterLogo{
+  background:#0c0f15 !important;
+  border-color:rgba(232,195,106,.20) !important;
+  box-shadow:0 20px 50px rgba(0,0,0,.30),0 0 30px rgba(232,195,106,.07) !important;
+}
+.portalEnterBox{
+  border-radius:28px !important;
+  border-color:rgba(255,255,255,.09) !important;
+  background:#0a0d12 !important;
+  box-shadow:0 30px 90px rgba(0,0,0,.52) !important;
+}
+.portalEnterBox::before{opacity:.35}
+.portalEnterTitle{letter-spacing:-.055em !important}
+.portalEnterTitle span{color:#e8c36a !important;text-shadow:none !important}
+.portalEnterPlan,.portalStep{
+  border-color:rgba(255,255,255,.07) !important;
+  background:rgba(255,255,255,.025) !important;
+}
+.portalStep.active{border-color:rgba(232,195,106,.20) !important;background:rgba(232,195,106,.055) !important}
+.portalStep.active i{background:#e8c36a !important;color:#111318 !important}
+.portalProgress span,.loaderBar span{background:linear-gradient(90deg,#b78a36,#f2d383,#b78a36) !important}
+
+/* ---------- ADMIN ---------- */
+.adminHero{
+  background:
+    radial-gradient(circle at 90% 15%,rgba(232,195,106,.09),transparent 28%),
+    linear-gradient(180deg,rgba(16,20,28,.92),rgba(10,13,19,.96)) !important;
+}
+.adminPanelCard{overflow:hidden !important}
+.adminPanelHead{
+  border-bottom-color:rgba(255,255,255,.06) !important;
+  background:rgba(255,255,255,.018) !important;
+}
+.adminAvatar{
+  border-radius:11px !important;
+  background:linear-gradient(145deg,#e7c774,#a47b2e) !important;
+  color:#15171b !important;
+}
+.adminKingMessage,.adminHeroStrip,.adminAlertItem,.olonIdentityStrip{
+  border-color:rgba(255,255,255,.075) !important;
+  background:linear-gradient(180deg,rgba(16,20,28,.88),rgba(10,13,19,.92)) !important;
+  box-shadow:none !important;
+}
+
+/* ---------- TOP 3 / RANKING ---------- */
+.topCard,.top3Container{
+  border-color:rgba(255,255,255,.075) !important;
+  background:linear-gradient(180deg,rgba(16,20,28,.88),rgba(10,13,19,.94)) !important;
+  box-shadow:var(--shadow-soft) !important;
+}
+.topCard:hover{transform:translateY(-2px) !important;border-color:rgba(232,195,106,.16) !important}
+.topRank{color:#e8c36a !important}
+.topReturn{color:#49da8b !important}
+
+/* ---------- NEWS ---------- */
+.marketNewsHero{
+  background:
+    radial-gradient(circle at 87% 12%,rgba(91,140,255,.08),transparent 28%),
+    linear-gradient(180deg,rgba(16,20,28,.91),rgba(10,13,19,.95)) !important;
+}
+.newsCard,.newsItem{
+  border-color:rgba(255,255,255,.07) !important;
+  background:rgba(255,255,255,.025) !important;
+  box-shadow:none !important;
+}
+.newsCard:hover,.newsItem:hover{border-color:rgba(255,255,255,.12) !important;background:rgba(255,255,255,.038) !important}
+.newsContent{color:#cbd2dc !important}
+
+/* ---------- CHAT / NOLO IA ---------- */
+.waChatShell{
+  background:linear-gradient(180deg,#0c0f15,#080a0f) !important;
+}
+.waChatHeader,.noloFloatHeader{
+  background:rgba(255,255,255,.025) !important;
+  border-color:rgba(255,255,255,.065) !important;
+}
+.waAvatar{
+  background:linear-gradient(145deg,#e8c36a,#ad8231) !important;
+  color:#111318 !important;
+}
+.waBubble,.chatBubble,.noloBubble{
+  background:#141923 !important;
+  border-color:rgba(255,255,255,.065) !important;
+  box-shadow:none !important;
+}
+.waBubble.me,.chatBubble.me,.noloBubble.user{
+  background:rgba(91,140,255,.11) !important;
+  border-color:rgba(91,140,255,.16) !important;
+}
+.waBubble.admin,.noloBubble.assistant{
+  background:rgba(232,195,106,.075) !important;
+  border-color:rgba(232,195,106,.13) !important;
+}
+.waEmojiBar,.waComposer{background:#080a0f !important;border-color:rgba(255,255,255,.055) !important}
+.waSendBtn{
+  background:#e8c36a !important;
+  color:#111318 !important;
+  box-shadow:none !important;
+}
+#noloFloatingBtn,.chatFab,.floatingAdd,.settingsFab{
+  border:1px solid rgba(255,255,255,.10) !important;
+  background:#141923 !important;
+  color:#f2d585 !important;
+  box-shadow:0 14px 34px rgba(0,0,0,.30) !important;
+}
+#noloFloatingBtn:hover,.chatFab:hover,.floatingAdd:hover,.settingsFab:hover{
+  background:#1a202c !important;border-color:rgba(232,195,106,.20) !important;
+}
+.noloSerioHero,.noloSerioSideCard{
+  background:linear-gradient(180deg,rgba(16,20,28,.90),rgba(10,13,19,.95)) !important;
+  border-color:rgba(255,255,255,.075) !important;
+}
+.noloMissionCard{
+  background:rgba(255,255,255,.026) !important;
+  border-color:rgba(255,255,255,.065) !important;
+}
+.noloSerioMessages{background:#080a0f !important}
+
+/* ---------- SETTINGS ---------- */
+.settingsPanel{
+  background:#0b0e14 !important;
+  border-color:rgba(255,255,255,.10) !important;
+  backdrop-filter:blur(22px) saturate(120%) !important;
+  -webkit-backdrop-filter:blur(22px) saturate(120%) !important;
+  box-shadow:0 24px 70px rgba(0,0,0,.42) !important;
+}
+.settingRow{border-color:rgba(255,255,255,.06) !important}
+
+/* ---------- ENTERTAINMENT ---------- */
+.entHero{
+  background:
+    radial-gradient(circle at 80% 10%,rgba(91,140,255,.07),transparent 30%),
+    radial-gradient(circle at 14% 20%,rgba(232,195,106,.06),transparent 28%),
+    linear-gradient(180deg,rgba(16,20,28,.92),rgba(10,13,19,.96)) !important;
+}
+.entHero::before{opacity:.35 !important}
+.entHero h2{
+  background:none !important;
+  -webkit-text-fill-color:#fff !important;
+  color:#fff !important;
+  letter-spacing:-.06em !important;
+}
+.entTrustRow span,.noloTrustRow span,.noloModelPill{
+  border-color:rgba(255,255,255,.07) !important;
+  background:rgba(255,255,255,.028) !important;
+}
+.entWheelCenter,#entSpinBtn,.entGoldBtn{
+  background:linear-gradient(135deg,#f0d27f,#c99c42) !important;
+  color:#14110a !important;
+}
+.entWinnerBox,.basketHowBox,.entHowBox{
+  border-color:rgba(255,255,255,.07) !important;
+  background:rgba(255,255,255,.025) !important;
+}
+#entBasketCanvas,#entGameCanvas,#entWheelCanvas{
+  box-shadow:0 24px 55px rgba(0,0,0,.32) !important;
+}
+
+/* ---------- LIGHT MODE ---------- */
+body.light-mode{
+  --bg:#f3f5f8;
+  --panel:#ffffff;
+  --panel2:#f7f8fa;
+  --panel3:#eef1f5;
+  --line:rgba(15,23,42,.085);
+  --line-strong:rgba(15,23,42,.14);
+  --text:#111827;
+  --muted:#667085;
+  background:linear-gradient(180deg,#f7f8fa,#eef1f5) !important;
+  color:#111827 !important;
+}
+body.light-mode .sidebar{
+  background:rgba(250,251,252,.98) !important;
+  border-right-color:rgba(15,23,42,.075) !important;
+}
+body.light-mode .topbar{background:rgba(247,248,250,.82) !important;border-bottom-color:rgba(15,23,42,.07) !important}
+body.light-mode .card,body.light-mode .adminMetric,body.light-mode .adminHero,body.light-mode .welcomeHeroCard,
+body.light-mode .selectedReportCard,body.light-mode .marketNewsHero,body.light-mode .entHero,
+body.light-mode .entGameCard,body.light-mode .entControlCard,body.light-mode .yearlyGoalCard,
+body.light-mode .noloSerioHero,body.light-mode .noloSerioSideCard,body.light-mode .noloSerioChatCard,
+body.light-mode .waChatShell,body.light-mode .settingsPanel{
+  background:#fff !important;
+  color:#111827 !important;
+  border-color:rgba(15,23,42,.075) !important;
+  box-shadow:0 12px 36px rgba(15,23,42,.07) !important;
+}
+body.light-mode .nav button{color:#667085 !important}
+body.light-mode .nav button:hover{background:#f2f4f7 !important;color:#1d2939 !important}
+body.light-mode .nav button.active{background:#fff8e7 !important;color:#1d2939 !important;border-color:#f1dfb2 !important}
+body.light-mode .field input,body.light-mode .field select,body.light-mode .field textarea,
+body.light-mode .adminSearch,body.light-mode .adminSelect,body.light-mode #yearlyGoalInput{
+  background:#f8fafc !important;color:#111827 !important;border-color:rgba(15,23,42,.10) !important;
+}
+body.light-mode .metric h3,body.light-mode .v3Card h3,body.light-mode .adminMetric b,
+body.light-mode .welcomeTitle,body.light-mode .adminHero h3,body.light-mode .marketNewsHero h2,
+body.light-mode .entHero h2{color:#111827 !important;-webkit-text-fill-color:#111827 !important}
+body.light-mode th{background:#f8fafc !important;color:#667085 !important}
+body.light-mode td{color:#1d2939 !important;border-color:rgba(15,23,42,.065) !important}
+body.light-mode .tableWrap,body.light-mode .adminTable{background:#fff !important;border-color:rgba(15,23,42,.075) !important}
+body.light-mode .userPill,body.light-mode .sideBox{background:#fff !important;border-color:rgba(15,23,42,.08) !important;color:#111827 !important}
+
+/* ---------- PREMIUM PLAN: ELEGANT, NOT OVERDONE ---------- */
+body.plan-premium{
+  --gold:#f0cf76;
+  --gold-2:#ffe6a6;
+  background:
+    radial-gradient(circle at 8% 0%,rgba(240,207,118,.075),transparent 26%),
+    radial-gradient(circle at 86% -8%,rgba(154,124,255,.055),transparent 30%),
+    linear-gradient(180deg,#06070a,#050609) !important;
+}
+body.plan-premium .card,body.plan-premium .authShell,body.plan-premium .loginCard{
+  border-color:rgba(240,207,118,.11) !important;
+  box-shadow:var(--shadow-soft) !important;
+}
+body.plan-premium .btn:not(.secondary):not(.danger):not(.success):not(.warnBtn){
+  background:linear-gradient(135deg,#f2d584,#c99b41) !important;
+  box-shadow:0 10px 24px rgba(174,130,45,.15) !important;
+}
+body.plan-premium .nav button.active{
+  background:linear-gradient(90deg,rgba(240,207,118,.12),rgba(240,207,118,.03)) !important;
+  border-color:rgba(240,207,118,.18) !important;
+}
+
+/* ---------- MOBILE APP ---------- */
+.mobileBottomNav{
+  background:rgba(8,10,15,.92) !important;
+  border-top:1px solid rgba(255,255,255,.075) !important;
+  backdrop-filter:blur(22px) saturate(135%) !important;
+  -webkit-backdrop-filter:blur(22px) saturate(135%) !important;
+  box-shadow:0 -14px 34px rgba(0,0,0,.18) !important;
+}
+.mobileBottomNav button{
+  color:#7e899c !important;
+  background:transparent !important;
+  border:0 !important;
+}
+.mobileBottomNav button.active{color:#f0cf76 !important}
+
+/* ---------- RESPONSIVE POLISH ---------- */
+@media(min-width:1400px){
+  .main{padding-left:40px !important;padding-right:40px !important}
+  .topbar{margin-left:-40px !important;margin-right:-40px !important;padding-right:40px !important}
+}
+
+@media(max-width:1180px) and (min-width:981px){
+  .main{padding:28px 24px 46px !important}
+  .topbar{margin:-28px -24px 24px !important;padding:14px 24px 14px 72px !important}
+}
+
+@media(max-width:980px){
+  .main{padding:20px 18px 94px !important}
+  .topbar{
+    margin:-20px -18px 20px !important;
+    padding:13px 18px 13px 64px !important;
+    min-height:66px !important;
+  }
+  .sidebar{box-shadow:22px 0 60px rgba(0,0,0,.34) !important}
+  body.menu-open::after{background:rgba(0,0,0,.52) !important;backdrop-filter:blur(2px)}
+  .authShell{width:min(760px,96vw) !important;min-height:auto !important;border-radius:24px !important}
+  .authHero{border-right:0 !important;border-bottom:1px solid rgba(255,255,255,.06) !important}
+  .authHero,.authPanel{padding:30px !important}
+}
+
+@media(max-width:620px){
+  .main{padding:16px 12px 96px !important}
+  .topbar{
+    margin:-16px -12px 16px !important;
+    padding:12px 12px 12px 60px !important;
+    border-radius:0 !important;
+    align-items:center !important;
+    flex-direction:row !important;
+  }
+  .topbar h2{font-size:21px !important}
+  .topbar p{display:none}
+  .userPill{margin-left:auto !important}
+  .userPill > div:not(.avatar){display:none}
+  .mobileMenuToggle{top:10px !important;left:10px !important;width:42px !important;height:42px !important}
+  body.menu-open .mobileMenuToggle{left:226px !important}
+
+  .card,.adminMetric,.adminHero,.welcomeHeroCard,.selectedReportCard,.marketNewsHero,
+  .entHero,.entGameCard,.entControlCard,.noloSerioHero,.noloSerioChatCard,.waChatShell{
+    border-radius:18px !important;
+  }
+  .card{padding:16px !important}
+  .grid4,.v3Grid,.adminMetrics,.proGrid,.reportGrid,.layout{gap:10px !important}
+  .welcomeTitle{font-size:26px !important}
+  .metric h3,.v3Card h3,.adminMetric b{font-size:25px !important}
+
+  .auth,.authFullScreenPro{padding:8px !important;background:#050609 !important}
+  .authShell{width:100% !important;border-radius:20px !important;box-shadow:none !important}
+  .authHero,.authPanel{padding:20px !important}
+  .authTitle{font-size:31px !important;line-height:1.02 !important}
+  .authLogo{max-width:72vw !important}
+  .tabs{margin-bottom:20px !important}
+  .btn{min-height:46px}
+
+  .reportSwitch{grid-template-columns:repeat(3,minmax(0,1fr)) !important}
+  .reportSwitch button{min-height:44px !important;border-radius:11px !important}
+  .tableWrap{border-radius:14px !important}
+  th,td{padding:12px !important}
+  .scoreRing{width:112px !important;height:112px !important}
+  .scoreRing span{width:88px !important;height:88px !important;font-size:24px !important}
+}
+
+@media(max-width:420px){
+  .topbar h2{font-size:19px !important}
+  .grid4,.v3Grid,.adminMetrics{grid-template-columns:1fr !important}
+  .reportSwitch{gap:5px !important}
+  .reportSwitch button{padding:10px 5px !important;font-size:10.5px !important}
+}
+
+/* ---------- ACCESSIBILITY / PERFORMANCE ---------- */
+@media (hover:none){
+  .card:hover,.adminMetric:hover,.adminHero:hover,.topCard:hover,.btn:hover,.nav button:hover{
+    transform:none !important;
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+  }
+}
+
+@supports not (backdrop-filter:blur(1px)){
+  .topbar,.mobileBottomNav,.settingsPanel,.authShell{background:#0b0e14 !important}
+}
