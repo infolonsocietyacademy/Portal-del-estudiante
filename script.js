@@ -196,8 +196,8 @@ window.addEventListener("load", () => {
   }, 1200);
 });
 
-const SUPABASE_URL = "https://bffojtcojnsvzxzwbdes.supabase.co";
-const SUPABASE_KEY = "sb_publishable_1qXUiQ6gXpBsyVkWdvq-rA_GwbAotcT";
+const SUPABASE_URL = "https://xanhhfashgkyrvphprts.supabase.co";
+const SUPABASE_KEY = "sb_publishable_JQ9TWOn3GvY2nTth0JLHIQ_AtTgwz8B";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 async function updateAuthStudentCount(){
@@ -698,7 +698,9 @@ function startChatRefresh(){
   }, 7000);
 }
 
-let currentUser = JSON.parse(localStorage.getItem("olon_current_user") || "null");
+// La sesión válida viene exclusivamente de Supabase Auth.
+localStorage.removeItem("olon_current_user");
+let currentUser = null;
 let chart;
 let cachedRecords = [];
 let cachedUsers = [];
@@ -713,7 +715,7 @@ function showError(msg, error){ console.error(msg, error || ""); alert(msg + (er
 function cleanText(value){ return String(value || "").trim(); }
 function normalizeRole(value){ const role = cleanText(value).toLowerCase(); return role === "admin" ? "admin" : "student"; }
 function normalizeStatus(value){ const status = cleanText(value).toLowerCase(); return status || "active"; }
-function isAdminUser(user){ const role = normalizeRole(user?.role); const code = cleanText(user?.access_code).toLowerCase(); return role === "admin" || code === "admin-nolo"; }
+function isAdminUser(user){ const role = normalizeRole(user?.role); const code = cleanText(user?.access_code).toLowerCase(); return role === "admin"; }
 function isActiveUser(user){ const status = normalizeStatus(user?.status); return status === "active" || status === "approved"; }
 function $(id){ return document.getElementById(id); }
 function setTextSafe(id, value){ const el = $(id); if(el) el.innerText = value; }
@@ -746,7 +748,7 @@ function resetEmailVerification(){
   if(!email && !confirm){ setEmailStatus("neutral", "Escribe y confirma tu email."); return; }
   if(email && !isValidEmailFormat(email)){ setEmailStatus("invalid", "Email no válido. Revisa que tenga @ y dominio correcto."); return; }
   if(confirm && email !== confirm){ setEmailStatus("invalid", "Los emails no coinciden."); return; }
-  if(email && confirm && email === confirm){ setEmailStatus("neutral", "Email listo. Presiona Verificar Email."); return; }
+  if(email && confirm && email === confirm){ setEmailStatus("neutral", "Correo listo. Presiona Verificar Email."); return; }
   setEmailStatus("neutral", "Confirma tu email para verificarlo.");
 }
 
@@ -755,31 +757,12 @@ async function verifySignupEmail(){
   const confirm = normalizeEmail(document.getElementById("signupEmailConfirm")?.value);
   signupEmailVerified = false;
   signupVerifiedEmail = "";
-
-  if(!email || !confirm){ setEmailStatus("invalid", "Debes escribir el email y confirmarlo."); return false; }
-  if(!isValidEmailFormat(email)){ setEmailStatus("invalid", "Email no válido. Ejemplo correcto: nombre@gmail.com"); return false; }
-  if(email !== confirm){ setEmailStatus("invalid", "Los emails no coinciden."); return false; }
-
-  setEmailStatus("checking", "Verificando email en Supabase...");
-  const { data, error } = await supabaseClient
-    .from("profiles")
-    .select("id,email")
-    .ilike("email", email)
-    .maybeSingle();
-
-  if(error){
-    console.error(error);
-    setEmailStatus("invalid", "No se pudo verificar el email. Revisa Supabase/RLS.");
-    return false;
-  }
-  if(data){
-    setEmailStatus("invalid", "Ese email ya está registrado. Usa otro email o inicia sesión.");
-    return false;
-  }
-
+  if(!email || !confirm){ setEmailStatus("invalid", "Debes escribir y confirmar tu correo."); return false; }
+  if(!isValidEmailFormat(email)){ setEmailStatus("invalid", "Escribe un correo válido."); return false; }
+  if(email !== confirm){ setEmailStatus("invalid", "Los correos no coinciden."); return false; }
   signupEmailVerified = true;
   signupVerifiedEmail = email;
-  setEmailStatus("valid", "✅ Email válido, confirmado y disponible.");
+  setEmailStatus("valid", "Correo válido. Supabase confirmará la cuenta por email si está activada la verificación.");
   return true;
 }
 
@@ -858,48 +841,7 @@ function toggleAuth(mode){
   document.getElementById("signupForm").classList.toggle("active", mode==="signup");
 }
 
-async function login(){
-  const code = cleanText($("loginCode")?.value);
-  const pass = cleanText($("loginPass")?.value);
-
-  if(!code || !pass){ alert("Escribe tu código y password."); return; }
-
-  try{
-    const { data, error } = await supabaseClient
-      .from("profiles")
-      .select("*")
-      .ilike("access_code", code)
-      .eq("password", pass)
-      .maybeSingle();
-
-    if(error || !data){ showError("Código o password incorrecto.", error); return; }
-
-    const admin = isAdminUser(data);
-    const active = isActiveUser(data);
-
-    if(!admin && !active){
-      const status = normalizeStatus(data.status);
-      const msg = status === "pending" ? "Tu cuenta está pendiente de aprobación por el admin." : "Tu cuenta no está activa. Contacta al admin.";
-      alert(msg);
-      return;
-    }
-
-    currentUser = { ...data, role: admin ? "admin" : "student", status: admin ? "active" : normalizeStatus(data.status) };
-    localStorage.setItem("olon_current_user", JSON.stringify(currentUser));
-
-    setLoaderStudentName(currentUser.full_name, currentUser.plan);
-    showPortalEnterLoader();
-    // Loading nivel dios: duración real premium
-    await new Promise(resolve => setTimeout(resolve, 6800));
-    await enterPortal();
-    await new Promise(resolve => setTimeout(resolve, 900));
-  }catch(err){
-    console.error("Login fatal error", err);
-    alert("No se pudo entrar al portal. Revisa Supabase o la consola del navegador.");
-  }finally{
-    hidePortalEnterLoader();
-  }
-}
+async function login(){ return window.olonSecureLogin(); }
 
 function generateAccessCode(){
   const random = Math.floor(10000 + Math.random() * 90000);
@@ -921,41 +863,7 @@ async function createUniqueAccessCode(){
   return "OLON-" + Date.now().toString().slice(-5);
 }
 
-async function signup(){
-  const name = document.getElementById("signupName").value.trim();
-  const email = normalizeEmail(document.getElementById("signupEmail").value);
-  const pass = document.getElementById("signupPass").value.trim();
-  const plan = document.getElementById("signupPlan").value || "VIP Regular";
-  if(!name || !email || !pass){ alert("Llena nombre, email y password."); return; }
-  if(!signupEmailVerified || signupVerifiedEmail !== email){
-    const ok = await verifySignupEmail();
-    if(!ok){ alert("Verifica un email válido antes de crear la cuenta."); return; }
-  }
-
-  const code = await createUniqueAccessCode();
-
-  const { data, error } = await supabaseClient
-    .from("profiles")
-    .insert([{ full_name:name, email:email, access_code:code, password:pass, role:"student", plan:plan, status:"pending", next_payment_date:null }])
-    .select()
-    .single();
-
-  if(error){ showError("No se pudo crear la cuenta.", error); return; }
-
-  updateAuthRealStats();
-loadTop3LoginStudents();
-  document.getElementById("generatedCodeText").innerText = code;
-  document.getElementById("signupName").value = "";
-  document.getElementById("signupEmail").value = "";
-  document.getElementById("signupEmailConfirm").value = "";
-  signupEmailVerified = false;
-  signupVerifiedEmail = "";
-  setEmailStatus("neutral", "Escribe y confirma tu email.");
-  document.getElementById("signupPass").value = "";
-  document.getElementById("signupPlan").value = "VIP Regular";
-  document.getElementById("auth").classList.add("hidden");
-  document.getElementById("codeResult").classList.remove("hidden");
-}
+async function signup(){ return window.olonSecureSignup(); }
 
 function copyGeneratedCode(){
   const code = document.getElementById("generatedCodeText").innerText;
@@ -1692,7 +1600,7 @@ function renderChart(){
 async function renderUsers(){
   const { data, error } = await supabaseClient
     .from("profiles")
-    .select("id, email, full_name, access_code, password, role, plan, status, next_payment_date, created_at")
+    .select("id, email, full_name, access_code, role, plan, status, next_payment_date, created_at")
     .order("created_at", { ascending:false });
 
   if(error){ showError("No se pudieron cargar los estudiantes.", error); return; }
@@ -1765,7 +1673,7 @@ function renderAdminTable(){
         </div>
       </td>
       <td><span class="codePill">${u.access_code || "-"}</span></td>
-      <td><span class="codePill passPill">${u.password || "-"}</span></td>
+      <td><span class="codePill passPill">Protegida</span></td>
       <td><span class="badge ${u.role==='admin'?'blue':'green'}">${u.role || "-"}</span></td>
       <td>${u.plan || '-'}</td>
       <td><span class="badge ${statusBadgeClass}">${u.status || '-'}</span></td>
@@ -1798,25 +1706,15 @@ async function updateUserStatus(userId, newStatus){
 
 async function deleteUser(userId, userName){
   if(!currentUser || !isAdminUser(currentUser)) return;
-
-  const target = cachedUsers.find(u => u.id === userId);
-  if(!target) return;
-
-  if(target.role === "admin" && target.access_code === "admin-nolo"){
-    alert("No puedes borrar el admin principal.");
+  const target=(cachedUsers || []).find(u => u.id === userId);
+  if(!target || target.role === "admin"){
+    alert("No puedes eliminar este usuario desde el portal.");
     return;
   }
-
-  if(!confirm("¿Seguro que quieres borrar a " + userName + "? También se borrarán sus registros.")) return;
-
-  const { error } = await supabaseClient
-    .from("profiles")
-    .delete()
-    .eq("id", userId);
-
-  if(error){ showError("No se pudo borrar el usuario.", error); return; }
-
-  await renderUsers();
+  // Borrar solo public.profiles no borra auth.users, deja cuentas inconsistentes.
+  // La eliminación definitiva debe hacerse en Authentication > Users (server admin).
+  const ok=confirm("Para proteger la cuenta de " + userName + ", este botón la suspenderá. Para eliminarla totalmente, usa Supabase > Authentication > Users. ¿Suspender ahora?");
+  if(ok) await updateUserStatus(userId,"suspended");
 }
 async function clearData(){
   if(!currentUser || isAdminUser(currentUser)) return;
@@ -2050,7 +1948,7 @@ if(typeof olonOriginalRenderAdminTable === 'function'){
   function roleOf(user){
     const role = clean(user?.role).toLowerCase();
     const code = clean(user?.access_code).toLowerCase();
-    return (role === 'admin' || code === 'admin-nolo') ? 'admin' : 'student';
+    return role === 'admin' ? 'admin' : 'student';
   }
   function statusOf(user){ return clean(user?.status).toLowerCase() || 'active'; }
   function canEnter(user){
@@ -2112,44 +2010,9 @@ if(typeof olonOriginalRenderAdminTable === 'function'){
     await forceEnterPortal(currentUser);
   };
 
-  window.login = async function(){
-    const code = clean(safeEl('loginCode')?.value);
-    const pass = clean(safeEl('loginPass')?.value);
-    if(!code || !pass){ alert('Escribe tu código y password.'); return; }
+  window.login = function(){ return window.olonSecureLogin(); };
 
-    try{
-      const loader = safeEl('portalEnterLoader');
-      if(loader) loader.classList.add('show');
-
-      const { data, error } = await supabaseClient
-        .from('profiles')
-        .select('*')
-        .ilike('access_code', code)
-        .eq('password', pass)
-        .maybeSingle();
-
-      if(error || !data){
-        console.error('Login Supabase error:', error);
-        alert('Código o password incorrecto. Verifica que el código y password estén igual que en Supabase.');
-        return;
-      }
-
-      if(!canEnter(data)){
-        const status = statusOf(data);
-        alert(status === 'pending' ? 'Tu cuenta está pendiente de aprobación por el admin.' : 'Tu cuenta no está activa. Contacta al admin.');
-        return;
-      }
-
-      await forceEnterPortal(data);
-    }catch(err){
-      console.error('LOGIN EMERGENCY ERROR:', err);
-      alert('No se pudo entrar. Abre consola y verifica Supabase / RLS. El error quedó en console.');
-    }finally{
-      safeEl('portalEnterLoader')?.classList.remove('show');
-    }
-  };
-
-  document.addEventListener('DOMContentLoaded', function(){
+    document.addEventListener('DOMContentLoaded', function(){
     const loginBtn = [...document.querySelectorAll('button')].find(b => (b.getAttribute('onclick') || '').includes('login()'));
     if(loginBtn){
       loginBtn.onclick = function(e){ e.preventDefault(); window.login(); };
@@ -2184,7 +2047,7 @@ if(typeof olonOriginalRenderAdminTable === 'function'){
   function roleOf(u){
     const r = clean(u?.role).toLowerCase();
     const c = clean(u?.access_code).toLowerCase();
-    return (r === 'admin' || c === 'admin-nolo') ? 'admin' : 'student';
+    return r === 'admin' ? 'admin' : 'student';
   }
   function statusOf(u){ return clean(u?.status).toLowerCase() || 'active'; }
   function activatePage(id){
@@ -2241,105 +2104,30 @@ if(typeof olonOriginalRenderAdminTable === 'function'){
     if(currentUser) await openPortal(currentUser);
   };
 
-  window.login = async function(){
-    const code = val('loginCode');
-    const pass = val('loginPass');
-    if(!code || !pass){ alert('Escribe tu código y password.'); return; }
+  window.login = function(){ return window.olonSecureLogin(); };
 
-    const loader = el('portalEnterLoader');
-    if(loader){ loader.classList.remove('forceClose'); loader.classList.add('show'); loader.style.display='grid'; }
-
-    try{
-      const { data, error } = await supabaseClient
-        .from('profiles')
-        .select('*')
-        .ilike('access_code', code)
-        .eq('password', pass)
-        .maybeSingle();
-
-      if(error || !data){
-        console.error('LOGIN SUPABASE ERROR:', error);
-        alert('Código o password incorrecto. Usa el mismo código/password de Supabase.');
-        closeLoaders();
-        return;
-      }
-
-      const role = roleOf(data);
-      const status = statusOf(data);
-      if(role !== 'admin' && status !== 'active' && status !== 'approved'){
-        alert(status === 'pending' ? 'Tu cuenta está pendiente de aprobación por el admin.' : 'Tu cuenta no está activa. Contacta al admin.');
-        closeLoaders();
-        return;
-      }
-
-      await openPortal(data);
-    }catch(e){
-      console.error('LOGIN FORCE FIX ERROR:', e);
-      alert('No se pudo entrar. Hay un error en consola, pero el login fue protegido para no quedarse cargando.');
-      closeLoaders();
-    }
-  };
-
-  document.addEventListener('DOMContentLoaded', function(){
+    document.addEventListener('DOMContentLoaded', function(){
     const btn = [...document.querySelectorAll('button')].find(b => (b.getAttribute('onclick') || '').includes('login()'));
     if(btn){ btn.onclick = function(ev){ ev.preventDefault(); window.login(); }; }
   });
 })();
 
 
-/* ===== MOBILE TAP LOGIN FIX FINAL =====
-   En iPhone/Android a veces el onclick se pierde por overlays/teclado.
-   Este handler usa touchend/pointerup y fuerza cerrar loaders.
-*/
+/* ===== LOGIN MOVIL: un solo evento click, sin doble submit ===== */
 (function(){
-  function qs(id){ return document.getElementById(id); }
-  function closeAllLoaders(){
-    ['portalEnterLoader','olonLoader'].forEach(id=>{
-      const x = qs(id);
-      if(x){
-        x.classList.remove('show');
-        x.classList.add('forceClose','hide');
-        x.style.display = 'none';
-        x.style.visibility = 'hidden';
-        x.style.opacity = '0';
-        x.style.pointerEvents = 'none';
-      }
-    });
-  }
   function bindMobileLogin(){
-    const loginBtn = qs('loginSubmitBtn') || [...document.querySelectorAll('button')].find(b => (b.getAttribute('onclick') || '').includes('login()'));
-    if(loginBtn && !loginBtn.dataset.mobileLoginFixed){
-      loginBtn.dataset.mobileLoginFixed = '1';
-      loginBtn.setAttribute('type','button');
-      loginBtn.style.pointerEvents = 'auto';
-      loginBtn.style.touchAction = 'manipulation';
-      const handler = function(ev){
-        try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
-        try{ document.activeElement && document.activeElement.blur(); }catch(e){}
-        setTimeout(()=>{
-          if(typeof window.login === 'function') window.login();
-          setTimeout(closeAllLoaders, 4500);
-        }, 60);
-      };
-      loginBtn.addEventListener('touchend', handler, {passive:false});
-      loginBtn.addEventListener('pointerup', function(ev){ if(ev.pointerType === 'touch') handler(ev); }, {passive:false});
+    for(const id of ["loginSubmitBtn", "signupSubmitBtn"]){
+      const btn=document.getElementById(id);
+      if(!btn) continue;
+      btn.type="button";
+      btn.style.touchAction="manipulation";
     }
-
-    const signupBtn = qs('signupSubmitBtn');
-    if(signupBtn && !signupBtn.dataset.mobileSignupFixed){
-      signupBtn.dataset.mobileSignupFixed = '1';
-      signupBtn.setAttribute('type','button');
-      signupBtn.style.pointerEvents = 'auto';
-      signupBtn.style.touchAction = 'manipulation';
-    }
+    // Los onclick existentes disparan el método seguro con bloqueo authBusy.
+    // No añadir touchend/pointerup: algunos navegadores generan ambos y un click.
   }
-
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindMobileLogin);
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded",bindMobileLogin);
   else bindMobileLogin();
-  window.addEventListener('pageshow', bindMobileLogin);
 })();
-
-
 
 
 /* ===== OLON RESCUE FIX: MENU INTERACTIVO ===== */
@@ -2357,16 +2145,9 @@ if(typeof olonOriginalRenderAdminTable === 'function'){
     adminChat:"Centro de mensajes privados."
   };
 
-  function forceOpenPortalIfLogged(){
-    try{
-      const saved = localStorage.getItem("olon_current_user");
-      if(saved && $("portal") && $("auth")){
-        $("auth").classList.add("hidden");
-        $("codeResult")?.classList.add("hidden");
-        $("portal").classList.remove("hidden");
-      }
-    }catch(e){}
-  }
+  // Nunca restaurar el portal desde un dato del navegador.
+  // Solamente restoreSupabaseSession valida Supabase Auth y el perfil.
+  function forceOpenPortalIfLogged(){ return; }
 
   window.showPage = function(id, btn){
     try{
@@ -2900,7 +2681,7 @@ function handlePublicChatEnter(e){
 })();
 
 // ===== OLON MARKET NEWS PRO - FINNHUB SECURE SUPABASE FUNCTION =====
-const OLON_NEWS_FUNCTION_URL = "https://bffojtcojnsvzxzwbdes.supabase.co/functions/v1/quick-worker";
+const OLON_NEWS_FUNCTION_URL = "https://xanhhfashgkyrvphprts.supabase.co/functions/v1/quick-worker";
 let currentNewsCategory = "forex";
 let cachedNewsItems = [];
 
@@ -3019,7 +2800,7 @@ window.currentNewsCategory = currentNewsCategory;
 
 /* ===== OLON NEWS HARD FIX V2 - QUICK WORKER VERIFIED ===== */
 (function(){
-  const NEWS_URL = "https://bffojtcojnsvzxzwbdes.supabase.co/functions/v1/quick-worker";
+  const NEWS_URL = "https://xanhhfashgkyrvphprts.supabase.co/functions/v1/quick-worker";
   let newsCategory = "forex";
   let installed = false;
 
@@ -3218,7 +2999,13 @@ window.currentNewsCategory = currentNewsCategory;
 
 /* ===== NOLO IA MINI SERIO - FLOATING + LIMITE 30/DIA REAL + PERFIL + NOTICIAS + ADMIN ===== */
 (function(){
-  const NOLO_AI_FUNCTION_URL = (typeof SUPABASE_URL !== "undefined" ? SUPABASE_URL : "https://bffojtcojnsvzxzwbdes.supabase.co") + "/functions/v1/smart-api";
+  const NOLO_AI_FUNCTION_URL = (typeof SUPABASE_URL !== "undefined" ? SUPABASE_URL : "https://xanhhfashgkyrvphprts.supabase.co") + "/functions/v1/smart-api";
+  async function noloAuthHeaders(){
+    const { data, error } = await supabaseClient.auth.getSession();
+    if(error || !data?.session?.access_token) throw new Error("Inicia sesión nuevamente para usar Nolo IA.");
+    return { "Content-Type":"application/json", "Authorization":"Bearer " + data.session.access_token, "apikey":SUPABASE_KEY };
+  }
+
   const DAILY_LIMIT = 30;
   const NOLO_MODEL_MODE = "mini";
   const NOLO_SYSTEM_MODE = "serio_educativo_riesgo";
@@ -3229,7 +3016,7 @@ window.currentNewsCategory = currentNewsCategory;
   window.noloUsage = { used: 0, remaining: DAILY_LIMIT, loaded: false };
   function esc(v){ return String(v||"").replace(/[&<>\"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m])); }
   function stripHtml(s){ const d=document.createElement("div"); d.innerHTML=String(s||""); return d.textContent||d.innerText||""; }
-  function getUser(){ try{return window.currentUser||JSON.parse(localStorage.getItem("olon_current_user")||"null");}catch(e){return null;} }
+  function getUser(){ return (typeof currentUser !== "undefined" && currentUser) ? currentUser : null; }
   function playNoloSound(){ try{ if(typeof playNewMessageSound==="function") return playNewMessageSound(); if(typeof playClickSound==="function") return playClickSound(); }catch(e){} }
   function getNewsContext(){ const list=Array.isArray(window.olonLatestNewsList)?window.olonLatestNewsList:[]; return list.slice(0,8).map(n=>({headline:n.headline||n.title||"",summary:stripHtml(n.summary||n.description||""),url:n.url||"",datetime:n.datetime||n.published_at||""})); }
   function getPerformanceProfile(){
@@ -3385,7 +3172,7 @@ window.currentNewsCategory = currentNewsCategory;
   function setTyping(on){messageBoxes().forEach(box=>{let el=box.querySelector(".noloTyping"); if(on&&!el){el=document.createElement("div"); el.className="noloBubble ai noloTyping"; el.innerHTML="<b>Nolo IA</b><p>Analizando perfil, memoria, noticias, riesgo y disciplina...</p><small>Nolo IA Mini · pensando</small>"; box.appendChild(el); box.scrollTop=box.scrollHeight;} if(!on&&el)el.remove();});}
   async function refreshUsage(){
     const user=getUser(); if(!user?.id){setStatus(DAILY_LIMIT,0); return;} setCheckingStatus();
-    try{const res=await fetch(NOLO_AI_FUNCTION_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"usage",userId:user.id,dailyLimit:DAILY_LIMIT})}); const data=await res.json().catch(()=>({})); if(!res.ok)throw new Error(data.error||"No se pudo verificar el uso"); setStatus(data.remaining,data.used);}
+    try{const res=await fetch(NOLO_AI_FUNCTION_URL,{method:"POST",headers:await noloAuthHeaders(),body:JSON.stringify({action:"usage",userId:user.id,dailyLimit:DAILY_LIMIT})}); const data=await res.json().catch(()=>({})); if(!res.ok)throw new Error(data.error||"No se pudo verificar el uso"); setStatus(data.remaining,data.used);}
     catch(e){console.error("refreshUsage",e); ["noloStatus","noloFloatStatus"].forEach(id=>{const el=document.getElementById(id); if(el)el.textContent="No pude verificar el límite. Revisa smart-api y el SQL.";}); ["noloSendBtn","noloFloatSendBtn"].forEach(id=>{const el=document.getElementById(id); if(el)el.disabled=false;});}
   }
   function clearBoxes(){messageBoxes().forEach(box=>box.innerHTML="");}
@@ -3402,7 +3189,7 @@ window.currentNewsCategory = currentNewsCategory;
     if(window.noloUsage.loaded&&window.noloUsage.remaining<=0){setStatus(0,DAILY_LIMIT); addBubble("ai",`Llegaste al límite diario de ${DAILY_LIMIT} mensajes. Puedes hablar con admin si necesitas ayuda.`); return;}
     startNoloCooldown();
     clearInputs(); addBubble("user",text); setTyping(true);
-    try{const res=await fetch(NOLO_AI_FUNCTION_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"chat",userId:user.id,userName:user.full_name||user.name||"Estudiante",plan:user.plan||"VIP Regular",message:text,newsContext:getNewsContext(),performanceProfile:getPerformanceProfile(),dailyLimit:DAILY_LIMIT,modelMode:NOLO_MODEL_MODE,systemMode:NOLO_SYSTEM_MODE,portalBrand:"OLON Society Academy",assistantName:"Nolo IA Mini",safetyRules:["educativo", "sin prometer ganancias", "no señales garantizadas", "enfocado en riesgo y disciplina"]})}); const data=await res.json().catch(()=>({})); setTyping(false); if(res.status===429){setStatus(data.remaining??0,data.used??DAILY_LIMIT); addBubble("ai",`Llegaste al límite diario de ${DAILY_LIMIT} mensajes. Usa el botón Hablar con admin si necesitas ayuda.`); playNoloSound(); return;} if(!res.ok)throw new Error(data.error||"Error conectando Nolo IA"); addBubble("ai",data.reply||"No recibí respuesta de Nolo IA."); playNoloSound(); setStatus(data.remaining,data.used); resetNoloIdleTimer();}
+    try{const res=await fetch(NOLO_AI_FUNCTION_URL,{method:"POST",headers:await noloAuthHeaders(),body:JSON.stringify({action:"chat",userId:user.id,userName:user.full_name||user.name||"Estudiante",plan:user.plan||"VIP Regular",message:text,newsContext:getNewsContext(),performanceProfile:getPerformanceProfile(),dailyLimit:DAILY_LIMIT,modelMode:NOLO_MODEL_MODE,systemMode:NOLO_SYSTEM_MODE,portalBrand:"OLON Society Academy",assistantName:"Nolo IA Mini",safetyRules:["educativo", "sin prometer ganancias", "no señales garantizadas", "enfocado en riesgo y disciplina"]})}); const data=await res.json().catch(()=>({})); setTyping(false); if(res.status===429){setStatus(data.remaining??0,data.used??DAILY_LIMIT); addBubble("ai",`Llegaste al límite diario de ${DAILY_LIMIT} mensajes. Usa el botón Hablar con admin si necesitas ayuda.`); playNoloSound(); return;} if(!res.ok)throw new Error(data.error||"Error conectando Nolo IA"); addBubble("ai",data.reply||"No recibí respuesta de Nolo IA."); playNoloSound(); setStatus(data.remaining,data.used); resetNoloIdleTimer();}
     catch(err){setTyping(false); console.error("sendNoloMessage",err); addBubble("ai","No pude conectar con Nolo IA. Revisa que subiste smart-api.ts actualizado y corriste el SQL nuevo en Supabase."); playNoloSound(); await refreshUsage();}
   };
   window.openNoloAdminContact=function(){if(window.openNoloFloatingChat)window.openNoloFloatingChat(); const box=document.getElementById("noloAdminBox"); if(box)box.classList.toggle("hidden"); const input=document.getElementById("noloAdminInput"); if(input)setTimeout(()=>input.focus(),80);};
@@ -3514,15 +3301,15 @@ function adminDateDaysLeft(dateValue){ if(!dateValue) return null; const today =
 function adminPlanLimit(plan, role){ if(String(role||"").toLowerCase()==="admin") return 999999; return String(plan||"").toLowerCase().includes("premium") ? 50 : 30; }
 function adminRiskForUser(u){ if(String(u.role||"").toLowerCase()==="admin") return {cls:"good", label:"Protegido"}; const days = adminDateDaysLeft(u.next_payment_date); if(u.status === "suspended" || u.status === "expired") return {cls:"bad", label:"Revisar"}; if(u.status === "pending") return {cls:"warn", label:"Pendiente"}; if(days !== null && days < 0) return {cls:"bad", label:"Vencido"}; if(days !== null && days <= 7) return {cls:"warn", label:"Pago pronto"}; return {cls:"good", label:"OK"}; }
 function adminAnimateMetric(id, value){ const el = document.getElementById(id); if(!el) return; el.innerText = value; el.classList.remove("countFlash"); void el.offsetWidth; el.classList.add("countFlash"); }
-async function renderUsers(){ const { data, error } = await supabaseClient.from("profiles").select("id, email, full_name, access_code, password, role, plan, status, next_payment_date, created_at").order("created_at", { ascending:false }); if(error){ showError("No se pudieron cargar los estudiantes.", error); return; } cachedUsers = data || []; updateAdminMetrics(); renderAdminTable(); renderAdminAlerts(); renderAdminNoloUsage(); }
+async function renderUsers(){ const { data, error } = await supabaseClient.from("profiles").select("id, email, full_name, access_code, role, plan, status, next_payment_date, created_at").order("created_at", { ascending:false }); if(error){ showError("No se pudieron cargar los estudiantes.", error); return; } cachedUsers = data || []; updateAdminMetrics(); renderAdminTable(); renderAdminAlerts(); renderAdminNoloUsage(); }
 function updateAdminMetrics(){ const users = cachedUsers || []; const students = users.filter(u => String(u.role || "").toLowerCase() !== "admin"); const active = students.filter(u => u.status === "active").length; const pending = students.filter(u => u.status === "pending").length; const suspended = students.filter(u => u.status === "suspended").length; const expired = students.filter(u => u.status === "expired").length; const premium = students.filter(u => String(u.plan || "").toLowerCase().includes("premium")).length; const dueSoon = students.filter(u => { const d = adminDateDaysLeft(u.next_payment_date); return d !== null && d >= 0 && d <= 7; }).length; adminAnimateMetric("adminTotalUsers", students.length); adminAnimateMetric("adminActiveUsers", active); adminAnimateMetric("adminPendingUsers", pending); adminAnimateMetric("adminSuspendedUsers", suspended); adminAnimateMetric("adminExpiredUsers", expired); adminAnimateMetric("adminPremiumUsers", premium); adminAnimateMetric("adminDueSoonUsers", dueSoon); }
 function filterAdminUsers(status){ const statusFilter = document.getElementById("adminStatusFilter"); const planFilter = document.getElementById("adminPlanFilter"); if(statusFilter) statusFilter.value = status || "all"; if(planFilter && status === "all") planFilter.value = "all"; renderAdminTable(); }
 function filterAdminPlan(plan){ const planFilter = document.getElementById("adminPlanFilter"); const statusFilter = document.getElementById("adminStatusFilter"); if(planFilter) planFilter.value = plan || "all"; if(statusFilter) statusFilter.value = "all"; renderAdminTable(); }
 function renderAdminAlerts(){ const box = document.getElementById("adminAlertList"); if(!box) return; const students = (cachedUsers || []).filter(u => String(u.role || "").toLowerCase() !== "admin"); const pending = students.filter(u => u.status === "pending"); const expired = students.filter(u => u.status === "expired" || (adminDateDaysLeft(u.next_payment_date) ?? 999) < 0); const dueSoon = students.filter(u => { const d = adminDateDaysLeft(u.next_payment_date); return d !== null && d >= 0 && d <= 7; }); const premium = students.filter(u => String(u.plan||"").toLowerCase().includes("premium")); const rows = []; if(pending.length) rows.push(`<div class="adminAlertItem warn"><span>⏳ <b>${pending.length}</b> cuenta(s) pendiente(s)</span><button class="btn secondary miniBtn" onclick="filterAdminUsers('pending')">Ver</button></div>`); if(expired.length) rows.push(`<div class="adminAlertItem bad"><span>🚨 <b>${expired.length}</b> estudiante(s) vencido(s)</span><button class="btn secondary miniBtn" onclick="filterAdminUsers('expired')">Ver</button></div>`); if(dueSoon.length) rows.push(`<div class="adminAlertItem warn"><span>📅 <b>${dueSoon.length}</b> pago(s) próximos</span><button class="btn secondary miniBtn" onclick="renderAdminTable()">Revisar</button></div>`); rows.push(`<div class="adminAlertItem good"><span>💎 <b>${premium.length}</b> estudiante(s) Premium</span><button class="btn secondary miniBtn" onclick="filterAdminPlan('premium')">Ver</button></div>`); if(!rows.length) rows.push(`<div class="adminAlertItem good"><span>✅ Todo se ve estable por ahora.</span></div>`); box.innerHTML = rows.join(""); }
 async function renderAdminNoloUsage(){ const box = document.getElementById("adminNoloUsageList"); if(!box) return; try{ const now = new Date(); const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString(); const { data, error } = await supabaseClient.from("nolo_messages").select("user_id, role, created_at").eq("role", "user").gte("created_at", start); if(error) throw error; const counts = {}; (data || []).forEach(m => { if(m.user_id) counts[m.user_id] = (counts[m.user_id] || 0) + 1; }); const total = Object.values(counts).reduce((a,b)=>a+b,0); adminAnimateMetric("adminNoloToday", total); const profileMap = {}; (cachedUsers || []).forEach(u => profileMap[u.id] = u); const rows = Object.entries(counts).map(([id,count]) => { const u = profileMap[id] || {}; const limit = adminPlanLimit(u.plan, u.role); const pct = limit >= 999999 ? 0 : Math.min(100, Math.round((count / limit) * 100)); return {id,count,u,limit,pct}; }).sort((a,b)=>b.count-a.count).slice(0,6); if(!rows.length){ box.innerHTML = `<div class="adminAlertItem">🤖 Todavía no hay mensajes usados hoy.</div>`; return; } box.innerHTML = rows.map(r => `<div class="adminAlertItem adminUsageRow"><div><b>${escapeHTML(r.u.full_name || "Estudiante")}</b><div class="adminUsageMeta">${escapeHTML(r.u.plan || "VIP Regular")} · ${r.count}/${r.limit >= 999999 ? "∞" : r.limit}</div></div><span class="badge ${r.pct >= 90 ? 'red' : r.pct >= 60 ? 'blue' : 'green'}">${r.pct}%</span><div class="adminUsageBar"><span style="width:${r.pct}%"></span></div></div>`).join(""); }catch(err){ console.warn("No se pudo cargar uso de Nolo IA", err); box.innerHTML = `<div class="adminAlertItem warn">⚠️ Uso de IA no disponible. Revisa tabla nolo_messages/RLS.</div>`; } }
 function renderAdminTable(){ const body = document.getElementById("usersBody"); const mobile = document.getElementById("usersMobileCards"); if(!body) return; const search = (document.getElementById("adminSearch")?.value || "").toLowerCase().trim(); const statusFilter = document.getElementById("adminStatusFilter")?.value || "all"; const planFilter = document.getElementById("adminPlanFilter")?.value || "all"; let users = (cachedUsers || []).filter(u => { const text = `${u.full_name || ""} ${u.email || ""} ${u.access_code || ""}`.toLowerCase(); const statusOk = statusFilter === "all" || u.status === statusFilter; const plan = String(u.plan || "").toLowerCase(); const role = String(u.role || "").toLowerCase(); const planOk = planFilter === "all" || plan.includes(planFilter) || role.includes(planFilter); const searchOk = !search || text.includes(search); return statusOk && planOk && searchOk; }); const countPill = document.getElementById("adminCountPill"); if(countPill) countPill.innerText = users.length + (users.length === 1 ? " resultado" : " resultados"); body.innerHTML = users.map(u => adminUserRowHTML(u)).join("") || `<tr><td colspan="8" style="color:var(--muted);padding:24px">No hay usuarios con ese filtro.</td></tr>`; if(mobile){ mobile.innerHTML = users.map(u => adminUserMobileHTML(u)).join("") || `<div class="adminMobileCard" style="color:var(--muted)">No hay usuarios con ese filtro.</div>`; } }
-function adminUserRowHTML(u){ const isMainAdmin = u.role === "admin" && u.access_code === "admin-nolo"; const initials = (u.full_name || "O").split(" ").map(x=>x[0]).join("").slice(0,2).toUpperCase(); const risk = adminRiskForUser(u); const days = adminDateDaysLeft(u.next_payment_date); const payText = u.next_payment_date ? `${u.next_payment_date}${days !== null ? ` (${days < 0 ? Math.abs(days)+'d vencido' : days+'d'})` : ''}` : "No asignado"; const safeName = String(u.full_name || "").replace(/'/g, "\\'"); const actions = isMainAdmin ? `<span class="badge blue">Protegido</span>` : `<div class="actionRow"><button class="btn success" onclick="updateUserStatus('${u.id}','active')">Aprobar</button><button class="btn warnBtn" onclick="updateUserStatus('${u.id}','suspended')">Suspender</button><button class="btn danger" onclick="deleteUser('${u.id}','${safeName}')">Borrar</button></div>`; return `<tr><td><div class="adminStudent"><div class="adminAvatar">${initials}</div><div><b>${escapeHTML(u.full_name || "Sin nombre")}</b><small>${escapeHTML(u.email || "Sin email")}</small></div></div></td><td><span class="codePill">${escapeHTML(u.access_code || "-")}</span></td><td><span class="codePill passPill">${escapeHTML(u.password || "-")}</span></td><td><select class="adminPlanSelect" onchange="updateUserPlan('${u.id}', this.value)" ${isMainAdmin ? 'disabled' : ''}><option value="VIP Regular" ${u.plan==='VIP Regular'?'selected':''}>VIP Regular</option><option value="VIP Premium" ${u.plan==='VIP Premium'?'selected':''}>VIP Premium</option><option value="Admin" ${u.plan==='Admin'?'selected':''}>Admin</option></select></td><td><select class="adminStatusSelect" onchange="updateUserStatus('${u.id}', this.value)" ${isMainAdmin ? 'disabled' : ''}><option value="pending" ${u.status==='pending'?'selected':''}>Pendiente</option><option value="active" ${u.status==='active'?'selected':''}>Activo</option><option value="suspended" ${u.status==='suspended'?'selected':''}>Suspendido</option><option value="expired" ${u.status==='expired'?'selected':''}>Expirado</option></select></td><td>${escapeHTML(payText)}</td><td><span class="adminRiskPill ${risk.cls}">${risk.label}</span></td><td>${actions}</td></tr>`; }
-function adminUserMobileHTML(u){ const isMainAdmin = u.role === "admin" && u.access_code === "admin-nolo"; const initials = (u.full_name || "O").split(" ").map(x=>x[0]).join("").slice(0,2).toUpperCase(); const risk = adminRiskForUser(u); const safeName = String(u.full_name || "").replace(/'/g, "\\'"); return `<div class="adminMobileCard"><div class="adminMobileTop"><div class="adminAvatar">${initials}</div><div><b>${escapeHTML(u.full_name || "Sin nombre")}</b><small>${escapeHTML(u.email || "Sin email")}</small></div></div><div class="adminMobileMeta"><span>Código <b>${escapeHTML(u.access_code || "-")}</b></span><span>Plan <b>${escapeHTML(u.plan || "-")}</b></span><span>Estado <b>${escapeHTML(u.status || "-")}</b></span><span>Pago <b>${escapeHTML(u.next_payment_date || "No asignado")}</b></span><span>Riesgo <b class="adminRiskPill ${risk.cls}">${risk.label}</b></span></div><div class="adminMobileActions">${isMainAdmin ? `<span class="badge blue">Protegido</span>` : `<button class="btn success" onclick="updateUserStatus('${u.id}','active')">Aprobar</button><button class="btn warnBtn" onclick="updateUserStatus('${u.id}','suspended')">Suspender</button><button class="btn danger" onclick="deleteUser('${u.id}','${safeName}')">Borrar</button>`}</div></div>`; }
+function adminUserRowHTML(u){ const isMainAdmin = u.role === "admin" && u.access_code === "admin-nolo"; const initials = (u.full_name || "O").split(" ").map(x=>x[0]).join("").slice(0,2).toUpperCase(); const risk = adminRiskForUser(u); const days = adminDateDaysLeft(u.next_payment_date); const payText = u.next_payment_date ? `${u.next_payment_date}${days !== null ? ` (${days < 0 ? Math.abs(days)+'d vencido' : days+'d'})` : ''}` : "No asignado"; const safeName = String(u.full_name || "").replace(/'/g, "\\'"); const actions = isMainAdmin ? `<span class="badge blue">Protegido</span>` : `<div class="actionRow"><button class="btn success" onclick="updateUserStatus('${u.id}','active')">Aprobar</button><button class="btn warnBtn" onclick="updateUserStatus('${u.id}','suspended')">Suspender</button><button class="btn danger" onclick="deleteUser('${u.id}','${safeName}')">Desactivar</button></div>`; return `<tr><td><div class="adminStudent"><div class="adminAvatar">${initials}</div><div><b>${escapeHTML(u.full_name || "Sin nombre")}</b><small>${escapeHTML(u.email || "Sin email")}</small></div></div></td><td><span class="codePill">${escapeHTML(u.access_code || "-")}</span></td><td><span class="codePill passPill">Protegida</span></td><td><select class="adminPlanSelect" onchange="updateUserPlan('${u.id}', this.value)" ${isMainAdmin ? 'disabled' : ''}><option value="VIP Regular" ${u.plan==='VIP Regular'?'selected':''}>VIP Regular</option><option value="VIP Premium" ${u.plan==='VIP Premium'?'selected':''}>VIP Premium</option><option value="Admin" ${u.plan==='Admin'?'selected':''}>Admin</option></select></td><td><select class="adminStatusSelect" onchange="updateUserStatus('${u.id}', this.value)" ${isMainAdmin ? 'disabled' : ''}><option value="pending" ${u.status==='pending'?'selected':''}>Pendiente</option><option value="active" ${u.status==='active'?'selected':''}>Activo</option><option value="suspended" ${u.status==='suspended'?'selected':''}>Suspendido</option><option value="expired" ${u.status==='expired'?'selected':''}>Expirado</option></select></td><td>${escapeHTML(payText)}</td><td><span class="adminRiskPill ${risk.cls}">${risk.label}</span></td><td>${actions}</td></tr>`; }
+function adminUserMobileHTML(u){ const isMainAdmin = u.role === "admin" && u.access_code === "admin-nolo"; const initials = (u.full_name || "O").split(" ").map(x=>x[0]).join("").slice(0,2).toUpperCase(); const risk = adminRiskForUser(u); const safeName = String(u.full_name || "").replace(/'/g, "\\'"); return `<div class="adminMobileCard"><div class="adminMobileTop"><div class="adminAvatar">${initials}</div><div><b>${escapeHTML(u.full_name || "Sin nombre")}</b><small>${escapeHTML(u.email || "Sin email")}</small></div></div><div class="adminMobileMeta"><span>Código <b>${escapeHTML(u.access_code || "-")}</b></span><span>Plan <b>${escapeHTML(u.plan || "-")}</b></span><span>Estado <b>${escapeHTML(u.status || "-")}</b></span><span>Pago <b>${escapeHTML(u.next_payment_date || "No asignado")}</b></span><span>Riesgo <b class="adminRiskPill ${risk.cls}">${risk.label}</b></span></div><div class="adminMobileActions">${isMainAdmin ? `<span class="badge blue">Protegido</span>` : `<button class="btn success" onclick="updateUserStatus('${u.id}','active')">Aprobar</button><button class="btn warnBtn" onclick="updateUserStatus('${u.id}','suspended')">Suspender</button><button class="btn danger" onclick="deleteUser('${u.id}','${safeName}')">Desactivar</button>`}</div></div>`; }
 async function updateUserPlan(userId, newPlan){ if(!currentUser || !isAdminUser(currentUser)) return; const target = cachedUsers.find(u => u.id === userId); if(!target) return; if(target.role === "admin" && target.access_code === "admin-nolo"){ alert("No puedes modificar el admin principal."); renderAdminTable(); return; } const { error } = await supabaseClient.from("profiles").update({ plan:newPlan }).eq("id", userId); if(error){ showError("No se pudo actualizar el plan.", error); return; } await renderUsers(); }
 async function approveAllPendingUsers(){ if(!currentUser || !isAdminUser(currentUser)) return; const pending = (cachedUsers || []).filter(u => u.status === "pending" && !(u.role === "admin" && u.access_code === "admin-nolo")); if(!pending.length){ alert("No hay estudiantes pendientes."); return; } if(!confirm(`¿Aprobar ${pending.length} estudiante(s) pendiente(s)?`)) return; const { error } = await supabaseClient.from("profiles").update({ status:"active" }).in("id", pending.map(u=>u.id)); if(error){ showError("No se pudieron aprobar todos.", error); return; } await renderUsers(); }
 
@@ -3538,7 +3325,7 @@ function adminRiskForUser(u){
 async function renderUsers(){
   const { data, error } = await supabaseClient
     .from("profiles")
-    .select("id, email, full_name, access_code, password, role, plan, status, created_at")
+    .select("id, email, full_name, access_code, role, plan, status, created_at")
     .order("created_at", { ascending:false });
   if(error){ showError("No se pudieron cargar los estudiantes.", error); return; }
   cachedUsers = data || [];
@@ -3597,8 +3384,8 @@ function adminUserRowHTML(u){
   const risk = adminRiskForUser(u);
   const safeName = String(u.full_name || "").replace(/'/g, "\\'");
   const mentorText = isMainAdmin ? "Cuenta maestra" : (u.status === "active" ? "Seguimiento activo" : u.status === "pending" ? "Esperando aprobación" : "Revisar cuenta");
-  const actions = isMainAdmin ? `<span class="badge blue">Protegido</span>` : `<div class="actionRow"><button class="btn success" onclick="updateUserStatus('${u.id}','active')">Aprobar</button><button class="btn warnBtn" onclick="updateUserStatus('${u.id}','suspended')">Suspender</button><button class="btn danger" onclick="deleteUser('${u.id}','${safeName}')">Borrar</button></div>`;
-  return `<tr><td><div class="adminStudent"><div class="adminAvatar">${initials}</div><div><b>${escapeHTML(u.full_name || "Sin nombre")}</b><small>${escapeHTML(u.email || "Sin email")}</small></div></div></td><td><span class="codePill">${escapeHTML(u.access_code || "-")}</span></td><td><span class="codePill passPill">${escapeHTML(u.password || "-")}</span></td><td><select class="adminPlanSelect" onchange="updateUserPlan('${u.id}', this.value)" ${isMainAdmin ? 'disabled' : ''}><option value="VIP Regular" ${u.plan==='VIP Regular'?'selected':''}>VIP Regular</option><option value="VIP Premium" ${u.plan==='VIP Premium'?'selected':''}>VIP Premium</option><option value="Admin" ${u.plan==='Admin'?'selected':''}>Admin</option></select></td><td><select class="adminStatusSelect" onchange="updateUserStatus('${u.id}', this.value)" ${isMainAdmin ? 'disabled' : ''}><option value="pending" ${u.status==='pending'?'selected':''}>Pendiente</option><option value="active" ${u.status==='active'?'selected':''}>Activo</option><option value="suspended" ${u.status==='suspended'?'selected':''}>Suspendido</option><option value="expired" ${u.status==='expired'?'selected':''}>Revisar</option></select></td><td>${escapeHTML(mentorText)}</td><td><span class="adminRiskPill ${risk.cls}">${risk.label}</span></td><td>${actions}</td></tr>`;
+  const actions = isMainAdmin ? `<span class="badge blue">Protegido</span>` : `<div class="actionRow"><button class="btn success" onclick="updateUserStatus('${u.id}','active')">Aprobar</button><button class="btn warnBtn" onclick="updateUserStatus('${u.id}','suspended')">Suspender</button><button class="btn danger" onclick="deleteUser('${u.id}','${safeName}')">Desactivar</button></div>`;
+  return `<tr><td><div class="adminStudent"><div class="adminAvatar">${initials}</div><div><b>${escapeHTML(u.full_name || "Sin nombre")}</b><small>${escapeHTML(u.email || "Sin email")}</small></div></div></td><td><span class="codePill">${escapeHTML(u.access_code || "-")}</span></td><td><span class="codePill passPill">Protegida</span></td><td><select class="adminPlanSelect" onchange="updateUserPlan('${u.id}', this.value)" ${isMainAdmin ? 'disabled' : ''}><option value="VIP Regular" ${u.plan==='VIP Regular'?'selected':''}>VIP Regular</option><option value="VIP Premium" ${u.plan==='VIP Premium'?'selected':''}>VIP Premium</option><option value="Admin" ${u.plan==='Admin'?'selected':''}>Admin</option></select></td><td><select class="adminStatusSelect" onchange="updateUserStatus('${u.id}', this.value)" ${isMainAdmin ? 'disabled' : ''}><option value="pending" ${u.status==='pending'?'selected':''}>Pendiente</option><option value="active" ${u.status==='active'?'selected':''}>Activo</option><option value="suspended" ${u.status==='suspended'?'selected':''}>Suspendido</option><option value="expired" ${u.status==='expired'?'selected':''}>Revisar</option></select></td><td>${escapeHTML(mentorText)}</td><td><span class="adminRiskPill ${risk.cls}">${risk.label}</span></td><td>${actions}</td></tr>`;
 }
 
 function adminUserMobileHTML(u){
@@ -3607,7 +3394,7 @@ function adminUserMobileHTML(u){
   const risk = adminRiskForUser(u);
   const safeName = String(u.full_name || "").replace(/'/g, "\\'");
   const mentorText = isMainAdmin ? "Cuenta maestra" : (u.status === "active" ? "Seguimiento activo" : u.status === "pending" ? "Esperando aprobación" : "Revisar cuenta");
-  return `<div class="adminMobileCard"><div class="adminMobileTop"><div class="adminAvatar">${initials}</div><div><b>${escapeHTML(u.full_name || "Sin nombre")}</b><small>${escapeHTML(u.email || "Sin email")}</small></div></div><div class="adminMobileMeta"><span>Código <b>${escapeHTML(u.access_code || "-")}</b></span><span>Plan <b>${escapeHTML(u.plan || "-")}</b></span><span>Estado <b>${escapeHTML(u.status || "-")}</b></span><span>Mentoría <b>${escapeHTML(mentorText)}</b></span><span>Riesgo <b class="adminRiskPill ${risk.cls}">${risk.label}</b></span></div><div class="adminMobileActions">${isMainAdmin ? `<span class="badge blue">Protegido</span>` : `<button class="btn success" onclick="updateUserStatus('${u.id}','active')">Aprobar</button><button class="btn warnBtn" onclick="updateUserStatus('${u.id}','suspended')">Suspender</button><button class="btn danger" onclick="deleteUser('${u.id}','${safeName}')">Borrar</button>`}</div></div>`;
+  return `<div class="adminMobileCard"><div class="adminMobileTop"><div class="adminAvatar">${initials}</div><div><b>${escapeHTML(u.full_name || "Sin nombre")}</b><small>${escapeHTML(u.email || "Sin email")}</small></div></div><div class="adminMobileMeta"><span>Código <b>${escapeHTML(u.access_code || "-")}</b></span><span>Plan <b>${escapeHTML(u.plan || "-")}</b></span><span>Estado <b>${escapeHTML(u.status || "-")}</b></span><span>Mentoría <b>${escapeHTML(mentorText)}</b></span><span>Riesgo <b class="adminRiskPill ${risk.cls}">${risk.label}</b></span></div><div class="adminMobileActions">${isMainAdmin ? `<span class="badge blue">Protegido</span>` : `<button class="btn success" onclick="updateUserStatus('${u.id}','active')">Aprobar</button><button class="btn warnBtn" onclick="updateUserStatus('${u.id}','suspended')">Suspender</button><button class="btn danger" onclick="deleteUser('${u.id}','${safeName}')">Desactivar</button>`}</div></div>`;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -4273,4 +4060,163 @@ setTimeout(function(){
       window.__entertainmentShowPageHooked = true;
     }
   }, 900);
+})();
+
+/* ============================================================
+   OLON SOCIETY | CONEXION SEGURA SUPABASE AUTH (2026-11-04)
+   - Inicio de sesión por EMAIL + contraseña de Supabase Auth.
+   - El código OLON sigue siendo un identificador, no una contraseña.
+   - La identidad, el rol y el estado se leen del servidor (RLS).
+   - Nunca se consulta ni se muestra profiles.password.
+   - Requiere el SQL de reconstrucción y Auth Email activado.
+   ============================================================ */
+(function(){
+  "use strict";
+  let authBusy = false;
+  const $auth = id => document.getElementById(id);
+  const PROFILE_FIELDS = "id,email,full_name,access_code,role,plan,status,next_payment_date,created_at";
+
+  function closeAuthLoader(){
+    const loader = $auth("portalEnterLoader");
+    if(loader){ loader.classList.remove("show"); loader.style.display="none"; }
+  }
+  function showAuthError(error, fallback){
+    console.error("OLON Auth:", error);
+    const msg = String(error?.message || "").toLowerCase();
+    if(msg.includes("invalid login credentials")) return "Correo o contraseña incorrectos.";
+    if(msg.includes("jwt") || msg.includes("session expired")) return "Tu sesión expiró. Inicia sesión de nuevo.";
+    if(msg.includes("row-level security") || msg.includes("permission denied") || msg.includes("42501")) return "Supabase bloqueó la operación por permisos RLS. Verifica el SQL y la aprobación de la cuenta.";
+    if(msg.includes("email not confirmed")) return "Confirma tu correo electrónico antes de iniciar sesión.";
+    if(msg.includes("failed to fetch") || msg.includes("network")) return "No se pudo conectar con Supabase. Comprueba internet y la URL del proyecto.";
+    if(msg.includes("user already registered")) return "Este correo ya tiene una cuenta. Inicia sesión o recupera tu contraseña.";
+    return fallback + (error?.message ? "\n" + error.message : "");
+  }
+  async function profileForAuthenticatedUser(user){
+    if(!user?.id) throw new Error("No hay sesión autenticada.");
+    const {data,error} = await supabaseClient.from("profiles")
+      .select(PROFILE_FIELDS).eq("id",user.id).maybeSingle();
+    if(error) throw error;
+    if(!data) throw new Error("Tu usuario existe en Auth, pero falta su perfil. Revisa el trigger olon_auth_user_created en SQL Editor.");
+    return data;
+  }
+  function canUsePortal(profile){
+    return !!profile && ["active","approved"].includes(String(profile.status||"").toLowerCase());
+  }
+  async function openVerifiedProfile(profile){
+    currentUser = profile;
+    localStorage.setItem("olon_current_user", JSON.stringify(profile));
+    if(typeof setLoaderStudentName === "function") setLoaderStudentName(profile.full_name,profile.plan);
+    await window.enterPortal();
+  }
+  function setBusy(busy){
+    authBusy = busy;
+    for(const id of ["loginSubmitBtn","signupSubmitBtn"]){
+      const btn = $auth(id); if(btn) btn.disabled = busy;
+    }
+  }
+  window.olonSecureLogin = async function(){
+    if(authBusy) return;
+    const email = String($auth("loginCode")?.value||"").trim().toLowerCase();
+    const password = String($auth("loginPass")?.value||"");
+    if(!email || !password){ alert("Escribe tu correo electrónico y contraseña."); return; }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+      alert("Para acceder ahora debes escribir tu CORREO electrónico, no el código OLON. La contraseña es la de tu cuenta en Supabase Auth.");
+      return;
+    }
+    setBusy(true);
+    try{
+      const {data,error} = await supabaseClient.auth.signInWithPassword({email,password});
+      if(error) throw error;
+      const profile = await profileForAuthenticatedUser(data.user);
+      if(!canUsePortal(profile)){
+        await supabaseClient.auth.signOut();
+        const status = String(profile.status||"").toLowerCase();
+        alert(status === "pending"
+          ? "Tu cuenta está pendiente de aprobación por el administrador. Tu código de referencia es: " + (profile.access_code||"pendiente")
+          : "Tu cuenta no está activa. Contacta al administrador.");
+        return;
+      }
+      await openVerifiedProfile(profile);
+    }catch(error){
+      alert(showAuthError(error,"No se pudo iniciar sesión."));
+      await supabaseClient.auth.signOut().catch(()=>{});
+    }finally{
+      setBusy(false);
+      closeAuthLoader();
+    }
+  };
+
+  window.olonSecureSignup = async function(){
+    if(authBusy) return;
+    const name = String($auth("signupName")?.value||"").trim();
+    const email = String($auth("signupEmail")?.value||"").trim().toLowerCase();
+    const confirm = String($auth("signupEmailConfirm")?.value||"").trim().toLowerCase();
+    const password = String($auth("signupPass")?.value||"");
+    const requestedPlan = String($auth("signupPlan")?.value||"VIP Regular");
+    if(!name || !email || !password){ alert("Completa nombre, correo y contraseña."); return; }
+    if(email !== confirm){ alert("Los correos electrónicos no coinciden."); return; }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ alert("El correo no es válido."); return; }
+    if(password.length < 6){ alert("La contraseña debe tener al menos 6 caracteres (o más si Supabase lo exige)."); return; }
+    setBusy(true);
+    try{
+      // La base de datos asigna el rol student, el plan y el código; el cliente no decide privilegios.
+      const {data,error} = await supabaseClient.auth.signUp({
+        email,password,options:{
+          data:{full_name:name,requested_plan:requestedPlan},
+          emailRedirectTo: window.location.origin + window.location.pathname
+        }
+      });
+      if(error) throw error;
+      if(!data?.user) throw new Error("Supabase no devolvió un usuario válido.");
+      if(!data.session){
+        alert("Solicitud recibida. Revisa tu correo para confirmar la cuenta. Después, el administrador deberá aprobar tu acceso. Si el correo ya existía, usa el inicio de sesión o recuperación de contraseña.");
+        if(typeof toggleAuth === "function") toggleAuth("login");
+        return;
+      }
+      const profile = await profileForAuthenticatedUser(data.user);
+      await supabaseClient.auth.signOut();
+      if($auth("generatedCodeText")) $auth("generatedCodeText").textContent = profile.access_code || "OLON";
+      $auth("auth")?.classList.add("hidden");
+      $auth("codeResult")?.classList.remove("hidden");
+      alert("Cuenta creada. Guarda tu código de referencia. Espera la aprobación del administrador para entrar.");
+    }catch(error){
+      alert(showAuthError(error,"No se pudo crear la cuenta."));
+    }finally{
+      setBusy(false);
+      closeAuthLoader();
+    }
+  };
+
+  // Anular todos los logins heredados y delegar al sistema seguro.
+  window.login = window.olonSecureLogin;
+  window.signup = window.olonSecureSignup;
+  window.logout = async function(){
+    try{ await supabaseClient.auth.signOut(); }
+    catch(error){ console.warn("No se pudo cerrar sesión remota",error); }
+    localStorage.removeItem("olon_current_user");
+    currentUser = null;
+    cachedRecords = [];
+    cachedUsers = [];
+    location.reload();
+  };
+
+  async function restoreSupabaseSession(){
+    try{
+      const {data,error} = await supabaseClient.auth.getUser();
+      if(error || !data?.user) return;
+      const profile = await profileForAuthenticatedUser(data.user);
+      if(!canUsePortal(profile)){
+        await supabaseClient.auth.signOut();
+        return;
+      }
+      await openVerifiedProfile(profile);
+    }catch(error){
+      console.warn("OLON: no se restauró la sesión Auth",error);
+      currentUser=null;
+      localStorage.removeItem("olon_current_user");
+    }
+  }
+  // Espera a que el DOM y los demás parches visuales hayan terminado.
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded",restoreSupabaseSession);
+  else restoreSupabaseSession();
 })();
