@@ -1384,5 +1384,225 @@ Entrada al grupo</textarea>
 })();
 
 </script>
+<!-- OLON: corrección de guardado / recuperación de registros -->
+<script>
+/* OLON Society Academy — registro seguro, cola local y reintento controlado.
+   Se carga después de script.js. No sustituye Supabase ni desactiva RLS. */
+(function () {
+  "use strict";
+  const STORAGE_KEY = "olon_registros_pendientes_v1";
+  const FIELDS = ["date", "deposit", "gain", "loss", "pair", "tradeType", "emotion", "mistake", "note"];
+  let busy = false;
+  const el = id => document.getElementById(id);
+
+  function student() {
+    try {
+      const u = (typeof currentUser !== "undefined" && currentUser)
+        || JSON.parse(localStorage.getItem("olon_current_user") || "null");
+      if (!u?.id || String(u.role || "").toLowerCase() === "admin") return null;
+      return u;
+    } catch (_) { return null; }
+  }
+  function readQueue() {
+    try {
+      const q = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      return Array.isArray(q) ? q.filter(x => x && x.record && x.studentId) : [];
+    } catch (_) { return []; }
+  }
+  function writeQueue(q) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(q)); return true; }
+    catch (err) { console.error("No se pudo conservar el registro local", err); return false; }
+  }
+  function localDate() {
+    const d = new Date();
+    return [d.getFullYear(), String(d.getMonth() + 1).padStart(2,"0"), String(d.getDate()).padStart(2,"0")].join("-");
+  }
+  function number(id) {
+    const val = Number(el(id)?.value || 0);
+    if (!Number.isFinite(val) || val < 0) throw new Error("Revisa el importe de " + id + ". Debe ser 0 o mayor.");
+    return val;
+  }
+  function recordFor(user) {
+    return {
+      student_id: user.id,
+      record_date: el("date")?.value || localDate(),
+      deposit: number("deposit"),
+      gain: number("gain"),
+      loss: number("loss"),
+      note: typeof buildJournalNote === "function" ? buildJournalNote() : (el("note")?.value || "").trim()
+    };
+  }
+  function sameRecord(a, b) {
+    return String(a.student_id) === String(b.student_id)
+      && String(a.record_date) === String(b.record_date)
+      && Number(a.deposit || 0) === Number(b.deposit || 0)
+      && Number(a.gain || 0) === Number(b.gain || 0)
+      && Number(a.loss || 0) === Number(b.loss || 0)
+      && String(a.note || "") === String(b.note || "");
+  }
+  function friendlyError(err) {
+    const msg = String(err?.message || err || "Error desconocido");
+    if (/failed to fetch|networkerror|fetch failed|load failed|network request failed/i.test(msg))
+      return "Sin conexión con Supabase. Revisa Internet y que el proyecto de Supabase esté activo.";
+    if (/permission|row.level.security|policy|403|401|unauthorized/i.test(msg))
+      return "El servidor rechazó el acceso. Revisa las políticas RLS de student_records y la sesión del estudiante.";
+    if (/relation.*does not exist|42P01|not found/i.test(msg))
+      return "Falta la tabla student_records o la configuración de base de datos no coincide.";
+    return msg;
+  }
+  function setMessage(text, type) {
+    const status = el("olonRecordStatus");
+    if (!status) return;
+    status.textContent = text;
+    status.style.display = "block";
+    status.style.color = type === "ok" ? "#8ee9b3" : type === "warn" ? "#ffda85" : "#ff9d9d";
+    status.style.borderColor = type === "ok" ? "rgba(58,190,120,.3)" : "rgba(255,190,90,.26)";
+  }
+  function syncButtons() {
+    const original = el("olonSaveRecordBtn");
+    if (original) {
+      original.disabled = busy;
+      original.textContent = busy ? "Guardando..." : "Guardar registro";
+    }
+  }
+  function renderQueue() {
+    const box = el("olonPendingQueue");
+    if (!box) return;
+    box.replaceChildren();
+    const user = student();
+    if (!user) return;
+    const items = readQueue().filter(x => String(x.studentId) === String(user.id));
+    if (!items.length) { box.hidden = true; return; }
+    box.hidden = false;
+    const heading = document.createElement("strong");
+    heading.textContent = `Registros pendientes de sincronizar (${items.length})`;
+    box.append(heading);
+    const warning = document.createElement("p");
+    warning.textContent = "Solo están guardados en este navegador y dispositivo. No aparecen todavía en el dashboard de la academia. No borres los datos del navegador hasta sincronizarlos.";
+    warning.style.margin = "8px 0";
+    box.append(warning);
+    items.forEach(item => {
+      const line = document.createElement("div");
+      line.style.cssText = "display:flex;flex-wrap:wrap;gap:9px;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.12)";
+      const span = document.createElement("span");
+      span.textContent = `${item.record.record_date} · Ganancia $${Number(item.record.gain || 0).toFixed(2)} · Pérdida $${Number(item.record.loss || 0).toFixed(2)}`;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "btn secondary";
+      button.textContent = "↻ Reintentar";
+      button.disabled = busy;
+      button.addEventListener("click", () => retryPending(item.localId));
+      line.append(span, button);
+      box.append(line);
+    });
+  }
+  function queueFailure(user, rec) {
+    const queue = readQueue();
+    let existing = queue.find(x => String(x.studentId) === String(user.id) && sameRecord(x.record, rec));
+    if (existing) return true;
+    const id = (typeof crypto !== "undefined" && crypto.randomUUID)
+      ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2));
+    return writeQueue([...queue, {localId:id, studentId:user.id, createdAt:new Date().toISOString(), record:rec}]);
+  }
+  function clearInputs() {
+    FIELDS.filter(x => x !== "date").forEach(id => { if (el(id)) el(id).value = ""; });
+  }
+  async function refreshDisplay() {
+    try {
+      if (typeof fetchRecords === "function") await fetchRecords();
+      if (typeof render === "function") await render();
+    } catch (err) { console.warn("Se guardó, pero la vista no pudo actualizarse:", err); }
+  }
+  async function saveRecord() {
+    if (busy) return;
+    const user = student();
+    if (!user) { setMessage("Debes iniciar sesión como estudiante para guardar.", "error"); return; }
+    let rec;
+    try { rec = recordFor(user); }
+    catch (err) { setMessage(err.message, "error"); return; }
+    if (!rec.deposit && !rec.gain && !rec.loss && !rec.note) {
+      setMessage("Introduce un depósito, una ganancia, una pérdida o una nota.", "warn"); return;
+    }
+    if (readQueue().some(x => String(x.studentId) === String(user.id) && sameRecord(x.record, rec))) {
+      setMessage("Este registro ya está pendiente. Usa «Reintentar» para evitar duplicados.", "warn");
+      renderQueue();
+      return;
+    }
+    busy = true; syncButtons();
+    setMessage("Conectando con Supabase y guardando...", "warn");
+    try {
+      if (typeof supabaseClient === "undefined") throw new Error("Supabase no se cargó en esta página.");
+      const {error} = await supabaseClient.from("student_records").insert([rec]);
+      if (error) throw error;
+      clearInputs();
+      setMessage("✅ Registro guardado en Supabase correctamente.", "ok");
+      await refreshDisplay();
+      if (typeof showPageById === "function") showPageById("dashboard");
+    } catch (err) {
+      console.error("Error guardando registro en Supabase", err);
+      const safe = queueFailure(user, rec);
+      setMessage((safe
+        ? "⚠️ No se confirmó el guardado en Supabase. Conservamos una copia pendiente en ESTE dispositivo. "
+        : "⚠️ No se pudo guardar una copia local: COPIA tus datos antes de cerrar. ")
+        + friendlyError(err), "warn");
+    } finally { busy = false; syncButtons(); renderQueue(); }
+  }
+  async function retryPending(localId) {
+    if (busy) return;
+    const user = student();
+    const item = readQueue().find(x => x.localId === localId && String(x.studentId) === String(user?.id));
+    if (!item) { renderQueue(); return; }
+    busy = true; syncButtons(); renderQueue();
+    setMessage("Comprobando el registro antes de reintentar...", "warn");
+    try {
+      if (typeof supabaseClient === "undefined") throw new Error("Supabase no está disponible.");
+      // Comprueba primero si la inserción anterior sí llegó al servidor, para reducir duplicados.
+      const {data, error: queryError} = await supabaseClient.from("student_records")
+        .select("student_id,record_date,deposit,gain,loss,note")
+        .eq("student_id", user.id).eq("record_date", item.record.record_date);
+      if (queryError) throw queryError;
+      const alreadyThere = (data || []).some(remote => sameRecord(remote, item.record));
+      if (!alreadyThere) {
+        const {error} = await supabaseClient.from("student_records").insert([item.record]);
+        if (error) throw error;
+      }
+      const q = readQueue();
+      if (!writeQueue(q.filter(x => x.localId !== item.localId))) throw new Error("Se sincronizó, pero no pudimos actualizar la cola local; no reintentes sin verificar el historial.");
+      setMessage(alreadyThere ? "✅ El registro ya existía en Supabase. Se quitó de pendientes." : "✅ Registro pendiente sincronizado con Supabase.", "ok");
+      await refreshDisplay();
+    } catch (err) {
+      console.error("No se pudo sincronizar el registro pendiente", err);
+      setMessage("Sigue pendiente en este dispositivo. " + friendlyError(err), "warn");
+    } finally { busy = false; syncButtons(); renderQueue(); }
+  }
+  function setup() {
+    const button = document.querySelector('#registro button[onclick="addRecord()"]');
+    if (!button) return;
+    button.id = "olonSaveRecordBtn";
+    button.removeAttribute("onclick");
+    button.addEventListener("click", saveRecord);
+    window.addRecord = saveRecord;
+    const status = document.createElement("div");
+    status.id = "olonRecordStatus";
+    status.setAttribute("role", "status");
+    status.style.cssText = "display:none;grid-column:1/-1;padding:13px 15px;border-radius:12px;border:1px solid rgba(255,190,90,.26);background:rgba(20,25,37,.72);font-size:13px;line-height:1.5;white-space:pre-wrap";
+    button.insertAdjacentElement("afterend", status);
+    const queue = document.createElement("section");
+    queue.id = "olonPendingQueue";
+    queue.hidden = true;
+    queue.style.cssText = "grid-column:1/-1;margin-top:12px;padding:16px;border-radius:14px;border:1px solid rgba(255,190,90,.22);background:rgba(255,190,90,.055);font-size:13px;line-height:1.5";
+    status.insertAdjacentElement("afterend", queue);
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) renderQueue(); });
+    window.addEventListener("online", () => { if (readQueue().length) setMessage("Internet parece disponible. Usa «Reintentar» para sincronizar los registros pendientes.", "warn"); renderQueue(); });
+    document.addEventListener("click", event => {
+      if (event.target.closest('[data-page="registro"]')) setTimeout(renderQueue, 80);
+    });
+    renderQueue();
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setup);
+  else setup();
+})();
+
+</script>
 </body>
 </html>
