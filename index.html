@@ -233,8 +233,8 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
           <p id="loginDailyVerse">Cargando versículo...</p>
         </div>
 
-        <div class="field"><label>Código de acceso</label><input id="loginCode" placeholder="Ej: OLON-12345" autocomplete="username"></div>
-        <div class="field"><label>Password</label><input id="loginPass" type="password" placeholder="Tu password" autocomplete="current-password"></div>
+        <div class="field"><label>Correo electrónico</label><input id="loginCode" type="email" placeholder="Ej: correo@gmail.com" autocomplete="email"></div>
+        <div class="field"><label>Contraseña</label><input id="loginPass" type="password" placeholder="Tu contraseña de Supabase Auth" autocomplete="current-password"></div>
         <button id="loginSubmitBtn" class="btn full" type="button" onclick="login()">Entrar al Portal →</button>
 
         <div class="authLegal">
@@ -265,7 +265,7 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
           <button type="button" class="btn secondary full verifyBtn" onclick="verifySignupEmail()">Verificar Email</button>
         </div>
         <div class="field"><label>Password</label><input id="signupPass" type="password" placeholder="Crea tu password" autocomplete="new-password"></div>
-        <div class="field"><label>Tipo de VIP</label><select id="signupPlan"><option value="VIP Regular">🔥 VIP Regular</option><option value="VIP Premium">💎 VIP Premium</option></select></div>
+        <div class="field"><label>Plan VIP</label><select id="signupPlan" disabled><option value="VIP Regular">Pendiente de aprobación</option></select><small>El administrador asignará tu plan cuando apruebe la cuenta.</small></div>
         <button id="signupSubmitBtn" class="btn full" type="button" onclick="signup()">Crear mi cuenta →</button>
         <div class="authLegal">
           <div class="authLegalItem">
@@ -287,7 +287,7 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
     <img src="./assets/logo.png" alt="OLON Society Academy" style="width:92px;display:block;margin:0 auto 14px;border-radius:18px;filter:drop-shadow(0 16px 30px rgba(246,196,83,.28));">
     <h1 style="text-align:center;font-size:28px">Cuenta creada</h1>
     <p style="text-align:center;color:var(--muted);margin:10px 0 22px;line-height:1.6">
-      Tu cuenta quedó pendiente de aprobación. Guarda este código para iniciar sesión cuando el admin te apruebe.
+      Tu cuenta quedó pendiente de aprobación. Guarda este código como referencia; inicia sesión con tu correo electrónico cuando el admin te apruebe.
     </p>
     <div style="padding:18px;border-radius:18px;background:rgba(246,196,83,.12);border:1px solid rgba(246,196,83,.22);text-align:center;margin-bottom:16px">
       <small style="color:var(--muted);font-weight:800">TU CÓDIGO DE ACCESO</small>
@@ -1025,7 +1025,7 @@ Entrada al grupo</textarea>
 </section>
 
 
-<script src="./script.js" defer></script>
+<script src="./script.js?v=20261104-olon-fix2" defer></script>
 
 <script>
 /* FIX FUERTE: La pantalla de código NO se muestra al cargar.
@@ -1076,7 +1076,7 @@ Entrada al grupo</textarea>
 
   function forceOpenPortalIfLogged(){
     try{
-      const saved = localStorage.getItem("olon_current_user");
+      const saved = null; // Solo Supabase Auth puede restaurar una sesión.
       if(saved && $("portal") && $("auth")){
         $("auth").classList.add("hidden");
         $("codeResult")?.classList.add("hidden");
@@ -1397,8 +1397,7 @@ Entrada al grupo</textarea>
 
   function student() {
     try {
-      const u = (typeof currentUser !== "undefined" && currentUser)
-        || JSON.parse(localStorage.getItem("olon_current_user") || "null");
+      const u = (typeof currentUser !== "undefined" && currentUser) || null;
       if (!u?.id || String(u.role || "").toLowerCase() === "admin") return null;
       return u;
     } catch (_) { return null; }
