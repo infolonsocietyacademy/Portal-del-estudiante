@@ -496,3 +496,37 @@ body.atlas-dark .authLegal{border-color:#3c5145}body.atlas-dark .authLegalItem p
 @media(prefers-reduced-motion:reduce){
  #auth.homePremium .homeFeature,#auth.homePremium .btn{transition:none}
 }
+
+/* Password recovery — shared with public login and recuperar.html */
+#auth.homePremium .recoveryShortcut{display:flex;justify-content:flex-end;margin:-4px 0 15px}
+#auth.homePremium .recoveryShortcut a{font-size:12px;font-weight:750;color:#d7b775;text-decoration:none}
+#auth.homePremium .recoveryShortcut a:hover{text-decoration:underline}
+body.olonRecoveryPage{margin:0;min-height:100vh;min-height:100svh;background:radial-gradient(ellipse at 70% 8%,#174337 0%,transparent 48%),linear-gradient(140deg,#041610,#08291e 68%,#03130f);color:#ecf6eb;font-family:'DM Sans',Inter,Arial,sans-serif}
+.olonRecoveryPage .recoveryHeader{max-width:1170px;padding:26px 24px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid rgba(238,233,205,.15)}
+.olonRecoveryPage .recoveryBrand{display:inline-flex;align-items:center;gap:12px;text-decoration:none;color:#f1f6ed;font:700 23px Georgia,serif}
+.olonRecoveryPage .recoveryBrand img{border-radius:8px;object-fit:contain}
+.olonRecoveryPage .recoveryBrand em{font-style:normal;color:#dcc18a}
+.olonRecoveryPage .recoveryBack{font-size:12px;font-weight:700;color:#d8c497;text-decoration:none}
+.olonRecoveryPage .recoveryBack:hover{text-decoration:underline}
+.olonRecoveryPage .recoveryMain{display:grid;justify-items:center;padding:clamp(40px,8vh,95px) 20px 40px}
+.olonRecoveryPage .recoveryCard{width:min(100%,510px);background:linear-gradient(160deg,rgba(16,57,44,.97),rgba(2,24,19,.97));border:1px solid rgba(226,205,151,.3);padding:clamp(26px,5vw,43px);border-radius:21px;box-shadow:0 30px 75px rgba(0,0,0,.29)}
+.olonRecoveryPage .recoveryMark{display:grid;place-items:center;width:53px;height:53px;background:rgba(214,183,117,.12);border:1px solid rgba(214,183,117,.22);border-radius:15px;font-size:25px;margin-bottom:18px}
+.olonRecoveryPage .recoveryEyebrow{font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#dcc18a;margin-bottom:13px}
+.olonRecoveryPage .recoveryCard h1{font:600 clamp(30px,4vw,39px)/1.16 Georgia,serif;color:#fffaf0;margin:0 0 10px;letter-spacing:-.025em}
+.olonRecoveryPage .recoveryDescription{color:#b5c8bc;line-height:1.7;font-size:13px;margin:0 0 27px}
+.olonRecoveryPage .recoveryCard form[hidden],.olonRecoveryPage .recoveryMessage[hidden]{display:none!important}
+.olonRecoveryPage .recoveryCard label{display:block;color:#e5efe0;font-size:12px;font-weight:700;margin:18px 0 8px}
+.olonRecoveryPage .recoveryCard input{display:block;width:100%;min-height:51px;border:1px solid rgba(205,224,205,.28);border-radius:10px;padding:12px 14px;color:#f7fff4;background:rgba(221,239,223,.06);font:inherit;font-size:14px}
+.olonRecoveryPage .recoveryCard input::placeholder{color:#99b4a6}
+.olonRecoveryPage .recoveryCard input:focus{outline:2px solid rgba(218,189,130,.65);outline-offset:2px}
+.olonRecoveryPage .recoveryPrimary{margin-top:20px;width:100%;min-height:49px;border:0;border-radius:10px;background:linear-gradient(110deg,#ead099,#c8a769);color:#263325;font:800 13px 'DM Sans',Arial,sans-serif;cursor:pointer}
+.olonRecoveryPage .recoveryPrimary:hover{filter:brightness(1.08)}
+.olonRecoveryPage .recoveryPrimary:disabled{opacity:.65;cursor:wait}
+.olonRecoveryPage .recoveryHelp{font-size:11px;line-height:1.7;color:#91b2a0;margin:17px 0 0}
+.olonRecoveryPage .recoveryMessage{border-radius:10px;padding:12px 15px;font-size:12px;line-height:1.7;margin-top:18px;background:rgba(215,188,123,.1);border:1px solid rgba(215,188,123,.28);color:#f7d98e}
+.olonRecoveryPage .recoveryMessage[data-status="error"]{background:rgba(192,74,68,.12);border-color:rgba(227,115,105,.3);color:#ffc9c3}
+.olonRecoveryPage .recoveryMessage[data-status="success"]{background:rgba(58,151,112,.16);border-color:rgba(108,207,159,.32);color:#c5f6d2}
+.olonRecoveryPage .recoveryBottomLink{display:block;text-align:center;margin-top:24px;font-size:12px;color:#e0c385;text-decoration:none;font-weight:700}
+.olonRecoveryPage .recoveryBottomLink:hover{text-decoration:underline}
+.olonRecoveryPage .recoveryFoot{color:#91b1a1;font-size:11px;line-height:1.5;text-align:center;margin:24px auto}
+@media(max-width:620px){.olonRecoveryPage .recoveryHeader{padding:19px 15px}.olonRecoveryPage .recoveryBrand{font-size:17px}.olonRecoveryPage .recoveryBrand img{width:30px;height:30px}.olonRecoveryPage .recoveryBack{font-size:10px}}
