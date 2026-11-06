@@ -22,7 +22,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 
 
-<link rel="stylesheet" href="./style.css?v=20261106-mt5">
+<link rel="stylesheet" href="./style.css?v=20261106-registro-manual">
 <noscript><style>#olonLoader{display:none}</style></noscript>
 
 <style>
@@ -451,45 +451,10 @@ window.addEventListener("load", () => {
             <div><span class="portalCalendarEyebrow">TU RENDIMIENTO DIARIO</span><h3 id="tradingCalendarTitle">Calendario de trading</h3><p id="calendarMonthLabel">Mes actual</p></div>
             <div class="portalCalendarTotal"><small>RESULTADO DEL MES</small><strong id="calendarMonthNet">$0.00</strong></div>
           </div>
-          <div class="mt5CalendarTools" id="mt5CalendarTools" hidden>
-            <div class="mt5CalendarButtons" role="group" aria-label="Origen de los resultados">
-              <button type="button" id="mt5ManualView" aria-pressed="true">Manual</button>
-              <button type="button" id="mt5TradesView" aria-pressed="false" disabled>MT5</button>
-            </div>
-            <div class="mt5CalendarButtons" id="mt5MonthNav" role="group" aria-label="Cambiar mes" hidden>
-              <button type="button" id="mt5MonthPrev" aria-label="Mes anterior">‹</button>
-              <button type="button" id="mt5MonthNext" aria-label="Mes siguiente">›</button>
-            </div>
-          </div>
           <div class="portalCalendarLegend"><span><i class="calendarDot positive"></i> Ganancia</span><span><i class="calendarDot negative"></i> Pérdida</span><span><i class="calendarDot flat"></i> Break even</span></div>
           <div class="calendarGrid" id="tradingCalendar" role="group" aria-label="Resultados diarios del mes"></div>
           <div id="calendarDayDetail" class="calendarDayDetail" role="status" aria-live="polite" hidden></div>
-          <p class="portalCalendarHint" id="mt5CalendarHint">Selecciona un día con registros para ver sus ganancias y pérdidas.</p>
-          <details class="mt5Link" id="mt5Link" hidden>
-            <summary><span>Conectar MT5</span><span id="mt5Badge" class="mt5Badge">Sin vincular</span></summary>
-            <div class="mt5LinkBody">
-              <p id="mt5Status" role="status" aria-live="polite"></p>
-              <ol>
-                <li>Abre la cuenta que quieres vincular en MT5 de escritorio. Puedes usar la contraseña de inversor dentro de MT5 para mantener el acceso de solo lectura.</li>
-                <li><a href="./downloads/OLON_MT5_Conector.mq5" download>Descarga el conector de OLON</a>. Copia el archivo a <strong>MQL5/Experts</strong> desde <strong>Archivo → Abrir carpeta de datos</strong> y compílalo en MetaEditor con <strong>F7</strong>.</li>
-                <li>En <strong>Herramientas → Opciones → Asesores Expertos</strong>, permite WebRequest para <code id="mt5AllowedOrigin"></code>. Agrega el conector a un gráfico y pega tu código en <strong>CodigoVinculacion</strong>.</li>
-              </ol>
-              <div class="mt5Actions">
-                <button class="btn secondary" type="button" id="mt5Generate">Generar código</button>
-                <button class="btn secondary" type="button" id="mt5Refresh">Actualizar</button>
-                <button class="btn secondary" type="button" id="mt5Disconnect" hidden>Desconectar</button>
-              </div>
-              <div class="mt5Pair" id="mt5Pair" hidden>
-                <label for="mt5Code">Código privado de un solo uso</label>
-                <div class="mt5PairRow">
-                  <input id="mt5Code" type="text" readonly autocomplete="off" spellcheck="false" aria-describedby="mt5Expires">
-                  <button class="btn secondary" type="button" id="mt5Copy">Copiar</button>
-                </div>
-                <small id="mt5Expires"></small>
-              </div>
-              <p class="portalCalendarHint">Importación inicial de hasta 90 días. Para sincronizar, deja MT5 abierto en tu computadora o VPS.</p>
-            </div>
-          </details>
+          <p class="portalCalendarHint">Selecciona un día con registros para ver sus ganancias y pérdidas.</p>
         </div>
       </div>
 
@@ -1008,8 +973,7 @@ Entrada al grupo</textarea>
   <button id="noloOpenFull" class="noloHistoryButton" type="button">Abrir conversación completa</button>
 </aside>
 
-<script src="./script.js?v=20261106-mt5" defer></script>
-<script src="./mt5.js?v=20261106-mt5" defer></script>
+<script src="./script.js?v=20261106-registro-manual" defer></script>
 <script src="./admin-workspace.js?v=20261106-menu-vip" defer></script>
 <script src="./admin-registration.js?v=20261106-menu-vip" defer></script>
 
