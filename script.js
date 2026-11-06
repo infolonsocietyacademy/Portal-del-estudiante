@@ -703,13 +703,13 @@ function updatePortalWelcome(){
   // Topbar principal: evita duplicar el saludo.
   const pageTitle = document.getElementById("pageTitle");
   if(pageTitle){
-    pageTitle.innerText = adminView ? "Panel Admin Profesional" : "OLON Command Center";
+    pageTitle.innerText = adminView ? "Administración" : "OLON Command Center";
   }
 
   const pageSubtitle = document.getElementById("pageSubtitle");
   if(pageSubtitle){
     pageSubtitle.innerText = adminView
-      ? "Panel administrativo listo para gestionar estudiantes."
+      ? "Gestión de miembros, solicitudes y mensajes."
       : "Control privado de rendimiento, disciplina, reportes y progreso del trader.";
   }
 
@@ -786,8 +786,8 @@ async function enterPortal(){
   setTextSafe("studentName", currentUser.full_name || "Estudiante");
   setTextSafe("avatarText", currentUser.full_name?.[0]?.toUpperCase() || "O");
   setTextSafe("userCodeText", "Código: " + (currentUser.access_code || "OLON"));
-  setTextSafe("planBadge", ((currentUser.plan || "VIP Regular").toLowerCase().includes("premium") || admin) ? "💎 VIP PREMIUM" : "🔥 VIP REGULAR");
-  setTextSafe("accessStatus", (currentUser.plan || (admin ? "Admin" : "VIP Regular")) + " " + (currentUser.status === "active" ? "Activo" : currentUser.status));
+  setTextSafe("planBadge", admin ? "👑 ADMIN" : ((currentUser.plan || "VIP Regular").toLowerCase().includes("premium") ? "💎 VIP PREMIUM" : "🔥 VIP REGULAR"));
+  setTextSafe("accessStatus", admin ? "Administrador activo" : (currentUser.plan || "VIP Regular") + " " + (currentUser.status === "active" ? "Activo" : currentUser.status));
   setTextSafe("paymentDate", ": " + (currentUser.next_payment_date || "No asignado"));
 
   hideSafe("auth");
@@ -1680,8 +1680,8 @@ if(typeof olonOriginalRender === 'function'){
     safeText('studentName', currentUser.full_name || 'Estudiante');
     safeText('avatarText', (currentUser.full_name || 'O').charAt(0).toUpperCase());
     safeText('userCodeText', 'Código: ' + (currentUser.access_code || 'OLON'));
-    safeText('planBadge', role === 'admin' || clean(currentUser.plan).toLowerCase().includes('premium') ? '💎 VIP PREMIUM' : '🔥 VIP REGULAR');
-    safeText('accessStatus', (currentUser.plan || (role === 'admin' ? 'Admin' : 'VIP Regular')) + ' Activo');
+    safeText('planBadge', role === 'admin' ? '👑 ADMIN' : clean(currentUser.plan).toLowerCase().includes('premium') ? '💎 VIP PREMIUM' : '🔥 VIP REGULAR');
+    safeText('accessStatus', role === 'admin' ? 'Administrador activo' : (currentUser.plan || 'VIP Regular') + ' Activo');
     safeText('paymentDate', ': ' + (currentUser.next_payment_date || 'No asignado'));
     safeText('portalMode', role === 'admin' ? 'Admin Portal' : 'Student Portal');
 
@@ -1698,8 +1698,8 @@ if(typeof olonOriginalRender === 'function'){
     document.querySelectorAll('.studentOnly').forEach(el => el.classList.toggle('hidden', isAdmin));
 
     forcePage(isAdmin ? 'admin' : 'dashboard');
-    safeText('pageTitle', isAdmin ? 'Panel Admin Profesional' : 'OLON Command Center');
-    safeText('pageSubtitle', isAdmin ? 'Panel administrativo listo para gestionar estudiantes.' : 'Control privado de rendimiento, disciplina, reportes y progreso del trader.');
+    safeText('pageTitle', isAdmin ? 'Administración' : 'OLON Command Center');
+    safeText('pageSubtitle', isAdmin ? 'Gestión de miembros, solicitudes y mensajes.' : 'Control privado de rendimiento, disciplina, reportes y progreso del trader.');
     if(!isAdmin) safeText('portalWelcomeText', 'Hola, ' + (currentUser.full_name || 'Estudiante'));
 
     setTimeout(async () => {
@@ -1783,12 +1783,12 @@ if(typeof olonOriginalRender === 'function'){
     txt('studentName', currentUser.full_name || (isAdmin ? 'Admin' : 'Estudiante'));
     txt('avatarText', (currentUser.full_name || 'O').charAt(0).toUpperCase());
     txt('userCodeText', 'Código: ' + (currentUser.access_code || 'OLON'));
-    txt('planBadge', isAdmin || clean(currentUser.plan).toLowerCase().includes('premium') ? '💎 VIP PREMIUM' : '🔥 VIP REGULAR');
-    txt('accessStatus', (currentUser.plan || (isAdmin ? 'Admin' : 'VIP Regular')) + ' Activo');
+    txt('planBadge', isAdmin ? '👑 ADMIN' : clean(currentUser.plan).toLowerCase().includes('premium') ? '💎 VIP PREMIUM' : '🔥 VIP REGULAR');
+    txt('accessStatus', isAdmin ? 'Administrador activo' : (currentUser.plan || 'VIP Regular') + ' Activo');
     txt('paymentDate', ': ' + (currentUser.next_payment_date || 'No asignado'));
     txt('portalMode', isAdmin ? 'Admin Portal' : 'Student Portal');
-    txt('pageTitle', isAdmin ? 'Panel Admin Profesional' : 'OLON Command Center');
-    txt('pageSubtitle', isAdmin ? 'Panel administrativo listo para gestionar estudiantes.' : 'Control privado de rendimiento, disciplina, reportes y progreso del trader.');
+    txt('pageTitle', isAdmin ? 'Administración' : 'OLON Command Center');
+    txt('pageSubtitle', isAdmin ? 'Gestión de miembros, solicitudes y mensajes.' : 'Control privado de rendimiento, disciplina, reportes y progreso del trader.');
     txt('portalWelcomeText', 'Hola, ' + (currentUser.full_name || 'Estudiante'));
 
     hide('auth');
