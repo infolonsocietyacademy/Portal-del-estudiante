@@ -1396,24 +1396,57 @@ function renderDailyQuote(){
 }
 
 function renderTradingCalendar(records){
-  const box = document.getElementById("tradingCalendar");
-  if(!box) return;
-  const now = new Date();
-  const days = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
-  const map = {};
-  records.forEach(r=>{
-    const d = new Date(r.date + "T00:00:00").getDate();
-    map[d] = (map[d] || 0) + Number(r.gain||0) - Number(r.loss||0);
-  });
-  let html = "";
-  for(let d=1; d<=days; d++){
-    let cls = "";
-    if(map[d] > 0) cls = "goodDay";
-    else if(map[d] < 0) cls = "badDay";
-    else if(map[d] === 0 && map[d] !== undefined) cls = "flatDay";
-    html += `<div class="calDay ${cls}">${d}</div>`;
+  const box=document.getElementById("tradingCalendar");
+  if(!box)return;
+  const now=new Date(),year=now.getFullYear(),month=now.getMonth();
+  const days=new Date(year,month+1,0).getDate();
+  const firstWeekday=(new Date(year,month,1).getDay()+6)%7;
+  const map=new Map();
+  for(const record of Array.isArray(records)?records:[]){
+    const value=String(record.date||"");
+    const match=/^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    if(!match||Number(match[1])!==year||Number(match[2])!==month+1)continue;
+    const day=Number(match[3]);
+    if(day<1||day>days)continue;
+    const entry=map.get(day)||{gain:0,loss:0,net:0,count:0};
+    const gain=Number(record.gain)||0,loss=Number(record.loss)||0;
+    entry.gain+=gain;entry.loss+=loss;entry.net+=gain-loss;entry.count++;
+    map.set(day,entry);
   }
-  box.innerHTML = html;
+  const monthLabel=document.getElementById("calendarMonthLabel");
+  if(monthLabel)monthLabel.textContent=new Intl.DateTimeFormat("es-PR",{month:"long",year:"numeric"}).format(now);
+  const monthTotal=Array.from(map.values()).reduce((sum,day)=>sum+day.net,0);
+  const monthNet=document.getElementById("calendarMonthNet");
+  if(monthNet){monthNet.textContent=(monthTotal>0?"+":"") + money(monthTotal);monthNet.className=monthTotal>0?"positive":monthTotal<0?"negative":"neutral";}
+  const fragment=document.createDocumentFragment();
+  for(const name of ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"]){
+    const head=document.createElement("div");head.className="calendarWeekday";head.textContent=name;fragment.append(head);
+  }
+  for(let i=0;i<firstWeekday;i++){
+    const blank=document.createElement("span");blank.className="calDay empty";blank.setAttribute("aria-hidden","true");fragment.append(blank);
+  }
+  for(let day=1;day<=days;day++){
+    const result=map.get(day);
+    const cell=document.createElement(result?"button":"div");
+    if(result)cell.type="button";
+    const state=!result?"":result.net>0?"goodDay":result.net<0?"badDay":"flatDay";
+    cell.className="calDay "+state+(day===now.getDate()?" isToday":"");
+    const number=document.createElement("span");number.className="calendarDate";number.textContent=String(day);cell.append(number);
+    const amount=document.createElement("span");amount.className="calendarAmount";
+    if(result){amount.textContent=(result.net>0?"+":"")+money(result.net);cell.setAttribute("aria-label",day+" de "+new Intl.DateTimeFormat("es-PR",{month:"long"}).format(now)+": "+(result.net>0?"ganancia ":result.net<0?"pérdida ":"resultado ")+money(result.net)+". "+result.count+" registros");}
+    else{amount.textContent=day>now.getDate()?"":"—";}
+    cell.append(amount);
+    if(result)cell.addEventListener("click",()=>{
+      box.querySelectorAll(".calDay.selected").forEach(node=>node.classList.remove("selected"));
+      cell.classList.add("selected");
+      const detail=document.getElementById("calendarDayDetail");
+      if(detail){detail.hidden=false;detail.textContent="Día "+day+" · "+result.count+" registro"+(result.count!==1?"s":"")+" · Ganancias "+money(result.gain)+" · Pérdidas "+money(result.loss)+" · Neto "+(result.net>0?"+":"")+money(result.net);}
+    });
+    fragment.append(cell);
+  }
+  box.replaceChildren(fragment);
+  const detail=document.getElementById("calendarDayDetail");
+  if(detail){detail.hidden=true;detail.textContent="";}
 }
 
 async function render(){
@@ -3705,14 +3738,30 @@ setTimeout(function(){
   // Anular todos los logins heredados y delegar al sistema seguro.
   window.login = window.olonSecureLogin;
   window.signup = window.olonSecureSignup;
+  let logoutInProgress=false;
   window.logout = async function(){
-    try{ await supabaseClient.auth.signOut(); }
-    catch(error){ console.warn("No se pudo cerrar sesión remota",error); }
-    localStorage.removeItem("olon_current_user");
-    currentUser = null;
-    cachedRecords = [];
-    cachedUsers = [];
-    location.reload();
+    if(logoutInProgress)return;
+    logoutInProgress=true;
+    const buttons=document.querySelectorAll("[data-olon-logout]");
+    buttons.forEach(button=>{button.disabled=true;button.setAttribute("aria-busy","true");});
+    try{
+      const {error}=await supabaseClient.auth.signOut({scope:"local"});
+      if(error)throw error;
+      localStorage.removeItem("olon_current_user");
+      currentUser=null;cachedRecords=[];cachedUsers=[];
+      document.getElementById("sidebar")?.classList.remove("open");
+      document.body.classList.remove("menu-open");
+      document.getElementById("portal")?.classList.add("hidden");
+      document.getElementById("auth")?.classList.remove("hidden");
+      window.scrollTo(0,0);
+      window.location.replace(window.location.pathname+"?logout=1");
+    }catch(error){
+      console.error("Error cerrando sesión:",error);
+      alert("No se pudo cerrar sesión. Comprueba tu conexión e inténtalo nuevamente.");
+    }finally{
+      logoutInProgress=false;
+      buttons.forEach(button=>{button.disabled=false;button.removeAttribute("aria-busy");});
+    }
   };
 
   async function restoreSupabaseSession(){
