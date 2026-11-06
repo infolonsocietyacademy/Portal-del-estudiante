@@ -85,11 +85,13 @@ Deno.serve(async(req:Request)=>{
      email:reqRow.email,password,email_confirm:true,user_metadata:{full_name:reqRow.full_name}
    })});
    const created=await result.json().catch(()=>({}));
-   if(!result.ok||!created.id){
+   // GoTrue versions may return a User directly or wrapped as { user: User }.
+   const newId=String(created?.user?.id||created?.id||"");
+   if(!result.ok||!/^[a-f0-9-]{36}$/i.test(newId)){
     return respond({error:"No se pudo crear la cuenta: "+String(created.msg||created.message||created.error||result.status).slice(0,180)},409);
    }
    try{
-    const updated=await db("profiles?id=eq."+encodeURIComponent(created.id)+"&role=eq.student",{method:"PATCH",headers:{Prefer:"return=representation"},body:JSON.stringify({status:"active",plan})});
+    const updated=await db("profiles?id=eq."+encodeURIComponent(newId)+"&role=eq.student",{method:"PATCH",headers:{Prefer:"return=representation"},body:JSON.stringify({status:"active",plan})});
     if(!updated?.length)throw Error("No se encontró el perfil automático.");
    }catch(e){
     // Leave the Auth user pending rather than claiming account activation.
