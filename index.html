@@ -20,7 +20,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 
-<link rel="stylesheet" href="./style.css?v=20261106-admin-workspace-2">
+<link rel="stylesheet" href="./style.css?v=20261106-sidebar-layout-4">
 
 <style>
 /* Chat Público OLON */
@@ -268,10 +268,6 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
 
 <section id="portal" class="app hidden">
 
-  <button id="mobileMenuToggle" class="mobileMenuToggle" type="button" onclick="toggleMenu()" aria-label="Abrir menú">
-    <span id="mobileMenuIcon">☰</span>
-  </button>
-
   <aside id="sidebar" class="sidebar">
     <div class="brand">
       <img src="./assets/logo.png" alt="OLON Society Academy" style="width:70px;">
@@ -303,6 +299,9 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
   </aside>
 
   <main class="main">
+    <button id="mobileMenuToggle" class="mobileMenuToggle" type="button" onclick="toggleMenu()" aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false">
+      <span id="mobileMenuIcon">☰</span>
+    </button>
     <div class="topbar">
       <div>
         <h2 id="pageTitle">OLON Command Center</h2>
