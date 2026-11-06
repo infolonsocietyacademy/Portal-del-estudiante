@@ -714,3 +714,25 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
 @media(prefers-reduced-motion:reduce){
  #admin .adminWorkspaceMetrics .adminMetricBtn,#admin .adminBtn{transition:none}
 }
+
+/* 2026-11-06 — One sidebar, consistent desktop/mobile placement.
+   The mobile menu button is inside <main>, not an extra grid item. */
+#portal.app:not(.hidden){grid-template-rows:minmax(100vh,auto);align-items:stretch}
+#portal.app > #sidebar{grid-column:1;grid-row:1;min-width:0}
+#portal.app > main.main{grid-column:2;grid-row:1;min-width:0}
+#portal #mobileMenuToggle{display:none;position:fixed;top:15px;left:15px;z-index:10020;width:44px;height:44px;border:1px solid #d3e1d7;border-radius:11px;background:#fff;color:#1b4837;box-shadow:0 6px 22px rgba(0,0,0,.13);font-size:22px;cursor:pointer;align-items:center;justify-content:center;padding:0}
+@media(min-width:981px){
+  #portal.app:not(.hidden){display:grid!important;grid-template-columns:var(--sidebar) minmax(0,1fr)!important}
+  #portal.app > #sidebar{display:flex;position:sticky;top:0;left:auto!important;width:auto;min-width:0;transform:none!important}
+  #portal.app > main.main{display:block;position:relative;min-width:0;overflow-x:clip}
+  #portal #mobileMenuToggle{display:none!important}
+}
+@media(max-width:980px){
+  #portal.app:not(.hidden){display:block!important}
+  #portal.app > #sidebar{position:fixed!important;left:-292px!important;top:0!important;width:275px!important;max-width:calc(100vw - 46px);height:100dvh!important;z-index:10010!important;transition:left .22s ease}
+  #portal.app > #sidebar.open{left:0!important}
+  #portal.app > main.main{display:block!important;width:100%;min-width:0}
+  #portal #mobileMenuToggle{display:flex!important}
+  #portal .topbar{padding-left:65px;min-height:80px}
+  body.menu-open:after{z-index:10000}
+}
