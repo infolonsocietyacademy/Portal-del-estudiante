@@ -1361,7 +1361,8 @@ function renderProDashboard(){
   const aiBox = document.getElementById("aiAnalysisList");
   if(aiBox) aiBox.innerHTML = ai.map(x=>`<div class="aiItem">${x}</div>`).join("");
 
-  renderTradingCalendar(currentMonth);
+  if(window.olonMt5) window.olonMt5.render(currentMonth);
+  else renderTradingCalendar(currentMonth);
   renderDailyQuote();
   renderV3Performance();
 }
@@ -1381,10 +1382,11 @@ function renderDailyQuote(){
   }
 }
 
-function renderTradingCalendar(records){
+function renderTradingCalendar(records, {monthDate = new Date(), formatMoney = money, selectDay} = {}){
   const box=document.getElementById("tradingCalendar");
   if(!box)return;
-  const now=new Date(),year=now.getFullYear(),month=now.getMonth();
+  const now=new Date(),year=monthDate.getFullYear(),month=monthDate.getMonth();
+  const isCurrentMonth=year===now.getFullYear()&&month===now.getMonth();
   const days=new Date(year,month+1,0).getDate();
   const firstWeekday=(new Date(year,month,1).getDay()+6)%7;
   const map=new Map();
@@ -1396,14 +1398,14 @@ function renderTradingCalendar(records){
     if(day<1||day>days)continue;
     const entry=map.get(day)||{gain:0,loss:0,net:0,count:0};
     const gain=Number(record.gain)||0,loss=Number(record.loss)||0;
-    entry.gain+=gain;entry.loss+=loss;entry.net+=gain-loss;entry.count++;
+    entry.gain+=gain;entry.loss+=loss;entry.net+=gain-loss;entry.count+=Number(record.count)||1;
     map.set(day,entry);
   }
   const monthLabel=document.getElementById("calendarMonthLabel");
-  if(monthLabel)monthLabel.textContent=new Intl.DateTimeFormat("es-PR",{month:"long",year:"numeric"}).format(now);
+  if(monthLabel)monthLabel.textContent=new Intl.DateTimeFormat("es-PR",{month:"long",year:"numeric"}).format(monthDate);
   const monthTotal=Array.from(map.values()).reduce((sum,day)=>sum+day.net,0);
   const monthNet=document.getElementById("calendarMonthNet");
-  if(monthNet){monthNet.textContent=(monthTotal>0?"+":"") + money(monthTotal);monthNet.className=monthTotal>0?"positive":monthTotal<0?"negative":"neutral";}
+  if(monthNet){monthNet.textContent=(monthTotal>0?"+":"") + formatMoney(monthTotal);monthNet.className=monthTotal>0?"positive":monthTotal<0?"negative":"neutral";}
   const fragment=document.createDocumentFragment();
   for(const name of ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"]){
     const head=document.createElement("div");head.className="calendarWeekday";head.textContent=name;fragment.append(head);
@@ -1416,17 +1418,18 @@ function renderTradingCalendar(records){
     const cell=document.createElement(result?"button":"div");
     if(result)cell.type="button";
     const state=!result?"":result.net>0?"goodDay":result.net<0?"badDay":"flatDay";
-    cell.className="calDay "+state+(day===now.getDate()?" isToday":"");
+    cell.className="calDay "+state+(isCurrentMonth&&day===now.getDate()?" isToday":"");
     const number=document.createElement("span");number.className="calendarDate";number.textContent=String(day);cell.append(number);
     const amount=document.createElement("span");amount.className="calendarAmount";
-    if(result){amount.textContent=(result.net>0?"+":"")+money(result.net);cell.setAttribute("aria-label",day+" de "+new Intl.DateTimeFormat("es-PR",{month:"long"}).format(now)+": "+(result.net>0?"ganancia ":result.net<0?"pérdida ":"resultado ")+money(result.net)+". "+result.count+" registros");}
-    else{amount.textContent=day>now.getDate()?"":"—";}
+    if(result){amount.textContent=(result.net>0?"+":"")+formatMoney(result.net);cell.setAttribute("aria-label",day+" de "+new Intl.DateTimeFormat("es-PR",{month:"long"}).format(monthDate)+": "+(result.net>0?"ganancia ":result.net<0?"pérdida ":"resultado ")+formatMoney(result.net)+". "+result.count+(selectDay?" movimientos":" registros"));}
+    else{amount.textContent=isCurrentMonth&&day>now.getDate()?"":"—";}
     cell.append(amount);
     if(result)cell.addEventListener("click",()=>{
       box.querySelectorAll(".calDay.selected").forEach(node=>node.classList.remove("selected"));
       cell.classList.add("selected");
       const detail=document.getElementById("calendarDayDetail");
-      if(detail){detail.hidden=false;detail.textContent="Día "+day+" · "+result.count+" registro"+(result.count!==1?"s":"")+" · Ganancias "+money(result.gain)+" · Pérdidas "+money(result.loss)+" · Neto "+(result.net>0?"+":"")+money(result.net);}
+      if(detail&&selectDay){selectDay(day,result,detail);return;}
+      if(detail){detail.hidden=false;detail.textContent="Día "+day+" · "+result.count+" registro"+(result.count!==1?"s":"")+" · Ganancias "+formatMoney(result.gain)+" · Pérdidas "+formatMoney(result.loss)+" · Neto "+(result.net>0?"+":"")+formatMoney(result.net);}
     });
     fragment.append(cell);
   }

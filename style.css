@@ -2008,3 +2008,34 @@ body:not(:has(#portal:not(.hidden))) .noloFloatPanel{display:none}
  #portal.app .page:not(.hidden){animation:none}
  #portal.app .page :is(.btn,button){transition:none}
 }
+
+/* MetaTrader 5 in the private trading calendar */
+#portal .mt5Link[hidden], #portal .mt5CalendarTools[hidden], #portal .mt5CalendarButtons[hidden],
+#portal .mt5Pair[hidden], #portal .mt5Actions button[hidden] { display: none; }
+.mt5CalendarTools, .mt5CalendarButtons, .mt5Actions, .mt5PairRow {
+  display: flex; align-items: center; gap: .45rem; flex-wrap: wrap;
+}
+.mt5CalendarTools { justify-content: space-between; margin: .85rem 0 .65rem; }
+.mt5CalendarButtons button {
+  min-height: 2.3rem; padding: .32rem .75rem; border: 1px solid rgba(154, 201, 181, .25);
+  border-radius: .65rem; color: inherit; background: rgba(255, 255, 255, .035);
+  font: inherit; font-size: .78rem; cursor: pointer;
+}
+.mt5CalendarButtons button[aria-pressed="true"] {
+  color: #d9ffec; border-color: #458e70; background: #164c3a;
+}
+.mt5CalendarButtons button:disabled { opacity: .45; cursor: default; }
+.mt5Link { margin-top: .85rem; border-top: 1px solid rgba(154, 201, 181, .23); }
+.mt5Link summary { padding: .8rem 0 .3rem; cursor: pointer; font-size: .9rem; font-weight: 750; }
+.mt5Badge { margin-left: .45rem; color: #a8dec3; font-size: .72rem; font-weight: 600; }
+.mt5LinkBody { display: grid; gap: .75rem; margin-top: .65rem; font-size: .8rem; line-height: 1.5; }
+.mt5LinkBody ol { margin: 0; padding-left: 1.35rem; }
+.mt5LinkBody li + li { margin-top: .42rem; }
+.mt5LinkBody a { color: #a8f0ce; text-decoration: underline; }
+.mt5LinkBody code, .mt5DetailList { overflow-wrap: anywhere; }
+.mt5Actions .btn, .mt5PairRow .btn { min-height: 2.35rem; padding: .35rem .65rem; font-size: .76rem; }
+.mt5Pair { display: grid; gap: .35rem; }
+.mt5PairRow input { flex: 1 1 12rem; min-width: 0; font-family: monospace; }
+.mt5DetailList { display: grid; gap: .45rem; list-style: none; padding: 0; margin: .6rem 0; }
+.mt5DetailList li { padding-top: .45rem; border-top: 1px solid rgba(154, 201, 181, .2); }
+.mt5DetailList small { display: block; opacity: .8; }
