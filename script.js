@@ -641,7 +641,7 @@ function resetEmailVerification(){
   if(!email && !confirm){ setEmailStatus("neutral", "Escribe y confirma tu email."); return; }
   if(email && !isValidEmailFormat(email)){ setEmailStatus("invalid", "Email no válido. Revisa que tenga @ y dominio correcto."); return; }
   if(confirm && email !== confirm){ setEmailStatus("invalid", "Los emails no coinciden."); return; }
-  if(email && confirm && email === confirm){ setEmailStatus("neutral", "Correo listo. Presiona Verificar Email."); return; }
+  if(email && confirm && email === confirm){ setEmailStatus("neutral", "Correos coinciden. Pulsa Comprobar correo."); return; }
   setEmailStatus("neutral", "Confirma tu email para verificarlo.");
 }
 
@@ -655,7 +655,7 @@ async function verifySignupEmail(){
   if(email !== confirm){ setEmailStatus("invalid", "Los correos no coinciden."); return false; }
   signupEmailVerified = true;
   signupVerifiedEmail = email;
-  setEmailStatus("valid", "Correo válido. Supabase confirmará la cuenta por email si está activada la verificación.");
+  setEmailStatus("valid", "Los correos coinciden. Esto no comprueba todavía que seas propietario de ese correo; el administrador revisará la solicitud.");
   return true;
 }
 
