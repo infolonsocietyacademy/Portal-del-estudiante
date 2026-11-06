@@ -1166,60 +1166,25 @@ function reportHTML(records, label){
 
 async function renderStudentRanking(){
   if(!currentUser || isAdminUser(currentUser)) return;
-
-  const topRanking = document.getElementById("topRanking");
-  const topRankingNote = document.getElementById("topRankingNote");
-
+  const rankEl=document.getElementById("topRanking");
+  const noteEl=document.getElementById("topRankingNote");
   try{
-    const { data, error } = await supabaseClient
-      .from("student_records")
-      .select("student_id,deposit,gain,loss");
-
+    // Server returns only the caller's rank and the number of ranked members.
+    // Do not read other students' private student_records from the browser.
+    const { data, error }=await supabaseClient.rpc("olon_student_rank");
     if(error) throw error;
-
-    const grouped = {};
-    (data || []).forEach(r=>{
-      const id = r.student_id;
-      if(!id) return;
-      if(!grouped[id]) grouped[id] = { deposit:0, gain:0, loss:0 };
-      grouped[id].deposit += Number(r.deposit || 0);
-      grouped[id].gain += Number(r.gain || 0);
-      grouped[id].loss += Number(r.loss || 0);
-    });
-
-    if(!grouped[currentUser.id]){
-      grouped[currentUser.id] = {
-        deposit: totals(cachedRecords).deposit,
-        gain: totals(cachedRecords).gain,
-        loss: totals(cachedRecords).loss
-      };
-    }
-
-    const ranking = Object.entries(grouped)
-      .map(([student_id,t])=>{
-        const net = Number(t.gain || 0) - Number(t.loss || 0);
-        const ret = Number(t.deposit || 0) > 0 ? (net / Number(t.deposit || 0)) * 100 : -999999;
-        return { student_id, net, deposit:Number(t.deposit || 0), returnPct:ret };
-      })
-      .filter(x=>x.deposit > 0)
-      .sort((a,b)=>b.returnPct - a.returnPct);
-
-    const index = ranking.findIndex(x=>x.student_id === currentUser.id);
-    const position = index >= 0 ? index + 1 : null;
-    const label = rankingLabelFromPosition(position);
-
-    if(topRanking) topRanking.innerText = label.label;
-    if(topRankingNote){
-      const total = ranking.length || 0;
-      topRankingNote.innerText = label.note + (total ? " · "+total+" estudiantes medidos" : "");
-    }
-  }catch(err){
-    console.warn("No se pudo calcular ranking estudiantil", err);
-    if(topRanking) topRanking.innerText = "Privado";
-    if(topRankingNote) topRankingNote.innerText = "Ranking disponible cuando Supabase permita leer registros de estudiantes.";
+    const row=Array.isArray(data)?data[0]:data;
+    const position=row?.rank_position ? Number(row.rank_position) : null;
+    const measured=Number(row?.measured_count||0);
+    const result=rankingLabelFromPosition(position);
+    if(rankEl)rankEl.textContent=result.label;
+    if(noteEl)noteEl.textContent=result.note+(measured?" · "+measured+" estudiantes medidos":"");
+  }catch(e){
+    console.warn("Ranking privado no disponible",e);
+    if(rankEl)rankEl.textContent="Sin ranking";
+    if(noteEl)noteEl.textContent="Registra resultados para participar en el ranking privado.";
   }
 }
-
 
 let currentReportView = "weekly";
 const reportViewConfig = {
@@ -3261,12 +3226,12 @@ function olonGodLoginCounters(){
   const activeStudents = document.getElementById("authActiveStudents");
   const trades = document.getElementById("authTradesRegistered");
 
-  const activeValue = Number(String(activeStudents?.innerText || "0").replace(/[^0-9]/g,"")) || 500;
-  const tradeValue = Number(String(trades?.innerText || "0").replace(/[^0-9]/g,"")) || 1250;
-
-  olonGodAnimateNumber("authActiveStudents", activeValue, { prefix:"+", duration:1400 });
-  olonGodAnimateNumber("authTradesRegistered", tradeValue, { prefix:"+", duration:1750 });
-  olonGodAnimateNumber("authDisciplinePercent", 98, { suffix:"%", duration:1600 });
+  // Las cifras reales se consultan en Supabase; nunca se inventan totales.
+  // La portada pública no tiene permiso para consultar datos privados con RLS.
+  if(!activeStudents?.textContent?.trim()) activeStudents.textContent="0";
+  if(!trades?.textContent?.trim()) trades.textContent="+0";
+  const discipline=document.getElementById("authDisciplinePercent");
+  if(discipline) discipline.textContent="—";
 }
 
 function olonGodInputMicroInteractions(){
