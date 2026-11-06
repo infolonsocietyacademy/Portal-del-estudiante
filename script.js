@@ -3737,3 +3737,45 @@ setTimeout(function(){
 })();
 
 
+/* OLON MOBILE NAVIGATION: begin each page at the top, never trap the document. */
+(function(){
+  const isMobile=()=>window.matchMedia("(max-width:980px)").matches;
+  const resetDocumentScroll=()=>{
+    if(!isMobile())return;
+    // Both Safari (documentElement) and older browsers (body) are supported.
+    const scrollElement=document.scrollingElement||document.documentElement;
+    if(scrollElement)scrollElement.scrollTop=0;
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
+    window.scrollTo(0,0);
+  };
+  if(typeof window.showPage==="function"){
+    const original=window.showPage;
+    window.showPage=function(id,button){
+      const previous=document.querySelector("#portal .page:not(.hidden)")?.id||"";
+      const outcome=original.apply(this,arguments);
+      if(previous!==id)resetDocumentScroll();
+      return outcome;
+    };
+  }
+  if(typeof window.mobileOpenAccount==="function"){
+    window.mobileOpenAccount=function(button){
+      if(typeof window.showPage==="function"){
+        const target=document.querySelector('.nav button[data-page="dashboard"]');
+        window.showPage("dashboard",target||button);
+      }
+      resetDocumentScroll();
+    };
+  }
+  const mobileButton=document.getElementById("mobileMenuToggle");
+  const syncMenu=()=>{
+    if(!mobileButton)return;
+    const sidebar=document.getElementById("sidebar");
+    const expanded=!!sidebar?.classList.contains("open");
+    mobileButton.setAttribute("aria-expanded",expanded?"true":"false");
+  };
+  document.addEventListener("click",syncMenu);
+  window.addEventListener("resize",syncMenu,{passive:true});
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",syncMenu);
+  else syncMenu();
+})();
