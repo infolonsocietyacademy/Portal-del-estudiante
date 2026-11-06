@@ -4220,3 +4220,126 @@ setTimeout(function(){
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded",restoreSupabaseSession);
   else restoreSupabaseSession();
 })();
+
+
+/* OLON VERIFIED APPROVALS NOV 2026 */
+(function(){
+"use strict";
+const fields="id,email,full_name,access_code,role,plan,status,next_payment_date,created_at";
+let busy=false;
+const norm=x=>String(x??"").trim().toLowerCase();
+const safe=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const admin=()=>!!currentUser && isAdminUser(currentUser) && norm(currentUser.status)==="active";
+const uuid=x=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(x));
+function notification(message,error=false){
+ let el=document.getElementById("approvalStatusNotice");
+ if(!el){
+   el=document.createElement("p");el.id="approvalStatusNotice";el.setAttribute("role","status");
+   el.style.cssText="margin:12px 20px;padding:12px 16px;border-radius:9px;font-size:13px;line-height:1.5;border:1px solid #badbce;";
+   const card=document.querySelector(".adminGodTableCard");
+   if(card)card.insertBefore(el,card.children[1]||null);
+ }
+ el.textContent=message;el.style.background=error?"#fff1f0":"#eef8f3";el.style.color=error?"#943c39":"#235f48";
+}
+function approvalError(label,e){
+ const message=String(e?.message||e||"Error desconocido");
+ const tip=/row.level security|permission denied|42501/i.test(message)?" Revisa las políticas RLS en Supabase.":"";
+ notification(label+" "+message+tip,true);
+ console.error(label,e);alert(label+" "+message+tip);
+}
+function actions(u){
+ if(norm(u.role)==="admin")return '<span class="badge blue">Protegido</span>';
+ if(!uuid(u.id))return '<span class="badge red">ID inválido</span>';
+ const id=u.id;
+ return '<div class="actionRow">'+
+ (norm(u.status)==="pending"?'<button class="btn success" type="button" onclick="updateUserStatus(\''+id+'\',\'active\')">✓ Aprobar</button>':'')+
+ (norm(u.status)==="suspended"?
+  '<button class="btn secondary" type="button" onclick="updateUserStatus(\''+id+'\',\'pending\')">Reabrir</button>':
+  '<button class="btn warnBtn" type="button" onclick="updateUserStatus(\''+id+'\',\'suspended\')">Suspender</button>')+
+ '</div>';
+}
+function selectors(u){
+ if(norm(u.role)==="admin")return {plan:safe(u.plan||"Admin"),status:safe(u.status||"active")};
+ const id=u.id;
+ const plan='<select class="adminPlanSelect" onchange="updateUserPlan(\''+id+'\',this.value)">'+
+ ["VIP Regular","VIP Premium"].map(p=>'<option value="'+p+'" '+(u.plan===p?"selected":"")+'>'+p+'</option>').join("")+'</select>';
+ const status='<select class="adminStatusSelect" onchange="updateUserStatus(\''+id+'\',this.value)">'+
+ [["pending","Pendiente"],["active","Activo"],["suspended","Suspendido"],["expired","Expirado"]].map(([v,t])=>'<option value="'+v+'" '+(norm(u.status)===v||(norm(u.status)==="approved"&&v==="active")?"selected":"")+'>'+t+'</option>').join("")+'</select>';
+ return {plan,status};
+}
+window.adminUserRowHTML=function(u){
+ const a=selectors(u);const risk=adminRiskForUser(u);
+ const initials=safe((u.full_name||"O").split(/\s+/).map(x=>x[0]).join("").slice(0,2).toUpperCase());
+ const mentoring=norm(u.role)==="admin"?"Cuenta maestra":norm(u.status)==="pending"?"Esperando aprobación":norm(u.status)==="active"?"Seguimiento activo":"Revisar cuenta";
+ return '<tr><td><div class="adminStudent"><div class="adminAvatar">'+initials+'</div><div><b>'+safe(u.full_name||"Sin nombre")+'</b><small>'+safe(u.email||"Sin email")+'</small></div></div></td>'+
+ '<td><span class="codePill">'+safe(u.access_code||"-")+'</span></td><td><span class="codePill passPill">Protegida</span></td>'+
+ '<td>'+a.plan+'</td><td>'+a.status+'</td><td>'+safe(mentoring)+'</td>'+
+ '<td><span class="adminRiskPill '+safe(risk.cls)+'">'+safe(risk.label)+'</span></td><td>'+actions(u)+'</td></tr>';
+};
+window.adminUserMobileHTML=function(u){
+ const risk=adminRiskForUser(u);const initials=safe((u.full_name||"O").split(/\s+/).map(x=>x[0]).join("").slice(0,2).toUpperCase());
+ return '<div class="adminMobileCard"><div class="adminMobileTop"><div class="adminAvatar">'+initials+'</div><div><b>'+safe(u.full_name||"Sin nombre")+'</b><small>'+safe(u.email||"Sin email")+'</small></div></div>'+
+ '<div class="adminMobileMeta"><span>Código <b>'+safe(u.access_code||"-")+'</b></span><span>Plan <b>'+safe(u.plan||"-")+'</b></span><span>Estado <b>'+safe(u.status||"-")+'</b></span><span>Riesgo <b class="adminRiskPill '+safe(risk.cls)+'">'+safe(risk.label)+'</b></span></div><div class="adminMobileActions">'+actions(u)+'</div></div>';
+};
+window.renderUsers=async function(){
+ if(!admin()){notification("Acceso exclusivo del administrador.",true);return;}
+ try{
+  const {data,error}=await supabaseClient.from("profiles").select(fields).order("created_at",{ascending:false});
+  if(error)throw error;
+  cachedUsers=data||[];
+  updateAdminMetrics();renderAdminTable();renderAdminAlerts();
+  renderAdminNoloUsage().catch(e=>console.warn("Consumo de IA no disponible",e));
+  if(typeof updateAdminChatMetric==="function")updateAdminChatMetric();
+  notification("Solicitudes cargadas. Pendientes: "+cachedUsers.filter(u=>norm(u.role)==="student"&&norm(u.status)==="pending").length);
+ }catch(e){cachedUsers=[];renderAdminTable();approvalError("No se pudieron cargar los estudiantes.",e);}
+};
+window.updateUserStatus=async function(id,status){
+ if(!admin()){alert("Solo el administrador puede aprobar solicitudes.");return;}
+ if(busy)return;
+ if(!["pending","active","suspended","expired"].includes(status))return;
+ const user=(cachedUsers||[]).find(u=>u.id===id);
+ if(!uuid(id)||!user||norm(user.role)!=="student"){alert("Estudiante no válido.");return;}
+ if(norm(user.status)===status)return;
+ busy=true;
+ try{
+  const {data,error}=await supabaseClient.from("profiles").update({status}).eq("id",id).eq("role","student").select("id,status").maybeSingle();
+  if(error)throw error;
+  if(!data||norm(data.status)!==status)throw Error("Supabase no confirmó el cambio. Verifica permisos RLS.");
+  await renderUsers();
+  notification((status==="active"?"✓ Cuenta aprobada: ":"✓ Estado actualizado: ")+String(user.full_name||user.email||"Estudiante"));
+ }catch(e){approvalError("No se pudo actualizar el estado.",e);renderAdminTable();}
+ finally{busy=false;}
+};
+window.updateUserPlan=async function(id,plan){
+ if(!admin()||busy)return;
+ const user=(cachedUsers||[]).find(u=>u.id===id);
+ if(!uuid(id)||!user||norm(user.role)!=="student")return;
+ if(!["VIP Regular","VIP Premium"].includes(plan)){renderAdminTable();return;}
+ busy=true;
+ try{
+  const {data,error}=await supabaseClient.from("profiles").update({plan}).eq("id",id).eq("role","student").select("id,plan").maybeSingle();
+  if(error)throw error;
+  if(!data||data.plan!==plan)throw Error("Supabase no confirmó el cambio de plan.");
+  await renderUsers();
+  notification("✓ Plan actualizado para "+String(user.full_name||user.email||"Estudiante"));
+ }catch(e){approvalError("No se pudo actualizar el plan.",e);renderAdminTable();}
+ finally{busy=false;}
+};
+window.approveAllPendingUsers=async function(){
+ if(!admin()||busy)return;
+ let pending=(cachedUsers||[]).filter(u=>norm(u.role)==="student"&&norm(u.status)==="pending");
+ if(!pending.length){await renderUsers();pending=(cachedUsers||[]).filter(u=>norm(u.role)==="student"&&norm(u.status)==="pending");}
+ if(!pending.length){alert("No hay cuentas pendientes.");return;}
+ if(!confirm("¿Aprobar las "+pending.length+" solicitudes? Se les concederá acceso al portal."))return;
+ busy=true;
+ try{
+  const {data,error}=await supabaseClient.from("profiles").update({status:"active"}).in("id",pending.map(u=>u.id)).eq("role","student").eq("status","pending").select("id,status");
+  if(error)throw error;
+  const approved=(data||[]).filter(u=>norm(u.status)==="active").length;
+  await renderUsers();
+  if(approved!==pending.length)throw Error("Solo se confirmaron "+approved+" de "+pending.length+" aprobaciones.");
+  notification("✓ "+approved+" estudiantes aprobados en Supabase.");
+ }catch(e){approvalError("No se completaron todas las aprobaciones.",e);}
+ finally{busy=false;}
+};
+})();
