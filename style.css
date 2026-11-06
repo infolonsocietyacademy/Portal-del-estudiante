@@ -908,7 +908,7 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
     max-height:none!important;
     overflow-x:clip!important;
     overflow-y:visible!important;
-    touch-action:pan-y pinch-zoom;
+    touch-action:auto; /* allow vertical page and horizontal navigation gestures */
   }
   #auth.homePremium,
   #auth.homePremium .homeMain,
