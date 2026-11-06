@@ -530,3 +530,12 @@ body.olonRecoveryPage{margin:0;min-height:100vh;min-height:100svh;background:rad
 .olonRecoveryPage .recoveryBottomLink:hover{text-decoration:underline}
 .olonRecoveryPage .recoveryFoot{color:#91b1a1;font-size:11px;line-height:1.5;text-align:center;margin:24px auto}
 @media(max-width:620px){.olonRecoveryPage .recoveryHeader{padding:19px 15px}.olonRecoveryPage .recoveryBrand{font-size:17px}.olonRecoveryPage .recoveryBrand img{width:30px;height:30px}.olonRecoveryPage .recoveryBack{font-size:10px}}
+
+
+/* Recuperación: verificar un enlace que fue redirigido a localhost */
+.olonRecoveryPage .recoveryFallback{margin:20px 0 0;padding:15px 16px;border:1px solid rgba(218,189,130,.28);border-radius:11px;background:rgba(218,189,130,.06)}
+.olonRecoveryPage .recoveryFallback[hidden]{display:none!important}
+.olonRecoveryPage .recoveryFallback summary{cursor:pointer;color:#e6cd91;font-size:12px;font-weight:750;line-height:1.5}
+.olonRecoveryPage .recoveryFallback p{color:#c4d2c6;font-size:12px;line-height:1.7;margin:12px 0}
+.olonRecoveryPage .recoveryFallback textarea{display:block;width:100%;border-radius:9px;background:rgba(221,239,223,.06);border:1px solid rgba(205,224,205,.28);color:#f7fff4;min-height:84px;padding:12px;font-size:12px;font-family:inherit;resize:vertical;overflow-wrap:anywhere}
+.olonRecoveryPage .recoveryFallback textarea:focus{outline:2px solid rgba(218,189,130,.65);outline-offset:2px}
