@@ -777,6 +777,7 @@ async function enterPortal(){
   if(!currentUser) return;
 
   const admin = isAdminUser(currentUser);
+  document.getElementById("portal")?.classList.toggle("admin-mode",admin);
   currentUser.role = admin ? "admin" : "student";
   currentUser.status = admin ? "active" : normalizeStatus(currentUser.status);
   localStorage.setItem("olon_current_user", JSON.stringify(currentUser));
@@ -1693,6 +1694,7 @@ if(typeof olonOriginalRender === 'function'){
     localStorage.setItem('olon_current_user', JSON.stringify(currentUser));
 
     const isAdmin = role === 'admin';
+    el('portal')?.classList.toggle('admin-mode', isAdmin);
     try{ if(typeof applyPlanStyle === 'function') applyPlanStyle(currentUser.plan || (isAdmin ? 'Admin' : 'VIP Regular')); }catch(e){}
 
     txt('studentName', currentUser.full_name || (isAdmin ? 'Admin' : 'Estudiante'));
@@ -3617,6 +3619,9 @@ setTimeout(function(){
   }
   async function openVerifiedProfile(profile){
     currentUser = profile;
+    // Aislar la distribución del administrador de la interfaz del estudiante.
+    const portalElement = document.getElementById("portal");
+    if(portalElement) portalElement.classList.toggle("admin-mode", String(profile?.role||"").trim().toLowerCase()==="admin");
     localStorage.setItem("olon_current_user", JSON.stringify(profile));
     if(typeof setLoaderStudentName === "function") setLoaderStudentName(profile.full_name,profile.plan);
     await window.enterPortal();
