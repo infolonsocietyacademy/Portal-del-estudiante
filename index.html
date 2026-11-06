@@ -808,112 +808,93 @@ Entrada al grupo</textarea>
 
     </section>
 
-<section id="admin" class="page hidden adminProPage">
-      <div class="adminGodHero">
-        <div class="adminGodGlow"></div>
-        <div class="adminGodHeroTop">
+<section id="admin" class="page hidden adminProPage" aria-label="Centro de administración de OLON">
+      <header class="adminWorkspaceHero">
+        <div class="adminWorkspaceIdentity"><span class="adminLiveDot"></span> OLON SOCIETY ACADEMY <span class="adminIdentityDivider">/</span> ADMINISTRACIÓN</div>
+        <div class="adminWorkspaceHeroMain">
           <div>
-            <div class="adminKicker">👑 Admin Command Center</div>
-            <h3>Panel Admin Nivel Pro</h3>
-            <p>Control total de estudiantes, aprobaciones, planes VIP, consumo de Nolo IA y alertas operativas desde una vista premium lista para web, móvil e iPad.</p>
+            <h3>Centro de administración<span class="adminWorkspaceAccent">.</span></h3>
+            <p>Estudiantes, solicitudes, membresías y comunicaciones. Todo organizado en un solo espacio.</p>
           </div>
-          <div class="adminActions adminGodActions">
-            <button class="btn secondary" onclick="renderUsers()">🔄 Actualizar</button>
-            <button class="btn" onclick="filterAdminUsers('pending')">⏳ Pendientes</button>
-            <button class="btn secondary" onclick="approveAllPendingUsers()">✅ Aprobar pendientes</button>
+          <div class="adminWorkspaceMainActions">
+            <button type="button" class="adminBtn adminBtnOutline" onclick="olonAdmin.refresh()" id="adminRefreshBtn">↻ Actualizar datos</button>
+            <button type="button" class="adminBtn adminBtnGold" onclick="olonAdmin.filter('pending')">Revisar solicitudes <span id="adminPendingCountInline">0</span></button>
           </div>
         </div>
+        <div class="adminWorkspaceActivity" aria-live="polite">
+          <span id="adminConnectionState" class="adminConnectionState">Conectando con Supabase…</span>
+          <span id="adminLastSync">Aún sin sincronizar</span>
+        </div>
+      </header>
 
-        <div class="adminHeroStrip">
-          <div><span>Modo</span><b>Academy Control</b></div>
-          <div><span>Seguridad</span><b>Admin protegido</b></div>
-          <div><span>Vista</span><b>Mobile Ready</b></div>
-        </div>
+      <nav class="adminWorkspaceNav" aria-label="Secciones de administración">
+        <button type="button" onclick="olonAdmin.go('adminOverviewBlock')">Resumen</button>
+        <button type="button" onclick="olonAdmin.filter('pending')">Solicitudes</button>
+        <button type="button" onclick="olonAdmin.go('adminStudentsBlock')">Estudiantes</button>
+        <button type="button" onclick="olonAdmin.go('adminNoloUsageBlock')">Nolo IA</button>
+        <button type="button" onclick="olonAdmin.openChat()">Mensajes <span id="adminNavUnread">0</span></button>
+      </nav>
+
+      <div id="adminOverviewBlock" class="adminSectionIntro">
+        <div><span class="adminSectionEyebrow">01 / PANORAMA</span><h4>Resumen general</h4></div>
+        <p>Cifras de cuentas registradas. Selecciona una tarjeta para filtrar estudiantes.</p>
+      </div>
+      <div class="adminMetrics adminWorkspaceMetrics">
+        <button type="button" class="adminMetric adminMetricBtn" onclick="olonAdmin.filter('all')"><span class="adminMetricIcon">👥</span><small>Total de estudiantes</small><b id="adminTotalUsers">—</b><span>Registrados en el portal</span></button>
+        <button type="button" class="adminMetric adminMetricBtn" onclick="olonAdmin.filter('active')"><span class="adminMetricIcon">✓</span><small>Activos</small><b id="adminActiveUsers">—</b><span>Con acceso aprobado</span></button>
+        <button type="button" class="adminMetric adminMetricBtn adminMetricPending" onclick="olonAdmin.filter('pending')"><span class="adminMetricIcon">◷</span><small>Por aprobar</small><b id="adminPendingUsers">—</b><span>Solicitudes pendientes</span></button>
+        <button type="button" class="adminMetric adminMetricBtn" onclick="olonAdmin.filter('suspended')"><span class="adminMetricIcon">⊘</span><small>Suspendidos</small><b id="adminSuspendedUsers">—</b><span>Acceso detenido</span></button>
+        <button type="button" class="adminMetric adminMetricBtn" onclick="olonAdmin.plan('premium')"><span class="adminMetricIcon">◆</span><small>VIP Premium</small><b id="adminPremiumUsers">—</b><span>Plan Premium asignado</span></button>
+        <button type="button" class="adminMetric adminMetricBtn" onclick="olonAdmin.openChat()"><span class="adminMetricIcon">✉</span><small>Mensajes pendientes</small><b id="adminChatMetric">—</b><span>Conversaciones por atender</span></button>
       </div>
 
-      <div class="adminMetrics adminGodMetrics">
-        <button class="adminMetric adminMetricBtn" onclick="filterAdminUsers('all')"><small>Total estudiantes</small><b id="adminTotalUsers">0</b><span>Usuarios registrados</span></button>
-        <button class="adminMetric adminMetricBtn" onclick="filterAdminUsers('active')"><small>Activos</small><b id="adminActiveUsers">0</b><span>Acceso aprobado</span></button>
-        <button class="adminMetric adminMetricBtn" onclick="filterAdminUsers('pending')"><small>Pendientes</small><b id="adminPendingUsers">0</b><span>Esperando aprobación</span></button>
-        <button class="adminMetric adminMetricBtn" onclick="filterAdminUsers('suspended')"><small>Suspendidos</small><b id="adminSuspendedUsers">0</b><span>Acceso pausado</span></button>
-        <button class="adminMetric adminMetricBtn" onclick="filterAdminPlan('premium')"><small>Premium</small><b id="adminPremiumUsers">0</b><span>VIP Premium</span></button>
-        <div class="adminMetric"><small>Live Chat</small><b id="adminChatMetric">0</b><span>Mensajes pendientes</span></div>
-        <div class="adminMetric"><small>Nolo IA</small><b id="adminNoloMetric">0</b><span>Uso diario total</span></div>
-        <div class="adminMetric"><small>Nolo IA hoy</small><b id="adminNoloToday">0</b><span>Mensajes consumidos</span></div>
+      <div class="adminWorkspacePanels">
+        <section class="adminWorkspaceCard" aria-labelledby="adminAlertsHeading">
+          <div class="adminWorkspaceCardHead">
+            <div><span class="adminSectionEyebrow">02 / PRIORIDADES</span><h4 id="adminAlertsHeading">Centro de alertas</h4><p>Los asuntos que merecen tu atención.</p></div>
+            <span class="adminHeadIndicator">OPERACIONES</span>
+          </div>
+          <div id="adminAlertList" class="adminAlertList" aria-live="polite"><div class="adminAlertItem">Consultando solicitudes…</div></div>
+        </section>
+        <section class="adminWorkspaceCard" id="adminNoloUsageBlock" aria-labelledby="adminAiHeading">
+          <div class="adminWorkspaceCardHead">
+            <div><span class="adminSectionEyebrow">03 / ASISTENTE</span><h4 id="adminAiHeading">Actividad de Nolo IA</h4><p>Uso educativo de la comunidad hoy.</p></div>
+            <button type="button" class="adminIconAction" onclick="olonAdmin.loadAI()" aria-label="Actualizar actividad de Nolo IA">↻</button>
+          </div>
+          <div class="adminAiTopline"><strong id="adminNoloToday">—</strong><span>mensajes enviados hoy</span><span id="adminNoloMetric" hidden>0</span></div>
+          <div id="adminNoloUsageList" class="adminNoloUsageList"><div class="adminAlertItem">Consultando actividad…</div></div>
+        </section>
       </div>
 
-      <div class="adminOpsGrid">
-        <div class="card adminAlertCard">
-          <div class="adminPanelHead miniHead">
-            <div>
-              <h4>Centro de alertas</h4>
-              <p>Acciones que debes revisar hoy.</p>
-            </div>
-            <span class="adminCountPill">Live</span>
-          </div>
-          <div id="adminAlertList" class="adminAlertList">
-            <div class="adminAlertItem">Cargando alertas...</div>
-          </div>
+      <section id="adminStudentsBlock" class="adminWorkspaceCard adminWorkspaceDirectory" aria-labelledby="adminStudentsHeading">
+        <div class="adminWorkspaceCardHead adminDirectoryHead">
+          <div><span class="adminSectionEyebrow">04 / DIRECTORIO</span><h4 id="adminStudentsHeading">Gestión de estudiantes</h4><p>Aprueba solicitudes, actualiza planes, administra accesos y revisa vencimientos.</p></div>
+          <div class="adminDirectoryHeadRight"><span id="adminCountPill" class="adminCountPill">0 resultados</span><button id="adminApproveAllBtn" type="button" class="adminBtn adminBtnGold" onclick="olonAdmin.approveAll()">✓ Aprobar pendientes</button></div>
         </div>
-
-        <div class="card adminAiUsageCard">
-          <div class="adminPanelHead miniHead">
-            <div>
-              <h4>Consumo Nolo IA</h4>
-              <p>Top estudiantes por mensajes usados hoy.</p>
-            </div>
-            <button class="btn secondary miniBtn" onclick="renderAdminNoloUsage()">Actualizar</button>
+        <div class="adminDirectoryControls">
+          <div class="adminQuickFilters" role="group" aria-label="Filtrar estudiantes por estado">
+            <button type="button" data-admin-filter="all" onclick="olonAdmin.filter('all')">Todos</button>
+            <button type="button" data-admin-filter="pending" onclick="olonAdmin.filter('pending')">Pendientes</button>
+            <button type="button" data-admin-filter="active" onclick="olonAdmin.filter('active')">Activos</button>
+            <button type="button" data-admin-filter="suspended" onclick="olonAdmin.filter('suspended')">Suspendidos</button>
+            <button type="button" data-admin-filter="expired" onclick="olonAdmin.filter('expired')">Expirados</button>
           </div>
-          <div id="adminNoloUsageList" class="adminNoloUsageList">
-            <div class="adminAlertItem">Cargando uso de IA...</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card adminPanelCard adminGodTableCard">
-        <div class="adminPanelHead">
-          <div>
-            <h4>Gestión de estudiantes</h4>
-            <p>Busca, filtra, aprueba, suspende, cambia plan y gestiona estudiantes desde un solo lugar.</p>
-          </div>
-          <span id="adminCountPill" class="adminCountPill">0 resultados</span>
-        </div>
-
-        <div class="adminQuickFilters">
-          <button type="button" onclick="filterAdminUsers('all')">Todos</button>
-          <button type="button" onclick="filterAdminUsers('pending')">Pendientes</button>
-          <button type="button" onclick="filterAdminUsers('active')">Activos</button>
-          <button type="button" onclick="filterAdminUsers('expired')">Expirados</button>
-          <button type="button" onclick="filterAdminPlan('premium')">Premium</button>
-        </div>
-
-        <div style="padding:18px 20px">
           <div class="adminTools adminGodTools">
-            <input id="adminSearch" class="adminSearch" placeholder="Buscar por nombre, email o código..." oninput="renderAdminTable()">
-            <select id="adminStatusFilter" class="adminSelect" onchange="renderAdminTable()">
-              <option value="all">Todos los estados</option>
-              <option value="pending">Pendientes</option>
-              <option value="active">Activos</option>
-              <option value="suspended">Suspendidos</option>
-              <option value="expired">Expirados</option>
-            </select>
-            <select id="adminPlanFilter" class="adminSelect" onchange="renderAdminTable()">
-              <option value="all">Todos los planes</option>
-              <option value="regular">VIP Regular</option>
-              <option value="premium">VIP Premium</option>
-              <option value="admin">Admin</option>
-            </select>
+            <label class="adminSearchWrap"><span>Buscar estudiante</span><input id="adminSearch" class="adminSearch" placeholder="Nombre, correo o código OLON…" autocomplete="off" oninput="olonAdmin.render()"></label>
+            <label><span>Estado</span><select id="adminStatusFilter" class="adminSelect" onchange="olonAdmin.render()"><option value="all">Todos los estados</option><option value="pending">Pendientes</option><option value="active">Activos</option><option value="suspended">Suspendidos</option><option value="expired">Expirados</option></select></label>
+            <label><span>Membresía</span><select id="adminPlanFilter" class="adminSelect" onchange="olonAdmin.render()"><option value="all">Todos los planes</option><option value="regular">VIP Regular</option><option value="premium">VIP Premium</option></select></label>
           </div>
         </div>
-
-        <div class="tableWrap adminTable adminGodTable">
+        <div id="adminActionFeedback" class="adminActionFeedback" role="status" aria-live="polite" hidden></div>
+        <div class="tableWrap adminTable adminGodTable adminDirectoryTable">
           <table>
-            <thead><tr><th>Estudiante</th><th>Código</th><th>Password</th><th>Plan</th><th>Estado</th><th>Mentoría</th><th>Riesgo</th><th>Acción</th></tr></thead>
-            <tbody id="usersBody"></tbody>
+            <thead><tr><th>Estudiante</th><th>Código</th><th>Plan VIP</th><th>Acceso</th><th>Próximo pago</th><th>Seguimiento</th><th>Acciones</th></tr></thead>
+            <tbody id="usersBody"><tr><td colspan="7">Cargando estudiantes…</td></tr></tbody>
           </table>
         </div>
         <div id="usersMobileCards" class="mobileCards adminMobileCards"></div>
-      </div>
+        <div class="adminDirectoryFooter">Los cambios se guardan en Supabase y se verifican antes de mostrarse como completados. Las contraseñas nunca son visibles.</div>
+      </section>
     </section>
 
     <button id="chatFab" class="chatFab studentOnly" onclick="toggleStudentChat()">👑 Mentor Live <span id="studentChatBadge" class="chatFabBadge">0</span></button>
@@ -992,7 +973,7 @@ Entrada al grupo</textarea>
 </section>
 
 
-<script src="./script.js?v=20261106-admin-alias-1" defer></script>
+<script src="./script.js?v=20261106-admin-workspace-1" defer></script>
 
 <script>
 /* FIX FUERTE: La pantalla de código NO se muestra al cargar.
