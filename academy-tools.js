@@ -21,7 +21,7 @@
   };
   const safeError = message => Object.assign(new Error(message), {safe:true});
   let classDraft = null, classCreateId = null, receiptDraft = null, journal = null;
-  let rules = {}, rulesOwner = null, dayRules = {}, dayRequest = 0;
+  let rules = {}, rulesOwner = null, dayRules = {}, dayRequest = 0, dayReady = null;
 
   function student(){
     return currentUser && !isAdminUser(currentUser) ? currentUser.id : null;
@@ -479,13 +479,17 @@
   }
   async function loadDay(){
     const owner = student(), date = dayDate.value, request = ++dayRequest;
-    if(!owner || !date) return;
+    dayReady = null;
     dayButton.disabled = true;
+    if(!owner || !date) return;
     listMessage("academyChecklistItems","Cargando revisión…");
     feedback("academyDayFeedback");
     try{
       const row = unwrap(await table("olon_checklist_days").select("*").eq("student_id",owner).eq("record_date",date).maybeSingle());
-      if(student() === owner && request === dayRequest) drawDay(row);
+      if(student() === owner && request === dayRequest){
+        dayReady = owner + "/" + date;
+        drawDay(row);
+      }
     }catch{
       if(request === dayRequest) listMessage("academyChecklistItems","No se pudo cargar la revisión. Cambia la fecha o vuelve a abrir la sección.");
     }
@@ -493,6 +497,8 @@
   async function loadChecklist(){
     const owner = student();
     if(!owner) return;
+    dayReady = null;
+    dayButton.disabled = true;
     if(rulesOwner !== owner){dayDate.value = prDate();rulesOwner=owner;}
     if(!dayDate.value) dayDate.value = prDate();
     try{
@@ -521,7 +527,8 @@
   dayForm.addEventListener("submit",event=>{
     event.preventDefault();
     const owner = student(), date = dayDate.value;
-    if(!owner || !date) return;
+    if(!owner || !date || dayButton.disabled || dayReady !== owner + "/" + date) return;
+    dayDate.disabled = true;
     void action(dayButton,"academyDayFeedback",async()=>{
       const record = {student_id:owner,record_date:date};
       for(const [rule,checked] of rulesInfo){
@@ -531,7 +538,7 @@
       if(!rulesInfo.some(([rule])=>record[rule])) throw safeError("Guarda al menos una regla.");
       unwrap(await table("olon_checklist_days").upsert(record,{onConflict:"student_id,record_date"}));
       if(student() === owner && dayDate.value === date) feedback("academyDayFeedback","Revisión guardada.","success");
-    },"No se pudo guardar la revisión del día.");
+    },"No se pudo guardar la revisión del día.").finally(()=>{ dayDate.disabled = false; });
   });
 
   document.addEventListener("click",event=>{
