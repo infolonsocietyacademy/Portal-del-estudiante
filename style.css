@@ -1296,3 +1296,190 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
  #portal .portalTopBreadcrumb{font-size:7px}
  #portal .portalTopbar h2{font-size:14px}
 }
+
+
+
+/* OLON SOCIETY | SIGNATURE INTERFACE 2026
+   Premium coherent visual system. Scoped to authenticated portal. */
+#portal.app{
+ --olon-ink:#16352e;--olon-muted:#70887b;--olon-gold:#c8a76c;
+ --olon-line:#e3ebe5;--olon-surface:#fff;--olon-canvas:#f3f6f2;
+ --olon-soft:#edf4ee;--olon-shadow:0 8px 32px rgba(20,54,37,.045);
+ color:var(--olon-ink);background:var(--olon-canvas);
+ font-family:Manrope,"DM Sans",system-ui,sans-serif;
+}
+#portal.app > main.main{background:var(--olon-canvas);min-width:0}
+#portal.app .page:not(.hidden){max-width:1500px;margin-left:auto;margin-right:auto}
+#portal.app .page :is(.card,.v3Card,.adminWorkspaceCard,.adminMetric,.noloMissionCard,.entScoreCard){
+ border:1px solid var(--olon-line);border-radius:19px;
+ box-shadow:var(--olon-shadow);
+}
+#portal.app .page :is(.card,.v3Card,.adminWorkspaceCard){background:var(--olon-surface)}
+#portal.app .page :is(.card,.v3Card,.adminWorkspaceCard,.adminMetric){min-width:0}
+#portal.app .page :is(.card,.v3Card,.adminWorkspaceCard,.adminMetric):focus-within{border-color:#bdd8c5}
+#portal.app .page :is(h2,h3,h4){letter-spacing:-.035em}
+#portal.app .page :is(.card,.adminWorkspaceCard)>h3{font-weight:850;color:#1c4234}
+#portal.app .page :is(.field label,.entLabel,.adminDirectoryFilters label){font-weight:800;color:#385e4b;font-size:12px}
+#portal.app .page :is(input,select,textarea){
+ border-radius:11px;border:1px solid #dce7dd;background:#fbfcfa;color:#193a2e;
+ min-height:44px;padding:11px 13px;
+ font-family:inherit;transition:border-color .18s,box-shadow .18s,background .18s;
+}
+#portal.app .page :is(input,select,textarea):focus{
+ outline:0;border-color:#4a9971;box-shadow:0 0 0 3px rgba(70,154,108,.13);background:#fff;
+}
+#portal.app .page :is(button,.btn,a.btn){font-family:inherit;transition:transform .18s,box-shadow .18s,background .18s,border-color .18s}
+#portal.app .page :is(button,.btn,a.btn):focus-visible,
+#portal.app .portalNavLink:focus-visible,#portal.app .portalExitBtn:focus-visible{
+ outline:3px solid #c9ac70;outline-offset:3px;
+}
+#portal.app .page :is(.btn:not(.secondary):not(.danger),.adminBtnGold,.waSendBtn){
+ border-radius:11px;background:linear-gradient(115deg,#1e6046,#194d3c);color:#fff;
+ border:1px solid #1b6245;box-shadow:0 5px 14px rgba(21,80,54,.12);font-weight:800;
+}
+#portal.app .page :is(.btn.secondary,.adminBtnOutline){border-radius:11px;background:#f5f8f3;border:1px solid #d9e6db;color:#285c42;font-weight:800}
+#portal.app .page :is(.btn.danger){border-radius:11px}
+#portal.app .page :is(.btn,.adminBtn,.newsFilterBtn,.entTabs button):hover{transform:translateY(-1px)}
+#portal.app .page .welcomeHeroCard{
+ position:relative;min-height:245px;border:1px solid #245742;
+ background:radial-gradient(circle at 90% 15%,rgba(201,169,108,.16),transparent 34%),linear-gradient(120deg,#103a2e,#1c5a43 70%,#214d3b);
+ box-shadow:0 17px 42px rgba(17,61,42,.12);border-radius:21px;overflow:hidden;
+}
+#portal.app .page .welcomeHeroCard:after{content:"";position:absolute;width:310px;height:310px;border:1px solid rgba(221,206,157,.16);border-radius:50%;right:-110px;top:-115px;pointer-events:none}
+#portal.app .page .welcomeHeroContent{position:relative;z-index:1;max-width:650px}
+#portal.app .page .welcomeTitle{color:#f7f8f2;font-weight:850;letter-spacing:-.055em}
+#portal.app .page .welcomeSub{color:#c9ded0;max-width:540px}
+#portal.app .page .welcomeKicker{color:#e1c487;font-weight:850;letter-spacing:.11em}
+#portal.app .page .olonIdentityStrip{border-radius:13px;border:1px solid #e3eae2;background:#fff;box-shadow:var(--olon-shadow);padding:15px 18px}
+#portal.app .page .olonIdentityStrip b{color:#1b4b37}
+#portal.app .page .olonIdentityStrip small{color:#987741}
+#portal.app .page .proQuote{border-radius:13px;border:1px solid #e8e5d8;background:linear-gradient(110deg,#fcfbf5,#f6f8f2);color:#526a56}
+#portal.app .page .v3Grid .v3Card{position:relative;overflow:hidden;padding:23px}
+#portal.app .page .v3Grid .v3Card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:#c9ac73}
+#portal.app .page .v3Grid .v3Card small{color:#65816f;font-weight:850;letter-spacing:.035em}
+#portal.app .page .v3Grid .v3Card h3{color:#214f39;font-weight:900;letter-spacing:-.05em}
+#portal.app .page .v3Grid .v3Card span{color:#779083;line-height:1.5}
+#portal.app .page .reportCard{padding:23px}
+#portal.app .page .reportSwitch{background:#edf3ee;border-radius:12px;padding:4px}
+#portal.app .page .reportTapBtn{border-radius:9px;font-weight:850}
+#portal.app .page .reportTapBtn.active{background:#fff;color:#1b6345;box-shadow:0 2px 9px rgba(15,63,41,.08)}
+#portal.app .page .selectedReportHead{border-bottom:1px solid #e8eee8;padding-bottom:16px}
+#portal.app .page .selectedReportHead h3{color:#1c4935}
+#portal.app .page .reportRow{border-bottom:1px solid #eef2ee}
+#portal.app .page .traderScoreCard .scoreRing{filter:drop-shadow(0 5px 12px rgba(30,89,58,.10))}
+#portal.app .page .goalBar{border-radius:99px;background:#e7eee7;overflow:hidden}
+#portal.app .page .goalBar span{border-radius:99px;background:linear-gradient(90deg,#1f7751,#6cb58a)}
+#portal.app .page .metric{padding:20px}
+#portal.app .page .metric small{color:#738e7b;font-weight:850}
+#portal.app .page .metric h3{color:#194b36;font-weight:900;letter-spacing:-.05em}
+#portal.app .page .chartBox{overflow:hidden}
+#portal.app .page .chartBox canvas{width:100%!important;max-width:100%}
+#portal.app #registro>.card,#portal.app #historial>.card,#portal.app #comparacion>.card{padding:clamp(18px,2.5vw,30px)}
+#portal.app #registro>.card>h3,#portal.app #historial>.card>h3,#portal.app #comparacion>.card>h3{font-size:clamp(21px,2.4vw,28px);margin-bottom:7px}
+#portal.app #registro .formGrid{gap:15px}
+#portal.app #registro .formGrid .field{min-width:0}
+#portal.app #registro .formGrid textarea{min-height:125px}
+#portal.app #historial .tableWrap,#portal.app #comparacion .tableWrap{border:1px solid #e6ede6;border-radius:13px;overflow-x:auto}
+#portal.app #historial table,#portal.app #comparacion table{border-collapse:separate;border-spacing:0}
+#portal.app #historial th,#portal.app #comparacion th{background:#eff5ef;color:#456b55;font-size:11px;letter-spacing:.04em}
+#portal.app #historial td,#portal.app #comparacion td{border-bottom:1px solid #ecf0eb}
+#portal.app #publicChat .waChatShell{border:1px solid #dbe7dc;border-radius:20px;overflow:hidden;background:#fff;box-shadow:var(--olon-shadow)}
+#portal.app #publicChat .waChatHeader{background:linear-gradient(105deg,#153e32,#245e45);color:#fff}
+#portal.app #publicChat .waChatHeader :is(h3,p){color:#fff}
+#portal.app #publicChat .waMessages{background:#f4f7f3}
+#portal.app #publicChat .waComposer{background:#fff;border-top:1px solid #e6eee7}
+#portal.app #newsProPage .marketNewsHero{border:1px solid #235741;background:linear-gradient(120deg,#123c30,#28634b);color:#fff;box-shadow:0 14px 32px rgba(19,73,48,.1)}
+#portal.app #newsProPage .marketNewsHero :is(h2,p){color:#fff}
+#portal.app #newsProPage .newsProToolbar{padding:17px}
+#portal.app #newsProPage .newsFilterBtn{border-radius:10px;font-weight:850}
+#portal.app #newsProPage .newsFilterBtn.active{background:#1d6345;color:#fff}
+#portal.app #newsProPage .newsGrid{gap:17px}
+#portal.app #newsProPage .newsCard{border:1px solid #e2ebe3;border-radius:16px;overflow:hidden;background:#fff;box-shadow:var(--olon-shadow)}
+#portal.app #noloAIPage .noloHero{background:linear-gradient(120deg,#153f34,#205b48);color:#fff;border-color:#285b47}
+#portal.app #noloAIPage .noloHero :is(h2,p){color:#f4f8f4}
+#portal.app #noloAIPage .noloMissionCard{background:#fff;padding:19px}
+#portal.app #noloAIPage .noloMissionCard b{color:#1e6848}
+#portal.app #noloAIPage .noloChatCard{overflow:hidden}
+#portal.app #noloAIPage .noloChatHeader{background:#f3f7f2;border-bottom:1px solid #e3ece3}
+#portal.app #noloAIPage .noloMessages{background:#f8faf7}
+#portal.app #noloAIPage .noloComposer{border-top:1px solid #e3ebe3;padding:14px;background:#fff}
+#portal.app #entretenimiento .entHero{background:linear-gradient(120deg,#173e33,#2a6249);color:#fff;border-color:#315f4c}
+#portal.app #entretenimiento .entHero :is(h2,p){color:#fff}
+#portal.app #entretenimiento .entTabs{padding:8px;gap:7px}
+#portal.app #entretenimiento .entTabs button{border-radius:10px;font-weight:800}
+#portal.app #entretenimiento .entTabs button.active{background:#1e6145;color:#fff}
+#portal.app #entretenimiento .entWheelStage{max-width:100%;overflow:hidden}
+#portal.app #entretenimiento :is(.entGameCard,.entControlCard){overflow:hidden}
+#portal.app #entretenimiento :is(#entWheelCanvas,#entGameCanvas,#entBasketCanvas){display:block;max-width:100%;height:auto}
+#portal.app #admin .adminWorkspaceHero{border-radius:19px;border:1px solid #285c47;background:linear-gradient(115deg,#133b30,#225842);color:#fff}
+#portal.app #admin .adminWorkspaceHero :is(h3,p){color:#fff}
+#portal.app #admin .adminWorkspaceNav{border:1px solid #e0e9e0;border-radius:13px;background:#fff;box-shadow:var(--olon-shadow)}
+#portal.app #admin .adminWorkspaceNav button{font-weight:850}
+#portal.app #admin .adminMetric{background:#fff}
+#portal.app #admin .adminMetric b{color:#1b5e41;font-weight:900}
+#portal.app #admin .adminWorkspaceCardHead{border-bottom:1px solid #e9eee8;padding-bottom:13px;margin-bottom:16px}
+#portal.app #admin .adminWorkspaceCardHead h4{color:#1c4835}
+#portal.app #admin .adminRequestNotice{border-radius:12px}
+#portal.app #adminChat .adminChatLayout{border:1px solid #e0e9e0;border-radius:18px;overflow:hidden;background:#fff}
+#portal.app #adminChat .adminChatList{background:#f7f9f6}
+#portal.app #adminChat .chatMessages{background:#f8faf7}
+#portal.app .portalSidebar{background:linear-gradient(175deg,#0c3029,#123e32 55%,#092820);border-right:1px solid rgba(217,186,122,.16)}
+#portal.app .portalNav .portalNavLink.active{background:linear-gradient(110deg,#eff7ed,#fffdf5);color:#19543c}
+#portal.app .portalNav .portalNavLink:not(.active):hover{background:rgba(255,255,255,.08)}
+#portal.app .portalTopbar{box-shadow:0 2px 14px rgba(23,63,42,.035)}
+@media(min-width:981px){
+ #portal.app > main.main{padding-top:0}
+ #portal.app .page:not(.hidden){padding-top:2px}
+ #portal.app .page .card{margin-bottom:0}
+}
+@media(max-width:980px){
+ #portal.app .page .noloMissionGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #portal.app .page :is(.marketNewsHero,.noloHero,.entHero){border-radius:18px;padding:22px}
+ #portal.app .page .newsHeroActions,#portal.app .page .noloHeroActions,#portal.app .page .entHeroActions{display:flex;flex-wrap:wrap;gap:9px}
+ #portal.app #admin .adminWorkspaceNav{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+ #portal.app #admin .adminWorkspaceNav button{flex:0 0 auto;white-space:nowrap;min-height:44px}
+}
+@media(max-width:650px){
+ #portal.app .page :is(.welcomeHeroCard){min-height:230px;padding:30px 20px}
+ #portal.app .page .welcomeHeroCard:after{width:210px;height:210px;right:-120px;top:-60px}
+ #portal.app .page .welcomeTitle{font-size:clamp(26px,8vw,37px)!important;line-height:1.12}
+ #portal.app .page .welcomeSub{font-size:12px;line-height:1.6}
+ #portal.app .page .olonIdentityStrip{display:flex;flex-wrap:wrap;gap:9px;padding:12px}
+ #portal.app .page .olonIdentityStrip span{font-size:10px}
+ #portal.app .page .proQuote{padding:13px;font-size:12px}
+ #portal.app .page .v3Grid .v3Card{padding:14px!important;min-height:135px!important}
+ #portal.app .page .v3Grid .v3Card h3{font-size:clamp(20px,6vw,27px)!important}
+ #portal.app .page .reportCard{padding:15px}
+ #portal.app .page .reportToolbar{gap:9px;flex-wrap:wrap}
+ #portal.app .page .reportToolbar .btn{width:100%;justify-content:center}
+ #portal.app .page .selectedReportHead{gap:8px;flex-wrap:wrap}
+ #portal.app .page .metric{padding:14px}
+ #portal.app .page .metric h3{font-size:clamp(19px,6vw,27px)}
+ #portal.app .page .noloMissionGrid{grid-template-columns:minmax(0,1fr);gap:9px}
+ #portal.app #newsProPage .newsFilters{display:flex;flex-wrap:wrap;gap:7px}
+ #portal.app #newsProPage .newsSearchBox{width:100%;min-width:0}
+ #portal.app #newsProPage .newsSearchBox input{width:100%}
+ #portal.app #noloAIPage .noloHero,#portal.app #entretenimiento .entHero,#portal.app #newsProPage .marketNewsHero{padding:18px}
+ #portal.app #noloAIPage .noloHero h2,#portal.app #entretenimiento .entHero h2,#portal.app #newsProPage .marketNewsHero h2{font-size:clamp(22px,6vw,30px);line-height:1.2}
+ #portal.app #noloAIPage .noloQuickBtns{display:flex;flex-wrap:wrap;gap:7px}
+ #portal.app #noloAIPage .noloQuickBtns button{max-width:100%;white-space:normal}
+ #portal.app #noloAIPage .noloComposer{display:flex;gap:8px;align-items:flex-end}
+ #portal.app #noloAIPage .noloComposer textarea{flex:1;min-width:0}
+ #portal.app #noloAIPage .noloComposer button{flex:0 0 auto}
+ #portal.app #entretenimiento .entTabs{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch}
+ #portal.app #entretenimiento .entTabs button{flex:0 0 auto;white-space:nowrap}
+ #portal.app #entretenimiento .entWheelStage{width:min(100%,360px);margin-inline:auto}
+ #portal.app #entretenimiento .entWheelCenter{pointer-events:none}
+ #portal.app #admin .adminWorkspaceHero{padding:20px}
+ #portal.app #admin .adminWorkspaceNav{display:flex;gap:3px}
+ #portal.app #admin .adminWorkspaceNav button{font-size:11px;padding:10px}
+ #portal.app #admin .adminMetric{padding:13px!important}
+ #portal.app #admin .adminMetric small{font-size:10px}
+ #portal.app #admin .adminMetric b{font-size:24px}
+ #portal.app #admin .adminWorkspaceCard{padding:16px}
+ #portal.app #adminChat .adminChatLayout{border-radius:13px}
+}
+@media(prefers-reduced-motion:reduce){
+ #portal.app .page:not(.hidden){animation:none}
+ #portal.app .page :is(.btn,button){transition:none}
+}
