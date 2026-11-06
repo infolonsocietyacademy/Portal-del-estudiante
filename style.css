@@ -851,3 +851,39 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
   #portal.app.admin-mode > main.main > .topbar {padding-left:69px!important;}
   #portal.app.admin-mode .mobileBottomNav {display:none!important;}
 }
+
+
+/* ACCESS REQUESTS — email-limit independent signup */
+.signupHoney{position:absolute!important;left:-9999px!important;top:auto!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important}
+#signupRequestResult[hidden]{display:none!important}
+#signupRequestResult{background:#d8eddd;color:#195332;border:1px solid #a7d2b3;border-radius:10px;padding:13px;margin:14px 0;font-weight:700;font-size:12px}
+#adminRequestsBlock{margin:0 0 24px;scroll-margin-top:110px}
+#adminRequestsHeading{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+#admin .adminRequestCount{display:inline-grid;place-items:center;min-width:26px;height:26px;border-radius:8px;background:#e2efe5;color:#346c4b;font-size:12px;font-family:Manrope,Arial,sans-serif}
+#admin .adminRequestNotice{margin:14px 20px 0;border:1px solid #eeddb7;border-radius:10px;background:#fffaf0;color:#785a2b;font-size:11px;line-height:1.6;padding:12px 16px}
+#admin .adminRequestsList{padding:12px 19px 18px}
+#admin .adminRequestEmpty{padding:17px 4px;font-size:12px;line-height:1.6;color:#799185}
+#admin .adminRequestRow{display:flex;align-items:center;justify-content:space-between;gap:13px;padding:14px 5px;border-bottom:1px solid #e5ede6}
+#admin .adminRequestRow:last-child{border-bottom:0}
+#admin .adminRequestRow .adminRequestIdentity{flex:1;min-width:0}
+#admin .adminRequestRow b,#admin .adminRequestRow small,#admin .adminRequestRow span{display:block}
+#admin .adminRequestRow b{font-size:12px;color:#2a4c36}
+#admin .adminRequestRow small{font-size:11px;color:#5d7765;margin:3px 0;overflow-wrap:anywhere}
+#admin .adminRequestRow span{font-size:10px;color:#94a99b}
+#admin .adminRequestActions{display:flex;align-items:end;gap:8px;flex-wrap:wrap}
+#admin .adminRequestActions label{font-size:10px;color:#759182}
+#admin .adminRequestActions select{display:block;margin-top:6px;padding:9px;border:1px solid #d3e4d6;background:#fff;border-radius:8px;font-size:11px;color:#345945}
+#admin .adminRequestRow.processed{opacity:.66}
+#admin .adminRequestStatus{padding:7px 11px;border-radius:8px;background:#edf6ef;color:#397051!important;font-weight:800}
+.adminTempOverlay{position:fixed;z-index:200000;inset:0;padding:18px;background:rgba(3,19,12,.81);display:grid;place-items:center}
+.adminTempDialog{background:#fff;color:#1d3b2c;border:1px solid #d9e6da;box-shadow:0 20px 80px rgba(0,0,0,.25);padding:clamp(23px,4vw,38px);border-radius:17px;width:min(520px,100%);max-height:90vh;overflow:auto}
+.adminTempDialog h3{font-size:22px;line-height:1.3;margin:0 0 12px}
+.adminTempDialog p{font-size:12px;line-height:1.7;color:#687b6f}
+.adminTempField{display:grid;gap:6px;background:#f1f7f2;border:1px solid #e0e9e1;padding:15px;border-radius:9px;margin:10px 0}
+.adminTempField small{font-size:10px;color:#7b9080}
+.adminTempField strong{font-size:13px;overflow-wrap:anywhere}
+.adminTempActions{display:flex;gap:9px;flex-wrap:wrap;margin-top:23px}
+.adminTempActions .adminBtn{border-radius:9px;padding:11px 15px;cursor:pointer;font-size:12px;font-weight:800}
+.adminTempActions .adminBtnGold{background:#dab777;border:1px solid #dab777;color:#153324}
+.adminTempActions .adminBtnOutline{background:#f3f7f3;border:1px solid #d9e4da;color:#345841}
+@media(max-width:700px){#admin .adminRequestRow{align-items:flex-start;flex-direction:column}#admin .adminRequestActions{width:100%}#admin .adminRequestActions label{flex:1}}
