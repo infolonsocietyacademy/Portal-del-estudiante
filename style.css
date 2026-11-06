@@ -736,3 +736,118 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
   #portal .topbar{padding-left:65px;min-height:80px}
   body.menu-open:after{z-index:10000}
 }
+
+
+/* OLON ADMIN SINGLE-SIDEBAR FIX (2026-11-06)
+   Dedicated flex layout prevents any ghost grid track, even if older
+   inline rescue CSS or portalReady classes are active. */
+@media (min-width:981px) {
+  #portal.app.admin-mode:not(.hidden) {
+    display:flex!important;
+    flex-direction:row!important;
+    flex-wrap:nowrap!important;
+    align-items:stretch!important;
+    justify-content:flex-start!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-height:100dvh;
+    grid-template-columns:none!important;
+    grid-template-rows:none!important;
+    gap:0!important;
+    padding:0!important;
+    margin:0!important;
+    overflow:visible!important;
+  }
+  #portal.app.admin-mode > #sidebar.sidebar {
+    display:flex!important;
+    flex:0 0 258px!important;
+    position:sticky!important;
+    top:0!important;
+    left:auto!important;
+    width:258px!important;
+    max-width:258px!important;
+    min-width:258px!important;
+    height:100dvh!important;
+    transform:none!important;
+    margin:0!important;
+    grid-column:auto!important;
+    grid-row:auto!important;
+    z-index:50!important;
+  }
+  #portal.app.admin-mode > main.main {
+    display:block!important;
+    flex:1 1 0%!important;
+    width:auto!important;
+    max-width:none!important;
+    min-width:0!important;
+    grid-column:auto!important;
+    grid-row:auto!important;
+    margin:0!important;
+    padding:0 38px 45px!important;
+    overflow:visible!important;
+    background:var(--bg);
+  }
+  #portal.app.admin-mode #mobileMenuToggle,
+  #portal.app.admin-mode .mobileMenuToggle,
+  #portal.app.admin-mode .mobileBottomNav,
+  #portal.app.admin-mode .mobileBtn {
+    display:none!important;
+  }
+  #portal.app.admin-mode > main.main > .topbar {
+    margin:0 -38px 27px!important;
+    padding:16px 38px!important;
+  }
+}
+@media (min-width:981px) and (max-width:1220px) {
+  #portal.app.admin-mode > #sidebar.sidebar {
+    flex-basis:235px!important;
+    width:235px!important;
+    min-width:235px!important;
+    max-width:235px!important;
+  }
+  #portal.app.admin-mode > main.main {padding:0 25px 40px!important;}
+  #portal.app.admin-mode > main.main > .topbar {margin:0 -25px 25px!important;padding:14px 25px!important;}
+}
+@media (max-width:980px) {
+  #portal.app.admin-mode:not(.hidden) {
+    display:block!important;
+    width:100%!important;
+    grid-template-columns:none!important;
+    grid-template-rows:none!important;
+    padding:0!important;
+    overflow-x:hidden!important;
+  }
+  #portal.app.admin-mode > #sidebar.sidebar {
+    position:fixed!important;
+    display:flex!important;
+    width:275px!important;
+    max-width:calc(100vw - 48px)!important;
+    min-width:0!important;
+    left:-292px!important;
+    top:0!important;
+    height:100dvh!important;
+    transform:none!important;
+    grid-column:auto!important;
+    grid-row:auto!important;
+    z-index:10010!important;
+    transition:left .2s ease!important;
+  }
+  #portal.app.admin-mode > #sidebar.sidebar.open {left:0!important;}
+  #portal.app.admin-mode > main.main {
+    display:block!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    grid-column:auto!important;
+    grid-row:auto!important;
+    margin:0!important;
+  }
+  #portal.app.admin-mode #mobileMenuToggle {
+    display:flex!important;
+    position:fixed!important;
+    top:14px!important;
+    left:14px!important;
+  }
+  #portal.app.admin-mode > main.main > .topbar {padding-left:69px!important;}
+  #portal.app.admin-mode .mobileBottomNav {display:none!important;}
+}
