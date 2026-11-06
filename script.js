@@ -1740,6 +1740,7 @@ if(typeof olonOriginalRender === 'function'){
     historial:"Consulta tu historial individual.",
     comparacion:"Compara tu mes actual con el mes anterior.",
     publicChat:"Canal público para todos los estudiantes.",
+    newsProPage:"Titulares y calendario económico.",
     admin:"Panel administrativo profesional.",
     adminChat:"Centro de mensajes privados."
   };
@@ -1764,6 +1765,7 @@ if(typeof olonOriginalRender === 'function'){
       const sub = $("pageSubtitle");
       if(sub && subtitles[id]) sub.innerText = subtitles[id];
 
+      if(id === "newsProPage") void marketNews.load();
       if(id === "publicChat" && typeof window.loadPublicChat === "function") setTimeout(window.loadPublicChat, 80);
       if(id === "adminChat" && typeof window.loadAdminChatInbox === "function") setTimeout(window.loadAdminChatInbox, 80);
       if(id === "admin" && typeof window.renderUsers === "function") setTimeout(window.renderUsers, 80);
@@ -2082,305 +2084,194 @@ function handlePublicChatEnter(e){
   }, true);
 })();
 
-// ===== OLON MARKET NEWS PRO - FINNHUB SECURE SUPABASE FUNCTION =====
-const OLON_NEWS_FUNCTION_URL = "https://xanhhfashgkyrvphprts.supabase.co/functions/v1/quick-worker";
-let currentNewsCategory = "forex";
-let cachedNewsItems = [];
-
-function escapeNewsText(value){
-  return String(value || "").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
-}
-
-function setNewsActiveButton(category){
-  document.querySelectorAll(".newsFilterBtn").forEach(btn => {
-    btn.classList.toggle("active", btn.getAttribute("data-news-category") === category);
+const marketNews = (() => {
+  const filters = Array.from($("newsProPage").querySelectorAll("[data-news-category]"));
+  const categories = new Map(filters.map(button => [button.dataset.newsCategory, button.textContent.trim()]));
+  const search = $("newsSearchInput");
+  const refresh = $("newsRefresh");
+  const container = $("newsContainer");
+  const template = $("newsArticleTemplate");
+  const cache = new Map();
+  const cacheDuration = 4 * 60_000;
+  const dateLabel = new Intl.DateTimeFormat("es-PR", {
+    timeZone: "America/Puerto_Rico", month: "short", day: "numeric", hour: "numeric", minute: "2-digit"
   });
-}
+  let category = "general";
+  let request = null;
+  let failed = false;
 
-function formatNewsDate(timestamp){
-  try{
-    if(!timestamp) return "Ahora";
-    return new Date(Number(timestamp) * 1000).toLocaleString("es-PR", {
-      month:"short", day:"numeric", hour:"numeric", minute:"2-digit"
-    });
-  }catch(e){ return "Ahora"; }
-}
-
-function renderNews(items){
-  const container = document.getElementById("newsContainer");
-  const status = document.getElementById("newsStatus");
-  if(!container) return;
-
-  const clean = Array.isArray(items) ? items.filter(n => n && n.headline && n.url) : [];
-  cachedNewsItems = clean;
-
-  if(status){
-    status.textContent = `${clean.length} noticias cargadas · Categoría: ${currentNewsCategory.toUpperCase()}`;
+  function plainText(value){
+    if(typeof value !== "string") return "";
+    const text = document.createElement("template");
+    text.innerHTML = value;
+    return text.content.textContent.replace(/\s+/g, " ").trim();
   }
 
-  if(!clean.length){
-    container.innerHTML = `<div class="newsEmpty">No llegaron noticias para esta categoría ahora mismo. Prueba General o Crypto.</div>`;
-    return;
+  function searchText(value){
+    return value.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
   }
 
-  container.innerHTML = clean.slice(0, 24).map(n => {
-    const img = n.image || "https://placehold.co/700x420/070b16/f6c453?text=OLON+Market+News";
-    const source = "OLON Market Feed";
-    const headline = escapeNewsText(n.headline || "Noticia del mercado");
-    const summary = escapeNewsText(n.summary || "Abre la noticia para leer más detalles del mercado.");
-    const url = String(n.url || "#");
-    const date = formatNewsDate(n.datetime);
-    const dataText = escapeNewsText((source + " " + headline + " " + summary).toLowerCase());
-
-    return `
-      <article class="newsCard" data-news-text="${dataText}">
-        <div class="newsImageWrap"><img src="${img}" alt="${headline}" loading="lazy" onerror="this.src='https://placehold.co/700x420/070b16/f6c453?text=OLON+Market+News'"></div>
-        <div class="newsContent">
-          <div class="newsMeta"><span class="newsSource">${source}</span><span>${date}</span></div>
-          <h4>${headline}</h4>
-          <p>${summary.length > 130 ? summary.slice(0,130) + "..." : summary}</p>
-          <a href="${url}" target="_blank" rel="noopener noreferrer">Leer más →</a>
-        </div>
-      </article>
-    `;
-  }).join("");
-
-  filterNewsCards();
-}
-
-async function loadNews(category = "forex", force = false){
-  currentNewsCategory = category || "forex";
-  window.currentNewsCategory = currentNewsCategory;
-  setNewsActiveButton(currentNewsCategory);
-
-  const container = document.getElementById("newsContainer");
-  const status = document.getElementById("newsStatus");
-  if(!container) return;
-
-  container.innerHTML = `<div class="newsLoading">Cargando noticias del mercado...</div>`;
-  if(status) status.textContent = "Cargando flujo de mercado...";
-
-  try{
-    const res = await fetch(`${OLON_NEWS_FUNCTION_URL}?category=${encodeURIComponent(currentNewsCategory)}`);
-    const data = await res.json();
-
-    if(!res.ok || data?.error){
-      throw new Error(data?.error || "No se pudo cargar el flujo de noticias");
-    }
-
-    renderNews(data);
-  }catch(err){
-    console.error("Market news error", err);
-    container.innerHTML = `<div class="newsError">No se pudieron cargar las noticias. Verifica tu conexión e intenta de nuevo.</div>`;
-    if(status) status.textContent = "Error de conexión con noticias.";
-  }
-}
-
-function filterNewsCards(){
-  const input = document.getElementById("newsSearchInput");
-  const query = (input?.value || "").trim().toLowerCase();
-  const cards = document.querySelectorAll(".newsCard");
-  cards.forEach(card => {
-    const text = card.getAttribute("data-news-text") || "";
-    card.style.display = !query || text.includes(query) ? "" : "none";
-  });
-}
-
-window.loadNews = loadNews;
-window.filterNewsCards = filterNewsCards;
-window.currentNewsCategory = currentNewsCategory;
-
-(function(){
-  const previousShowPage = window.showPage;
-  window.showPage = function(id, btn){
-    if(typeof previousShowPage === "function") previousShowPage(id, btn);
-    if(id === "newsProPage"){
-      setTimeout(() => loadNews(window.currentNewsCategory || "forex"), 120);
-    }
-  };
-})();
-
-/* ===== OLON NEWS HARD FIX V2 - QUICK WORKER VERIFIED ===== */
-(function(){
-  const NEWS_URL = "https://xanhhfashgkyrvphprts.supabase.co/functions/v1/quick-worker";
-  let newsCategory = "forex";
-  let installed = false;
-
-  function esc(v){
-    return String(v || "").replace(/[&<>\"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
-  }
-
-  function ensureNewsPage(){
-    const main = document.querySelector("main.main") || document.querySelector("#portal .main");
-    if(!main) return;
-
-    let page = document.getElementById("newsProPage");
-    if(!page){
-      page = document.createElement("section");
-      page.id = "newsProPage";
-      page.className = "page hidden";
-      main.appendChild(page);
-    }
-
-    page.innerHTML = `
-      <div class="marketNewsHero card">
-        <div>
-          <span class="newsKicker">OLON MARKET FEED</span>
-          <h2>📰 Noticias del Mercado</h2>
-          <p>Noticias financieras en tiempo real para apoyar tus decisiones de trading.</p>
-        </div>
-        <div class="newsHeroActions"><div class="newsHeroActions"><button class="btn secondary" type="button" onclick="loadNews(window.currentNewsCategory || 'forex', true)">↻ Actualizar</button><a class="btn secondary forexFactoryBtn" href="https://www.forexfactory.com/calendar" target="_blank" rel="noopener noreferrer">📅 Forex Factory</a></div><a class="btn secondary forexFactoryBtn" href="https://www.forexfactory.com/calendar" target="_blank" rel="noopener noreferrer">📅 Forex Factory</a></div>
-      </div>
-      <div class="newsProToolbar card">
-        <div class="newsFilters">
-          <button class="newsFilterBtn active" type="button" data-news-category="forex" onclick="loadNews('forex', true)">💱 Forex</button>
-          <button class="newsFilterBtn" type="button" data-news-category="crypto" onclick="loadNews('crypto', true)">🪙 Crypto</button>
-          <button class="newsFilterBtn" type="button" data-news-category="general" onclick="loadNews('general', true)">🌎 General</button>
-        </div>
-        <div class="newsSearchBox">
-          <input id="newsSearchInput" type="search" placeholder="Buscar: gold, USD, bitcoin..." oninput="filterNewsCards()">
-        </div>
-      </div>
-      <div id="newsStatus" class="newsStatus">Listo para cargar noticias.</div>
-      <div id="newsContainer" class="newsGrid"></div>
-    `;
-  }
-
-  function ensureNewsButtons(){
-    const nav = document.querySelector(".sidebar .nav") || document.querySelector(".nav");
-    if(nav && !nav.querySelector('[data-page="newsProPage"], .olonNewsNavBtn')){
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "studentNav olonNewsNavBtn";
-      btn.setAttribute("data-page", "newsProPage");
-      btn.innerHTML = "📰 Noticias";
-      btn.onclick = function(){ window.showPage("newsProPage", btn); };
-      const logout = Array.from(nav.children).find(x => String(x.textContent || "").includes("Salir"));
-      if(logout) nav.insertBefore(btn, logout); else nav.appendChild(btn);
-    }
-  }
-
-  function setActiveNewsButton(category){
-    document.querySelectorAll(".newsFilterBtn").forEach(btn=>{
-      btn.classList.toggle("active", btn.getAttribute("data-news-category") === category);
-    });
-  }
-
-  function formatDate(ts){
+  function articleUrl(value){
     try{
-      return new Date(Number(ts) * 1000).toLocaleString("es-PR", {month:"short", day:"numeric", hour:"numeric", minute:"2-digit"});
-    }catch(e){ return "Ahora"; }
+      const url = new URL(value);
+      return url.protocol === "https:" && !url.username && !url.password ? url : null;
+    }catch{
+      return null;
+    }
   }
 
-  function stripHtml(s){
-    const div = document.createElement("div");
-    div.innerHTML = String(s || "");
-    return div.textContent || div.innerText || "";
+  function parseArticles(data){
+    const articles = [];
+    for(const item of data){
+      const rawHeadline = plainText(item?.headline);
+      const url = articleUrl(item?.url);
+      if(!rawHeadline || !url) continue;
+
+      const isGoogleNews = url.hostname === "news.google.com";
+      const separator = isGoogleNews ? rawHeadline.lastIndexOf(" - ") : -1;
+      const suffix = separator > 0 ? rawHeadline.slice(separator + 3) : "";
+      const hasPublisher = suffix.length > 0 && suffix.length <= 75;
+      const headline = hasPublisher ? rawHeadline.slice(0, separator) : rawHeadline;
+      const source = plainText(item.source) || (hasPublisher ? suffix : isGoogleNews ? "Google News" : url.hostname.replace(/^www\./, ""));
+      const headlineKey = searchText(headline);
+
+      let summary = plainText(item.summary);
+      if(summary.endsWith(source)) summary = summary.slice(0, -source.length).replace(/\s*-\s*$/, "").trim();
+      if(headlineKey.startsWith(searchText(summary))) summary = "";
+
+      const seconds = Number(item.datetime);
+      const datetime = seconds > 0 && Number.isFinite(new Date(seconds * 1000).getTime()) ? seconds : 0;
+      articles.push({headline, source, summary, url: url.href, datetime, headlineKey, searchable: searchText([headline, source, summary].join(" "))});
+    }
+
+    articles.sort((first, second) => second.datetime - first.datetime);
+    const headlines = new Set();
+    const urls = new Set();
+    return articles.filter(article => {
+      if(headlines.has(article.headlineKey) || urls.has(article.url)) return false;
+      headlines.add(article.headlineKey);
+      urls.add(article.url);
+      return true;
+    }).slice(0, 24);
   }
 
-  window.filterNewsCards = function(){
-    const q = (document.getElementById("newsSearchInput")?.value || "").trim().toLowerCase();
-    document.querySelectorAll(".newsCard").forEach(card=>{
-      const text = card.getAttribute("data-news-text") || "";
-      card.style.display = !q || text.includes(q) ? "" : "none";
-    });
-  };
+  function articleCard(article, index, featured){
+    const card = template.content.cloneNode(true);
+    card.firstElementChild.classList.toggle("newsCardLead", featured);
+    card.querySelector(".newsLeadLabel").hidden = !featured || !article.datetime;
 
-  window.loadNews = async function(category = "forex", force = false){
-    ensureNewsPage();
-    newsCategory = category || "forex";
-    window.currentNewsCategory = newsCategory;
-    setActiveNewsButton(newsCategory);
+    const title = card.querySelector(".newsHeadline");
+    title.id = "newsHeadline-" + index;
+    title.textContent = article.headline;
+    const link = card.querySelector(".newsCardLink");
+    link.href = article.url;
+    link.setAttribute("aria-labelledby", title.id);
+    card.querySelector(".newsSource").textContent = article.source;
 
-    const container = document.getElementById("newsContainer");
-    const status = document.getElementById("newsStatus");
-    if(!container) return;
+    if(article.datetime){
+      const time = card.querySelector(".newsArticleTime");
+      const published = new Date(article.datetime * 1000);
+      time.dateTime = published.toISOString();
+      time.textContent = dateLabel.format(published);
+      time.hidden = false;
+    }
+    if(article.summary){
+      const summary = card.querySelector(".newsSummary");
+      summary.textContent = article.summary;
+      summary.hidden = false;
+    }
+    return card;
+  }
 
-    container.innerHTML = `<div class="newsLoading">Cargando noticias del mercado...</div>`;
-    if(status) status.textContent = "Cargando flujo de mercado...";
+  function render(){
+    const entry = cache.get(category);
+    const articles = entry?.articles || [];
+    const words = searchText(search.value.trim()).split(/\s+/).filter(Boolean);
+    const visible = articles.filter(article => words.every(word => article.searchable.includes(word)));
+    filters.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.newsCategory === category)));
+    refresh.disabled = Boolean(request);
+    container.setAttribute("aria-busy", String(Boolean(request)));
 
+    const status = $("newsStatus");
+    status.textContent = request ? "Consultando titulares…" :
+      failed ? (entry ? "Actualización interrumpida · Mostrando la última consulta" : "Conexión con noticias interrumpida") :
+      visible.length + (visible.length === 1 ? " titular" : " titulares") + " · " + categories.get(category);
+    status.dataset.error = String(failed);
+
+    $("newsUpdated").hidden = !entry;
+    if(entry){
+      const time = $("newsUpdatedAt");
+      time.dateTime = entry.loadedAt.toISOString();
+      time.textContent = dateLabel.format(entry.loadedAt);
+    }
+
+    $("newsEmptyState").hidden = Boolean(request || visible.length);
+    if(!request && !visible.length){
+      const unavailable = failed && !entry;
+      $("newsEmptyTitle").textContent = unavailable ? "Noticias no disponibles" : words.length ? "Sin coincidencias" : "Sin publicaciones recientes";
+      $("newsEmptyText").textContent = unavailable ? "Pulsa Actualizar para volver a consultar." : words.length ? "Prueba con otro titular o fuente." : "Explora otra categoría o actualiza la consulta.";
+    }
+
+    if(request && !articles.length){
+      const placeholders = Array.from({length: 3}, () => {
+        const placeholder = document.createElement("div");
+        placeholder.className = "newsSkeleton";
+        placeholder.setAttribute("aria-hidden", "true");
+        return placeholder;
+      });
+      container.replaceChildren(...placeholders);
+      return;
+    }
+    container.replaceChildren(...visible.map((article, index) => articleCard(article, index, index === 0 && !words.length)));
+  }
+
+  async function load(next = category, force = false){
+    if(!categories.has(next) || request?.category === next) return;
+    request?.controller.abort();
+    request = null;
+    category = next;
+    failed = false;
+
+    const entry = cache.get(category);
+    if(entry && !force && Date.now() - entry.loadedAt.getTime() < cacheDuration){
+      window.olonLatestNewsList = entry.articles;
+      render();
+      return;
+    }
+
+    const controller = new AbortController();
+    const pending = {category, controller};
+    request = pending;
+    render();
+    const timeout = setTimeout(() => controller.abort(), 12_000);
     try{
-      const response = await fetch(`${NEWS_URL}?category=${encodeURIComponent(newsCategory)}&t=${Date.now()}`, { cache:"no-store" });
+      const endpoint = SUPABASE_URL + "/functions/v1/quick-worker?category=" + encodeURIComponent(next);
+      const response = await fetch(endpoint, {signal: controller.signal, cache: force ? "reload" : "default"});
+      if(!response.ok) throw new Error("HTTP " + response.status);
       const data = await response.json();
+      if(!Array.isArray(data)) throw new Error("Respuesta de noticias inválida");
+      if(request !== pending) return;
 
-      if(!response.ok || data?.error){
-        throw new Error(data?.error || `HTTP ${response.status}`);
+      const articles = parseArticles(data);
+      cache.set(next, {articles, loadedAt: new Date()});
+      window.olonLatestNewsList = articles;
+    }catch(error){
+      if(request !== pending) return;
+      failed = true;
+      console.warn("Error consultando noticias:", error);
+    }finally{
+      clearTimeout(timeout);
+      if(request === pending){
+        request = null;
+        render();
       }
-
-      const list = Array.isArray(data) ? data.filter(n => n && n.headline && n.url) : [];
-      window.olonLatestNewsList = list;
-      if(status) status.textContent = `${list.length} noticias cargadas · ${newsCategory.toUpperCase()}`;
-
-      if(!list.length){
-        container.innerHTML = `<div class="newsEmpty">No llegaron noticias para esta categoría ahora mismo. Prueba General o Crypto.</div>`;
-        return;
-      }
-
-      container.innerHTML = list.slice(0, 24).map(n=>{
-        const source = "OLON Market Feed";
-        const headline = esc(n.headline || "Noticia del mercado");
-        const summaryRaw = stripHtml(n.summary || "Abre la noticia para leer más detalles.");
-        const summary = esc(summaryRaw.length > 145 ? summaryRaw.slice(0,145) + "..." : summaryRaw);
-        const img = esc(n.image || "https://placehold.co/700x420/070b16/f6c453?text=OLON+Market+News");
-        const url = esc(n.url || "#");
-        const date = esc(formatDate(n.datetime));
-        const dataText = esc(`${source} ${headline} ${summary}`.toLowerCase());
-        return `
-          <article class="newsCard" data-news-text="${dataText}">
-            <div class="newsImageWrap"><img src="${img}" alt="${headline}" loading="lazy" onerror="this.src='https://placehold.co/700x420/070b16/f6c453?text=OLON+Market+News'"></div>
-            <div class="newsContent">
-              <div class="newsMeta"><span class="newsSource">${source}</span><span>${date}</span></div>
-              <h4>${headline}</h4>
-              <p>${summary}</p>
-              <a href="${url}" target="_blank" rel="noopener noreferrer">Leer más →</a>
-            </div>
-          </article>`;
-      }).join("");
-      window.filterNewsCards();
-    }catch(err){
-      console.error("OLON Market News error", err);
-      if(status) status.textContent = "Error conectando noticias.";
-      container.innerHTML = `<div class="newsError"><b>Error de conexión de noticias.</b><br>Verifica tu conexión e intenta actualizar la página.<br><small>${esc(err.message)}</small></div>`;
-    }
-  };
-
-  function localShowPage(id, btn){
-    document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
-    const page = document.getElementById(id);
-    if(page) page.classList.remove("hidden");
-    document.querySelectorAll("#sidebar .portalNavLink").forEach(b => b.classList.remove("active"));
-    if(btn) btn.classList.add("active");
-    if(id === "newsProPage"){
-      const title = document.getElementById("pageTitle");
-      const sub = document.getElementById("pageSubtitle");
-      if(title) title.textContent = "Noticias del Mercado";
-      if(sub) sub.textContent = "Flujo de información en tiempo real sobre mercados globales.";
-      setTimeout(()=>window.loadNews(window.currentNewsCategory || "forex", true), 80);
     }
   }
 
-  function installNewsHardFix(){
-    if(installed) return;
-    installed = true;
-    ensureNewsPage();
-    ensureNewsButtons();
-
-    const originalShowPage = window.showPage;
-    window.showPage = function(id, btn){
-      if(id === "newsProPage"){
-        ensureNewsPage();
-        ensureNewsButtons();
-        localShowPage(id, btn);
-        return;
-      }
-      if(typeof originalShowPage === "function") return originalShowPage(id, btn);
-      localShowPage(id, btn);
-    };
-
-  }
-
-  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", installNewsHardFix);
-  else installNewsHardFix();
+  filters.forEach(button => button.addEventListener("click", () => void load(button.dataset.newsCategory)));
+  search.addEventListener("input", render);
+  refresh.addEventListener("click", () => void load(category, true));
+  return {load};
 })();
 
 /* ===== AI MENTOR REMOVIDO: SOLO NOLO IA ===== */
@@ -2406,10 +2297,12 @@ window.currentNewsCategory = currentNewsCategory;
   let noloCooldownUntil = 0;
   window.noloUsage = { used: 0, remaining: DAILY_LIMIT, loaded: false };
   function esc(v){ return String(v||"").replace(/[&<>\"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m])); }
-  function stripHtml(s){ const d=document.createElement("div"); d.innerHTML=String(s||""); return d.textContent||d.innerText||""; }
   function getUser(){ return (typeof currentUser !== "undefined" && currentUser) ? currentUser : null; }
   function playNoloSound(){ try{ if(typeof playNewMessageSound==="function") return playNewMessageSound(); if(typeof playClickSound==="function") return playClickSound(); }catch(e){} }
-  function getNewsContext(){ const list=Array.isArray(window.olonLatestNewsList)?window.olonLatestNewsList:[]; return list.slice(0,8).map(n=>({headline:n.headline||n.title||"",summary:stripHtml(n.summary||n.description||""),url:n.url||"",datetime:n.datetime||n.published_at||""})); }
+  function getNewsContext(){
+    const list = window.olonLatestNewsList || [];
+    return list.slice(0, 8).map(({headline, summary, url, datetime}) => ({headline, summary, url, datetime}));
+  }
   function getPerformanceProfile(){
     const user=getUser()||{}, records=(typeof cachedRecords!=="undefined"&&Array.isArray(cachedRecords))?cachedRecords:[];
     const sum=k=>records.reduce((a,r)=>a+Number(r?.[k]||0),0), deposit=sum("deposit"), gain=sum("gain"), loss=sum("loss"), net=gain-loss, days=records.length;

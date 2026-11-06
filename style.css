@@ -1327,8 +1327,8 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
  #portal .page :is(.adminDirectoryFilters input,.adminDirectoryFilters select,.adminSearch){max-width:100%;width:100%}
  #portal .page :is(.adminWorkspaceMetrics,.adminMetrics){grid-template-columns:repeat(2,minmax(0,1fr))}
  #portal .page :is(.adminChatLayout,.adminWorkspacePanels){grid-template-columns:minmax(0,1fr)}
- #portal .page :is(.newsGrid,.newsProGrid,.noloLayout,.gameGrid,.entertainmentGrid){max-width:100%;min-width:0}
- #portal .page :is(.newsCard,.newsProCard,.noloCard,.gameCard){max-width:100%;min-width:0}
+ #portal .page :is(.noloLayout,.gameGrid,.entertainmentGrid){max-width:100%;min-width:0}
+ #portal .page :is(.noloCard,.gameCard){max-width:100%;min-width:0}
  #portal .page :is(.adminBtn,.btn,.btnPrimary,.btnSecondary){min-height:42px;touch-action:manipulation}
  #portal .page :is(.adminDirectoryTable,.tableWrap){border-radius:12px}
  #portal .page .formGrid{grid-template-columns:minmax(0,1fr)}
@@ -1345,7 +1345,7 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
  #portal.app:not(.hidden) > main.main > .page{padding-bottom:14px}
  #portal .page :is(.grid4,.v3Grid,.adminMetrics,.adminWorkspaceMetrics){gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
  #portal .page :is(.grid4,.v3Grid,.adminMetrics,.adminWorkspaceMetrics)>*{min-width:0}
- #portal .page :is(.proGrid,.reportGrid,.layout,.adminChatLayout,.adminWorkspacePanels,.newsGrid,.newsProGrid,.noloLayout,.gameGrid,.entertainmentGrid){display:grid;grid-template-columns:minmax(0,1fr)!important;gap:12px}
+ #portal .page :is(.proGrid,.reportGrid,.layout,.adminChatLayout,.adminWorkspacePanels,.noloLayout,.gameGrid,.entertainmentGrid){display:grid;grid-template-columns:minmax(0,1fr)!important;gap:12px}
  #portal .page :is(.card,.adminWorkspaceCard,.adminChatBox){padding:15px;border-radius:15px}
  #portal .page :is(.welcomeHeroCard,.adminWorkspaceHero,.atlas-page-banner){border-radius:17px}
  #portal .page :is(.adminWorkspaceHeroMain,.adminDirectoryHead,.adminWorkspaceCardHead){display:flex;flex-direction:column;align-items:stretch}
@@ -1355,8 +1355,6 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
  #portal .page :is(.adminDirectoryFilters > *,.adminTools > *){width:100%;min-width:0}
  #portal .page :is(.adminBtn,.btn,.btnPrimary,.btnSecondary){max-width:100%;white-space:normal;text-align:center}
  #portal .page :is(.adminMetrics,.adminWorkspaceMetrics) :is(b,strong){font-size:clamp(18px,5vw,28px)}
- #portal .page :is(.newsCard,.newsProCard){overflow:hidden}
- #portal .page :is(.newsCard img,.newsProCard img){width:100%;height:auto;object-fit:cover}
  #portal .page :is(.waMessages,.chatMessages){min-height:200px;max-height:48dvh;overflow-y:auto}
  #portal .page :is(.chatInputArea,.waComposer,.adminChatComposer){gap:8px}
  #portal .page :is(.noloMessages,.noloChatMessages){max-height:55dvh;overflow-y:auto}
@@ -1415,7 +1413,7 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
 }
 #portal.app .page :is(.btn.secondary,.adminBtnOutline){border-radius:11px;background:#f5f8f3;border:1px solid #d9e6db;color:#285c42;font-weight:800}
 #portal.app .page :is(.btn.danger){border-radius:11px}
-#portal.app .page :is(.btn,.adminBtn,.newsFilterBtn,.entTabs button):hover{transform:translateY(-1px)}
+#portal.app .page :is(.btn,.adminBtn,.entTabs button):hover{transform:translateY(-1px)}
 #portal.app .page .welcomeHeroCard{
  position:relative;min-height:245px;border:1px solid #245742;
  background:radial-gradient(circle at 90% 15%,rgba(201,169,108,.16),transparent 34%),linear-gradient(120deg,#103a2e,#1c5a43 70%,#214d3b);
@@ -1464,13 +1462,295 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
 #portal.app #publicChat .waChatHeader :is(h3,p){color:#fff}
 #portal.app #publicChat .waMessages{background:#f4f7f3}
 #portal.app #publicChat .waComposer{background:#fff;border-top:1px solid #e6eee7}
-#portal.app #newsProPage .marketNewsHero{border:1px solid #235741;background:linear-gradient(120deg,#123c30,#28634b);color:#fff;box-shadow:0 14px 32px rgba(19,73,48,.1)}
-#portal.app #newsProPage .marketNewsHero :is(h2,p){color:#fff}
-#portal.app #newsProPage .newsProToolbar{padding:17px}
-#portal.app #newsProPage .newsFilterBtn{border-radius:10px;font-weight:850}
-#portal.app #newsProPage .newsFilterBtn.active{background:#1d6345;color:#fff}
-#portal.app #newsProPage .newsGrid{gap:17px}
-#portal.app #newsProPage .newsCard{border:1px solid #e2ebe3;border-radius:16px;overflow:hidden;background:#fff;box-shadow:var(--olon-shadow)}
+/* OLON Market Desk */
+#newsProPage {
+  --news-ink:#18372d;
+  --news-muted:#506b5d;
+  --news-border:#dce7dd;
+  --news-accent:#206448;
+}
+#newsProPage [hidden]{display:none}
+
+.marketNewsHero {
+  position:relative;
+  isolation:isolate;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:24px;
+  overflow:hidden;
+  padding:clamp(20px,3.7vw,43px);
+  border:1px solid #285442;
+  border-radius:22px;
+  background:
+    radial-gradient(ellipse at 95% -18%, rgba(125,164,108,.25), transparent 61%),
+    linear-gradient(125deg,#102e26 10%,#154334);
+  color:#f8f7ec;
+  box-shadow:0 13px 32px rgba(22,64,44,.12);
+}
+.marketNewsHero::before {
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(90deg,transparent,#204d3e10 35%,#e9d5a612),
+    repeating-linear-gradient(90deg,transparent 0 47px,#e9d5a615 47px 48px),
+    repeating-linear-gradient(0deg,transparent 0 47px,#e9d5a610 47px 48px);
+  mask-image:linear-gradient(110deg,transparent 32%,#000 85%);
+}
+.newsKicker {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#e6ca8c;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.19em;
+}
+.newsKicker::before{content:"";width:16px;height:1px;background:currentColor}
+.marketNewsHero h2 {
+  margin:11px 0 8px;
+  color:#fffdf3;
+  font:400 clamp(34px,5.2vw,62px)/1.04 Georgia,serif;
+}
+.marketNewsHero h2 em{color:#e7cc95;font-style:normal}
+.marketNewsHero p{margin:0;color:#cfe1d7;font-size:14px}
+
+.newsCalendar {
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr) 16px;
+  flex:0 1 252px;
+  min-width:215px;
+  align-items:center;
+  gap:11px;
+  padding:12px;
+  border:1px solid rgba(236,211,157,.26);
+  border-radius:13px;
+  background:rgba(253,245,222,.07);
+  color:#f6e4bd;
+  text-decoration:none;
+}
+.newsCalendar:hover{background:rgba(253,245,222,.13)}
+.newsCalendar:focus-visible{outline-color:#edce8d}
+.newsCalendarIcon {
+  display:grid;
+  place-items:center;
+  width:38px;
+  height:38px;
+  border-radius:10px;
+  background:rgba(236,211,157,.13);
+}
+.newsCalendarIcon svg{width:20px;height:20px}
+.newsCalendar strong,.newsCalendar small{display:block}
+.newsCalendar strong{font-size:13px;line-height:1.3}
+.newsCalendar small{margin-top:3px;color:#c3d8cb;font-size:11px}
+.newsExternalIcon{width:16px;height:16px;flex:0 0 auto}
+
+.newsProToolbar {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:10px 16px;
+  margin:16px 0 22px;
+  padding:10px;
+  border:1px solid var(--news-border);
+  border-radius:15px;
+  background:#fff;
+}
+.newsFilters,.newsToolbarActions{display:flex;align-items:center;gap:5px;min-width:0}
+.newsFilters{flex-wrap:wrap}
+.newsToolbarActions{flex:1 1 278px;justify-content:flex-end;gap:8px}
+.newsFilterBtn {
+  min-height:44px;
+  padding:7px 13px;
+  border:1px solid transparent;
+  border-radius:9px;
+  background:transparent;
+  color:var(--news-muted);
+  font-size:12px;
+  font-weight:800;
+  white-space:nowrap;
+  touch-action:manipulation;
+}
+.newsFilterBtn:hover{background:#edf5ee;color:var(--news-ink)}
+.newsFilterBtn[aria-pressed="true"]{background:#e4f1e6;border-color:#cce3d1;color:#1a5a3e}
+.newsSearchBox {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  width:min(100%,251px);
+  min-width:0;
+  min-height:44px;
+  padding:0 10px;
+  border:1px solid var(--news-border);
+  border-radius:9px;
+  background:#f7faf6;
+  color:var(--news-muted);
+}
+.newsSearchBox:focus-within{outline:2px solid #8db69c;outline-offset:1px}
+.newsSearchBox svg,.newsRefresh svg{width:18px;height:18px;flex:0 0 auto}
+#portal #newsProPage .newsSearchBox input {
+  flex:1;
+  min-width:0;
+  width:100%;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:var(--news-ink);
+  outline:0;
+  box-shadow:none;
+  font-size:16px;
+}
+.newsSearchBox input::placeholder{color:#5c7467}
+.newsRefresh {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  min-width:44px;
+  min-height:44px;
+  padding:0 10px;
+  border:1px solid #cfe2d2;
+  border-radius:9px;
+  background:#f4f9f3;
+  color:#255c43;
+  font-size:12px;
+  font-weight:800;
+  touch-action:manipulation;
+}
+.newsRefresh:hover{background:#e7f2e8}
+
+.newsResultsHeader {
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:10px;
+  margin:0 0 13px;
+}
+.newsResultsHeader h3{margin:0 0 4px;color:var(--news-ink);font-size:20px}
+#newsStatus{margin:0;color:var(--news-muted);font-size:12px}
+#newsStatus[data-error="true"]{color:#944632}
+.newsUpdated{text-align:right;flex:0 0 auto}
+.newsUpdated span,.newsUpdated time{display:block}
+.newsUpdated span{color:var(--news-muted);font-size:10px}
+.newsUpdated time{margin-top:2px;color:var(--news-ink);font-size:12px;font-weight:800}
+.newsGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.newsGrid:empty{display:none}
+.newsCard {
+  min-width:0;
+  border:1px solid var(--news-border);
+  border-radius:16px;
+  background:#fff;
+  box-shadow:0 6px 18px rgba(26,66,44,.04);
+}
+.newsCard:hover,.newsCard:focus-within{border-color:#abcbb5}
+.newsCardLead {
+  grid-column:1/-1;
+  border-left:4px solid #b69454;
+  background:linear-gradient(115deg,#f5f9f1,#fff 80%);
+}
+.newsCardLink {
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:9px;
+  height:100%;
+  padding:17px 19px;
+  border-radius:inherit;
+  color:inherit;
+  text-decoration:none;
+}
+.newsCardLink:focus-visible{outline:2px solid #387e58;outline-offset:2px}
+.newsCardLead .newsCardLink{padding:clamp(16px,2.8vw,29px)}
+.newsLeadLabel {
+  color:#78591f;
+  font-size:10px;
+  font-weight:850;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+}
+.newsMeta{display:flex;align-items:center;flex-wrap:wrap;gap:6px 11px;color:var(--news-muted);font-size:11px}
+.newsSource {
+  padding:4px 7px;
+  border-radius:6px;
+  background:#eaf3e9;
+  color:#245c42;
+  font-weight:800;
+  overflow-wrap:anywhere;
+}
+.newsHeadline {
+  margin:0;
+  color:var(--news-ink);
+  font:800 clamp(17px,2.1vw,21px)/1.32 Manrope,Arial,sans-serif;
+  overflow-wrap:anywhere;
+}
+.newsCardLead .newsHeadline{max-width:48ch;font:400 clamp(23px,3.5vw,36px)/1.16 Georgia,serif}
+.newsSummary {
+  display:-webkit-box;
+  overflow:hidden;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:3;
+  margin:0;
+  color:var(--news-muted);
+  font-size:13px;
+  line-height:1.5;
+  overflow-wrap:anywhere;
+}
+.newsRead {
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  margin-top:auto;
+  padding-top:3px;
+  color:var(--news-accent);
+  font-size:12px;
+  font-weight:850;
+}
+.newsCardLink:hover .newsRead{text-decoration:underline}
+.newsEmpty {
+  padding:24px;
+  border:1px dashed #c3d6c7;
+  border-radius:14px;
+  background:#f8faf7;
+  text-align:center;
+}
+.newsEmpty h4{margin:0 0 4px;color:var(--news-ink);font-size:17px}
+.newsEmpty p{margin:0;color:var(--news-muted);font-size:13px}
+.newsSkeleton {
+  height:110px;
+  border:1px solid var(--news-border);
+  border-radius:15px;
+  background:
+    linear-gradient(#dce9df,#dce9df) 15px 23px / 22% 8px no-repeat,
+    linear-gradient(#e6ede5,#e6ede5) 15px 51px / 76% 10px no-repeat,
+    linear-gradient(#e6ede5,#e6ede5) 15px 73px / 48% 10px no-repeat,
+    #f9fbf7;
+}
+.newsSkeleton:first-child{grid-column:1/-1}
+
+@media(max-width:740px){
+  .marketNewsHero{flex-direction:column;align-items:stretch;gap:17px}
+  .newsCalendar{flex:auto;min-width:0;align-self:flex-start}
+  .newsToolbarActions{justify-content:stretch}
+  .newsSearchBox{width:auto;flex:1}
+  .newsGrid{grid-template-columns:minmax(0,1fr);gap:10px}
+}
+@media(max-width:480px){
+  .marketNewsHero{gap:14px;border-radius:16px}
+  .marketNewsHero p{font-size:13px}
+  .newsCalendar{width:100%;padding:8px 10px}
+  .newsProToolbar{margin:12px 0 17px;padding:7px;gap:7px}
+  .newsFilters{gap:2px}
+  .newsFilterBtn{padding-inline:7px;font-size:11px}
+  .newsRefresh span{display:none}
+  .newsResultsHeader{align-items:flex-start}
+  .newsResultsHeader h3{font-size:17px}
+  .newsUpdated{max-width:43%}
+  .newsCardLink{padding:14px}
+}
 #portal.app #noloAIPage .noloHero{background:linear-gradient(120deg,#153f34,#205b48);color:#fff;border-color:#285b47}
 #portal.app #noloAIPage .noloHero :is(h2,p){color:#f4f8f4}
 #portal.app #noloAIPage .noloMissionCard{background:#fff;padding:19px}
@@ -1507,8 +1787,8 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
 }
 @media(max-width:980px){
  #portal.app .page .noloMissionGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
- #portal.app .page :is(.marketNewsHero,.noloHero,.entHero){border-radius:18px;padding:22px}
- #portal.app .page .newsHeroActions,#portal.app .page .noloHeroActions,#portal.app .page .entHeroActions{display:flex;flex-wrap:wrap;gap:9px}
+ #portal.app .page :is(.noloHero,.entHero){border-radius:18px;padding:22px}
+ #portal.app .page .noloHeroActions,#portal.app .page .entHeroActions{display:flex;flex-wrap:wrap;gap:9px}
  #portal.app #admin .adminWorkspaceNav{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
  #portal.app #admin .adminWorkspaceNav button{flex:0 0 auto;white-space:nowrap;min-height:44px}
 }
@@ -1529,11 +1809,8 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
  #portal.app .page .metric{padding:14px}
  #portal.app .page .metric h3{font-size:clamp(19px,6vw,27px)}
  #portal.app .page .noloMissionGrid{grid-template-columns:minmax(0,1fr);gap:9px}
- #portal.app #newsProPage .newsFilters{display:flex;flex-wrap:wrap;gap:7px}
- #portal.app #newsProPage .newsSearchBox{width:100%;min-width:0}
- #portal.app #newsProPage .newsSearchBox input{width:100%}
- #portal.app #noloAIPage .noloHero,#portal.app #entretenimiento .entHero,#portal.app #newsProPage .marketNewsHero{padding:18px}
- #portal.app #noloAIPage .noloHero h2,#portal.app #entretenimiento .entHero h2,#portal.app #newsProPage .marketNewsHero h2{font-size:clamp(22px,6vw,30px);line-height:1.2}
+ #portal.app #noloAIPage .noloHero,#portal.app #entretenimiento .entHero{padding:18px}
+ #portal.app #noloAIPage .noloHero h2,#portal.app #entretenimiento .entHero h2 h2{font-size:clamp(22px,6vw,30px);line-height:1.2}
  #portal.app #noloAIPage .noloQuickBtns{display:flex;flex-wrap:wrap;gap:7px}
  #portal.app #noloAIPage .noloQuickBtns button{max-width:100%;white-space:normal}
  #portal.app #noloAIPage .noloComposer{display:flex;gap:8px;align-items:flex-end}
