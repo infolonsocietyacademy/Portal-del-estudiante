@@ -22,7 +22,7 @@
       norm(currentUser.status) === "active";
   }
   function listUsers() {
-    return Array.isArray(window.cachedUsers) ? window.cachedUsers : lastUsers;
+    return lastUsers;
   }
   function students() {
     return listUsers().filter(u => norm(u.role) === "student");
@@ -219,6 +219,7 @@
         lastUsers=data||[];
         // Preserve legacy globals used by other portal modules.
         window.cachedUsers=lastUsers;
+        if(typeof cachedUsers!=="undefined")cachedUsers=lastUsers;
         updateStats();renderTable();renderAlerts();
         setText("adminLastSync","Actualizado "+new Date().toLocaleTimeString("es-PR",{hour:"numeric",minute:"2-digit"}));
         setText("adminConnectionState","● Datos sincronizados");
