@@ -171,33 +171,6 @@
       setText("adminChatMetric",Number(count||0));setText("adminNavUnread",Number(count||0));
     }catch(e){console.warn("Chat metric",e);setText("adminChatMetric","—");setText("adminNavUnread","—");}
   }
-  async function loadAI() {
-    if(!authorized())return;
-    const el=$("adminNoloUsageList");
-    if(!el)return;
-    try {
-      const parts=new Intl.DateTimeFormat("en-US",{timeZone:"America/Puerto_Rico",year:"numeric",month:"2-digit",day:"2-digit"})
-        .formatToParts(new Date()).reduce((all,p)=>{all[p.type]=p.value;return all;},{});
-      const day=parts.year+"-"+parts.month+"-"+parts.day;
-      const start=new Date(day+"T04:00:00Z").toISOString();
-      const {data,error}=await supabaseClient.from("nolo_messages")
-        .select("user_id,role,created_at").eq("role","user").gte("created_at",start);
-      if(error)throw error;
-      const counts=new Map();
-      (data||[]).forEach(m=>counts.set(m.user_id,(counts.get(m.user_id)||0)+1));
-      const total=Array.from(counts.values()).reduce((a,b)=>a+b,0);
-      setText("adminNoloToday",total);
-      setText("adminNoloMetric",total);
-      const byId=new Map(listUsers().map(u=>[u.id,u]));
-      const names=Array.from(counts.entries()).sort((a,b)=>b[1]-a[1]).slice(0,8);
-      el.innerHTML=names.length?names.map(([id,n])=>'<div class="adminAiMember"><span>'+esc(byId.get(id)?.full_name||"Estudiante")+'</span><strong>'+n+' mensajes</strong></div>').join("")
-        :'<div class="adminAiEmpty">Sin mensajes de Nolo IA registrados hoy.</div>';
-    }catch(e){
-      console.warn("[OLON] AI usage unavailable",e);
-      setText("adminNoloToday","—");setText("adminNoloMetric","0");
-      el.textContent="No fue posible cargar la actividad de IA. Comprueba conexión y permisos.";
-    }
-  }
   async function refresh() {
     if(!authorized()) { notify("Acceso exclusivo del administrador.",true);return; }
     if(loadPromise)return loadPromise;
@@ -216,7 +189,7 @@
         setText("adminLastSync","Actualizado "+new Date().toLocaleTimeString("es-PR",{hour:"numeric",minute:"2-digit"}));
         setText("adminConnectionState","● Datos sincronizados");
         const el=$("adminConnectionState");if(el)el.classList.remove("failure");
-        await Promise.allSettled([loadChatMetric(),loadAI()]);
+        await loadChatMetric();
         return lastUsers;
       }catch(e){
         const reason=errorMessage(e);
@@ -314,7 +287,7 @@
 
   window.olonAdmin={
     refresh,render:renderTable,filter,go,openChat,
-    loadAI,status:setStatus,approveAll,
+    status:setStatus,approveAll,
     payment:setPayment
   };
   // Legacy onclick handlers and inline listeners stay compatible.
@@ -322,7 +295,6 @@
   window.renderAdminTable=renderTable;
   window.updateAdminMetrics=updateStats;
   window.renderAdminAlerts=renderAlerts;
-  window.renderAdminNoloUsage=loadAI;
   window.updateAdminChatMetric=loadChatMetric;
   window.filterAdminUsers=filter;
   window.updateUserStatus=setStatus;

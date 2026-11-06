@@ -639,13 +639,13 @@ body.olonRecoveryPage{margin:0;min-height:100vh;min-height:100svh;background:rad
 #admin .adminWorkspaceMetrics .adminMetric>span:last-child{font-size:10px;color:#8e9f95}
 #admin .adminWorkspaceMetrics .adminMetricPending{border-color:#e4d4b9;background:linear-gradient(145deg,#fffefa,#fffaf1)}
 #admin .adminWorkspaceMetrics .adminMetricPending .adminMetricIcon{background:#f6ebd9;color:#b2874a}
-#admin .adminWorkspacePanels{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:16px;margin-bottom:24px}
+#admin .adminWorkspacePanels{display:grid;grid-template-columns:minmax(0,1fr);margin-bottom:24px}
 #admin .adminWorkspaceCard{background:#fff;border:1px solid #e2eae3;border-radius:17px;box-shadow:0 3px 18px rgba(31,65,42,.034);min-width:0}
 #admin .adminWorkspaceCardHead{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:23px 23px 18px;border-bottom:1px solid #edf1ed}
 #admin .adminWorkspaceCardHead h4{font-size:17px}
 #admin .adminWorkspaceCardHead p{font-size:11px;color:#8a9b91;margin:7px 0 0;line-height:1.55}
 #admin .adminHeadIndicator{font-size:9px;font-weight:800;letter-spacing:.12em;color:#698c76;background:#eff5ef;padding:8px 10px;border-radius:7px}
-#admin .adminWorkspaceCard .adminAlertList,#admin .adminWorkspaceCard .adminNoloUsageList{padding:12px 17px 17px;min-height:120px}
+#admin .adminWorkspaceCard .adminAlertList{padding:12px 17px 17px;min-height:120px}
 #admin .adminAlertItem{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 11px;border-radius:9px;color:#4e6356;font-size:11px;line-height:1.5;background:#f7faf7;margin:6px 0;border:1px solid #eaf0eb}
 #admin .adminAlertItem.warn{background:#fffaf0;border-color:#f1e2c5;color:#75572a}
 #admin .adminAlertItem.bad{background:#fff3f0;border-color:#f1d3cd;color:#934b3e}
@@ -653,13 +653,6 @@ body.olonRecoveryPage{margin:0;min-height:100vh;min-height:100svh;background:rad
 #admin .adminSmallButton{border:1px solid #ccdcd0;background:#fff;color:#285d44;padding:8px 11px;border-radius:8px;font-size:10px;line-height:1.15;font-weight:800;cursor:pointer;white-space:nowrap}
 #admin .adminSmallButton:hover{border-color:#5f9779;background:#f3f8f3}
 #admin .adminSmallButton.approve{background:#24704e;color:#fff;border-color:#24704e}
-#admin .adminIconAction{border:1px solid #dce8dd;color:#4b765b;background:#f9fbf8;border-radius:8px;width:34px;height:34px;cursor:pointer;font-size:20px}
-#admin .adminAiTopline{display:flex;align-items:baseline;gap:12px;padding:18px 24px 0}
-#admin .adminAiTopline strong{font:800 30px var(--font-ui);color:#1b5138}
-#admin .adminAiTopline span{font-size:11px;color:#8b9b92}
-#admin .adminAiMember{display:flex;justify-content:space-between;gap:10px;margin-top:6px;padding:11px 5px;border-bottom:1px solid #eef3ed;font-size:11px}
-#admin .adminAiMember strong{color:#2d6a4f}
-#admin .adminAiEmpty{color:#94a89b;font-size:11px;margin:15px 6px}
 #admin .adminWorkspaceDirectory{overflow:hidden}
 #admin .adminDirectoryHeadRight{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 #admin .adminCountPill{background:#eaf3eb;color:#386b4d;border:1px solid #d9e9db;border-radius:9px;font-size:11px;font-weight:800;padding:9px 12px;white-space:nowrap}
@@ -822,7 +815,6 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
     background:rgba(1,18,13,.62);
     touch-action:none;
   }
-  body:has(#sidebar.open) :is(#noloFloatingBtn, #noloFloatingPanel) {visibility:hidden}
 }
 @media(prefers-reduced-motion:reduce) {
   #portal.app > #sidebar.portalSidebar {transition:none}
@@ -1058,7 +1050,6 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
   }
   #portal #adminRequestsBlock,
   #portal #adminStudentsBlock,
-  #portal #adminNoloUsageBlock,
   #portal #adminOverviewBlock {scroll-margin-top:90px}
   #portal .chatMessages,
   #portal #publicChatMessages,
@@ -1320,15 +1311,15 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
  #portal .page :is(.grid4,.v3Grid,.proGrid,.reportGrid,.layout,.adminMetrics,.adminWorkspaceMetrics,.adminWorkspacePanels,.adminChatLayout){max-width:100%;min-width:0}
  #portal .page :is(.welcomeHeroCard,.atlas-page-banner,.adminWorkspaceHero,.adminHero){max-width:100%;min-width:0;overflow:hidden}
  #portal .page :is(.welcomeHeroContent,.adminWorkspaceHeroMain,.adminWorkspaceHeroContent){min-width:0;max-width:100%}
- #portal .page :is(.waMessages,.chatMessages,.adminChatMessages,.noloMessages){max-width:100%;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
+ #portal .page :is(.waMessages,.chatMessages,.adminChatMessages){max-width:100%;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
  #portal .page :is(.adminWorkspaceCard,.adminWorkspaceDirectory,.adminWorkspaceHero,.adminSectionIntro){max-width:100%;min-width:0}
  #portal .page :is(.adminDirectoryFilters,.adminDirectoryHead,.adminWorkspaceCardHead,.adminWorkspaceHeroMain){flex-wrap:wrap;gap:12px}
  #portal .page :is(.adminDirectoryFilters,.adminSearchWrap,.adminDirectoryHeadRight){min-width:0}
  #portal .page :is(.adminDirectoryFilters input,.adminDirectoryFilters select,.adminSearch){max-width:100%;width:100%}
  #portal .page :is(.adminWorkspaceMetrics,.adminMetrics){grid-template-columns:repeat(2,minmax(0,1fr))}
  #portal .page :is(.adminChatLayout,.adminWorkspacePanels){grid-template-columns:minmax(0,1fr)}
- #portal .page :is(.noloLayout,.gameGrid,.entertainmentGrid){max-width:100%;min-width:0}
- #portal .page :is(.noloCard,.gameCard){max-width:100%;min-width:0}
+ #portal .page :is(.gameGrid,.entertainmentGrid){max-width:100%;min-width:0}
+ #portal .page :is(.gameCard){max-width:100%;min-width:0}
  #portal .page :is(.adminBtn,.btn,.btnPrimary,.btnSecondary){min-height:42px;touch-action:manipulation}
  #portal .page :is(.adminDirectoryTable,.tableWrap){border-radius:12px}
  #portal .page .formGrid{grid-template-columns:minmax(0,1fr)}
@@ -1345,7 +1336,7 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
  #portal.app:not(.hidden) > main.main > .page{padding-bottom:14px}
  #portal .page :is(.grid4,.v3Grid,.adminMetrics,.adminWorkspaceMetrics){gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
  #portal .page :is(.grid4,.v3Grid,.adminMetrics,.adminWorkspaceMetrics)>*{min-width:0}
- #portal .page :is(.proGrid,.reportGrid,.layout,.adminChatLayout,.adminWorkspacePanels,.noloLayout,.gameGrid,.entertainmentGrid){display:grid;grid-template-columns:minmax(0,1fr)!important;gap:12px}
+ #portal .page :is(.proGrid,.reportGrid,.layout,.adminChatLayout,.adminWorkspacePanels,.gameGrid,.entertainmentGrid){display:grid;grid-template-columns:minmax(0,1fr)!important;gap:12px}
  #portal .page :is(.card,.adminWorkspaceCard,.adminChatBox){padding:15px;border-radius:15px}
  #portal .page :is(.welcomeHeroCard,.adminWorkspaceHero,.atlas-page-banner){border-radius:17px}
  #portal .page :is(.adminWorkspaceHeroMain,.adminDirectoryHead,.adminWorkspaceCardHead){display:flex;flex-direction:column;align-items:stretch}
@@ -1383,7 +1374,7 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
 }
 #portal.app > main.main{background:var(--olon-canvas);min-width:0}
 #portal.app .page:not(.hidden){max-width:1500px;margin-left:auto;margin-right:auto}
-#portal.app .page :is(.card,.v3Card,.adminWorkspaceCard,.adminMetric,.noloMissionCard,.entScoreCard){
+#portal.app .page :is(.card,.v3Card,.adminWorkspaceCard,.adminMetric,.entScoreCard){
  border:1px solid var(--olon-line);border-radius:19px;
  box-shadow:var(--olon-shadow);
 }
@@ -1749,197 +1740,6 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
   .newsResultsHeader h3{font-size:17px}
   .newsUpdated{max-width:43%}
   .newsCardLink{padding:14px}
-}
-/* Conversación de Nolo IA */
-.noloHero {
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-end;
-  flex-wrap:wrap;
-  gap:12px 20px;
-  margin-bottom:14px;
-  padding:clamp(18px,3.2vw,32px);
-  border:1px solid #315f4b;
-  border-radius:19px;
-  background:radial-gradient(ellipse at 85% 8%,#43654b66,transparent 58%),linear-gradient(120deg,#10342a,#184835);
-  color:#fff9e9;
-}
-.noloKicker{color:#e6ca8c;font-size:10px;font-weight:800;letter-spacing:.17em}
-.noloHero h2{margin:5px 0;color:#fffaf0;font-size:clamp(28px,5vw,43px);font-weight:800}
-.noloHero p{margin:0;color:#d1e2d6;font-size:14px}
-.noloMentorButton {
-  min-height:44px;
-  padding:8px 12px;
-  border:1px solid #d9bc8260;
-  border-radius:10px;
-  background:#fff3d416;
-  color:#f5dfb3;
-  font-size:12px;
-  font-weight:750;
-}
-.noloMentorButton:hover{background:#fff3d42b}
-.noloChatCard,.noloFloatPanel {
-  min-width:0;
-  border:1px solid #d6e4d8;
-  border-radius:17px;
-  background:#fff;
-  color:#193c2e;
-  box-shadow:0 10px 24px rgba(22,68,46,.07);
-}
-.noloChatHeader,.noloFloatHeader {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-  padding:12px 15px;
-  border-radius:inherit;
-  border-bottom:1px solid #dce9de;
-}
-.noloChatHeader h3{margin:0;font-size:17px}
-.noloChatHeader p,.noloFloatHeader small{display:block;margin:3px 0 0;color:#476456;font-size:12px}
-.noloHeaderRight{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:5px}
-.noloLimitPill,.noloModePill {
-  padding:5px 7px;
-  border-radius:7px;
-  background:#e7f1e8;
-  color:#255940;
-  font-size:11px;
-  font-weight:800;
-  white-space:nowrap;
-}
-.noloModePill{background:#f3ead7;color:#674919}
-.noloMessages {
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-  gap:9px;
-  height:clamp(190px,37dvh,350px);
-  padding:14px 15px;
-  overflow:auto;
-  overscroll-behavior-y:contain;
-  background:#f6f9f5;
-}
-.noloBubble {
-  flex:0 0 auto;
-  max-width:min(91%,65ch);
-  padding:10px 13px;
-  border:1px solid #dce8df;
-  border-radius:12px 12px 12px 3px;
-  background:#fff;
-  font-size:14px;
-  overflow-wrap:anywhere;
-}
-.noloBubble.user{align-self:flex-end;border-radius:12px 12px 3px 12px;background:#e2f0e6}
-.noloBubble b{display:block;margin-bottom:3px;color:#246548;font-size:11px}
-.noloBubble p{margin:0;white-space:pre-wrap;line-height:1.5}
-.noloBubble time{display:block;margin-top:5px;color:#506b5d;font-size:10px}
-.noloChatTools {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  flex-wrap:wrap;
-  gap:4px 12px;
-  padding:6px 13px;
-  border-top:1px solid #e3ede4;
-}
-.noloQuickBtns{display:flex;flex-wrap:wrap;gap:5px}
-.noloQuickBtns button,.noloHistoryButton {
-  min-height:38px;
-  padding:5px 8px;
-  border:1px solid #d6e5d9;
-  border-radius:8px;
-  background:#f4f9f3;
-  color:#255c43;
-  font-size:11px;
-  font-weight:750;
-}
-.noloQuickBtns button:hover{background:#e6f1e7}
-.noloHistoryButton{border-color:transparent;background:transparent;text-decoration:underline}
-.noloComposer {
-  display:flex;
-  align-items:flex-end;
-  gap:8px;
-  padding:9px 13px;
-}
-.noloComposer textarea {
-  flex:1;
-  width:100%;
-  min-width:0;
-  min-height:46px;
-  padding:9px 10px;
-  border:1px solid #cddfd0;
-  border-radius:9px;
-  background:#f9fbf8;
-  font-size:16px;
-  line-height:1.35;
-  resize:vertical;
-}
-.noloComposer button{min-height:46px;flex:0 0 auto}
-.noloFeedback,.noloResetNote{margin:0 13px 10px;font-size:11px}
-.noloFeedback{padding:7px 9px;border-radius:8px;background:#fbefdb;color:#6c491f}
-.noloResetNote{color:#526d60}
-
-.noloFloatingBtn {
-  display:none;
-  position:fixed;
-  right:max(14px,env(safe-area-inset-right,0px));
-  bottom:calc(75px + env(safe-area-inset-bottom,0px));
-  z-index:72;
-  align-items:center;
-  gap:7px;
-  min-height:44px;
-  padding:6px 11px 6px 7px;
-  border:1px solid #bc9d5e;
-  border-radius:999px;
-  background:#163f31;
-  color:#f8efd9;
-  box-shadow:0 8px 25px rgba(17,51,39,.23);
-  font-size:12px;
-  font-weight:800;
-}
-.noloFloatingBtn span {
-  display:grid;
-  place-items:center;
-  width:26px;
-  height:26px;
-  border-radius:50%;
-  background:#edce92;
-  color:#17382d;
-}
-body:has(#portal:not(.hidden)) .noloFloatingBtn{display:inline-flex}
-body:has(#noloAIPage:not(.hidden)) .noloFloatingBtn,
-body:has(#noloFloatingPanel:not(.hidden)) .noloFloatingBtn{display:none}
-.noloFloatPanel {
-  position:fixed;
-  right:max(12px,env(safe-area-inset-right,0px));
-  bottom:calc(12px + env(safe-area-inset-bottom,0px));
-  z-index:74;
-  display:flex;
-  flex-direction:column;
-  width:min(382px,calc(100vw - 24px));
-  max-height:calc(100dvh - 24px - env(safe-area-inset-bottom,0px));
-  overflow:auto;
-}
-.noloFloatPanel .noloMessages{height:clamp(130px,31dvh,260px)}
-.noloFloatPanel .noloHistoryButton{align-self:center}
-body:not(:has(#portal:not(.hidden))) .noloFloatPanel{display:none}
-.noloFloatHeader button {
-  width:44px;
-  height:44px;
-  border:1px solid #d5e4d7;
-  border-radius:10px;
-  background:#f1f7f0;
-  color:#245c42;
-  font-size:23px;
-}
-@media(max-width:560px){
-  .noloHero{gap:8px;margin-bottom:10px}
-  .noloHero p{font-size:13px}
-  .noloChatHeader{align-items:flex-start;padding:10px 11px}
-  .noloChatHeader h3{font-size:15px}
-  .noloHeaderRight{max-width:46%}
-  .noloMessages{padding:10px 11px}
-  .noloBubble{max-width:94%;padding:8px 10px}
 }
 #portal.app #entretenimiento .entHero{background:linear-gradient(120deg,#173e33,#2a6249);color:#fff;border-color:#315f4c}
 #portal.app #entretenimiento .entHero :is(h2,p){color:#fff}

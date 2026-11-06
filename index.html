@@ -21,7 +21,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 
 
-<link rel="stylesheet" href="./style.css?v=20261106-registros-pdf">
+<link rel="stylesheet" href="./style.css?v=20261106-portal">
 <noscript><style>#olonLoader{display:none}</style></noscript>
 
 <style>
@@ -265,7 +265,6 @@ window.addEventListener("load", () => {
       <div class="portalNavGroup studentNav portalNavGroupSecondary">ACADEMIA</div>
       <button type="button" class="portalNavLink studentNav" data-page="publicChat" onclick="showPage('publicChat',this)" aria-label="Comunidad"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5c0 4.7-3.9 8.5-8.7 8.5-1.5 0-3-.4-4.2-1l-5.1 2 1.6-4.9A8.1 8.1 0 0 1 3 11.5C3 6.8 7 3 12 3s9 3.8 9 8.5Z"/><path d="M8 11h8M8 14h5"/></svg></span><span class="portalNavText">Comunidad</span></button>
       <button type="button" class="portalNavLink studentNav" data-page="newsProPage" onclick="showPage('newsProPage',this)" aria-label="Noticias"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10M7 11h4M13 11h4M7 15h10M7 18h7"/></svg></span><span class="portalNavText">Noticias</span></button>
-      <button type="button" class="portalNavLink studentNav" data-page="noloAIPage" onclick="showPage('noloAIPage',this)" aria-label="Nolo IA"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="6" width="14" height="14" rx="3"/><path d="M12 2v4M2 12h3M19 12h3M9 10v3M15 10v3M9 16h6"/></svg></span><span class="portalNavText">Nolo IA</span></button>
       <button type="button" class="portalNavLink studentNav" data-page="entretenimiento" onclick="showPage('entretenimiento',this)" aria-label="Gira y gana"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 12h12M12 6v12"/><path d="m6 4 2 2M18 4l-2 2"/><rect x="2.5" y="3" width="19" height="18" rx="5"/></svg></span><span class="portalNavText">Gira y gana</span></button>
       <div class="portalNavGroup adminNav hidden">ADMINISTRACIÓN</div>
       <button type="button" class="portalNavLink adminNav hidden" data-page="admin" onclick="showPage('admin',this)" aria-label="Centro administrativo"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4M9 15h6M12 15v3"/></svg></span><span class="portalNavText">Centro administrativo</span></button>
@@ -655,45 +654,6 @@ window.addEventListener("load", () => {
     </section>
 
 
-    <section id="noloAIPage" class="page hidden" aria-labelledby="noloTitle">
-      <header class="noloHero">
-        <div>
-          <span class="noloKicker">OLON SOCIETY ACADEMY</span>
-          <h2 id="noloTitle">Nolo IA</h2>
-          <p>Asistente educativo para revisar tu disciplina, tus resultados y el riesgo de cada operación.</p>
-        </div>
-        <button class="noloMentorButton studentOnly" type="button" data-nolo-mentor>Contactar al mentor</button>
-      </header>
-
-      <section class="noloChatCard" aria-labelledby="noloChatTitle">
-        <header class="noloChatHeader">
-          <div><h3 id="noloChatTitle">Conversación</h3><p id="noloStatus" data-nolo-status role="status">Consultando disponibilidad…</p></div>
-          <div class="noloHeaderRight">
-            <span class="noloModePill" data-nolo-mode hidden></span>
-            <span id="noloLimitPill" class="noloLimitPill" data-nolo-quota aria-label="Mensajes disponibles hoy">— / 30</span>
-          </div>
-        </header>
-        <div id="noloMessages" class="noloMessages" data-nolo-log role="log" aria-label="Conversación con Nolo IA">
-          <div class="noloBubble ai"><b>Nolo IA</b><p>¿Qué quieres repasar hoy? Podemos empezar por tu plan, tus resultados o una duda de trading.</p></div>
-        </div>
-        <div class="noloChatTools">
-          <div class="noloQuickBtns" role="group" aria-label="Preguntas sugeridas">
-            <button type="button" data-nolo-prompt="Revisa mi perfil y dame tres ideas para mejorar mi disciplina y control de riesgo.">Mi perfil</button>
-            <button type="button" data-nolo-prompt="Explícame cómo preparar mi límite de riesgo antes de operar.">Control de riesgo</button>
-            <button type="button" data-nolo-prompt="Resume los titulares que consulté en el portal y explica qué factores conviene vigilar.">Noticias</button>
-            <button type="button" data-nolo-prompt="Dame una lista de verificación para mi próxima sesión de trading.">Checklist</button>
-          </div>
-          <button class="noloHistoryButton" type="button" data-nolo-history>Actualizar historial</button>
-        </div>
-        <form class="noloComposer" data-nolo-form>
-          <textarea id="noloInput" data-nolo-draft rows="2" maxlength="2000" placeholder="Escribe tu pregunta…" aria-label="Pregunta para Nolo IA"></textarea>
-          <button id="noloSendBtn" class="btn" type="submit" disabled>Enviar</button>
-        </form>
-        <p class="noloFeedback" data-nolo-feedback role="status" hidden></p>
-        <p class="noloResetNote">El límite de 30 mensajes se renueva a medianoche, hora de Puerto Rico.</p>
-      </section>
-    </section>
-
     <section id="entretenimiento" class="page hidden entretenimientoPage">
       <div class="entHero card">
         <div>
@@ -848,7 +808,6 @@ Entrada al grupo</textarea>
         <button type="button" onclick="olonAdmin.go('adminOverviewBlock')">Resumen</button>
         <button type="button" onclick="olonRequests.go()">Solicitudes <span id="adminRequestsNavCount">0</span></button>
         <button type="button" onclick="olonAdmin.go('adminStudentsBlock')">Estudiantes</button>
-        <button type="button" onclick="olonAdmin.go('adminNoloUsageBlock')">Nolo IA</button>
         <button type="button" onclick="olonAdmin.openChat()">Mensajes <span id="adminNavUnread">0</span></button>
       </nav>
       <section class="adminWorkspaceCard" id="adminRequestsBlock" aria-labelledby="adminRequestsHeading">
@@ -884,19 +843,11 @@ Entrada al grupo</textarea>
           </div>
           <div id="adminAlertList" class="adminAlertList" aria-live="polite"><div class="adminAlertItem">Consultando solicitudes…</div></div>
         </section>
-        <section class="adminWorkspaceCard" id="adminNoloUsageBlock" aria-labelledby="adminAiHeading">
-          <div class="adminWorkspaceCardHead">
-            <div><span class="adminSectionEyebrow">03 / ASISTENTE</span><h4 id="adminAiHeading">Actividad de Nolo IA</h4><p>Uso educativo de la comunidad hoy.</p></div>
-            <button type="button" class="adminIconAction" onclick="olonAdmin.loadAI()" aria-label="Actualizar actividad de Nolo IA">↻</button>
-          </div>
-          <div class="adminAiTopline"><strong id="adminNoloToday">—</strong><span>mensajes enviados hoy</span><span id="adminNoloMetric" hidden>0</span></div>
-          <div id="adminNoloUsageList" class="adminNoloUsageList"><div class="adminAlertItem">Consultando actividad…</div></div>
-        </section>
       </div>
 
       <section id="adminStudentsBlock" class="adminWorkspaceCard adminWorkspaceDirectory" aria-labelledby="adminStudentsHeading">
         <div class="adminWorkspaceCardHead adminDirectoryHead">
-          <div><span class="adminSectionEyebrow">04 / DIRECTORIO</span><h4 id="adminStudentsHeading">Gestión de estudiantes</h4><p>Administra accesos y asigna la próxima fecha de pago de cada estudiante VIP.</p></div>
+          <div><span class="adminSectionEyebrow">03 / DIRECTORIO</span><h4 id="adminStudentsHeading">Gestión de estudiantes</h4><p>Administra accesos y asigna la próxima fecha de pago de cada estudiante VIP.</p></div>
           <div class="adminDirectoryHeadRight"><span id="adminCountPill" class="adminCountPill">0 resultados</span><button id="adminApproveAllBtn" type="button" class="adminBtn adminBtnGold" onclick="olonAdmin.approveAll()">✓ Aprobar pendientes</button></div>
         </div>
         <div class="adminDirectoryControls">
@@ -989,29 +940,10 @@ Entrada al grupo</textarea>
 </section>
 
 
-<button id="noloFloatingBtn" class="noloFloatingBtn" type="button" aria-controls="noloFloatingPanel" aria-expanded="false">
-  <span aria-hidden="true">N</span> Nolo IA
-</button>
-<aside id="noloFloatingPanel" class="noloFloatPanel hidden" aria-label="Chat rápido de Nolo IA">
-  <header class="noloFloatHeader">
-    <div><b>Nolo IA</b><small id="noloFloatStatus" data-nolo-status role="status">Consultando disponibilidad…</small></div>
-    <button id="noloFloatClose" type="button" aria-label="Cerrar chat rápido">×</button>
-  </header>
-  <div id="noloFloatMessages" class="noloMessages" data-nolo-log role="log" aria-label="Chat rápido con Nolo IA">
-    <div class="noloBubble ai"><b>Nolo IA</b><p>Escribe tu pregunta para comenzar.</p></div>
-  </div>
-  <form class="noloComposer" data-nolo-form>
-    <textarea id="noloFloatInput" data-nolo-draft rows="1" maxlength="2000" placeholder="Escribe tu pregunta…" aria-label="Pregunta para el chat rápido"></textarea>
-    <button id="noloFloatSendBtn" class="btn" type="submit" disabled>Enviar</button>
-  </form>
-  <p class="noloFeedback" data-nolo-feedback role="status" hidden></p>
-  <button id="noloOpenFull" class="noloHistoryButton" type="button">Abrir conversación completa</button>
-</aside>
-
-<script src="./script.js?v=20261106-registros-pdf" defer></script>
+<script src="./script.js?v=20261106-portal" defer></script>
 <script src="./student-records.js?v=20261106-registros-pdf" defer></script>
 <script src="./premium-report.js?v=20261106-registros-pdf" defer></script>
-<script src="./admin-workspace.js?v=20261106-menu-vip" defer></script>
+<script src="./admin-workspace.js?v=20261106-portal" defer></script>
 <script src="./admin-registration.js?v=20261106-menu-vip" defer></script>
 
 <script>
