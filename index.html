@@ -20,7 +20,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 
-<link rel="stylesheet" href="./style.css?v=20261106-admin-flex-7">
+<link rel="stylesheet" href="./style.css?v=20261106-request-1">
 
 <style>
 /* Chat Público OLON */
@@ -213,14 +213,14 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
           </div>
         </div>
         <div id="signupForm" class="form">
-          <h2>Solicita tu acceso</h2><p>Crea tu cuenta. El administrador revisará la solicitud antes de activar tu portal.</p>
+          <h2>Solicita tu acceso</h2><p>Solicita acceso sin correos automáticos. El administrador revisará tu solicitud y te entregará tus datos de acceso por un canal privado.</p>
           <div class="field"><label for="signupName">Nombre completo</label><input id="signupName" type="text" placeholder="Tu nombre y apellido" autocomplete="name"></div>
           <div class="field"><label for="signupEmail">Correo electrónico</label><input id="signupEmail" type="email" placeholder="correo@ejemplo.com" autocomplete="email"></div>
-          <div class="field"><label for="signupEmailConfirm">Confirma tu correo</label><input id="signupEmailConfirm" type="email" placeholder="Repite tu correo" autocomplete="email"><div id="emailVerifyStatus" class="emailStatus neutral">Escribe y confirma tu email.</div><button type="button" class="btn secondary full verifyBtn" onclick="verifySignupEmail()">Verificar email</button></div>
-          <div class="field"><label for="signupPass">Contraseña</label><input id="signupPass" type="password" placeholder="Crea una contraseña" autocomplete="new-password"></div>
+          <div class="field"><label for="signupEmailConfirm">Confirma tu correo</label><input id="signupEmailConfirm" type="email" placeholder="Repite tu correo" autocomplete="email"><div id="emailVerifyStatus" class="emailStatus neutral">Verifica que tu correo esté escrito correctamente.</div><button type="button" class="btn secondary full verifyBtn" onclick="verifySignupEmail()">Comprobar correo</button></div>
+          <div class="signupHoney" aria-hidden="true"><label for="signupWebsite">Sitio web</label><input type="text" id="signupWebsite" tabindex="-1" autocomplete="off"></div>
           <div class="field"><label for="signupPlan">Plan VIP</label><select id="signupPlan" disabled><option value="VIP Regular">Pendiente de aprobación</option></select><small>El administrador asignará tu plan cuando apruebe la cuenta.</small></div>
-          <button id="signupSubmitBtn" class="btn full" type="button" onclick="signup()">Crear mi cuenta →</button>
-          <div class="authLegal"><div class="authLegalItem"><div class="authLegalIcon">🛡️</div><div><b>Acceso sujeto a aprobación</b><p>Tu cuenta permanecerá pendiente hasta que el administrador la active.</p></div></div></div>
+          <button id="signupSubmitBtn" class="btn full" type="button" onclick="signup()">Enviar solicitud de acceso →</button>
+          <div id="signupRequestResult" class="authNote" role="status" aria-live="polite" hidden></div><div class="authLegal"><div class="authLegalItem"><div class="authLegalIcon">🛡️</div><div><b>Acceso sujeto a aprobación</b><p>Enviar la solicitud no crea una cuenta de inmediato. Cuando el administrador la apruebe, te dará una contraseña temporal.</p></div></div></div>
         </div>
       </div>
     </div>
@@ -826,11 +826,22 @@ Entrada al grupo</textarea>
 
       <nav class="adminWorkspaceNav" aria-label="Secciones de administración">
         <button type="button" onclick="olonAdmin.go('adminOverviewBlock')">Resumen</button>
-        <button type="button" onclick="olonAdmin.filter('pending')">Solicitudes</button>
+        <button type="button" onclick="olonRequests.go()">Solicitudes <span id="adminRequestsNavCount">0</span></button>
         <button type="button" onclick="olonAdmin.go('adminStudentsBlock')">Estudiantes</button>
         <button type="button" onclick="olonAdmin.go('adminNoloUsageBlock')">Nolo IA</button>
         <button type="button" onclick="olonAdmin.openChat()">Mensajes <span id="adminNavUnread">0</span></button>
       </nav>
+      <section class="adminWorkspaceCard" id="adminRequestsBlock" aria-labelledby="adminRequestsHeading">
+        <div class="adminWorkspaceCardHead">
+          <div><span class="adminSectionEyebrow">SOLICITUDES / NUEVOS ACCESOS</span><h4 id="adminRequestsHeading">Solicitudes de inscripción <span class="adminRequestCount" id="adminRequestCount">0</span></h4><p>Registros recibidos aunque el correo automático de Supabase esté limitado.</p></div>
+          <button type="button" class="adminSmallButton" onclick="olonRequests.refresh()">↻ Actualizar</button>
+        </div>
+        <div class="adminRequestNotice">Al aprobar, se crea una cuenta real con contraseña temporal. <strong>Confirma primero que el correo pertenece al estudiante.</strong> Comparte la contraseña por privado y pídele que la cambie. Las solicitudes no envían correos automáticamente.</div>
+        <div id="adminRequestsFeedback" class="adminActionFeedback" role="status" aria-live="polite" hidden></div>
+        <div id="adminRequestsList" class="adminRequestsList"><p class="adminRequestEmpty">Cargando solicitudes…</p></div>
+        <div class="adminDirectoryFooter">Las solicitudes pendientes aún no aparecen en el directorio. Los estudiantes aparecerán allí después de crear y activar su cuenta.</div>
+      </section>
+
 
       <div id="adminOverviewBlock" class="adminSectionIntro">
         <div><span class="adminSectionEyebrow">01 / PANORAMA</span><h4>Resumen general</h4></div>
@@ -970,8 +981,9 @@ Entrada al grupo</textarea>
 </section>
 
 
-<script src="./script.js?v=20261106-admin-flex-7" defer></script>
+<script src="./script.js?v=20261106-request-1" defer></script>
 <script src="./admin-workspace.js?v=20261106-admin-flex-7" defer></script>
+<script src="./admin-registration.js?v=20261106-request-1" defer></script>
 
 <script>
 /* FIX FUERTE: La pantalla de código NO se muestra al cargar.
