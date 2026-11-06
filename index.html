@@ -7,7 +7,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="./assets/favicon.png">
 <link rel="shortcut icon" href="./assets/favicon.png">
 <link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#070b16">
+<meta name="theme-color" content="#051c17">
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -21,6 +21,7 @@
 
 
 <link rel="stylesheet" href="./style.css">
+<link rel="stylesheet" href="./home-premium.css?v=20261106-01">
 
 <style>
 /* Chat Público OLON */
@@ -152,134 +153,100 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
 </div>
 
 
-<section id="auth" class="auth authFullScreenPro">
-  <div class="authBgArt" aria-hidden="true">
-    <span class="authOrb authOrbA"></span>
-    <span class="authOrb authOrbB"></span>
-    <span class="authOrb authOrbC"></span>
-    <span class="authMesh"></span>
-    <span class="authBigText authBigTextA">OLON</span>
-    <span class="authBigText authBigTextB">01</span>
-    <span class="authBigText authBigTextC">OS</span>
-  </div>
-  <div class="authShell">
-    <div class="authHero">
-      <div>
-        <img class="authLogo" src="./assets/background.png" alt="OLON Society Academy">
 
-        <div class="authKicker">Bienvenido a</div>
-        <h1 class="authTitle">OLON Society<br><span>Academy</span></h1>
-        <p class="authText">Tu camino hacia la consistencia, disciplina y seguimiento profesional comienza aquí.</p>
-        <div class="authHeroPills">
-          <span>📱 Mobile App Look</span>
-          <span>🔐 Acceso Privado</span>
-          <span>📊 Reportes Pro</span>
+<section id="auth" class="auth authFullScreenPro homePremium">
+  <header class="homeTopbar">
+    <a class="homeBrand" href="#auth" aria-label="OLON Society Academy - Inicio">
+      <img src="./assets/favicon.png" alt="" width="43" height="43">
+      <span class="homeBrandName">OLON Society <span>Academy</span></span>
+    </a>
+    <nav class="homeNav" aria-label="Navegación principal">
+      <a href="#auth">Inicio</a>
+      <a href="#homeBenefits">Academia</a>
+      <a href="#homeCommunity">Comunidad</a>
+      <a href="#homeSupport">Soporte</a>
+      <button type="button" class="homeNavOutline" onclick="toggleAuth('signup');document.getElementById('homeAccess')?.scrollIntoView({behavior:'smooth',block:'center'})">Crear cuenta</button>
+    </nav>
+  </header>
+  <main class="homeMain">
+    <div class="authShell homeShell">
+      <div class="authHero homeHero">
+        <div class="homeEyebrow">OLON Society Academy</div>
+        <h1>Portal del <em>Estudiante</em></h1>
+        <h2>Acceso profesional para estudiantes</h2>
+        <p class="homeLead">Gestiona tu aprendizaje, sigue tu rendimiento, fortalece tu disciplina y mide tu progreso con las herramientas educativas de una comunidad enfocada en el crecimiento.</p>
+        <div class="homeTraits" aria-label="Ventajas de la academia">
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V8M10 20V13M16 20V4M22 20V10"/></svg> Rendimiento</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/> </svg> Disciplina</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-9M15 6h6v6"/></svg> Progreso</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg> Comunidad</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m2 10 10-7 10 7-10 7-10-7Z"/><path d="M6 13v6c4 3 8 3 12 0v-6M22 10v7"/></svg> Mentoría</span>
         </div>
-
-
-        <div class="authFeatures">
-          <div class="authFeature">
-            <div class="authFeatureIcon">📈</div>
-            <div><b>Sistema Profesional</b><small>Herramientas avanzadas para llevar tu trading al siguiente nivel.</small></div>
-          </div>
-          <div class="authFeature">
-            <div class="authFeatureIcon">👥</div>
-            <div><b>Comunidad Exclusiva</b><small>Conecta con estudiantes comprometidos y mantén tu progreso organizado.</small></div>
-          </div>
-          <div class="authFeature">
-            <div class="authFeatureIcon">🛡️</div>
-            <div><b>Enfoque Educativo</b><small>Seguimiento, análisis y mejora continua sin manejar dinero real.</small></div>
+        <div class="homeMarketVisual" aria-hidden="true">
+          <div class="homeMarketTop"><b>OLON · EDUCATION TERMINAL</b><span><i class="homeLiveDot"></i> Seguimiento educativo</span></div>
+          <svg class="homeChart" viewBox="0 0 600 165" preserveAspectRatio="none" role="img" aria-label="Gráfico ilustrativo de progreso">
+            <defs><linearGradient id="homeArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#54b693" stop-opacity=".28"/><stop offset="1" stop-color="#54b693" stop-opacity="0"/></linearGradient></defs>
+            <g stroke="#d8e9d6" stroke-opacity=".075"><path d="M0 35H600M0 70H600M0 105H600M0 140H600M60 0V165M160 0V165M260 0V165M360 0V165M460 0V165M560 0V165"/></g>
+            <path d="M0 139 L45 129 L78 138 L119 103 L154 111 L190 83 L224 93 L264 71 L299 84 L337 52 L374 65 L411 48 L447 60 L487 34 L520 41 L555 19 L600 27 V165 H0 Z" fill="url(#homeArea)"/>
+            <path d="M0 139 L45 129 L78 138 L119 103 L154 111 L190 83 L224 93 L264 71 L299 84 L337 52 L374 65 L411 48 L447 60 L487 34 L520 41 L555 19 L600 27" fill="none" stroke="#69cda3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M0 149L85 137L165 131L248 104L330 100L410 78L495 61L600 46" stroke="#d7b775" stroke-opacity=".7" stroke-width="1.8" stroke-dasharray="5 6" fill="none"/>
+            <circle cx="555" cy="19" r="4" fill="#d7b775"/>
+          </svg>
+          <div class="homeMarketFoot"><span>Control · Consistencia · Evolución</span><strong>DISCIPLINA ANTE TODO</strong></div>
+        </div>
+      </div>
+      <div class="authPanel authPanelGlass homeLoginCard" id="homeAccess">
+        <div class="homeCardMark"><img src="./assets/favicon.png" alt="" width="40" height="40"><span>OLON Society <em>Academy</em></span></div>
+        <div class="authPanelIntro"><span>Acceso privado · 2026</span><h2>Iniciar sesión</h2><p>Accede a tu portal y continúa tu progreso.</p></div>
+        <div class="tabs authSegmented">
+          <button id="tabLogin" type="button" class="active" onclick="toggleAuth('login')">Iniciar sesión</button>
+          <button id="tabSignup" type="button" onclick="toggleAuth('signup')">Crear cuenta</button>
+        </div>
+        <div id="loginForm" class="form active">
+          <div class="field"><label for="loginCode">Correo electrónico</label><input id="loginCode" type="email" placeholder="correo@ejemplo.com" autocomplete="email"></div>
+          <div class="field"><label for="loginPass">Contraseña</label><input id="loginPass" type="password" placeholder="Tu contraseña" autocomplete="current-password"></div>
+          <button id="loginSubmitBtn" class="btn full" type="button" onclick="login()">Entrar al portal →</button>
+          <div class="authHelp" id="homeSupport">¿Necesitas ayuda? <a href="mailto:infolonsocietyacademy@gmail.com?subject=Soporte%20Portal%20del%20Estudiante">Contactar soporte</a></div>
+          <div class="authLegal">
+            <div class="authLegalItem"><div class="authLegalIcon">🔒</div><div><b>Acceso privado</b><p>Tu cuenta está protegida mediante autenticación de Supabase.</p></div></div>
+            <div class="authLegalItem"><div class="authLegalIcon">🎓</div><div><b>Plataforma educativa</b><p>Herramientas de seguimiento y mentoría. No administramos inversiones ni dinero real.</p></div></div>
           </div>
         </div>
-
-        <div class="authStats">
-          <div class="authStat"><b id="authActiveStudents">0</b><small>Estudiantes<br>Activos</small></div>
-          <div class="authStat"><b id="authTradesRegistered">+0</b><small>Trades<br>Registrados</small></div>
-          <div class="authStat"><b id="authDisciplinePercent">0%</b><small>Enfoque en<br>Disciplina</small></div>
-        </div>
-
-        <div class="authQuote">
-          “La consistencia no es suerte, es disciplina con un sistema.”
-          <span>OLON SOCIETY ACADEMY</span>
+        <div id="signupForm" class="form">
+          <h2>Solicita tu acceso</h2><p>Crea tu cuenta. El administrador revisará la solicitud antes de activar tu portal.</p>
+          <div class="field"><label for="signupName">Nombre completo</label><input id="signupName" type="text" placeholder="Tu nombre y apellido" autocomplete="name"></div>
+          <div class="field"><label for="signupEmail">Correo electrónico</label><input id="signupEmail" type="email" placeholder="correo@ejemplo.com" autocomplete="email"></div>
+          <div class="field"><label for="signupEmailConfirm">Confirma tu correo</label><input id="signupEmailConfirm" type="email" placeholder="Repite tu correo" autocomplete="email"><div id="emailVerifyStatus" class="emailStatus neutral">Escribe y confirma tu email.</div><button type="button" class="btn secondary full verifyBtn" onclick="verifySignupEmail()">Verificar email</button></div>
+          <div class="field"><label for="signupPass">Contraseña</label><input id="signupPass" type="password" placeholder="Crea una contraseña" autocomplete="new-password"></div>
+          <div class="field"><label for="signupPlan">Plan VIP</label><select id="signupPlan" disabled><option value="VIP Regular">Pendiente de aprobación</option></select><small>El administrador asignará tu plan cuando apruebe la cuenta.</small></div>
+          <button id="signupSubmitBtn" class="btn full" type="button" onclick="signup()">Crear mi cuenta →</button>
+          <div class="authLegal"><div class="authLegalItem"><div class="authLegalIcon">🛡️</div><div><b>Acceso sujeto a aprobación</b><p>Tu cuenta permanecerá pendiente hasta que el administrador la active.</p></div></div></div>
         </div>
       </div>
     </div>
-
-    <div class="authPanel authPanelGlass">
-
-      <div class="authPanelIntro">
-        <span>Portal Privado</span>
-        <h2>Acceso profesional</h2>
-        <p>Entra, registra tu progreso y mantén tu academia organizada desde cualquier dispositivo.</p>
+    <section class="homeBelow" id="homeBenefits" aria-label="Beneficios del portal">
+      <div class="homeSectionHead"><div><div class="homeSectionLabel">Tu espacio de crecimiento</div><h2>Una academia. Más herramientas.</h2></div><p>Una experiencia integrada para estudiar, registrar resultados y mantener una disciplina consistente.</p></div>
+      <div class="homeFeatureGrid">
+        <article class="homeFeature"><div class="homeFeatureIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V8M10 20V13M16 20V4M22 20V10"/></svg></div><h3>Seguimiento de rendimiento</h3><p>Registra y analiza tus resultados para comprender tu evolución.</p></article>
+        <article class="homeFeature" id="homeCommunity"><div class="homeFeatureIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><h3>Comunidad VIP</h3><p>Comparte conocimientos y mantén contacto con tu comunidad educativa.</p></article>
+        <article class="homeFeature"><div class="homeFeatureIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m2 10 10-7 10 7-10 7-10-7Z"/><path d="M6 13v6c4 3 8 3 12 0v-6M22 10v7"/></svg></div><h3>Noticias y mentoría</h3><p>Consulta recursos, noticias y acompañamiento académico.</p></article>
+        <article class="homeFeature"><div class="homeFeatureIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg></div><h3>Control de acceso</h3><p>Solicitudes y permisos administrados de manera privada y segura.</p></article>
       </div>
-      <div class="tabs authSegmented">
-        <button id="tabLogin" class="active" onclick="toggleAuth('login')">🔐 Iniciar Sesión</button>
-        <button id="tabSignup" onclick="toggleAuth('signup')">👤 Crear Cuenta</button>
-      </div>
-
-      <div id="loginForm" class="form active">
-        
-        <div class="top3Container">
-          <div class="top3Title">🏆 Top 3 Estudiantes del Mes</div>
-          <div id="top3LoginList">
-            <div class="top3Empty">Cargando ranking desde Supabase...</div>
-          </div>
+      <div class="homeInfoGrid">
+        <div class="homeInfoPanel">
+          <h3>Academia en cifras</h3>
+          <p>Datos del portal actualizados directamente desde la plataforma cuando están disponibles.</p>
+          <div class="homeStatLine"><div><b id="authActiveStudents">0</b><small>Estudiantes registrados</small></div><div><b id="authTradesRegistered">+0</b><small>Registros de trading</small></div></div>
+          <span id="authDisciplinePercent" hidden>0%</span>
         </div>
-
-        <h2>¡Bienvenido de vuelta!</h2>
-        <p>Inicia sesión para continuar en tu portal.</p>
-        <div class="loginPremiumVerse">
-          <small>Versículo del día</small>
-          <p id="loginDailyVerse">Cargando versículo...</p>
-        </div>
-
-        <div class="field"><label>Correo electrónico</label><input id="loginCode" type="email" placeholder="Ej: correo@gmail.com" autocomplete="email"></div>
-        <div class="field"><label>Contraseña</label><input id="loginPass" type="password" placeholder="Tu contraseña de Supabase Auth" autocomplete="current-password"></div>
-        <button id="loginSubmitBtn" class="btn full" type="button" onclick="login()">Entrar al Portal →</button>
-
-        <div class="authLegal">
-          <div class="authLegalItem">
-            <div class="authLegalIcon">🔒</div>
-            <div><b>Tus datos están protegidos</b><p>Utilizamos tecnología segura para proteger tu información y mantener tu cuenta privada.</p></div>
-          </div>
-          <div class="authLegalItem">
-            <div class="authLegalIcon">⚠️</div>
-            <div><b>Esta plataforma no maneja dinero real</b><p>Este portal es únicamente educativo. No se manejan fondos reales ni inversiones directas.</p></div>
-          </div>
-        </div>
-        <div class="authHelp">¿Necesitas ayuda? <a href="mailto:infolonsocietyacademy@gmail.com?subject=Soporte%20OLON%20Society%20Academy&body=Hola,%20necesito%20ayuda%20con...">Contáctanos</a> · <a href="mailto:infolonsocietyacademy@gmail.com?subject=Soporte%20OLON%20Society%20Academy&body=Hola,%20necesito%20ayuda%20con...">Soporte</a></div>
-      </div>
-
-      <div id="signupForm" class="form">
-        <h2>Crea tu cuenta</h2>
-        <p>Regístrate para solicitar acceso al portal de estudiantes.</p>
-        <div class="field"><label>Nombre completo</label><input id="signupName" placeholder="Nombre del estudiante" autocomplete="name"></div>
-        <div class="field">
-          <label>Email</label>
-          <input id="signupEmail" type="email" placeholder="Ej: correo@gmail.com" autocomplete="email">
-        </div>
-        <div class="field">
-          <label>Confirmar Email</label>
-          <input id="signupEmailConfirm" type="email" placeholder="Confirma tu email" autocomplete="email">
-          <div id="emailVerifyStatus" class="emailStatus neutral">Escribe y confirma tu email.</div>
-          <button type="button" class="btn secondary full verifyBtn" onclick="verifySignupEmail()">Verificar Email</button>
-        </div>
-        <div class="field"><label>Password</label><input id="signupPass" type="password" placeholder="Crea tu password" autocomplete="new-password"></div>
-        <div class="field"><label>Plan VIP</label><select id="signupPlan" disabled><option value="VIP Regular">Pendiente de aprobación</option></select><small>El administrador asignará tu plan cuando apruebe la cuenta.</small></div>
-        <button id="signupSubmitBtn" class="btn full" type="button" onclick="signup()">Crear mi cuenta →</button>
-        <div class="authLegal">
-          <div class="authLegalItem">
-            <div class="authLegalIcon">🛡️</div>
-            <div><b>Cuenta pendiente de aprobación</b><p>Tu cuenta quedará pendiente hasta que el admin la apruebe.</p></div>
-          </div>
-          <div class="authLegalItem">
-            <div class="authLegalIcon">⚠️</div>
-            <div><b>Portal educativo</b><p>No se maneja dinero real, fondos de clientes ni inversiones directas dentro de esta plataforma.</p></div>
-          </div>
+        <div class="homeInfoPanel">
+          <div class="top3Container"><div class="top3Title">🏆 Top 3 estudiantes del mes</div><div id="top3LoginList"><div class="top3Empty">Cargando ranking desde Supabase...</div></div></div>
+          <p class="homeVerse" id="loginDailyVerse">Disciplina, enfoque y preparación para cada sesión.</p>
         </div>
       </div>
-    </div>
-  </div>
+      <footer class="homeFooter"><span>© 2026 OLON Society Academy. Todos los derechos reservados.</span><span>Formación • Disciplina • Comunidad</span></footer>
+    </section>
+  </main>
 </section>
 
 <section id="codeResult" class="auth hidden" style="display:none!important;">
