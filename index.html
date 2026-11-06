@@ -268,33 +268,41 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 
 <section id="portal" class="app hidden">
 
-  <aside id="sidebar" class="sidebar">
-    <div class="brand">
-      <img src="./assets/logo.png" alt="OLON Society Academy" style="width:70px;">
-      <div>
-        <h1>OLON Society</h1>
-        <span id="portalMode">Student Portal</span>
+  <aside id="sidebar" class="sidebar portalSidebar" aria-label="Menú principal">
+    <div class="portalSidebarTop">
+      <div class="brand portalBrand">
+        <img src="./assets/logo.png" alt="OLON Society Academy" width="49" height="49">
+        <div class="portalBrandText">
+          <h1>OLON <span>Society</span></h1>
+          <small id="portalMode">Student Portal</small>
+        </div>
+        <button type="button" class="portalSidebarClose" onclick="toggleMenu()" aria-label="Cerrar menú">×</button>
       </div>
+      <div class="portalSidebarEyebrow"><span class="portalLiveDot"></span> ÁREA PRIVADA <span class="portalEdition">2026</span></div>
     </div>
-
-    <div class="nav">
-      <button data-page="dashboard" class="active studentNav" onclick="showPage('dashboard',this)">📊 Dashboard</button>
-      <button data-page="registro" class="studentNav" onclick="showPage('registro',this)">➕ Registrar Día</button>
-      <button data-page="historial" class="studentNav" onclick="showPage('historial',this)">📅 Historial</button>
-      <button data-page="comparacion" class="studentNav" onclick="showPage('comparacion',this)">📈 Comparación Mensual</button>
-      <button data-page="publicChat" class="studentNav" onclick="showPage('publicChat',this)">🌍 Chat Público</button>
-      <button data-page="newsProPage" class="studentNav" onclick="showPage('newsProPage',this)">📰 Noticias</button>
-      <button data-page="noloAIPage" class="studentNav" onclick="showPage('noloAIPage',this)">🤖 Nolo IA</button>
-      <button data-page="entretenimiento" class="studentNav" onclick="showPage('entretenimiento',this)">🎁 Gira y Gana</button>
-      <button data-page="admin" class="adminNav hidden" onclick="showPage('admin',this)">👑 Administración</button>
-      <button data-page="adminChat" class="adminNav hidden" onclick="showPage('adminChat',this)">💬 Mensajes <span id="adminChatBadge" class="adminUnread" style="display:none">0</span></button>
-      <button onclick="logout()">🚪 Salir</button>
-    </div>
-
-    <div class="sideBox kingSideBox">
-      <small>👑 Estado del acceso</small>
-      <h3 id="accessStatus">VIP Premium Activo</h3>
-      <small>Mentoría privada · Portal seguro</small>
+    <nav class="nav portalNav" aria-label="Navegación del portal">
+      <div class="portalNavGroup studentNav">PANEL PERSONAL</div>
+      <button type="button" class="portalNavLink studentNav active" data-page="dashboard" onclick="showPage('dashboard',this)" aria-label="Resumen"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></span><span class="portalNavText">Resumen</span></button>
+      <button type="button" class="portalNavLink studentNav" data-page="registro" onclick="showPage('registro',this)" aria-label="Registrar día"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/><rect x="2.5" y="2.5" width="19" height="19" rx="4"/></svg></span><span class="portalNavText">Registrar día</span></button>
+      <button type="button" class="portalNavLink studentNav" data-page="historial" onclick="showPage('historial',this)" aria-label="Historial"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 14h3M8 17h7"/></svg></span><span class="portalNavText">Historial</span></button>
+      <button type="button" class="portalNavLink studentNav" data-page="comparacion" onclick="showPage('comparacion',this)" aria-label="Resultados"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V11M10 20V5M16 20v-8M22 20V3"/><path d="M2 20h20"/></svg></span><span class="portalNavText">Resultados</span></button>
+      <div class="portalNavGroup studentNav portalNavGroupSecondary">ACADEMIA Y COMUNIDAD</div>
+      <button type="button" class="portalNavLink studentNav" data-page="publicChat" onclick="showPage('publicChat',this)" aria-label="Comunidad"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5c0 4.7-3.9 8.5-8.7 8.5-1.5 0-3-.4-4.2-1l-5.1 2 1.6-4.9A8.1 8.1 0 0 1 3 11.5C3 6.8 7 3 12 3s9 3.8 9 8.5Z"/><path d="M8 11h8M8 14h5"/></svg></span><span class="portalNavText">Comunidad</span></button>
+      <button type="button" class="portalNavLink studentNav" data-page="newsProPage" onclick="showPage('newsProPage',this)" aria-label="Noticias"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10M7 11h4M13 11h4M7 15h10M7 18h7"/></svg></span><span class="portalNavText">Noticias</span></button>
+      <button type="button" class="portalNavLink studentNav" data-page="noloAIPage" onclick="showPage('noloAIPage',this)" aria-label="Nolo IA"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="6" width="14" height="14" rx="3"/><path d="M12 2v4M2 12h3M19 12h3M9 10v3M15 10v3M9 16h6"/></svg></span><span class="portalNavText">Nolo IA</span></button>
+      <button type="button" class="portalNavLink studentNav" data-page="entretenimiento" onclick="showPage('entretenimiento',this)" aria-label="Gira y gana"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 12h12M12 6v12"/><path d="m6 4 2 2M18 4l-2 2"/><rect x="2.5" y="3" width="19" height="18" rx="5"/></svg></span><span class="portalNavText">Gira y gana</span></button>
+      <div class="portalNavGroup adminNav hidden">ADMINISTRACIÓN</div>
+      <button type="button" class="portalNavLink adminNav hidden" data-page="admin" onclick="showPage('admin',this)" aria-label="Centro administrativo"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4M9 15h6M12 15v3"/></svg></span><span class="portalNavText">Centro administrativo</span></button>
+      <button type="button" class="portalNavLink adminNav hidden" data-page="adminChat" onclick="showPage('adminChat',this)" aria-label="Mensajes"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-5-1.5L3 21l1.5-4A9 9 0 1 1 21 12Z"/><path d="M8 12h8M8 15h5"/></svg></span><span class="portalNavText">Mensajes</span><span id="adminChatBadge" class="adminUnread portalNavUnread" style="display:none">0</span></button>
+    </nav>
+    <div class="portalSidebarBottom">
+      <div class="sideBox portalAccessCard">
+        <span class="portalAccessEyebrow"><span class="portalLiveDot"></span> ESTADO DE TU ACCESO</span>
+        <h3 id="accessStatus">Cuenta activa</h3>
+        <small>OLON Society Academy · Portal privado</small>
+      </div>
+      <button type="button" class="portalExitBtn" data-olon-logout onclick="logout()" aria-label="Cerrar sesión del portal"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5M17 16l4-4-4-4M21 12H9"/></svg></span><span>Salir del portal</span><span class="portalExitArrow">↗</span></button>
+      <p class="portalSidebarCopyright">© 2026 OLON Society Academy</p>
     </div>
   </aside>
 
@@ -302,18 +310,18 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
     <button id="mobileMenuToggle" class="mobileMenuToggle" type="button" onclick="toggleMenu()" aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false">
       <span id="mobileMenuIcon">☰</span>
     </button>
-    <div class="topbar">
-      <div>
+    <div class="topbar portalTopbar">
+      <div class="portalPageInfo">
+        <div class="portalTopBreadcrumb">OLON SOCIETY <span> / </span> PORTAL PRIVADO</div>
         <h2 id="pageTitle">OLON Command Center</h2>
         <p id="pageSubtitle">Control privado de rendimiento, disciplina, reportes y progreso del trader.</p>
       </div>
-      <div class="userPill">
-        <div class="avatar" id="avatarText">E</div>
-        <div>
-          <b id="studentName">Estudiante</b><br>
-          <small style="color:var(--muted)" id="userCodeText">Código: OLON-2026</small><br>
-          <span id="planBadge" class="planBadge">🔥 VIP REGULAR</span>
+      <div class="portalTopActions">
+        <div class="userPill portalUserPill">
+          <div class="avatar" id="avatarText">O</div>
+          <div><b id="studentName">Estudiante</b><small id="userCodeText">Código OLON</small><span id="planBadge" class="planBadge">VIP</span></div>
         </div>
+        <button id="portalLogoutTop" type="button" class="portalTopLogout" data-olon-logout onclick="logout()" aria-label="Salir del portal" title="Cerrar sesión"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5M17 16l4-4-4-4M21 12H9"/></svg><span>Salir</span></button>
       </div>
     </div>
 
@@ -452,10 +460,15 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
           <div class="aiList" id="aiAnalysisList"></div>
         </div>
 
-        <div class="card calendarCard">
-          <h3>Calendario del Mes</h3>
-          <p style="color:var(--muted);margin-top:8px;font-size:13px">🟢 positivo · 🔴 negativo · 🟡 break even</p>
-          <div class="calendarGrid" id="tradingCalendar"></div>
+        <div class="card calendarCard" aria-labelledby="tradingCalendarTitle">
+          <div class="portalCalendarHeader">
+            <div><span class="portalCalendarEyebrow">TU RENDIMIENTO DIARIO</span><h3 id="tradingCalendarTitle">Calendario de trading</h3><p id="calendarMonthLabel">Mes actual</p></div>
+            <div class="portalCalendarTotal"><small>RESULTADO DEL MES</small><strong id="calendarMonthNet">$0.00</strong></div>
+          </div>
+          <div class="portalCalendarLegend"><span><i class="calendarDot positive"></i> Ganancia</span><span><i class="calendarDot negative"></i> Pérdida</span><span><i class="calendarDot flat"></i> Break even</span></div>
+          <div class="calendarGrid" id="tradingCalendar" role="group" aria-label="Resultados diarios del mes"></div>
+          <div id="calendarDayDetail" class="calendarDayDetail" role="status" aria-live="polite" hidden></div>
+          <p class="portalCalendarHint">Selecciona un día con registros para ver sus ganancias y pérdidas.</p>
         </div>
       </div>
 
@@ -970,6 +983,7 @@ Entrada al grupo</textarea>
       <button type="button" onclick="mobileGo('noloAIPage', this)"><span>🤖</span><small>Nolo IA</small></button>
       <button type="button" onclick="mobileGo('entretenimiento', this)"><span>🎮</span><small>Gana</small></button>
       <button type="button" onclick="mobileOpenAccount(this)"><span>◉</span><small>Cuenta</small></button>
+      <button type="button" class="portalMobileLogoutBtn" data-olon-logout onclick="logout()" aria-label="Salir del portal"><span>↪</span><small>Salir</small></button>
     </nav>
 
     <footer class="portalFooter">
