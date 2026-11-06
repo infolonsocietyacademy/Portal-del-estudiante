@@ -1418,7 +1418,7 @@ function renderTradingCalendar(records){
 
 async function render(){
   if(!currentUser) return;
-  if(isAdminUser(currentUser)){ await renderUsers(); return; }
+  if(isAdminUser(currentUser)){ if(window.olonAdmin?.refresh) await window.olonAdmin.refresh(); return; }
   await fetchRecords();
   const records = cachedRecords, t = totals(records);
   document.getElementById("mDeposited").innerText = money(t.deposit);
@@ -3668,46 +3668,40 @@ setTimeout(function(){
   };
 
   window.olonSecureSignup = async function(){
-    if(authBusy) return;
-    const name = String($auth("signupName")?.value||"").trim();
-    const email = String($auth("signupEmail")?.value||"").trim().toLowerCase();
-    const confirm = String($auth("signupEmailConfirm")?.value||"").trim().toLowerCase();
-    const password = String($auth("signupPass")?.value||"");
-    const requestedPlan = String($auth("signupPlan")?.value||"VIP Regular");
-    if(!name || !email || !password){ alert("Completa nombre, correo y contraseña."); return; }
-    if(email !== confirm){ alert("Los correos electrónicos no coinciden."); return; }
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ alert("El correo no es válido."); return; }
-    if(password.length < 6){ alert("La contraseña debe tener al menos 6 caracteres (o más si Supabase lo exige)."); return; }
+    if(authBusy)return;
+    const name=String($auth("signupName")?.value||"").trim();
+    const email=String($auth("signupEmail")?.value||"").trim().toLowerCase();
+    const confirm=String($auth("signupEmailConfirm")?.value||"").trim().toLowerCase();
+    const website=String($auth("signupWebsite")?.value||"");
+    if(name.length<2 || name.length>120){alert("Escribe tu nombre completo.");return;}
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length>254){alert("Escribe un correo electrónico válido.");return;}
+    if(email!==confirm){alert("Los correos electrónicos no coinciden.");return;}
     setBusy(true);
     try{
-      // La base de datos asigna el rol student, el plan y el código; el cliente no decide privilegios.
-      const {data,error} = await supabaseClient.auth.signUp({
-        email,password,options:{
-          data:{full_name:name,requested_plan:requestedPlan},
-          emailRedirectTo: window.location.origin + window.location.pathname
-        }
+      // Una solicitud no es una cuenta de acceso. El administrador verificará
+      // la petición y generará credenciales temporales por un canal privado.
+      const response=await fetch(SUPABASE_URL+"/functions/v1/registration-gateway",{
+        method:"POST",
+        headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY},
+        body:JSON.stringify({action:"apply",name,email,website})
       });
-      if(error) throw error;
-      if(!data?.user) throw new Error("Supabase no devolvió un usuario válido.");
-      if(!data.session){
-        alert("Solicitud recibida. Revisa tu correo para confirmar la cuenta. Después, el administrador deberá aprobar tu acceso. Si el correo ya existía, usa el inicio de sesión o recuperación de contraseña.");
-        if(typeof toggleAuth === "function") toggleAuth("login");
-        return;
+      const result=await response.json().catch(()=>({}));
+      if(!response.ok)throw new Error(result.error||"No se pudo enviar la solicitud.");
+      const card=$auth("signupRequestResult");
+      if(card){
+        card.hidden=false;
+        card.textContent="✓ "+(result.message||"Solicitud recibida. Un administrador revisará tu acceso.");
       }
-      const profile = await profileForAuthenticatedUser(data.user);
-      await supabaseClient.auth.signOut();
-      if($auth("generatedCodeText")) $auth("generatedCodeText").textContent = profile.access_code || "OLON";
-      $auth("auth")?.classList.add("hidden");
-      $auth("codeResult")?.classList.remove("hidden");
-      alert("Cuenta creada. Guarda tu código de referencia. Espera la aprobación del administrador para entrar.");
+      const send=$auth("signupSubmitBtn");
+      if(send)send.textContent="✓ Solicitud recibida";
+      alert("Solicitud enviada a OLON Society Academy. El administrador la revisará y te comunicará los datos de acceso. Este proceso NO requiere un correo automático.");
     }catch(error){
-      alert(showAuthError(error,"No se pudo crear la cuenta."));
+      alert(showAuthError(error,"No se pudo enviar la solicitud."));
     }finally{
       setBusy(false);
       closeAuthLoader();
     }
   };
-
   // Anular todos los logins heredados y delegar al sistema seguro.
   window.login = window.olonSecureLogin;
   window.signup = window.olonSecureSignup;
