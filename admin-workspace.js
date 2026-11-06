@@ -124,7 +124,7 @@
     const search=norm($("adminSearch")?.value);
     const status=$("adminStatusFilter")?.value||"all";
     const plan=$("adminPlanFilter")?.value||"all";
-    return listUsers().filter(u=>{
+    return students().filter(u=>{
       if(status!=="all"&&norm(u.status)!==status)return false;
       if(plan!=="all"&&!norm(u.plan).includes(plan))return false;
       if(search&&!norm([u.full_name,u.email,u.access_code].join(" ")).includes(search))return false;
