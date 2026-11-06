@@ -1073,3 +1073,109 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto!important}
 }
+
+
+/* OLON PORTAL 2026 — unified professional navigation & P/L calendar */
+#portal .portalSidebar{background:linear-gradient(165deg,#102d29 0%,#143c34 58%,#0b2823 100%);border-right:1px solid rgba(229,215,167,.13);box-shadow:8px 0 30px rgba(9,33,26,.08);padding:23px 15px 19px;gap:0}
+#portal .portalSidebarTop{flex:0 0 auto}
+#portal .portalBrand{display:flex;align-items:center;gap:10px;margin:0 0 23px;padding:0 5px 20px;border-bottom:1px solid rgba(224,239,224,.13)}
+#portal .portalBrand img{width:49px;height:49px;object-fit:contain;flex:0 0 auto}
+#portal .portalBrandText{min-width:0;flex:1}
+#portal .portalBrandText h1{margin:0;color:#f6f8ef;font:850 18px/1.2 Manrope,Arial,sans-serif;letter-spacing:-.06em;white-space:nowrap}
+#portal .portalBrandText h1 span{color:#d9b977}
+#portal .portalBrandText small{display:block;margin-top:5px;color:#a7c2b5;font:700 10px/1.4 Manrope,Arial,sans-serif}
+#portal .portalSidebarEyebrow{display:flex;align-items:center;gap:8px;margin:0 12px 17px;color:#94b6a5;letter-spacing:.12em;font:800 9px Manrope,Arial,sans-serif}
+#portal .portalLiveDot{display:inline-block;width:7px;height:7px;flex:0 0 auto;border-radius:50%;background:#6bc99d;box-shadow:0 0 0 4px rgba(107,201,157,.1)}
+#portal .portalEdition{margin-left:auto;color:#d5bd87}
+#portal .portalNav{display:flex;flex-direction:column;gap:5px;align-items:stretch}
+#portal .portalNavGroup{margin:15px 12px 4px;color:#8baa9b;font:850 9px/1.3 Manrope,Arial,sans-serif;letter-spacing:.13em}
+#portal .portalNavGroupSecondary{margin-top:22px}
+#portal .portalNav .portalNavLink{display:flex;align-items:center;gap:12px;min-height:47px;width:100%;padding:10px 12px;border:1px solid transparent;border-radius:12px;background:transparent;color:#c4d6ca;text-align:left;font:750 12px/1.3 Manrope,Arial,sans-serif;transition:background .18s ease,transform .18s ease,border-color .18s ease}
+#portal .portalNav .portalNavLink:hover{background:rgba(255,255,255,.07);color:#fff;transform:translateX(2px)}
+#portal .portalNav .portalNavLink.active{background:linear-gradient(105deg,#e5f0e7,#f3f5e9);color:#1b5541;border-color:rgba(233,240,228,.8);box-shadow:0 5px 15px rgba(3,22,15,.11)}
+#portal .portalNavIcon{display:grid;place-items:center;flex:0 0 auto;width:21px;height:21px}
+#portal .portalNavIcon svg{width:19px;height:19px}
+#portal .portalNavText{flex:1}
+#portal .portalNavUnread{font-size:10px}
+#portal .portalSidebarBottom{margin-top:auto;padding-top:19px}
+#portal .portalAccessCard{margin:0 0 14px;border-radius:12px;padding:13px;background:rgba(230,244,232,.065);border:1px solid rgba(234,244,233,.13)}
+#portal .portalAccessEyebrow{display:flex;align-items:center;gap:8px;color:#a7c6b5;font:800 9px/1.4 Manrope,Arial,sans-serif;letter-spacing:.07em}
+#portal .portalAccessCard h3{margin:8px 0 5px;color:#f4f8ed;font:800 13px Manrope,Arial,sans-serif}
+#portal .portalAccessCard small{font-size:9px;color:#93b5a5}
+#portal .portalExitBtn{display:flex;align-items:center;gap:12px;width:100%;min-height:45px;padding:11px 12px;border:1px solid rgba(248,184,168,.17);border-radius:11px;background:rgba(255,238,232,.055);color:#f2c6b9;text-align:left;font:800 12px Manrope,Arial,sans-serif;cursor:pointer;touch-action:manipulation}
+#portal .portalExitBtn:hover{background:rgba(249,165,149,.14)}
+#portal .portalExitBtn .portalExitArrow{margin-left:auto;font-size:15px}
+#portal .portalSidebarCopyright{margin:16px 4px 0;text-align:center;color:#829d90;font-size:9px}
+#portal .portalSidebarClose{display:none}
+#portal .portalTopbar{min-height:91px;gap:18px;background:rgba(248,250,247,.96);border-bottom:1px solid #dfeae0;backdrop-filter:blur(16px)}
+#portal .portalTopBreadcrumb{font:850 9px Manrope,Arial,sans-serif;letter-spacing:.13em;color:#6b9580;margin-bottom:7px}
+#portal .portalTopBreadcrumb span{color:#b3bcb2;margin:0 5px}
+#portal .portalTopActions{display:flex;align-items:center;gap:11px}
+#portal .portalUserPill{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #e1e9e1;border-radius:13px;padding:8px 12px;box-shadow:0 3px 15px rgba(20,58,37,.035)}
+#portal .portalUserPill b{font-size:12px}
+#portal .portalUserPill small{display:block;font-size:9px;color:#839688;margin-top:3px}
+#portal .portalUserPill .planBadge{display:inline-block;margin-top:5px;font-size:9px}
+#portal .portalTopLogout{display:flex;align-items:center;justify-content:center;gap:7px;padding:10px 12px;min-height:42px;border:1px solid #e6d7d2;border-radius:11px;background:#fff8f6;color:#a34f45;font:800 11px Manrope,Arial,sans-serif;cursor:pointer;touch-action:manipulation}
+#portal .portalTopLogout svg{width:17px;height:17px}
+#portal [data-olon-logout]:disabled{opacity:.55;cursor:wait}
+#portal .calendarCard{border:1px solid #e1eae2;border-radius:17px;padding:22px;box-shadow:0 8px 25px rgba(22,65,44,.035)}
+#portal .portalCalendarHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+#portal .portalCalendarEyebrow{font:850 9px Manrope,Arial,sans-serif;color:#609377;letter-spacing:.12em}
+#portal .portalCalendarHeader h3{margin:6px 0 5px;color:#1c3b2c;font:850 20px/1.2 Manrope,Arial,sans-serif}
+#portal #calendarMonthLabel{margin:0;text-transform:capitalize;font-size:12px;color:#779084}
+#portal .portalCalendarTotal{min-width:130px;border-radius:12px;background:#edf6ef;padding:12px;text-align:right}
+#portal .portalCalendarTotal small{display:block;font-size:9px;letter-spacing:.08em;color:#6e907c}
+#portal .portalCalendarTotal strong{display:block;margin-top:4px;font:850 17px Manrope,Arial,sans-serif;color:#255c42}
+#portal .portalCalendarTotal strong.negative{color:#ba5148}
+#portal .portalCalendarLegend{display:flex;flex-wrap:wrap;gap:14px;margin:18px 0 13px;color:#668071;font-size:10px;font-weight:750}
+#portal .portalCalendarLegend span{display:flex;align-items:center;gap:6px}
+#portal .calendarDot{width:8px;height:8px;border-radius:50%;display:inline-block}
+#portal .calendarDot.positive{background:#51aa77}#portal .calendarDot.negative{background:#d77a6b}#portal .calendarDot.flat{background:#cfa755}
+#portal .calendarGrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;margin:0}
+#portal .calendarWeekday{text-align:center;font:850 10px Manrope,Arial,sans-serif;color:#839789;padding:6px 0 8px}
+#portal .calDay{min-width:0;min-height:66px;padding:9px 3px 7px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:5px;background:#f4f7f3;border:1px solid #e6eee7;color:#668273;font:800 12px Manrope,Arial,sans-serif}
+#portal .calDay.empty{visibility:hidden;border:0}
+#portal button.calDay{cursor:pointer;touch-action:manipulation}
+#portal button.calDay:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(20,64,41,.09)}
+#portal .calDay.goodDay{background:#e3f4e8;border-color:#b8ddc6;color:#276e4a}
+#portal .calDay.badDay{background:#fbe8e5;border-color:#f0c8c2;color:#aa453d}
+#portal .calDay.flatDay{background:#fcf3df;border-color:#ebd6a4;color:#936b28}
+#portal .calDay.isToday{outline:2px solid #9ebcac;outline-offset:1px}
+#portal .calDay.selected{outline:2px solid #347a5b;outline-offset:1px}
+#portal .calendarDate{font-size:12px;line-height:1.2}
+#portal .calendarAmount{font-size:clamp(8px,.8vw,11px);font-weight:900;letter-spacing:-.03em;line-height:1.1;white-space:nowrap}
+#portal .calendarDayDetail{margin-top:13px;border-radius:10px;padding:12px 14px;background:#eef6ee;color:#315e46;font:750 11px/1.6 Manrope,Arial,sans-serif}
+#portal .calendarDayDetail[hidden]{display:none}
+#portal .portalCalendarHint{font-size:10px;color:#80978a;margin:13px 0 0}
+@media(max-width:980px){
+ #portal .portalSidebar{padding:20px 14px calc(24px + env(safe-area-inset-bottom,0px));box-shadow:20px 0 45px rgba(3,22,15,.28)}
+ #portal .portalSidebarClose{display:grid;place-items:center;width:32px;height:32px;border:1px solid rgba(255,255,255,.2);border-radius:9px;background:rgba(255,255,255,.08);color:#fff;font-size:25px;cursor:pointer;flex:0 0 auto}
+ #portal .portalTopbar{padding-left:68px;gap:8px}
+ #portal .portalTopActions{gap:6px}
+ #portal .portalTopLogout{min-width:42px;padding:10px}
+ #portal .portalTopLogout span{display:none}
+ #portal .portalNav .portalNavLink{min-height:48px}
+ #portal .portalSidebarBottom{margin-top:24px}
+ #portal .portalMobileLogoutBtn{color:#f3c4b4!important}
+}
+@media(max-width:650px){
+ #portal .portalTopbar{padding-left:68px!important;padding-right:12px!important}
+ #portal .portalTopBreadcrumb{font-size:8px;white-space:nowrap}
+ #portal .portalPageInfo{min-width:0;flex:1}
+ #portal .portalTopbar h2{font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ #portal .portalUserPill{max-width:110px;padding:5px;border-radius:10px}
+ #portal .portalUserPill .avatar{width:30px;height:30px;flex:0 0 auto}
+ #portal .portalUserPill b{max-width:55px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px}
+ #portal .portalUserPill small,#portal .portalUserPill .planBadge{display:none}
+ #portal .portalTopLogout{padding:9px;min-width:38px;min-height:38px}
+ #portal .calendarCard{padding:13px 10px}
+ #portal .portalCalendarHeader h3{font-size:17px}
+ #portal .portalCalendarTotal{min-width:107px;padding:9px}
+ #portal .portalCalendarTotal strong{font-size:14px}
+ #portal .portalCalendarLegend{gap:9px;font-size:9px}
+ #portal .calendarGrid{gap:3px}
+ #portal .calDay{min-height:55px;border-radius:7px;padding:7px 1px 5px}
+ #portal .calendarDate{font-size:11px}
+ #portal .calendarAmount{font-size:clamp(7px,2.1vw,10px)}
+ #portal .calendarWeekday{font-size:9px}
+}
