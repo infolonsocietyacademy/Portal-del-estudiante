@@ -290,10 +290,8 @@ html,body{max-width:100%!important;overflow-x:hidden!important}
       <button data-page="newsProPage" class="studentNav" onclick="showPage('newsProPage',this)">📰 Noticias</button>
       <button data-page="noloAIPage" class="studentNav" onclick="showPage('noloAIPage',this)">🤖 Nolo IA</button>
       <button data-page="entretenimiento" class="studentNav" onclick="showPage('entretenimiento',this)">🎁 Gira y Gana</button>
-      <button data-page="admin" class="adminNav hidden" onclick="showPage('admin',this)">👑 Command Center</button>
-      <button data-page="admin" class="adminNav hidden" onclick="showPage('admin',this); setTimeout(()=>document.getElementById('adminStudentsBlock')?.scrollIntoView({behavior:'smooth'}),120)">👥 Estudiantes</button>
-      <button data-page="admin" class="adminNav hidden" onclick="showPage('admin',this); setTimeout(()=>document.getElementById('adminNoloUsageBlock')?.scrollIntoView({behavior:'smooth'}),120)">🤖 Consumo IA</button>
-      <button data-page="adminChat" class="adminNav hidden" onclick="showPage('adminChat',this)">👑 Chat Live <span id="adminChatBadge" class="adminUnread" style="display:none">0</span></button>
+      <button data-page="admin" class="adminNav hidden" onclick="showPage('admin',this)">👑 Administración</button>
+      <button data-page="adminChat" class="adminNav hidden" onclick="showPage('adminChat',this)">💬 Mensajes <span id="adminChatBadge" class="adminUnread" style="display:none">0</span></button>
       <button onclick="logout()">🚪 Salir</button>
     </div>
 
@@ -973,8 +971,8 @@ Entrada al grupo</textarea>
 </section>
 
 
-<script src="./script.js?v=20261106-admin-workspace-1" defer></script>
-<script src="./admin-workspace.js?v=20261106-02" defer></script>
+<script src="./script.js?v=20261106-admin-clean-2" defer></script>
+<script src="./admin-workspace.js?v=20261106-clean-2" defer></script>
 
 <script>
 /* FIX FUERTE: La pantalla de código NO se muestra al cargar.
