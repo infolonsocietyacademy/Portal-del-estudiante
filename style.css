@@ -1179,3 +1179,39 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
  #portal .calendarAmount{font-size:clamp(7px,2.1vw,10px)}
  #portal .calendarWeekday{font-size:9px}
 }
+
+
+/* HOTFIX: iOS Safari menu must receive taps above the dimming layer. */
+@media(max-width:980px){
+ body.menu-open::after{display:none!important;content:none!important;pointer-events:none!important}
+ #portal.app:not(.hidden){isolation:isolate}
+ #portal.app > #sidebar.portalSidebar,
+ #portal.app.admin-mode > #sidebar.portalSidebar{
+   position:fixed!important;z-index:2147483000!important;
+   pointer-events:auto!important;touch-action:pan-y!important;
+   -webkit-overflow-scrolling:touch!important;
+   overflow-x:hidden!important;overflow-y:auto!important;
+ }
+ #portal.app > #sidebar.portalSidebar.open,
+ #portal.app.admin-mode > #sidebar.portalSidebar.open{
+   left:0!important;visibility:visible!important;
+ }
+ #portal.app > #sidebar.portalSidebar .portalNav,
+ #portal.app > #sidebar.portalSidebar .portalNavLink,
+ #portal.app > #sidebar.portalSidebar .portalSidebarClose,
+ #portal.app > #sidebar.portalSidebar .portalExitBtn{
+   pointer-events:auto!important;touch-action:manipulation!important;
+ }
+ #portal.app > #sidebar.portalSidebar .portalNavLink{position:relative;z-index:1}
+ #portal.app > #sidebar.portalSidebar .portalSidebarBottom{flex-shrink:0}
+ #portal.app > .portalMenuBackdrop{
+   position:fixed!important;inset:0!important;
+   z-index:2147482990!important;
+   display:none;background:rgba(0,18,13,.56);
+   border:0;padding:0;margin:0;cursor:pointer;
+   -webkit-tap-highlight-color:transparent;
+ }
+ body.menu-open #portal.app:not(.hidden) > .portalMenuBackdrop{display:block!important}
+ #portal.app > main.main{z-index:1!important}
+}
+@media(min-width:981px){#portal.app > .portalMenuBackdrop{display:none!important}}
