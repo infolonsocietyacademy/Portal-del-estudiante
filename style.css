@@ -539,3 +539,178 @@ body.olonRecoveryPage{margin:0;min-height:100vh;min-height:100svh;background:rad
 .olonRecoveryPage .recoveryFallback p{color:#c4d2c6;font-size:12px;line-height:1.7;margin:12px 0}
 .olonRecoveryPage .recoveryFallback textarea{display:block;width:100%;border-radius:9px;background:rgba(221,239,223,.06);border:1px solid rgba(205,224,205,.28);color:#f7fff4;min-height:84px;padding:12px;font-size:12px;font-family:inherit;resize:vertical;overflow-wrap:anywhere}
 .olonRecoveryPage .recoveryFallback textarea:focus{outline:2px solid rgba(218,189,130,.65);outline-offset:2px}
+
+/* OLON Society Academy — ADMIN WORKSPACE 2026 */
+#admin.adminProPage{--aw-ink:#173b2e;--aw-muted:#71877c;--aw-line:#e4eae4;--aw-gold:#ba9253;--aw-green:#1d5b43;--aw-soft:#f7faf7;--aw-card:#ffffff;max-width:1600px;margin:0 auto;color:var(--aw-ink)}
+#admin.adminProPage *,#admin.adminProPage *::before,#admin.adminProPage *::after{box-sizing:border-box}
+#admin.adminProPage button{font-family:inherit}
+#admin .adminWorkspaceHero{border-radius:20px;background:linear-gradient(120deg,#0d3426,#133e30 69%,#1d5140);color:#eaf5eb;padding:clamp(24px,3.2vw,43px);position:relative;overflow:hidden;border:1px solid #1b4d3a;box-shadow:0 12px 40px rgba(24,59,39,.10)}
+#admin .adminWorkspaceHero::after{content:"";position:absolute;width:370px;height:370px;top:-195px;right:-90px;border:1px solid rgba(227,204,141,.19);border-radius:50%;box-shadow:0 0 0 55px rgba(227,204,141,.035),0 0 0 110px rgba(227,204,141,.02);pointer-events:none}
+#admin .adminWorkspaceIdentity{display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.2em;color:#c0d9c8;font-size:9px;font-weight:800}
+#admin .adminLiveDot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#9fd6ad;box-shadow:0 0 0 4px rgba(159,214,173,.14)}
+#admin .adminIdentityDivider{color:#cba665;margin:0 4px}
+#admin .adminWorkspaceHeroMain{display:flex;align-items:end;justify-content:space-between;gap:26px;margin-top:22px;position:relative;z-index:1}
+#admin .adminWorkspaceHeroMain h3{font:600 clamp(28px,3.1vw,42px)/1.15 Georgia,'Times New Roman',serif;letter-spacing:-.045em;margin:0 0 10px;color:#f7f5ed}
+#admin .adminWorkspaceAccent{color:#ddbd84}
+#admin .adminWorkspaceHeroMain p{max-width:540px;font-size:12px;line-height:1.8;margin:0;color:#aec9b7}
+#admin .adminWorkspaceMainActions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+#admin .adminBtn{min-height:42px;border-radius:10px;padding:10px 16px;font-size:11px;font-weight:800;line-height:1.25;cursor:pointer;white-space:nowrap;transition:background .18s ease,transform .18s ease}
+#admin .adminBtn:hover:not(:disabled){transform:translateY(-1px)}
+#admin .adminBtn:disabled{opacity:.5;cursor:not-allowed}
+#admin .adminBtnOutline{color:#e9ebdd;background:rgba(255,255,255,.075);border:1px solid rgba(231,242,221,.28)}
+#admin .adminBtnGold{color:#193626;background:linear-gradient(115deg,#f0d4a0,#d9b979);border:1px solid #d1b173}
+#admin .adminBtnGold span{display:inline-grid;place-items:center;margin-left:6px;background:rgba(30,60,39,.12);min-width:21px;height:21px;border-radius:7px;font-size:10px}
+#admin .adminWorkspaceActivity{position:relative;z-index:1;margin-top:30px;padding-top:17px;border-top:1px solid rgba(241,245,223,.17);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;color:#b7d0bd;font-size:10px;font-weight:650}
+#admin .adminConnectionState{color:#b3e0bc}
+#admin .adminConnectionState.failure{color:#ffd3b8}
+#admin .adminWorkspaceNav{display:flex;align-items:center;gap:7px;margin:17px 0 28px;padding:7px;background:#eaf1eb;border:1px solid #e0eae1;border-radius:13px;overflow-x:auto;scrollbar-width:thin}
+#admin .adminWorkspaceNav button{flex:none;white-space:nowrap;padding:10px 15px;border:0;border-radius:9px;background:transparent;font-size:11px;font-weight:750;color:#47695a;cursor:pointer}
+#admin .adminWorkspaceNav button:hover{color:#184e37;background:#fff}
+#admin .adminWorkspaceNav button span{font-size:10px;background:#d7e6da;border-radius:5px;padding:2px 5px;margin-left:4px}
+#admin .adminSectionIntro{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:0 0 15px}
+#admin .adminSectionEyebrow{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.19em;font-weight:850;color:#b08b52;margin-bottom:8px}
+#admin .adminSectionIntro h4,#admin .adminWorkspaceCardHead h4{font:700 21px/1.2 Manrope,Inter,sans-serif;letter-spacing:-.035em;margin:0;color:#193e31}
+#admin .adminSectionIntro p{color:#8a9c90;font-size:11px;max-width:330px;margin:0 0 3px;line-height:1.6}
+#admin .adminWorkspaceMetrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:0 0 24px}
+#admin .adminWorkspaceMetrics .adminMetric{position:relative;min-width:0;min-height:145px;text-align:left;background:var(--aw-card);border:1px solid #e1e9e2;border-radius:15px;box-shadow:0 4px 16px rgba(31,70,44,.035);padding:20px 22px;display:flex;flex-direction:column;align-items:flex-start;gap:0}
+#admin .adminWorkspaceMetrics .adminMetricBtn{cursor:pointer;transition:border-color .2s,transform .2s,box-shadow .2s}
+#admin .adminWorkspaceMetrics .adminMetricBtn:hover{transform:translateY(-2px);border-color:#bbd2bf;box-shadow:0 10px 22px rgba(21,56,38,.07)}
+#admin .adminWorkspaceMetrics .adminMetric .adminMetricIcon{display:grid;place-items:center;position:absolute;top:16px;right:17px;width:32px;height:32px;border-radius:9px;background:#e9f2e9;color:#3e7961;font-size:16px;font-weight:800}
+#admin .adminWorkspaceMetrics .adminMetric small{color:#7a9080;font-size:10px;font-weight:750;letter-spacing:.01em}
+#admin .adminWorkspaceMetrics .adminMetric b{font:800 34px/1.1 Manrope,Inter,sans-serif;margin:15px 0 6px;color:#1a4734;letter-spacing:-.05em}
+#admin .adminWorkspaceMetrics .adminMetric>span:last-child{font-size:10px;color:#8e9f95}
+#admin .adminWorkspaceMetrics .adminMetricPending{border-color:#e4d4b9;background:linear-gradient(145deg,#fffefa,#fffaf1)}
+#admin .adminWorkspaceMetrics .adminMetricPending .adminMetricIcon{background:#f6ebd9;color:#b2874a}
+#admin .adminWorkspacePanels{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:16px;margin-bottom:24px}
+#admin .adminWorkspaceCard{background:#fff;border:1px solid #e2eae3;border-radius:17px;box-shadow:0 3px 18px rgba(31,65,42,.034);min-width:0}
+#admin .adminWorkspaceCardHead{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:23px 23px 18px;border-bottom:1px solid #edf1ed}
+#admin .adminWorkspaceCardHead h4{font-size:17px}
+#admin .adminWorkspaceCardHead p{font-size:11px;color:#8a9b91;margin:7px 0 0;line-height:1.55}
+#admin .adminHeadIndicator{font-size:9px;font-weight:800;letter-spacing:.12em;color:#698c76;background:#eff5ef;padding:8px 10px;border-radius:7px}
+#admin .adminWorkspaceCard .adminAlertList,#admin .adminWorkspaceCard .adminNoloUsageList{padding:12px 17px 17px;min-height:120px}
+#admin .adminAlertItem{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 11px;border-radius:9px;color:#4e6356;font-size:11px;line-height:1.5;background:#f7faf7;margin:6px 0;border:1px solid #eaf0eb}
+#admin .adminAlertItem.warn{background:#fffaf0;border-color:#f1e2c5;color:#75572a}
+#admin .adminAlertItem.bad{background:#fff3f0;border-color:#f1d3cd;color:#934b3e}
+#admin .adminAlertItem.good{background:#f1f8f2;border-color:#dcece1;color:#356f4f}
+#admin .adminSmallButton{border:1px solid #ccdcd0;background:#fff;color:#285d44;padding:8px 11px;border-radius:8px;font-size:10px;line-height:1.15;font-weight:800;cursor:pointer;white-space:nowrap}
+#admin .adminSmallButton:hover{border-color:#5f9779;background:#f3f8f3}
+#admin .adminSmallButton.approve{background:#24704e;color:#fff;border-color:#24704e}
+#admin .adminIconAction{border:1px solid #dce8dd;color:#4b765b;background:#f9fbf8;border-radius:8px;width:34px;height:34px;cursor:pointer;font-size:20px}
+#admin .adminAiTopline{display:flex;align-items:baseline;gap:12px;padding:18px 24px 0}
+#admin .adminAiTopline strong{font:800 30px Manrope,sans-serif;color:#1b5138}
+#admin .adminAiTopline span{font-size:11px;color:#8b9b92}
+#admin .adminAiMember{display:flex;justify-content:space-between;gap:10px;margin-top:6px;padding:11px 5px;border-bottom:1px solid #eef3ed;font-size:11px}
+#admin .adminAiMember strong{color:#2d6a4f}
+#admin .adminAiEmpty{color:#94a89b;font-size:11px;margin:15px 6px}
+#admin .adminWorkspaceDirectory{overflow:hidden}
+#admin .adminDirectoryHeadRight{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#admin .adminCountPill{background:#eaf3eb;color:#386b4d;border:1px solid #d9e9db;border-radius:9px;font-size:11px;font-weight:800;padding:9px 12px;white-space:nowrap}
+#admin .adminDirectoryControls{padding:16px 22px 17px;background:#fcfdfc;border-bottom:1px solid #e9eee8}
+#admin .adminQuickFilters{display:flex;align-items:center;gap:6px;overflow:auto;white-space:nowrap;margin-bottom:16px;padding-bottom:2px}
+#admin .adminQuickFilters button{border:1px solid transparent;background:transparent;padding:9px 13px;border-radius:9px;font-size:10px;color:#788e80;font-weight:800;cursor:pointer}
+#admin .adminQuickFilters button:hover{background:#f2f7f1;color:#2e684c}
+#admin .adminQuickFilters button.active{border-color:#d2e6d3;background:#e9f3ea;color:#256344}
+#admin .adminGodTools{display:grid;grid-template-columns:minmax(190px,1.55fr) minmax(110px,1fr) minmax(110px,1fr);gap:10px;align-items:end}
+#admin .adminGodTools>label{display:block;min-width:0;font-size:10px;color:#769081;font-weight:750}
+#admin .adminGodTools>label>span{display:block;margin:0 0 7px}
+#admin .adminSearch,#admin .adminSelect{width:100%;min-width:0;min-height:41px;background:#fff;border:1px solid #dce7df;border-radius:9px;padding:10px 12px;color:#2d5040;font-size:11px;outline:none}
+#admin .adminSearch:focus,#admin .adminSelect:focus,#admin .adminInlineSelect:focus,#admin .adminDateInput:focus{border-color:#8fb99b;outline:2px solid rgba(114,169,127,.12);outline-offset:1px}
+#admin .adminDirectoryTable{border:0;border-radius:0;margin:0;max-width:100%;overflow:auto}
+#admin .adminDirectoryTable table{min-width:940px;table-layout:auto}
+#admin .adminDirectoryTable th{background:#f6f9f6;color:#819285;font-size:9px;letter-spacing:.08em;font-weight:850;padding:14px 16px}
+#admin .adminDirectoryTable td{background:#fff;font-size:11px;padding:14px 16px;vertical-align:middle;border-color:#edf1ed}
+#admin .adminDirectoryTable tr:hover td{background:#fbfdfb}
+#admin .adminDirectoryTable .adminStudent{display:flex;align-items:center;gap:10px;min-width:150px}
+#admin .adminAvatar{height:37px;width:37px;border:1px solid #d9e9dc;border-radius:11px;background:#eaf4eb;display:grid;place-items:center;color:#377459;font-weight:800;flex:none;font-size:11px}
+#admin .adminDirectoryTable .adminStudent b{font-weight:850;font-size:11px;color:#284b3a;display:block}
+#admin .adminDirectoryTable .adminStudent small{font-size:10px;color:#95a59a;display:block;margin-top:3px;white-space:normal;overflow-wrap:anywhere;max-width:190px}
+#admin .adminCode{color:#718b79;font-size:10px;border:1px solid #e9eee8;background:#f7faf7;padding:6px 8px;border-radius:7px}
+#admin .adminInlineSelect{min-width:108px;max-width:145px;border-radius:8px;border:1px solid #dce7df;background:#f8fbf8;color:#37664e;font-size:10px;padding:9px 8px;cursor:pointer}
+#admin .adminPaymentCell{display:flex;align-items:center;gap:5px;min-width:155px}
+#admin .adminDateInput{width:122px;max-width:100%;min-height:35px;border:1px solid #dce7df;border-radius:8px;color:#416a50;font-size:10px;background:#fff;padding:6px 5px}
+#admin .adminDateSave{border:1px solid #d5e6d9;background:#ecf6ee;color:#326c4c;border-radius:7px;padding:9px 7px;font-size:9px;font-weight:800;cursor:pointer}
+#admin .adminRowActions{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+#admin .adminRoleProtected{background:#e9f4ed;color:#447257;border:1px solid #d9eade;padding:8px 9px;border-radius:8px;font-size:10px;font-weight:750}
+#admin .adminRisk{font-size:10px;font-weight:750;padding:7px 9px;border-radius:8px;white-space:nowrap}
+#admin .adminRisk.good{background:#edf7ee;color:#327451}
+#admin .adminRisk.warn{background:#fff4e2;color:#9c6d35}
+#admin .adminRisk.bad{background:#ffedeb;color:#a64745}
+#admin .adminRisk.neutral{background:#f4f6f4;color:#859489}
+#admin .adminDirectoryFooter{padding:14px 22px;color:#8b9d90;background:#fafcfa;font-size:10px;line-height:1.6;border-top:1px solid #ecf1eb}
+#admin .adminActionFeedback{margin:16px 22px;padding:12px 16px;border-radius:9px;font-size:11px;line-height:1.6}
+#admin .adminActionFeedback.success{background:#eff9f2;color:#286c4a;border:1px solid #cce7d6}
+#admin .adminActionFeedback.error{background:#fff0ef;color:#913e35;border:1px solid #f0cfcd}
+#admin .adminEmptyTable{text-align:center;padding:27px!important;font-size:11px;color:#90a392;background:#fbfcfb}
+#admin .adminMobileCards{display:none}
+#admin .adminStudentMobile{border:1px solid #e3ebe4;border-radius:13px;background:#fff;padding:16px;margin-bottom:11px}
+#admin .adminStudentMobileTop{display:flex;align-items:center;gap:10px;min-width:0}
+#admin .adminStudentMobileTop>div{flex:1;min-width:0}
+#admin .adminStudentMobileTop b{display:block;font-size:12px;color:#274834}
+#admin .adminStudentMobileTop small{display:block;color:#87998e;font-size:10px;overflow-wrap:anywhere;margin-top:3px}
+#admin .adminStudentMobileData{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0}
+#admin .adminStudentMobileData span{background:#f6f9f6;border-radius:8px;padding:10px;color:#91a195;font-size:9px}
+#admin .adminStudentMobileData strong{display:block;color:#3b6e53;font-size:11px;margin-top:5px;overflow-wrap:anywhere}
+#admin .adminStudentMobileFields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#admin .adminStudentMobileFields label,#admin .adminStudentMobilePayment label{display:block;font-size:10px;font-weight:750;color:#728879}
+#admin .adminStudentMobileFields select{display:block;width:100%;max-width:100%;margin-top:5px}
+#admin .adminStudentMobilePayment{display:flex;align-items:end;gap:12px;margin:13px 0}
+#admin .adminStudentMobilePayment label{flex:1;min-width:0}
+#admin .adminStudentMobilePayment input{display:block;margin-top:6px;width:100%}
+#admin .adminStudentMobileActions{margin-top:13px}
+#adminChat .adminChatLayout{grid-template-columns:minmax(220px,.34fr) minmax(0,.66fr);gap:15px}
+#adminChat .adminChatBox{border:1px solid #dce8df;border-radius:12px}
+#adminChat .adminChatList{max-height:580px}
+#adminChat .adminChatUser{border-radius:9px}
+body.atlas-dark #admin.adminProPage{--aw-ink:#edf5ee;--aw-muted:#b5c6b9;--aw-line:#384e41;--aw-card:#172d23}
+body.atlas-dark #admin .adminWorkspaceNav{background:#1a3427;border-color:#304d39}
+body.atlas-dark #admin .adminWorkspaceNav button{color:#c8d9c9}
+body.atlas-dark #admin .adminWorkspaceNav button:hover{background:#264633;color:#fff}
+body.atlas-dark #admin .adminWorkspaceMetrics .adminMetric,body.atlas-dark #admin .adminWorkspaceCard,body.atlas-dark #admin .adminStudentMobile,body.atlas-dark #admin .adminDirectoryTable td{background:#1c2d25;border-color:#3a5140;color:#ecf4e9}
+body.atlas-dark #admin .adminSectionIntro h4,body.atlas-dark #admin .adminWorkspaceCardHead h4,body.atlas-dark #admin .adminWorkspaceMetrics .adminMetric b,body.atlas-dark #admin .adminDirectoryTable .adminStudent b{color:#ecf6ee}
+body.atlas-dark #admin .adminDirectoryControls,body.atlas-dark #admin .adminDirectoryFooter{background:#1b2b23}
+body.atlas-dark #admin .adminDirectoryTable th{background:#263a2d;color:#c0d3c4}
+body.atlas-dark #admin .adminSearch,body.atlas-dark #admin .adminSelect,body.atlas-dark #admin .adminInlineSelect,body.atlas-dark #admin .adminDateInput{background:#233d2e;color:#e1eee5;border-color:#43604d}
+body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-color:#3a5140}
+@media(max-width:1199px){
+ #admin .adminWorkspaceMetrics{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #admin .adminWorkspaceHeroMain{align-items:start;flex-direction:column}
+ #admin .adminWorkspaceMainActions{width:100%}
+}
+@media(max-width:900px){
+ #admin .adminWorkspaceMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #admin .adminWorkspacePanels{grid-template-columns:1fr}
+ #admin .adminGodTools{grid-template-columns:1fr 1fr}
+ #admin .adminGodTools .adminSearchWrap{grid-column:1/-1}
+}
+@media(max-width:700px){
+ #admin .adminWorkspaceHero{padding:24px 18px;border-radius:15px}
+ #admin .adminWorkspaceHeroMain h3{font-size:30px}
+ #admin .adminWorkspaceNav{margin-bottom:21px}
+ #admin .adminSectionIntro{display:block}
+ #admin .adminSectionIntro p{margin-top:8px}
+ #admin .adminWorkspaceMetrics{gap:9px}
+ #admin .adminWorkspaceMetrics .adminMetric{min-height:125px;padding:15px}
+ #admin .adminWorkspaceMetrics .adminMetric b{font-size:28px;margin:14px 0 5px}
+ #admin .adminWorkspaceMetrics .adminMetric .adminMetricIcon{width:25px;height:25px;font-size:12px;top:12px;right:10px}
+ #admin .adminWorkspaceMetrics .adminMetric small{font-size:9px;max-width:115px}
+ #admin .adminWorkspaceCardHead{padding:17px 15px}
+ #admin .adminDirectoryControls{padding:14px}
+ #admin .adminDirectoryTable{display:none}
+ #admin .adminMobileCards{display:block;padding:13px!important}
+ #admin .adminDirectoryHead{align-items:start;flex-direction:column}
+ #admin .adminDirectoryHeadRight{width:100%;justify-content:space-between}
+ #admin .adminDirectoryFooter{padding:13px 15px}
+ #admin .adminActionFeedback{margin:12px 14px}
+}
+@media(max-width:430px){
+ #admin .adminWorkspaceMainActions{flex-direction:column;align-items:stretch}
+ #admin .adminWorkspaceMainActions .adminBtn{width:100%}
+ #admin .adminWorkspaceMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #admin .adminWorkspaceMetrics .adminMetric{min-height:112px}
+ #admin .adminWorkspaceMetrics .adminMetric>span:last-child{font-size:9px}
+ #admin .adminGodTools{grid-template-columns:1fr}
+ #admin .adminGodTools .adminSearchWrap{grid-column:auto}
+}
+@media(prefers-reduced-motion:reduce){
+ #admin .adminWorkspaceMetrics .adminMetricBtn,#admin .adminBtn{transition:none}
+}
