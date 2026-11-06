@@ -3808,12 +3808,14 @@ setTimeout(function(){
     };
   }
   if(typeof window.mobileOpenAccount==="function"){
-    window.mobileOpenAccount=function(button){
-      if(typeof window.showPage==="function"){
-        const target=document.querySelector('.nav button[data-page="dashboard"]');
-        window.showPage("dashboard",target||button);
-      }
-      resetDocumentScroll();
+    window.mobileOpenAccount=function(){
+      // "Cuenta" opens the real account/menu drawer on mobile.
+      const sidebar=document.getElementById("sidebar");
+      if(!sidebar)return;
+      sidebar.classList.add("open");
+      document.body.classList.add("menu-open");
+      document.getElementById("mobileMenuToggle")?.setAttribute("aria-expanded","true");
+      document.getElementById("mobileMenuIcon") && (document.getElementById("mobileMenuIcon").textContent="×");
     };
   }
   const mobileButton=document.getElementById("mobileMenuToggle");
