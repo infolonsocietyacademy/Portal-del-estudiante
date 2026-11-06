@@ -887,3 +887,189 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
 .adminTempActions .adminBtnGold{background:#dab777;border:1px solid #dab777;color:#153324}
 .adminTempActions .adminBtnOutline{background:#f3f7f3;border:1px solid #d9e4da;color:#345841}
 @media(max-width:700px){#admin .adminRequestRow{align-items:flex-start;flex-direction:column}#admin .adminRequestActions{width:100%}#admin .adminRequestActions label{flex:1}}
+
+
+/* OLON MOBILE SCROLL & RESPONSIVE FIX — 2026-11-06
+   Single vertical document scroll, safe areas, no nested page-height locks. */
+@media (max-width:980px) {
+  html {
+    height:auto!important;
+    min-height:100%!important;
+    overflow-x:clip!important;
+    overflow-y:auto!important;
+    scroll-padding-top:86px;
+    -webkit-text-size-adjust:100%;
+  }
+  body {
+    position:relative!important;
+    height:auto!important;
+    min-height:100vh!important;
+    min-height:100dvh!important;
+    max-height:none!important;
+    overflow-x:clip!important;
+    overflow-y:visible!important;
+    touch-action:pan-y pinch-zoom;
+  }
+  #auth.homePremium,
+  #auth.homePremium .homeMain,
+  #auth.homePremium .authShell.homeShell,
+  #auth.homePremium .authHero.homeHero,
+  #auth.homePremium .authPanel.homeLoginCard,
+  #auth.homePremium .homeBelow {
+    height:auto!important;
+    max-height:none!important;
+    min-height:0!important;
+    overflow:visible!important;
+    -webkit-overflow-scrolling:touch;
+  }
+  #auth.homePremium {
+    min-height:100dvh!important;
+    padding-bottom:calc(26px + env(safe-area-inset-bottom,0px))!important;
+    overflow-x:clip!important;
+  }
+  #auth.homePremium .homeMain {
+    padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))!important;
+  }
+  #auth.homePremium .homeLoginCard .form,
+  #auth.homePremium .homeLoginCard .field,
+  #auth.homePremium .homeInfoGrid,
+  #auth.homePremium .homeFeatureGrid {max-height:none!important;min-height:0}
+  #portal.app:not(.hidden),
+  #portal.app.admin-mode:not(.hidden) {
+    display:block!important;
+    position:relative!important;
+    height:auto!important;
+    max-height:none!important;
+    min-height:100dvh!important;
+    overflow-x:clip!important;
+    overflow-y:visible!important;
+    -webkit-overflow-scrolling:touch;
+    align-content:start;
+  }
+  #portal.app > main.main,
+  #portal.app.admin-mode > main.main {
+    display:block!important;
+    height:auto!important;
+    min-height:100dvh!important;
+    max-height:none!important;
+    overflow-x:clip!important;
+    overflow-y:visible!important;
+    padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))!important;
+  }
+  #portal .page:not(.hidden),
+  #portal #admin:not(.hidden),
+  #portal .adminWorkspaceDirectory,
+  #portal .adminWorkspaceCard,
+  #portal .adminWorkspacePanels,
+  #portal .adminWorkspaceMetrics {
+    height:auto!important;
+    max-height:none!important;
+    min-height:0;
+    overflow-y:visible!important;
+  }
+  #portal .topbar {
+    min-height:76px;
+    top:0;
+    z-index:40;
+    scroll-margin-top:0;
+  }
+  #portal .portalFooter {
+    margin-top:25px;
+    padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));
+  }
+  #portal .tableWrap,
+  #portal .adminDirectoryTable {
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-x:contain;
+  }
+  #portal #sidebar {
+    height:100dvh!important;
+    max-height:100dvh!important;
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-y:contain;
+    padding-bottom:calc(22px + env(safe-area-inset-bottom,0px));
+  }
+  #portal .mobileBottomNav:not(.hidden) {
+    position:fixed;
+    left:0;right:0;bottom:0;
+    z-index:9000;
+    display:flex;
+    gap:3px;
+    align-items:stretch;
+    width:100%;
+    max-width:100vw;
+    min-height:66px;
+    padding:6px 7px calc(7px + env(safe-area-inset-bottom,0px));
+    overflow-x:auto;
+    overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-x:contain;
+    scrollbar-width:none;
+    background:rgba(12,42,32,.97);
+    border-top:1px solid rgba(211,233,212,.20);
+    box-shadow:0 -6px 20px rgba(2,23,15,.16);
+  }
+  #portal .mobileBottomNav::-webkit-scrollbar {display:none}
+  #portal .mobileBottomNav button {
+    flex:0 0 auto;
+    min-width:62px;
+    min-height:52px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:2px;
+    padding:4px 8px;
+    border:0;
+    border-radius:9px;
+    background:transparent;
+    color:#dae7dd;
+    font:700 10px/1.3 'DM Sans',Arial,sans-serif;
+    touch-action:manipulation;
+  }
+  #portal .mobileBottomNav button span{font-size:19px}
+  #portal .mobileBottomNav button small{font:inherit;white-space:nowrap}
+  #portal .mobileBottomNav button.active{color:#edcf8f;background:rgba(228,195,127,.12)}
+  #portal.admin-mode .mobileBottomNav,
+  #portal .mobileBottomNav.hidden {display:none!important}
+  #portal #adminRequestsBlock,
+  #portal #adminStudentsBlock,
+  #portal #adminNoloUsageBlock,
+  #portal #adminOverviewBlock {scroll-margin-top:90px}
+  #portal .chatMessages,
+  #portal #publicChatMessages,
+  #portal .adminChatList,
+  #portal .adminRequestsList {
+    -webkit-overflow-scrolling:touch;
+  }
+  #portal #publicChatMessages {
+    min-height:180px!important;
+    height:min(48dvh,460px);
+    max-height:min(52dvh,500px)!important;
+    overflow-y:auto!important;
+  }
+  #portal .adminChatList {min-height:150px;max-height:40dvh;overflow-y:auto}
+  #portal .studentChatPanel {
+    max-height:calc(100dvh - 100px);
+    bottom:calc(80px + env(safe-area-inset-bottom,0px));
+  }
+  #portal #mobileMenuToggle {
+    top:calc(12px + env(safe-area-inset-top,0px))!important;
+    left:calc(12px + env(safe-area-inset-left,0px))!important;
+    touch-action:manipulation;
+  }
+}
+@media(max-width:650px) {
+  #auth.homePremium .homeTopbar,
+  #auth.homePremium .homeMain {max-width:100%;min-width:0}
+  #auth.homePremium .homeHero h1 {font-size:clamp(39px,11.4vw,53px)!important;overflow-wrap:normal}
+  #auth.homePremium .homeLoginCard,
+  #auth.homePremium .homeInfoPanel {width:100%;min-width:0}
+  #portal .topbar{padding-top:14px;padding-bottom:12px}
+  #portal .mobileBottomNav button {min-width:59px}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto!important}
+}
