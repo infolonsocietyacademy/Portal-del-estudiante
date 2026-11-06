@@ -3598,6 +3598,10 @@ setTimeout(function(){
     if(msg.includes("email not confirmed")) return "Confirma tu correo electrónico antes de iniciar sesión.";
     if(msg.includes("failed to fetch") || msg.includes("network")) return "No se pudo conectar con Supabase. Comprueba internet y la URL del proyecto.";
     if(msg.includes("user already registered")) return "Este correo ya tiene una cuenta. Inicia sesión o recupera tu contraseña.";
+    if(msg.includes("email rate limit exceeded") || msg.includes("over_email_send_rate_limit") || Number(error?.status)===429)
+      return "El servicio de correo de OLON alcanzó temporalmente su límite de envíos. No vuelvas a crear la cuenta repetidamente: espera a que se restablezca el servicio o contacta soporte. El administrador debe configurar correo SMTP propio para permitir más registros.";
+    if(msg.includes("email address not authorized") || msg.includes("email_address_not_authorized"))
+      return "El servicio de correo aún no está configurado para enviar mensajes a este destinatario. Contacta soporte para activar el correo oficial de OLON Society Academy.";
     return fallback + (error?.message ? "\n" + error.message : "");
   }
   async function profileForAuthenticatedUser(user){
