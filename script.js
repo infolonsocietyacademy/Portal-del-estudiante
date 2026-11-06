@@ -565,7 +565,6 @@ let chart;
 let cachedRecords = [];
 let cachedUsers = [];
 
-document.getElementById("date").valueAsDate = new Date();
 
 function money(n){return "$" + Number(n||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}
 function pct(n){return Number(n||0).toFixed(2) + "%"}
@@ -841,33 +840,31 @@ function showPageById(id){
   showPage(id,btn);
 }
 
+let recordsRequest = 0;
+let recordsLoadedFor = null;
+
 async function fetchRecords(){
   if(!currentUser || isAdminUser(currentUser)) return [];
-  const { data, error } = await supabaseClient
-    .from("student_records")
-    .select("*")
-    .eq("student_id", currentUser.id)
-    .order("record_date", { ascending:true })
-    .order("created_at", { ascending:true });
-  if(error){ showError("No se pudieron cargar los registros.", error); return []; }
-  cachedRecords = (data || []).map(r => ({ id:r.id, date:r.record_date, deposit:Number(r.deposit||0), gain:Number(r.gain||0), loss:Number(r.loss||0), note:r.note||"" }));
+  const studentId = currentUser.id;
+  const request = ++recordsRequest;
+  const records = [];
+  const pageSize = 500;
+  for(let offset = 0; ; offset += pageSize){
+    const { data, error } = await supabaseClient.from("student_records").select("*")
+      .eq("student_id", studentId).order("record_date").order("created_at").order("id")
+      .range(offset, offset + pageSize - 1);
+    if(currentUser?.id !== studentId || request !== recordsRequest) return [];
+    if(error){ showError("No se pudieron cargar los registros.", error); return cachedRecords; }
+    records.push(...(data || []));
+    if((data || []).length < pageSize) break;
+  }
+  cachedRecords = records.map(r => ({
+    id:r.id, date:r.record_date, kind:r.record_kind, revision:r.revision,
+    deposit:Number(r.deposit||0), withdrawal:Number(r.withdrawal||0),
+    gain:Number(r.gain||0), loss:Number(r.loss||0), note:r.note||""
+  }));
+  recordsLoadedFor = studentId;
   return cachedRecords;
-}
-
-async function addRecord(){
-  if(!currentUser || isAdminUser(currentUser)) return;
-  const rec = {
-    student_id: currentUser.id,
-    record_date: document.getElementById("date").value || new Date().toISOString().slice(0,10),
-    deposit: Number(document.getElementById("deposit").value||0),
-    gain: Number(document.getElementById("gain").value||0),
-    loss: Number(document.getElementById("loss").value||0),
-    note: buildJournalNote()
-  };
-  const { error } = await supabaseClient.from("student_records").insert([rec]);
-  if(error){ showError("No se pudo guardar el registro.", error); return; }
-  document.getElementById("deposit").value=""; document.getElementById("gain").value=""; document.getElementById("loss").value=""; document.getElementById("note").value=""; ["pair","tradeType","emotion","mistake"].forEach(id=>{const el=document.getElementById(id); if(el) el.value="";});
-  await fetchRecords(); await render(); showPageById("dashboard");
 }
 
 async function delRecord(id){
@@ -876,16 +873,53 @@ async function delRecord(id){
   await fetchRecords(); await render();
 }
 
-function totals(records=cachedRecords){
-  const deposit = records.reduce((a,r)=>a+Number(r.deposit||0),0);
-  const gain = records.reduce((a,r)=>a+Number(r.gain||0),0);
-  const loss = records.reduce((a,r)=>a+Number(r.loss||0),0);
-  const net = gain-loss, balance = deposit+net, growth = deposit>0 ? (net/deposit)*100 : 0;
-  const positiveDays = records.filter(r => (Number(r.gain)-Number(r.loss))>0).length;
-  const negativeDays = records.filter(r => (Number(r.gain)-Number(r.loss))<0).length;
-  const avgDaily = records.length ? net / records.length : 0;
-  return {deposit,gain,loss,net,balance,growth,positiveDays,negativeDays,avgDaily,days:records.length};
+function isTradingRecord(record){
+  return record.kind ? record.kind === "trading" : !record.deposit || Boolean(record.gain || record.loss);
 }
+
+function signedTradeMoney(value){
+  return (value > 0 ? "+" : value < 0 ? "−" : "") + money(Math.abs(value));
+}
+
+function netAmount(gain, loss){
+  return Math.round((gain - loss) * 100) / 100;
+}
+
+function summarizeTradingDays(records){
+  const days = new Map();
+  for(const record of records){
+    const day = days.get(record.date) || {deposit:0, withdrawal:0, gain:0, loss:0, tradeCount:0};
+    day.deposit += record.deposit;
+    day.withdrawal += record.withdrawal;
+    day.gain += record.gain;
+    day.loss += record.loss;
+    if(isTradingRecord(record)) day.tradeCount++;
+    days.set(record.date, day);
+  }
+  return days;
+}
+
+function totals(records=cachedRecords){
+  let deposit = 0, withdrawal = 0, gain = 0, loss = 0;
+  let positiveDays = 0, negativeDays = 0, days = 0;
+  for(const day of summarizeTradingDays(records).values()){
+    deposit += day.deposit;
+    withdrawal += day.withdrawal;
+    gain += day.gain;
+    loss += day.loss;
+    if(!day.tradeCount) continue;
+    days++;
+    const dayNet = netAmount(day.gain, day.loss);
+    if(dayNet > 0) positiveDays++;
+    if(dayNet < 0) negativeDays++;
+  }
+  const net = netAmount(gain, loss);
+  const balance = deposit - withdrawal + net;
+  const growth = deposit > 0 ? (net / deposit) * 100 : 0;
+  return {deposit, withdrawal, gain, loss, net, balance, growth, positiveDays, negativeDays,
+    avgDaily:days ? net / days : 0, days};
+}
+
 function monthRecords(offset){
   const now = new Date(); const target = new Date(now.getFullYear(), now.getMonth()+offset, 1);
   const y = target.getFullYear(), m = target.getMonth();
@@ -992,8 +1026,8 @@ function weekRecords(){
 
 function winRateFromRecords(records){
   let wins = 0, losses = 0, flat = 0;
-  records.forEach(r=>{
-    const net = Number(r.gain||0) - Number(r.loss||0);
+  records.filter(isTradingRecord).forEach(r=>{
+    const net = netAmount(r.gain, r.loss);
     if(net > 0) wins++;
     else if(net < 0) losses++;
     else flat++;
@@ -1007,7 +1041,7 @@ function maxDrawdownFromRecords(records){
   let peak = 0;
   let maxDD = 0;
   records.forEach(r=>{
-    equity += Number(r.deposit||0) + Number(r.gain||0) - Number(r.loss||0);
+    equity += netAmount(r.gain, r.loss);
     peak = Math.max(peak, equity);
     maxDD = Math.max(maxDD, peak - equity);
   });
@@ -1015,13 +1049,9 @@ function maxDrawdownFromRecords(records){
 }
 
 function bestWorst(records){
-  let best = 0, worst = 0;
-  records.forEach(r=>{
-    const net = Number(r.gain||0) - Number(r.loss||0);
-    best = Math.max(best, net);
-    worst = Math.min(worst, net);
-  });
-  return {best, worst};
+  const results = [...summarizeTradingDays(records).values()].filter(day => day.tradeCount)
+    .map(day => netAmount(day.gain, day.loss));
+  return {best:results.length ? Math.max(...results) : 0, worst:results.length ? Math.min(...results) : 0};
 }
 
 function rankingLabelFromPosition(position){
@@ -1035,12 +1065,14 @@ function reportHTML(records, label){
   const wr = winRateFromRecords(records);
   const bw = bestWorst(records);
   return `
-    <div class="reportRow"><span>Neto ${label}</span><b class="${t.net >= 0 ? 'good':'bad'}">${money(t.net)}</b></div>
+    <div class="reportRow"><span>Neto ${label}</span><b class="${t.net >= 0 ? 'good':'bad'}">${signedTradeMoney(t.net)}</b></div>
+    <div class="reportRow"><span>Depósitos del período</span><b>${money(t.deposit)}</b></div>
+    <div class="reportRow"><span>Retiros del período</span><b>${money(t.withdrawal)}</b></div>
     <div class="reportRow"><span>Winrate</span><b>${pct(wr.winrate)}</b></div>
     <div class="reportRow"><span>Wins / Losses</span><b>${wr.wins} / ${wr.losses}</b></div>
-    <div class="reportRow"><span>Mejor día</span><b class="good">${money(bw.best)}</b></div>
-    <div class="reportRow"><span>Peor día</span><b class="bad">${money(bw.worst)}</b></div>
-    <div class="reportRow"><span>Días registrados</span><b>${records.length}</b></div>
+    <div class="reportRow"><span>Mejor día</span><b>${signedTradeMoney(bw.best)}</b></div>
+    <div class="reportRow"><span>Peor día</span><b>${signedTradeMoney(bw.worst)}</b></div>
+    <div class="reportRow"><span>Días de trading</span><b>${t.days}</b></div>
   `;
 }
 
@@ -1101,179 +1133,7 @@ function renderSelectedReport(){
   if(sub) sub.innerText = cfg.subtitle;
   if(badge) badge.innerText = cfg.badge;
   if(box) box.innerHTML = reportHTML(records, cfg.label);
-}
-
-function getPortalLogoSrc(){
-  const selectors = [
-    ".brand img",
-    ".authLogo",
-    ".portalLoaderEmblem img",
-    "img[alt*='OLON']",
-    "link[rel='apple-touch-icon']",
-    "link[rel='icon']"
-  ];
-
-  for(const selector of selectors){
-    const el = document.querySelector(selector);
-    const raw = el?.tagName?.toLowerCase() === "link" ? el.getAttribute("href") : (el?.getAttribute("src") || el?.src);
-    if(raw){
-      try{
-        return new URL(raw, window.location.href).href;
-      }catch(e){
-        return raw;
-      }
-    }
-  }
-
-  return new URL("./assets/logo.png", window.location.href).href;
-}
-
-function waitForPDFImages(container){
-  const imgs = Array.from(container.querySelectorAll("img"));
-  if(!imgs.length) return Promise.resolve();
-
-  return Promise.all(imgs.map(img => new Promise(resolve => {
-    if(img.complete && img.naturalWidth > 0) return resolve();
-    img.onload = () => resolve();
-    img.onerror = () => {
-      img.classList.add("pdfImgMissing");
-      resolve();
-    };
-    setTimeout(resolve, 1800);
-  })));
-}
-
-function buildPDFReportHTML(){
-  const cfg = reportViewConfig[currentReportView] || reportViewConfig.weekly;
-  const records = getSelectedReportRecords();
-  const t = totals(records);
-  const wr = winRateFromRecords(records);
-  const bw = bestWorst(records);
-  const student = currentUser?.full_name || document.getElementById("studentName")?.innerText || "Estudiante";
-  const plan = isAdminUser(currentUser) ? "Administración" : "VIP";
-  const today = new Date().toLocaleDateString("es-PR", {year:"numeric", month:"long", day:"numeric"});
-  const netClass = Number(t.net || 0) >= 0 ? "positive" : "negative";
-  const growthClass = Number(t.growth || 0) >= 0 ? "positive" : "negative";
-  const avgNet = records.length ? Number(t.net || 0) / records.length : 0;
-  const logoSrc = getPortalLogoSrc();
-  const summary = Number(t.net || 0) >= 0 ? "Rendimiento positivo durante el periodo seleccionado. Mantén la disciplina, controla el riesgo y protege el capital." : "Periodo de ajuste. Revisa gestión de riesgo, calidad de entradas y consistencia antes de aumentar exposición.";
-
-  return `
-    <div class="pdfReport pdfReportPremium" id="pdfReportCapture">
-      <div class="pdfWatermark">OLON</div>
-
-      <div class="pdfPremiumHeader">
-        <div class="pdfBrandBlock">
-          <div class="pdfLogoMark pdfLogoWrap">
-            <img class="pdfLogoImg" src="${logoSrc}" crossorigin="anonymous" alt="OLON Society Academy Logo">
-            <span class="pdfLogoFallback">OS</span>
-          </div>
-          <div>
-            <small>OLON Society Academy</small>
-            <h1>${cfg.title}</h1>
-            <p>Private Trading Education Portal · ${today}</p>
-          </div>
-        </div>
-        <div class="pdfStatusBadge">${cfg.badge}</div>
-      </div>
-
-      <div class="pdfStudentPanel">
-        <div><span>Trader</span><b>${student}</b></div>
-        <div><span>Plan</span><b>${plan}</b></div>
-        <div><span>Periodo</span><b>${cfg.label.toUpperCase()}</b></div>
-      </div>
-
-      <div class="pdfExecutiveGrid">
-        <div class="pdfKpi main ${netClass}"><span>Neto</span><b>${money(t.net)}</b><small>Ganancia - pérdida</small></div>
-        <div class="pdfKpi"><span>Balance actual</span><b>${money(t.balance)}</b><small>Depósito + neto</small></div>
-        <div class="pdfKpi ${growthClass}"><span>Rendimiento</span><b>${pct(t.growth)}</b><small>Neto ÷ depósito</small></div>
-        <div class="pdfKpi"><span>Winrate</span><b>${pct(wr.winrate)}</b><small>${wr.wins} wins / ${wr.losses} losses</small></div>
-      </div>
-
-      <div class="pdfSectionTitle">Resumen ejecutivo</div>
-      <div class="pdfSummaryBox">${summary}</div>
-
-      <div class="pdfTwoColumns">
-        <div class="pdfColumnCard">
-          <h3>Capital y resultados</h3>
-          <div class="pdfRow"><span>Total depositado</span><b>${money(t.deposit)}</b></div>
-          <div class="pdfRow"><span>Total ganado</span><b>${money(t.gain)}</b></div>
-          <div class="pdfRow"><span>Total perdido</span><b>${money(t.loss)}</b></div>
-          <div class="pdfRow"><span>Promedio neto por día</span><b>${money(avgNet)}</b></div>
-        </div>
-
-        <div class="pdfColumnCard">
-          <h3>Disciplina y consistencia</h3>
-          <div class="pdfRow"><span>Días registrados</span><b>${records.length}</b></div>
-          <div class="pdfRow"><span>Mejor día</span><b>${money(bw.best)}</b></div>
-          <div class="pdfRow"><span>Peor día</span><b>${money(bw.worst)}</b></div>
-          <div class="pdfRow"><span>Wins / Losses</span><b>${wr.wins} / ${wr.losses}</b></div>
-        </div>
-      </div>
-
-      <div class="pdfSignature">
-        <div class="pdfSignatureBrand">
-          <img src="${logoSrc}" crossorigin="anonymous" alt="OLON Society Academy Logo">
-          <div>
-            <b>OLON Society Academy</b>
-            <span>Control · Disciplina · Progreso</span>
-          </div>
-        </div>
-
-        <div class="pdfSignatureRight">
-          <div class="pdfSignatureLine">OLON Society Academy</div>
-          <small>Documento educativo generado automáticamente desde el portal del estudiante.</small>
-        </div>
-      </div>
-    </div>`;
-}
-async function downloadSelectedReportPDF(){
-  const cfg = reportViewConfig[currentReportView] || reportViewConfig.weekly;
-  const holder = document.createElement("div");
-  holder.style.position = "fixed";
-  holder.style.left = "-9999px";
-  holder.style.top = "0";
-  holder.innerHTML = buildPDFReportHTML();
-  document.body.appendChild(holder);
-
-  try{
-    if(window.html2canvas && window.jspdf?.jsPDF){
-      const target = holder.querySelector("#pdfReportCapture");
-      await waitForPDFImages(target);
-      const canvas = await html2canvas(target, {scale:2, backgroundColor:"#ffffff", useCORS:true, allowTaint:false});
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new window.jspdf.jsPDF("p", "pt", "a4");
-      const pageW = pdf.internal.pageSize.getWidth();
-      const pageH = pdf.internal.pageSize.getHeight();
-      const imgW = pageW;
-      const imgH = canvas.height * imgW / canvas.width;
-      let y = 0;
-
-      pdf.addImage(imgData, "PNG", 0, y, imgW, imgH);
-      let heightLeft = imgH - pageH;
-      while(heightLeft > 0){
-        y = heightLeft - imgH;
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, y, imgW, imgH);
-        heightLeft -= pageH;
-      }
-
-      const safeName = (currentUser?.full_name || "estudiante").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
-      pdf.save(`olon-${cfg.title.toLowerCase().replace(/\s+/g,"-")}-${safeName}.pdf`);
-    }else{
-      const printWindow = window.open("", "_blank");
-      printWindow.document.write(`<!DOCTYPE html><html><head><title>${cfg.title}</title></head><body>${buildPDFReportHTML()}
-</body></html>`);
-      printWindow.document.close();
-      printWindow.focus();
-      printWindow.print();
-    }
-  }catch(err){
-    console.error("Error generando PDF", err);
-    alert("No se pudo generar el PDF. Intenta de nuevo.");
-  }finally{
-    holder.remove();
-  }
+  window.clearPreparedReportPDF?.();
 }
 
 function renderV3Performance(){
@@ -1382,79 +1242,118 @@ function renderDailyQuote(){
 }
 
 function renderTradingCalendar(records){
-  const box=document.getElementById("tradingCalendar");
-  if(!box)return;
-  const now=new Date(),year=now.getFullYear(),month=now.getMonth();
-  const days=new Date(year,month+1,0).getDate();
-  const firstWeekday=(new Date(year,month,1).getDay()+6)%7;
-  const map=new Map();
-  for(const record of Array.isArray(records)?records:[]){
-    const value=String(record.date||"");
-    const match=/^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-    if(!match||Number(match[1])!==year||Number(match[2])!==month+1)continue;
-    const day=Number(match[3]);
-    if(day<1||day>days)continue;
-    const entry=map.get(day)||{gain:0,loss:0,net:0,count:0};
-    const gain=Number(record.gain)||0,loss=Number(record.loss)||0;
-    entry.gain+=gain;entry.loss+=loss;entry.net+=gain-loss;entry.count++;
-    map.set(day,entry);
+  const box = document.getElementById("tradingCalendar");
+  const detail = document.getElementById("calendarDayDetail");
+  if(!box || !detail) return;
+  const now = new Date(), year = now.getFullYear(), month = now.getMonth();
+  const days = new Date(year, month + 1, 0).getDate();
+  const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7;
+  const monthName = new Intl.DateTimeFormat("es-PR", {month:"long"}).format(now);
+  const monthKey = year + "-" + String(month + 1).padStart(2, "0") + "-";
+  const results = summarizeTradingDays(records);
+  const total = totals(records).net;
+  const monthNet = document.getElementById("calendarMonthNet");
+  document.getElementById("calendarMonthLabel").textContent = monthName + " " + year;
+  monthNet.textContent = signedTradeMoney(total);
+  monthNet.className = total > 0 ? "positive" : total < 0 ? "negative" : "neutral";
+
+  const fragment = document.createDocumentFragment();
+  for(const name of ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]){
+    const heading = document.createElement("div");
+    heading.className = "calendarWeekday";
+    heading.textContent = name;
+    fragment.append(heading);
   }
-  const monthLabel=document.getElementById("calendarMonthLabel");
-  if(monthLabel)monthLabel.textContent=new Intl.DateTimeFormat("es-PR",{month:"long",year:"numeric"}).format(now);
-  const monthTotal=Array.from(map.values()).reduce((sum,day)=>sum+day.net,0);
-  const monthNet=document.getElementById("calendarMonthNet");
-  if(monthNet){monthNet.textContent=(monthTotal>0?"+":"") + money(monthTotal);monthNet.className=monthTotal>0?"positive":monthTotal<0?"negative":"neutral";}
-  const fragment=document.createDocumentFragment();
-  for(const name of ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"]){
-    const head=document.createElement("div");head.className="calendarWeekday";head.textContent=name;fragment.append(head);
+  for(let i = 0; i < firstWeekday; i++){
+    const blank = document.createElement("span");
+    blank.className = "calDay empty";
+    blank.setAttribute("aria-hidden", "true");
+    fragment.append(blank);
   }
-  for(let i=0;i<firstWeekday;i++){
-    const blank=document.createElement("span");blank.className="calDay empty";blank.setAttribute("aria-hidden","true");fragment.append(blank);
-  }
-  for(let day=1;day<=days;day++){
-    const result=map.get(day);
-    const cell=document.createElement(result?"button":"div");
-    if(result)cell.type="button";
-    const state=!result?"":result.net>0?"goodDay":result.net<0?"badDay":"flatDay";
-    cell.className="calDay "+state+(day===now.getDate()?" isToday":"");
-    const number=document.createElement("span");number.className="calendarDate";number.textContent=String(day);cell.append(number);
-    const amount=document.createElement("span");amount.className="calendarAmount";
-    if(result){amount.textContent=(result.net>0?"+":"")+money(result.net);cell.setAttribute("aria-label",day+" de "+new Intl.DateTimeFormat("es-PR",{month:"long"}).format(now)+": "+(result.net>0?"ganancia ":result.net<0?"pérdida ":"resultado ")+money(result.net)+". "+result.count+" registros");}
-    else{amount.textContent=day>now.getDate()?"":"—";}
-    cell.append(amount);
-    if(result)cell.addEventListener("click",()=>{
-      box.querySelectorAll(".calDay.selected").forEach(node=>node.classList.remove("selected"));
-      cell.classList.add("selected");
-      const detail=document.getElementById("calendarDayDetail");
-      if(detail){detail.hidden=false;detail.textContent="Día "+day+" · "+result.count+" registro"+(result.count!==1?"s":"")+" · Ganancias "+money(result.gain)+" · Pérdidas "+money(result.loss)+" · Neto "+(result.net>0?"+":"")+money(result.net);}
-    });
+  for(let day = 1; day <= days; day++){
+    const result = results.get(monthKey + String(day).padStart(2, "0"));
+    const cell = document.createElement(result ? "button" : "div");
+    cell.className = "calDay" + (day === now.getDate() ? " isToday" : "");
+    const date = document.createElement("span");
+    date.className = "calendarDate";
+    date.textContent = String(day);
+    const amount = document.createElement("span");
+    amount.className = "calendarAmount";
+    amount.textContent = day > now.getDate() ? "" : "—";
+    cell.append(date, amount);
+    if(result){
+      const net = netAmount(result.gain, result.loss);
+      const capitalLabel = result.deposit && result.withdrawal ? "Capital" : result.deposit ? "Depósito" : "Retiro";
+      const label = result.tradeCount ? "Trading " + signedTradeMoney(net) : capitalLabel;
+      cell.type = "button";
+      cell.classList.add(!result.tradeCount ? "cashDay" : net > 0 ? "goodDay" : net < 0 ? "badDay" : "flatDay");
+      cell.setAttribute("aria-label", day + " de " + monthName + " · " + label);
+      amount.textContent = result.tradeCount ? signedTradeMoney(net) : capitalLabel;
+      cell.addEventListener("click", () => {
+        box.querySelector(".calDay.selected")?.classList.remove("selected");
+        cell.classList.add("selected");
+        const heading = document.createElement("strong");
+        heading.textContent = day + " de " + monthName;
+        const lines = document.createElement("div");
+        lines.className = "calendarLedgerDetails";
+        const values = [];
+        if(result.tradeCount) values.push(["Resultado de trading", signedTradeMoney(net)]);
+        if(result.deposit) values.push(["Depósitos", money(result.deposit)]);
+        if(result.withdrawal) values.push(["Retiros", money(result.withdrawal)]);
+        for(const [label, value] of values){
+          const line = document.createElement("div");
+          const title = document.createElement("span");
+          const text = document.createElement("b");
+          title.textContent = label;
+          text.textContent = value;
+          line.append(title, text);
+          lines.append(line);
+        }
+        detail.replaceChildren(heading, lines);
+        detail.hidden = false;
+      });
+    }
     fragment.append(cell);
   }
   box.replaceChildren(fragment);
-  const detail=document.getElementById("calendarDayDetail");
-  if(detail){detail.hidden=true;detail.textContent="";}
+  detail.hidden = true;
+  detail.replaceChildren();
 }
 
 async function render(){
   if(!currentUser) return;
   if(isAdminUser(currentUser)){ if(window.olonAdmin?.refresh) await window.olonAdmin.refresh(); return; }
+  const studentId = currentUser.id;
   await fetchRecords();
+  if(currentUser?.id !== studentId) return;
   const records = cachedRecords, t = totals(records);
   document.getElementById("mDeposited").innerText = money(t.deposit);
+  document.getElementById("mWithdrawn").innerText = money(t.withdrawal);
+  document.getElementById("mBalance").innerText = money(t.balance);
   document.getElementById("mNet").innerText = money(t.net);
   const netLabel = document.getElementById("mNetLabel");
   if(netLabel){
     netLabel.className = t.net >= 0 ? "good" : "bad";
-    netLabel.innerText = t.net >= 0 ? "Ganancia neta total" : "Pérdida neta total";
+    netLabel.innerText = t.net > 0 ? "Ganancia neta total" : t.net < 0 ? "Pérdida neta total" : "Ganancias menos pérdidas";
   }
   document.getElementById("mLoss").innerText = money(t.loss);
   document.getElementById("mGrowth").innerText = pct(t.growth);
   const body = document.getElementById("historyBody");
   body.innerHTML = records.slice().reverse().map(r=>{
-    const net = Number(r.gain)-Number(r.loss);
-    return `<tr><td>${r.date}</td><td>${money(r.deposit)}</td><td class="good">${money(r.gain)}</td><td class="bad">${money(r.loss)}</td><td><span class="badge ${net>=0?'green':'red'}">${money(net)}</span></td><td>${r.note || "-"}</td><td><button class="btn secondary" onclick="delRecord('${r.id}')">Eliminar</button></td></tr>`
-  }).join("") || `<tr><td colspan="7" style="color:var(--muted)">No hay registros todavía.</td></tr>`;
+    const net = netAmount(r.gain, r.loss);
+    const result = isTradingRecord(r) ? '<span class="badge ' + (net < 0 ? "red" : "green") + '">' + signedTradeMoney(net) + '</span>' : "—";
+    return `<tr><td>${escapeHTML(r.date)}</td><td>${money(r.deposit)}</td><td>${money(r.withdrawal)}</td><td class="good">${money(r.gain)}</td><td class="bad">${money(r.loss)}</td><td>${result}</td><td>${escapeHTML(r.note) || "—"}</td><td>${recordHistoryActions(r.id)}</td></tr>`;
+  }).join("") || `<tr><td colspan="8" style="color:var(--muted)">No hay registros todavía.</td></tr>`;
+  renderHistoryMobileCards(records);
   renderCompare(); renderChart(); renderProDashboard();
+}
+
+function recordHistoryActions(id){
+  const safeId = escapeHTML(id);
+  return `<div class="ledgerButtons ledgerHistoryActions">
+    <button type="button" class="btn secondary" data-record-edit="${safeId}">Editar</button>
+    <button type="button" class="btn secondary" data-record-delete="${safeId}">Eliminar</button>
+  </div>`;
 }
 
 function changeBadge(value, inverse=false){
@@ -1468,10 +1367,12 @@ function renderCompare(){
   document.getElementById("compareBody").innerHTML = rows.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("");
 }
 function renderChart(){
-  const ctx = document.getElementById("balanceChart"); let running = 0;
+  const ctx = document.getElementById("balanceChart");
+  if(!ctx || !window.Chart) return;
+  let running = 0;
   const sorted = cachedRecords.slice().sort((a,b)=>a.date.localeCompare(b.date));
   const labels = sorted.map(r=>r.date);
-  const data = sorted.map(r=>{ running += Number(r.deposit) + Number(r.gain) - Number(r.loss); return running; });
+  const data = sorted.map(r=>{ running += r.deposit - r.withdrawal + r.gain - r.loss; return running; });
   if(chart) chart.destroy();
   chart = new Chart(ctx,{ type:"line", data:{labels: labels.length?labels:["Inicio"], datasets:[{label:"Balance", data:data.length?data:[0], tension:.4, fill:true}]}, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:"#f8fafc"}}}, scales:{x:{ticks:{color:"#94a3b8"},grid:{color:"rgba(255,255,255,.08)"}}, y:{ticks:{color:"#94a3b8"},grid:{color:"rgba(255,255,255,.08)"}}} } });
 }
@@ -1613,21 +1514,24 @@ function showWelcome(user){
 })();
 
 function renderHistoryMobileCards(records){
-  const box = document.getElementById('historyMobileCards');
+  const box = document.getElementById("historyMobileCards");
   if(!box) return;
-  const list = (records || []).slice().reverse();
-  box.innerHTML = list.map(r=>{
-    const net = Number(r.gain||0) - Number(r.loss||0);
-    const cls = net >= 0 ? 'green' : 'red';
-    return `<div class="mobileRecordCard"><div class="mobileRecordTop"><div><div class="mobileRecordDate">${r.date || '-'}</div><div class="mobileRecordNote">${r.note || 'Sin nota'}</div></div><span class="badge ${cls}">${money(net)}</span></div><div class="mobileStats"><div class="mobileStat"><small>Depósito</small><b>${money(r.deposit||0)}</b></div><div class="mobileStat"><small>Ganancia</small><b class="good">${money(r.gain||0)}</b></div><div class="mobileStat"><small>Pérdida</small><b class="bad">${money(r.loss||0)}</b></div></div><button class="btn secondary full" onclick="delRecord('${r.id}')">Eliminar registro</button></div>`;
-  }).join('') || `<div class="mobileRecordCard"><div class="mobileRecordDate">No hay registros todavía.</div><div class="mobileRecordNote">Cuando guardes tu primer trade, aparecerá aquí como tarjeta móvil.</div></div>`;
-}
-const olonOriginalRender = window.render;
-if(typeof olonOriginalRender === 'function'){
-  window.render = async function(){
-    await olonOriginalRender.apply(this, arguments);
-    if(currentUser && !isAdminUser(currentUser)) renderHistoryMobileCards(cachedRecords || []);
-  }
+  box.innerHTML = records.slice().reverse().map(r=>{
+    const net = netAmount(r.gain, r.loss);
+    const trades = isTradingRecord(r);
+    const label = trades ? signedTradeMoney(net) : r.withdrawal ? "Retiro" : "Depósito";
+    const badge = trades ? net < 0 ? "red" : "green" : "blue";
+    const values = [];
+    if(r.deposit) values.push(["Depósito", money(r.deposit)]);
+    if(r.withdrawal) values.push(["Retiro", money(r.withdrawal)]);
+    if(trades) values.push(["Ganancia", money(r.gain)], ["Pérdida", money(r.loss)]);
+    const stats = values.map(([label, amount])=>`<div class="mobileStat"><small>${label}</small><b>${amount}</b></div>`).join("");
+    return `<div class="mobileRecordCard">
+      <div class="mobileRecordTop"><div><div class="mobileRecordDate">${escapeHTML(r.date)}</div><div class="mobileRecordNote">${escapeHTML(r.note) || "Sin nota"}</div></div><span class="badge ${badge}">${label}</span></div>
+      <div class="mobileStats">${stats}</div>
+      ${recordHistoryActions(r.id)}
+    </div>`;
+  }).join("") || '<div class="mobileRecordCard"><div class="mobileRecordDate">No hay registros todavía.</div></div>';
 }
 /* ===== ULTRA FORCE LOGIN VISIBLE FIX - FINAL =====
    Este parche evita que el loader, render, chart, chat o cualquier error visual bloquee el portal.
@@ -2629,73 +2533,6 @@ document.addEventListener("DOMContentLoaded", function(){
 });
 
 
-
-/* =====================================================
-   OLON DASHBOARD WAO JS
-   Pega este JS AL FINAL de tu script.js
-   ===================================================== */
-
-function olonDashboardAnimateTextMoney(id){
-  const el = document.getElementById(id);
-  if(!el) return;
-
-  const raw = String(el.innerText || "").replace(/[^0-9.-]/g,"");
-  const target = Number(raw || 0);
-  const isMoney = String(el.innerText || "").includes("$");
-  const isPct = String(el.innerText || "").includes("%");
-
-  let start = 0;
-  const startTime = performance.now();
-  const duration = 1000;
-
-  function frame(now){
-    const p = Math.min((now - startTime) / duration, 1);
-    const eased = 1 - Math.pow(1 - p, 3);
-    const val = start + (target - start) * eased;
-
-    if(isMoney){
-      el.innerText = "$" + val.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
-    }else if(isPct){
-      el.innerText = val.toFixed(2) + "%";
-    }else{
-      el.innerText = Math.round(val).toLocaleString("en-US");
-    }
-
-    if(p < 1) requestAnimationFrame(frame);
-  }
-
-  requestAnimationFrame(frame);
-}
-
-function olonDashboardWaoRefresh(){
-  [
-    "mDeposited",
-    "mNet",
-    "mLoss",
-    "mGrowth",
-    "depositReturn",
-    "maxDrawdown",
-    "ytdWinrate",
-    "traderScore"
-  ].forEach(olonDashboardAnimateTextMoney);
-}
-
-document.addEventListener("DOMContentLoaded", function(){
-  setTimeout(olonDashboardWaoRefresh, 1200);
-});
-
-/* Hook suave: si render() existe, lo envuelve para animar luego de renderizar */
-setTimeout(function(){
-  if(typeof window.render === "function" && !window.__olonDashboardWaoHooked){
-    const oldRender = window.render;
-    window.render = async function(){
-      const result = await oldRender.apply(this, arguments);
-      setTimeout(olonDashboardWaoRefresh, 250);
-      return result;
-    };
-    window.__olonDashboardWaoHooked = true;
-  }
-}, 500);
 
 /* =====================================================
    OLON ENTRETENIMIENTO: RULETA + FLAPPY JS

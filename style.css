@@ -2008,3 +2008,53 @@ body:not(:has(#portal:not(.hidden))) .noloFloatPanel{display:none}
  #portal.app .page:not(.hidden){animation:none}
  #portal.app .page :is(.btn,button){transition:none}
 }
+
+/* Capital movements, student journal and premium report actions */
+#portal [hidden]:is(.ledgerButtons,.ledgerFeedback,.ledgerPending,.ledgerFields,.ledgerDetails),
+#portal .ledgerEntry .field[hidden], #portal .ledgerEntry button[hidden],
+#portal #reportPdfShare[hidden] { display: none !important; }
+#portal .ledgerQuickActions {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .8rem 1.1rem;
+  margin: 0 0 1rem; padding: 1rem 1.2rem; border-color: #d4e5db;
+}
+#portal .ledgerQuickActions h3, #portal .ledgerEntry h3 { margin: 0; }
+#portal .ledgerQuickActions p, #portal #ledgerEntryIntro { margin: .35rem 0 0; color: #49655a; font-size: .88rem; }
+#portal #ledgerEntryIntro { margin-bottom: .8rem; }
+#portal .ledgerButtons { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+#portal .ledgerButtons :is(button,a) { min-height: 42px; text-decoration: none; }
+#portal #ledgerModes { margin-bottom: .9rem; }
+#portal #ledgerModes button[aria-pressed="true"] { background: #145541; color: #fff; border-color: #145541; }
+#portal .ledgerEntry .formGrid { align-items: start; }
+#portal .ledgerEntry .ledgerFields { margin: 0; padding: 0; min-width: 0; border: 0; }
+#portal .ledgerEntry .ledgerDetails { border: 1px solid #d6e4dc; border-radius: .65rem; padding: .65rem .85rem; }
+#portal .ledgerDetails summary { cursor: pointer; color: #285c49; font-size: .88rem; font-weight: 650; }
+#portal .ledgerDetails .formGrid { margin-top: .7rem; }
+#portal .ledgerHistoryActions { flex-wrap: wrap; margin-top: .3rem; }
+#portal .ledgerHistoryActions button { font-size: .8rem; padding: .46rem .72rem; }
+#portal .ledgerFeedback, #portal .ledgerPending {
+  margin: .5rem 0; padding: .65rem .85rem; border-radius: .65rem;
+  background: #f0f6f2; border: 1px solid #d6e4dc; color: #2b5142; font-size: .85rem;
+}
+#portal .ledgerQuickActions .ledgerFeedback { flex-basis: 100%; padding: .55rem .75rem; }
+#portal .ledgerFeedback[data-tone="error"] { background: #fff4f0; color: #873b2a; border-color: #e8c7bd; }
+#portal .ledgerFeedback[data-tone="success"] { color: #15583c; }
+#portal .ledgerPendingRow { display: flex; justify-content: space-between; gap: .5rem; align-items: center; border-top: 1px solid #d6e4dc; padding: .55rem 0; }
+#portal .reportPdfOptions { margin: .3rem 0 .85rem; }
+#portal .calendarDot.cash { background: #3778a7; }
+#portal .calDay.cashDay { border-color: #a5c9e2; background: #edf6ff; }
+#portal .calDay.cashDay .calendarAmount { color: #1d597d; font-weight: 700; }
+#portal .calendarLedgerDetails { display: grid; gap: .38rem; margin-top: .45rem; }
+#portal .calendarLedgerDetails > div { display: flex; justify-content: space-between; align-items: baseline; gap: .7rem; }
+#portal .ledgerMetrics { grid-template-columns: repeat(3,minmax(0,1fr)); }
+@media (max-width: 980px) {
+  #portal .ledgerMetrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  #portal .ledgerQuickActions .ledgerButtons { width: 100%; }
+  #portal .ledgerQuickActions .ledgerButtons button { flex: 1 1 auto; }
+}
+@media (max-width: 520px) {
+  #portal .ledgerHistoryActions button { flex: 1 1 0; }
+  #portal.app .page .reportPdfOptions :is(button,a) {
+    flex: 1 1 auto; padding-inline: .55rem; font-size: .78rem; white-space: nowrap;
+  }
+  #portal .calDay.cashDay .calendarAmount { font-size: clamp(7px, 2.15vw, 10px); }
+}
