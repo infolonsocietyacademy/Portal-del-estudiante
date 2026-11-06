@@ -1215,3 +1215,84 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
  #portal.app > main.main{z-index:1!important}
 }
 @media(min-width:981px){#portal.app > .portalMenuBackdrop{display:none!important}}
+
+
+/* OLON MOBILE UI SYSTEM V5 — consistent spacing, responsive cards, forms,
+   chats, news, reports and administration across every portal page. */
+#portal .page{min-width:0;max-width:100%}
+#portal .page.hidden{display:none!important}
+#portal .page:not(.hidden){animation:olonPageReveal .22s ease-out}
+@keyframes olonPageReveal{from{opacity:.55;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+#portal .page .card,#portal .page .v3Card,#portal .page .adminWorkspaceCard{transition:box-shadow .18s ease,border-color .18s ease}
+#portal .page button,#portal .page a,#portal .page select{ -webkit-tap-highlight-color:transparent}
+#portal .page :is(input,textarea,select){max-width:100%;min-width:0}
+#portal .page :is(img,svg,video,canvas,iframe){max-width:100%}
+#portal .page :is(h1,h2,h3,h4,p,small,span){overflow-wrap:break-word}
+#portal .page :is(.tableWrap,.adminDirectoryTable,.adminTableWrap){max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+#portal .page :is(.card,.adminWorkspaceCard,.adminChatBox,.v3Card){min-width:0}
+@media(max-width:980px){
+ #portal.app:not(.hidden) > main.main{width:100%!important;min-width:0!important;max-width:100%!important;overflow-x:clip!important}
+ #portal.app:not(.hidden) > main.main > .page{width:100%;min-width:0;max-width:100%;margin-left:auto;margin-right:auto}
+ #portal.app:not(.hidden) > main.main > .page:not(.hidden){display:block}
+ #portal .page :is(.grid4,.v3Grid,.proGrid,.reportGrid,.layout,.adminMetrics,.adminWorkspaceMetrics,.adminWorkspacePanels,.adminChatLayout){max-width:100%;min-width:0}
+ #portal .page :is(.welcomeHeroCard,.atlas-page-banner,.adminWorkspaceHero,.adminHero){max-width:100%;min-width:0;overflow:hidden}
+ #portal .page :is(.welcomeHeroContent,.adminWorkspaceHeroMain,.adminWorkspaceHeroContent){min-width:0;max-width:100%}
+ #portal .page :is(.waMessages,.chatMessages,.adminChatMessages,.noloMessages){max-width:100%;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
+ #portal .page :is(.adminWorkspaceCard,.adminWorkspaceDirectory,.adminWorkspaceHero,.adminSectionIntro){max-width:100%;min-width:0}
+ #portal .page :is(.adminDirectoryFilters,.adminDirectoryHead,.adminWorkspaceCardHead,.adminWorkspaceHeroMain){flex-wrap:wrap;gap:12px}
+ #portal .page :is(.adminDirectoryFilters,.adminSearchWrap,.adminDirectoryHeadRight){min-width:0}
+ #portal .page :is(.adminDirectoryFilters input,.adminDirectoryFilters select,.adminSearch){max-width:100%;width:100%}
+ #portal .page :is(.adminWorkspaceMetrics,.adminMetrics){grid-template-columns:repeat(2,minmax(0,1fr))}
+ #portal .page :is(.adminChatLayout,.adminWorkspacePanels){grid-template-columns:minmax(0,1fr)}
+ #portal .page :is(.newsGrid,.newsProGrid,.noloLayout,.gameGrid,.entertainmentGrid){max-width:100%;min-width:0}
+ #portal .page :is(.newsCard,.newsProCard,.noloCard,.gameCard){max-width:100%;min-width:0}
+ #portal .page :is(.adminBtn,.btn,.btnPrimary,.btnSecondary){min-height:42px;touch-action:manipulation}
+ #portal .page :is(.adminDirectoryTable,.tableWrap){border-radius:12px}
+ #portal .page .formGrid{grid-template-columns:minmax(0,1fr)}
+ #portal .page .formGrid > *{min-width:0}
+ #portal .page input,#portal .page select,#portal .page textarea{font-size:16px}
+ #portal .page textarea{resize:vertical}
+ #portal .page :is(.waComposer,.chatInputArea,.adminChatComposer){max-width:100%;min-width:0}
+ #portal .page :is(.waComposer,.chatInputArea,.adminChatComposer) textarea{min-width:0;flex:1}
+ #portal .page :is(.waMessages,.chatMessages){overscroll-behavior:contain}
+ #portal .portalSidebar{width:min(305px,calc(100vw - 55px))!important;max-width:calc(100vw - 55px)!important}
+ #portal.app > #sidebar.portalSidebar{left:-330px!important}
+ #portal.app > #sidebar.portalSidebar.open{left:0!important}
+ #portal .portalNav .portalNavLink{min-height:52px!important;touch-action:manipulation}
+ #portal .portalSidebarClose{min-height:40px;min-width:40px}
+ #portal .portalSidebarBottom{padding-bottom:calc(30px + env(safe-area-inset-bottom,0px))}
+}
+@media(max-width:650px){
+ #portal.app:not(.hidden) > main.main{padding:0 13px calc(125px + env(safe-area-inset-bottom,0px))!important}
+ #portal.app:not(.hidden) > main.main > .page{padding-bottom:14px}
+ #portal .page :is(.grid4,.v3Grid,.adminMetrics,.adminWorkspaceMetrics){gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
+ #portal .page :is(.grid4,.v3Grid,.adminMetrics,.adminWorkspaceMetrics)>*{min-width:0}
+ #portal .page :is(.proGrid,.reportGrid,.layout,.adminChatLayout,.adminWorkspacePanels,.newsGrid,.newsProGrid,.noloLayout,.gameGrid,.entertainmentGrid){display:grid;grid-template-columns:minmax(0,1fr)!important;gap:12px}
+ #portal .page :is(.card,.adminWorkspaceCard,.adminChatBox){padding:15px;border-radius:15px}
+ #portal .page :is(.welcomeHeroCard,.adminWorkspaceHero,.atlas-page-banner){border-radius:17px}
+ #portal .page :is(.adminWorkspaceHeroMain,.adminDirectoryHead,.adminWorkspaceCardHead){display:flex;flex-direction:column;align-items:stretch}
+ #portal .page :is(.adminWorkspaceHero h2,.adminHero h3){font-size:clamp(22px,6vw,30px);line-height:1.18}
+ #portal .page :is(.adminWorkspaceCard h4,.adminSectionIntro h4){font-size:clamp(17px,4.5vw,22px)}
+ #portal .page :is(.adminDirectoryFilters,.adminTools){display:grid;grid-template-columns:minmax(0,1fr)!important;gap:10px}
+ #portal .page :is(.adminDirectoryFilters > *,.adminTools > *){width:100%;min-width:0}
+ #portal .page :is(.adminBtn,.btn,.btnPrimary,.btnSecondary){max-width:100%;white-space:normal;text-align:center}
+ #portal .page :is(.adminMetrics,.adminWorkspaceMetrics) :is(b,strong){font-size:clamp(18px,5vw,28px)}
+ #portal .page :is(.newsCard,.newsProCard){overflow:hidden}
+ #portal .page :is(.newsCard img,.newsProCard img){width:100%;height:auto;object-fit:cover}
+ #portal .page :is(.waMessages,.chatMessages){min-height:200px;max-height:48dvh;overflow-y:auto}
+ #portal .page :is(.chatInputArea,.waComposer,.adminChatComposer){gap:8px}
+ #portal .page :is(.noloMessages,.noloChatMessages){max-height:55dvh;overflow-y:auto}
+ #portal .page :is(.calendarCard){padding:13px 10px}
+ #portal .portalTopbar{margin:0 -13px 19px!important;padding-left:66px!important;padding-right:10px!important}
+ #portal .portalTopActions{flex-shrink:0}
+ #portal .portalTopLogout{min-width:38px}
+ #portal .portalUserPill{max-width:108px}
+ #portal .mobileBottomNav:not(.hidden){justify-content:space-between}
+}
+@media(max-width:375px){
+ #portal .page :is(.grid4,.v3Grid,.adminMetrics,.adminWorkspaceMetrics){gap:7px}
+ #portal .page :is(.grid4,.v3Grid,.adminMetrics,.adminWorkspaceMetrics)>*{padding:10px!important}
+ #portal .portalUserPill{max-width:78px}
+ #portal .portalTopBreadcrumb{font-size:7px}
+ #portal .portalTopbar h2{font-size:14px}
+}
