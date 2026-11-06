@@ -30,6 +30,16 @@
         <button type="submit" id="recoverySendBtn" class="recoveryPrimary">Enviar enlace a mi correo →</button>
         <p class="recoveryHelp">Si eres administrador, escribe el correo vinculado a tu cuenta. El nombre de usuario <b>admin</b> no es un correo electrónico.</p>
       </form>
+      <details class="recoveryFallback" id="recoveryFallback">
+        <summary>¿El enlace de tu correo abre localhost?</summary>
+        <p>Solicita un correo nuevo. En Gmail, <strong>mantén presionado el botón de recuperación y elige “Copiar enlace”</strong>, sin abrirlo. Después pega el enlace completo aquí. Lo verificaremos directamente con Supabase.</p>
+        <form id="recoveryPastedLinkForm" autocomplete="off">
+          <label for="recoveryPastedLink">Enlace copiado del correo</label>
+          <textarea id="recoveryPastedLink" rows="3" maxlength="4000" placeholder="Pega aquí el enlace de recuperación..." required spellcheck="false" autocapitalize="none" autocomplete="off"></textarea>
+          <button type="submit" id="recoveryVerifyLinkBtn" class="recoveryPrimary">Verificar enlace y cambiar contraseña →</button>
+          <p class="recoveryHelp">El enlace es privado y solo sirve una vez. No lo compartas con nadie.</p>
+        </form>
+      </details>
       <form id="recoveryNewPasswordForm" autocomplete="off" hidden>
         <label for="recoveryPassword">Contraseña nueva</label>
         <input type="password" id="recoveryPassword" name="new-password" autocomplete="new-password" placeholder="Mínimo 12 caracteres" minlength="12" maxlength="256" required>
@@ -95,6 +105,39 @@
       Promise.resolve().then(()=>showNewPassword());
     }
   });
+  // Recuperación alternativa cuando Supabase redirige al Site URL (localhost).
+  // El enlace se procesa en este navegador y el token solo se envía a Supabase Auth.
+  const pastedLinkForm=el("recoveryPastedLinkForm");
+  pastedLinkForm.addEventListener("submit",async(e)=>{
+    e.preventDefault();
+    const raw=String(el("recoveryPastedLink").value||"").trim().replace(/&amp;/g,"&");
+    let token="";
+    try{
+      const parsed=new URL(raw);
+      if(parsed.protocol!=="https:" || parsed.hostname!=="xanhhfashgkyrvphprts.supabase.co" ||
+         parsed.pathname!=="/auth/v1/verify" || parsed.searchParams.get("type")!=="recovery"){
+        throw Error("Enlace de recuperación no reconocido.");
+      }
+      token=String(parsed.searchParams.get("token")||parsed.searchParams.get("token_hash")||"");
+      if(!/^[a-zA-Z0-9_-]{32,256}$/.test(token))throw Error("El enlace no contiene un código válido.");
+    }catch{
+      showStatus("Pega el enlace COMPLETO de recuperación que recibiste de OLON Society Academy. Debe comenzar con https:// y contener el código de recuperación.","error");
+      return;
+    }
+    const btn=el("recoveryVerifyLinkBtn");
+    btn.disabled=true;btn.textContent="Verificando enlace...";
+    try{
+      const {data,error}=await client.auth.verifyOtp({token_hash:token,type:"recovery"});
+      if(error)throw error;
+      if(!data?.session?.access_token)throw Error("Supabase no pudo iniciar la sesión de recuperación.");
+      el("recoveryPastedLink").value="";
+      el("recoveryFallback").hidden=true;
+      showNewPassword();
+    }catch(err){
+      // No se registran ni transmiten los enlaces a ningún otro servicio.
+      showStatus("El enlace expiró, ya se utilizó o no es válido. Solicita otro correo nuevo y copia el enlace antes de abrirlo.","error");
+    }finally{btn.disabled=false;btn.textContent="Verificar enlace y cambiar contraseña →";}
+  });
   emailForm.addEventListener("submit",async(e)=>{
     e.preventDefault();
     const email=String(el("recoveryEmail").value||"").trim().toLowerCase();
@@ -103,10 +146,10 @@
     }
     const btn=el("recoverySendBtn");btn.disabled=true;btn.textContent="Enviando solicitud...";
     try{
-      const target=new URL(location.href);
-      target.search="";
-      target.hash="";
-      target.searchParams.set("mode","update");
+      const target=new URL("./recuperar.html?mode=update",location.href);
+      if(target.protocol!=="https:" && target.hostname!=="localhost"){
+        throw Error("Abre el portal con HTTPS para solicitar la recuperación.");
+      }
       const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:target.toString()});
       if(error)throw error;
       showStatus("Si ese correo está registrado, recibirás un enlace de recuperación. Revisa tu bandeja de entrada y la carpeta de spam.","success");
