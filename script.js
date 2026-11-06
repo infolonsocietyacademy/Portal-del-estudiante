@@ -868,9 +868,12 @@ async function fetchRecords(){
 }
 
 async function delRecord(id){
-  const { error } = await supabaseClient.from("student_records").delete().eq("id", id).eq("student_id", currentUser.id);
+  const owner = currentUser?.id;
+  if(!owner) return;
+  const { error } = await supabaseClient.from("student_records").delete().eq("id", id).eq("student_id", owner);
   if(error){ showError("No se pudo eliminar el registro.", error); return; }
-  await fetchRecords(); await render();
+  void window.olonAcademy?.cleanupJournalFiles(id, owner);
+  if(currentUser?.id === owner){ await fetchRecords(); await render(); }
 }
 
 function isTradingRecord(record){
@@ -1342,15 +1345,18 @@ async function render(){
   body.innerHTML = records.slice().reverse().map(r=>{
     const net = netAmount(r.gain, r.loss);
     const result = isTradingRecord(r) ? '<span class="badge ' + (net < 0 ? "red" : "green") + '">' + signedTradeMoney(net) + '</span>' : "—";
-    return `<tr><td>${escapeHTML(r.date)}</td><td>${money(r.deposit)}</td><td>${money(r.withdrawal)}</td><td class="good">${money(r.gain)}</td><td class="bad">${money(r.loss)}</td><td>${result}</td><td>${escapeHTML(r.note) || "—"}</td><td>${recordHistoryActions(r.id)}</td></tr>`;
+    return `<tr><td>${escapeHTML(r.date)}</td><td>${money(r.deposit)}</td><td>${money(r.withdrawal)}</td><td class="good">${money(r.gain)}</td><td class="bad">${money(r.loss)}</td><td>${result}</td><td>${escapeHTML(r.note) || "—"}</td><td>${recordHistoryActions(r)}</td></tr>`;
   }).join("") || `<tr><td colspan="8" style="color:var(--muted)">No hay registros todavía.</td></tr>`;
   renderHistoryMobileCards(records);
   renderCompare(); renderChart(); renderProDashboard();
 }
 
-function recordHistoryActions(id){
-  const safeId = escapeHTML(id);
+function recordHistoryActions(record){
+  const safeId = escapeHTML(record.id);
+  const journal = isTradingRecord(record)
+    ? `<button type="button" class="btn secondary" data-record-journal="${safeId}">Diario visual</button>` : "";
   return `<div class="ledgerButtons ledgerHistoryActions">
+    ${journal}
     <button type="button" class="btn secondary" data-record-edit="${safeId}">Editar</button>
     <button type="button" class="btn secondary" data-record-delete="${safeId}">Eliminar</button>
   </div>`;
@@ -1529,7 +1535,7 @@ function renderHistoryMobileCards(records){
     return `<div class="mobileRecordCard">
       <div class="mobileRecordTop"><div><div class="mobileRecordDate">${escapeHTML(r.date)}</div><div class="mobileRecordNote">${escapeHTML(r.note) || "Sin nota"}</div></div><span class="badge ${badge}">${label}</span></div>
       <div class="mobileStats">${stats}</div>
-      ${recordHistoryActions(r.id)}
+      ${recordHistoryActions(r)}
     </div>`;
   }).join("") || '<div class="mobileRecordCard"><div class="mobileRecordDate">No hay registros todavía.</div></div>';
 }
@@ -1645,6 +1651,12 @@ function renderHistoryMobileCards(records){
     comparacion:"Compara tu mes actual con el mes anterior.",
     publicChat:"Canal público para todos los estudiantes.",
     newsProPage:"Titulares y calendario económico.",
+    academyClassesPage:"Próximas sesiones y material de repaso.",
+    academyVipPage:"Comprobantes y próxima fecha de pago.",
+    academyChecklistPage:"Tus reglas y la revisión de cada día.",
+    academyJournalPage:"Captura y notas privadas de tu operación.",
+    academyAdminClassesPage:"Agenda, acceso y grabaciones de la academia.",
+    academyAdminVipPage:"Revisión de comprobantes de membresía.",
     admin:"Panel administrativo profesional.",
     adminChat:"Centro de mensajes privados."
   };
@@ -1664,7 +1676,7 @@ function renderHistoryMobileCards(records){
       if(btn) btn.classList.add("active");
 
       const title = $("pageTitle");
-      if(title) title.innerText = btn ? clean(btn.textContent) : clean(id);
+      if(title) title.innerText = btn ? clean(btn.textContent) : id === "academyJournalPage" ? "Diario visual" : clean(id);
 
       const sub = $("pageSubtitle");
       if(sub && subtitles[id]) sub.innerText = subtitles[id];
@@ -3085,6 +3097,7 @@ function installPortalNavigation(){
 
   const showPage = window.showPage;
   window.showPage = function(id, button){
+    if(window.olonAcademy?.allows(id) === false) return;
     const previous = document.querySelector("#portal .page:not(.hidden)")?.id;
     const result = showPage.call(this, id, button);
     const current = document.querySelector("#portal .page:not(.hidden)")?.id;
@@ -3093,6 +3106,7 @@ function installPortalNavigation(){
     syncPortalNavigation(id);
     closeMenu();
     if(portalMenuBreakpoint.matches && previous !== id) window.scrollTo({top: 0, behavior: "instant"});
+    window.olonAcademy?.openPage(id);
     return result;
   };
 }

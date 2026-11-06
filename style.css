@@ -1858,3 +1858,52 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
   }
   #portal .calDay.cashDay .calendarAmount { font-size: clamp(7px, 2.15vw, 10px); }
 }
+
+/* Academy lessons, VIP receipts and student tools */
+#portal .academyPage [hidden], #portal .vipRenewalAction[hidden] { display:none !important; }
+#portal .vipRenewalAction { grid-column:1 / -1; }
+#portal .academyPage .academyHero {
+  padding:clamp(1rem, 3vw, 1.65rem); border:1px solid #cee2d5;
+  background:linear-gradient(135deg,#f7fbf8,#e9f3ed);
+}
+#portal .academyHero > span {
+  display:block; margin-bottom:.32rem; color:#527763; font-weight:800; font-size:.68rem; letter-spacing:.12em;
+}
+#portal .academyHero h3, #portal .academyCard h4, #portal .academyItem h5 { margin:0; color:#1c4736; }
+#portal .academyHero h3 { font-size:clamp(1.3rem,3vw,1.8rem); }
+#portal .academyHero p { margin:.45rem 0 0; color:#486558; font-size:.9rem; }
+#portal .academyHero .academyActions { margin-top:.8rem; }
+#portal .academyHero .academyPaymentDate { color:#2d634b; font-weight:750; }
+#portal .academyCard { margin-top:.9rem; }
+#portal .academyCard h4 { margin-bottom:.75rem; font-size:1.1rem; }
+#portal .academyList { display:grid; gap:.6rem; min-width:0; }
+#portal .academyItem {
+  display:grid; gap:.42rem; min-width:0; padding:.8rem; border:1px solid #dce9df; border-radius:.75rem; background:#fbfdfb;
+}
+#portal .academyItemHead { display:flex; align-items:baseline; justify-content:space-between; gap:.55rem; }
+#portal .academyItem h5 { font-size:1rem; overflow-wrap:anywhere; }
+#portal .academyMeta, #portal .academyEmpty, #portal .academyCopy, #portal .academyNote {
+  margin:0; color:#4c695b; font-size:.84rem; overflow-wrap:anywhere;
+}
+#portal .academyCopy { white-space:pre-wrap; }
+#portal .academyEmpty, #portal .academyNote { padding:.65rem 0; }
+#portal .academyBadge {
+  flex:none; padding:.25rem .42rem; border-radius:.45rem; background:#e6f0e9; color:#295943; font-size:.7rem; font-weight:750;
+}
+#portal .academyBadge[data-status="pending"] { background:#f8edce; color:#76571e; }
+#portal .academyBadge[data-status="rejected"] { background:#faede6; color:#8e4834; }
+#portal .academyActions { display:flex; align-items:center; flex-wrap:wrap; gap:.42rem; }
+#portal .academyActions :is(button,a) { min-height:42px; text-decoration:none; }
+#portal .academyFeedback { margin:.65rem 0 0; padding:.58rem .7rem; border:1px solid #d4e7da; border-radius:.6rem; color:#215a3d; background:#edf6ef; font-size:.83rem; }
+#portal .academyFeedback[data-tone="error"] { border-color:#ebcbc1; background:#fff4ef; color:#813e30; }
+#portal .academyCheckItem { display:flex; gap:.75rem; align-items:center; padding:.6rem .7rem; border:1px solid #dbe8df; border-radius:.6rem; cursor:pointer; }
+#portal .academyCheckItem input { width:1.2rem; height:1.2rem; margin:0; flex:none; accent-color:#21694f; }
+#portal .academyCheckItem small { display:block; margin-top:.16rem; color:#527262; overflow-wrap:anywhere; }
+#portal .academyDateField { max-width:16rem; margin-bottom:.7rem; }
+#portal #academyDayForm > .academyActions, #portal .academyReviewForm { margin-top:.7rem; }
+#portal .academyPage input[type="file"] { max-width:100%; }
+@media(max-width:620px){
+  #portal .academyPage .academyActions :is(button,a) { font-size:.8rem; padding-inline:.65rem; }
+  #portal .academyPage .academyItem { padding:.68rem; }
+}
+#portal .academyChartPreview { flex-basis:100%; width:100%; max-width:34rem; max-height:26rem; object-fit:contain; object-position:left center; border-radius:.6rem; }
