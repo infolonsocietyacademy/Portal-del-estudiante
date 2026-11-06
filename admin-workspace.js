@@ -10,7 +10,6 @@
   const uuid = v => /^[a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}$/i.test(String(v || ""));
   const fields = "id,email,full_name,access_code,role,plan,status,next_payment_date,created_at";
   const states = [["pending","Pendiente"],["active","Activo"],["suspended","Suspendido"],["expired","Expirado"]];
-  const plans = ["VIP Regular","VIP Premium"];
   let busy = false;
   let loadPromise = null;
   let autoTimer = null;
@@ -61,20 +60,14 @@
     const btn=$("adminRefreshBtn"); if(btn){btn.disabled=value;btn.textContent=value?"Actualizando…":"↻ Actualizar datos";}
     const approve=$("adminApproveAllBtn"); if(approve)approve.disabled=value||busy||!students().some(u=>norm(u.status)==="pending");
   }
-  function dateText(s) {
-    if(!s)return "Sin asignar";
-    const d=new Date(String(s)+"T12:00:00");
-    return Number.isNaN(d.getTime())?String(s):d.toLocaleDateString("es-PR",{day:"2-digit",month:"short",year:"numeric"});
-  }
   function paymentRisk(user) {
     const status=norm(user.status);
     if(status==="suspended"||status==="expired")return {text:"Revisar acceso",kind:"bad"};
     if(status==="pending")return {text:"Por aprobar",kind:"warn"};
     if(!user.next_payment_date)return {text:"Sin fecha",kind:"neutral"};
-    const raw=new Date(String(user.next_payment_date)+"T12:00:00");
-    if(Number.isNaN(raw.getTime()))return {text:"Fecha inválida",kind:"warn"};
-    const now=new Date(); const localToday=new Date(now.getFullYear(),now.getMonth(),now.getDate(),12);
-    const days=Math.round((raw.getTime()-localToday.getTime())/86400000);
+    const payment=getVipPayment(user.next_payment_date);
+    if(!payment)return {text:"Fecha inválida",kind:"neutral"};
+    const {days}=payment;
     if(days<0)return {text:"Vencido "+Math.abs(days)+"d",kind:"bad"};
     if(days<=5)return {text:days===0?"Vence hoy":"Vence en "+days+"d",kind:"warn"};
     return {text:"Al día",kind:"good"};
@@ -100,14 +93,13 @@
     const avatar=esc(String(u.full_name||"O").split(/\s+/).map(w=>w.charAt(0)).join("").slice(0,2).toUpperCase());
     const safeId=String(u.id||"");
     const isRoot=norm(u.role)==="admin";
-    const plan=isRoot?'<span class="adminRoleProtected">Administrador</span>':
-      selector(safeId,u.plan,plans.map(p=>[p,p]),"plan","Plan de "+String(u.full_name||"estudiante"));
+    const membership=isRoot?'<span class="adminRoleProtected">Administrador</span>':'<span class="adminStateTag active">VIP</span>';
     const state=isRoot?'<span class="adminStateTag active">Activo · Admin</span>':
       selector(safeId,norm(u.status)==="approved"?"active":norm(u.status),states,"status","Acceso de "+String(u.full_name||"estudiante"));
-    const pay=isRoot?'—':'<div class="adminPaymentCell"><input type="date" class="adminDateInput" aria-label="Fecha próximo pago de '+name+'" data-payment-id="'+safeId+'" value="'+esc(u.next_payment_date||"")+'"><button type="button" class="adminDateSave" title="Guardar fecha de pago" onclick="olonAdmin.payment(\''+safeId+'\')">Guardar</button></div>';
+    const pay=isRoot?'—':'<div class="adminPaymentCell"><input type="date" class="adminDateInput" aria-label="Fecha próximo pago de '+name+'" value="'+esc(u.next_payment_date||"")+'"><button type="button" class="adminDateSave" title="Guardar fecha de pago" onclick="olonAdmin.payment(\''+safeId+'\',this)">Guardar</button></div>';
     return '<tr><td><div class="adminStudent"><span class="adminAvatar">'+avatar+'</span><div><b>'+name+'</b><small>'+email+'</small></div></div></td>'+
       '<td><span class="adminCode">'+esc(u.access_code||"—")+'</span></td>'+
-      '<td>'+plan+'</td><td>'+state+'</td><td>'+pay+'</td>'+
+      '<td>'+membership+'</td><td>'+state+'</td><td>'+pay+'</td>'+
       '<td><span class="adminRisk '+risk.kind+'">'+esc(risk.text)+'</span></td><td>'+actionButtons(u)+'</td></tr>';
   }
   function mobile(u) {
@@ -115,18 +107,16 @@
     const initials=esc(String(u.full_name||"O").split(/\s+/).map(w=>w.charAt(0)).join("").slice(0,2).toUpperCase());
     return '<article class="adminStudentMobile"><div class="adminStudentMobileTop"><span class="adminAvatar">'+initials+'</span><div><b>'+esc(u.full_name||"Sin nombre")+'</b><small>'+esc(u.email||"Sin correo")+'</small></div>'+
       '<span class="adminRisk '+risk.kind+'">'+esc(risk.text)+'</span></div>'+
-      '<div class="adminStudentMobileData"><span>Código<strong>'+esc(u.access_code||"—")+'</strong></span><span>Estado<strong>'+esc(norm(u.status)||"—")+'</strong></span></div>'+
-      (!root?'<div class="adminStudentMobileFields"><label>Plan'+selector(id,u.plan,plans.map(p=>[p,p]),"plan","Plan")+'</label><label>Acceso'+selector(id,norm(u.status)==="approved"?"active":norm(u.status),states,"status","Acceso")+'</label></div>'+
-      '<div class="adminStudentMobilePayment"><label>Próximo pago<input type="date" class="adminDateInput" data-payment-id="'+id+'" value="'+esc(u.next_payment_date||"")+'"></label><button type="button" class="adminSmallButton" onclick="olonAdmin.payment(\''+id+'\')">Guardar fecha</button></div>':'<div class="adminRoleProtected">Cuenta administradora protegida</div>')+
+      '<div class="adminStudentMobileData"><span>Código<strong>'+esc(u.access_code||"—")+'</strong></span><span>Membresía<strong>'+(root?"Administrador":"VIP")+'</strong></span></div>'+
+      (!root?'<div class="adminStudentMobileFields"><label>Acceso'+selector(id,norm(u.status)==="approved"?"active":norm(u.status),states,"status","Acceso")+'</label></div>'+
+      '<div class="adminStudentMobilePayment"><label>Próximo pago<input type="date" class="adminDateInput" value="'+esc(u.next_payment_date||"")+'"></label><button type="button" class="adminSmallButton" onclick="olonAdmin.payment(\''+id+'\',this)">Guardar fecha</button></div>':'<div class="adminRoleProtected">Cuenta administradora protegida</div>')+
       '<div class="adminStudentMobileActions">'+actionButtons(u)+'</div></article>';
   }
   function visibleUsers() {
     const search=norm($("adminSearch")?.value);
     const status=$("adminStatusFilter")?.value||"all";
-    const plan=$("adminPlanFilter")?.value||"all";
     return students().filter(u=>{
       if(status!=="all"&&norm(u.status)!==status)return false;
-      if(plan!=="all"&&!norm(u.plan).includes(plan))return false;
       if(search&&!norm([u.full_name,u.email,u.access_code].join(" ")).includes(search))return false;
       return true;
     });
@@ -153,7 +143,7 @@
     setText("adminActiveUsers",count("active")+count("approved"));
     setText("adminPendingUsers",pending);
     setText("adminSuspendedUsers",count("suspended"));
-    setText("adminPremiumUsers",users.filter(u=>norm(u.plan).includes("premium")).length);
+    setText("adminUpcomingPayments",users.filter(u=>["active","approved"].includes(norm(u.status))&&paymentRisk(u).kind==="warn").length);
     setText("adminPendingCountInline",pending);
     setText("adminApproveAllBtn",pending?"✓ Aprobar "+pending+" pendiente"+(pending===1?"":"s"):"✓ Sin solicitudes");
     const approve=$("adminApproveAllBtn");if(approve)approve.disabled=pending===0||busy;
@@ -245,8 +235,7 @@
     const target=findStudent(id);
     if(!target){notify("Cuenta no válida o protegida. Actualiza el directorio.",true);return false;}
     if(field==="status"&&!states.some(([s])=>s===value)){notify("Estado no permitido.",true);return false;}
-    if(field==="plan"&&!plans.includes(value)){notify("Plan no permitido.",true);return false;}
-    if(field==="next_payment_date"&&value&&!/^\d{4}-\d{2}-\d{2}$/.test(value)){notify("La fecha no es válida.",true);return false;}
+    if(field==="next_payment_date"&&value&&!getVipPayment(value)){notify("La fecha no es válida.",true);return false;}
     const newValue=field==="next_payment_date"?(value||null):value;
     if((target[field]||null)===(newValue||null))return true;
     busy=true;setLoading(true);
@@ -273,13 +262,8 @@
     if(state==="active"&&norm(u.status)==="pending"&&!confirm("¿Aprobar el acceso de "+(u.full_name||u.email||"este estudiante")+"?")){renderTable();return;}
     await save(id,"status",state,"Estado de "+(u.full_name||"estudiante"));
   }
-  async function setPlan(id,plan){
-    const u=findStudent(id);if(!u)return;
-    if(await save(id,"plan",plan,"Plan de "+(u.full_name||"estudiante"))===false)renderTable();
-  }
-  async function setPayment(id){
-    const nodes=document.querySelectorAll('[data-payment-id="'+id+'"]');
-    const input=Array.from(nodes).find(n=>n===document.activeElement)||nodes[0];
+  async function setPayment(id,button){
+    const input=button.closest(".adminPaymentCell, .adminStudentMobilePayment")?.querySelector("input[type=date]");
     const u=findStudent(id);if(!input||!u)return;
     await save(id,"next_payment_date",input.value,"Fecha de pago de "+(u.full_name||"estudiante"));
   }
@@ -311,15 +295,6 @@
     if(!authorized())return;
     const input=$("adminStatusFilter");
     if(input)input.value=status;
-    if(status==="all"){
-      const plan=$("adminPlanFilter");if(plan)plan.value="all";
-    }
-    renderTable();go("adminStudentsBlock");
-  }
-  function plan(value){
-    if(!authorized())return;
-    const input=$("adminPlanFilter");if(input)input.value=value;
-    const status=$("adminStatusFilter");if(status)status.value="all";
     renderTable();go("adminStudentsBlock");
   }
   function openChat() {
@@ -338,7 +313,7 @@
   }
 
   window.olonAdmin={
-    refresh,render:renderTable,filter,plan,go,openChat,
+    refresh,render:renderTable,filter,go,openChat,
     loadAI,status:setStatus,approveAll,
     payment:setPayment
   };
@@ -350,9 +325,7 @@
   window.renderAdminNoloUsage=loadAI;
   window.updateAdminChatMetric=loadChatMetric;
   window.filterAdminUsers=filter;
-  window.filterAdminPlan=plan;
   window.updateUserStatus=setStatus;
-  window.updateUserPlan=setPlan;
   window.approveAllPendingUsers=approveAll;
 
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);

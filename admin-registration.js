@@ -39,7 +39,7 @@ function requestCard(r){
  const id=safe(r.id||"");
  if(r.status!=="pending")return '<article class="adminRequestRow processed"><div><b>'+name+'</b><small>'+email+'</small><span>'+date(r.created_at)+'</span></div><span class="adminRequestStatus">Procesada</span></article>';
  return '<article class="adminRequestRow"><div class="adminRequestIdentity"><b>'+name+'</b><small>'+email+'</small><span>Solicitó acceso: '+date(r.created_at)+'</span></div><div class="adminRequestActions">'+
-  '<label>Plan VIP<select id="request-plan-'+id+'"><option value="VIP Regular">VIP Regular</option><option value="VIP Premium">VIP Premium</option></select></label>'+
+  '<span class="adminRequestStatus">Membresía VIP</span>'+
   '<button type="button" class="adminSmallButton approve" data-approve="'+id+'">✓ Crear cuenta</button>'+
   '<button type="button" class="adminSmallButton" data-reject="'+id+'">Rechazar</button></div></article>';
 }
@@ -89,11 +89,10 @@ async function approve(id){
  if(!isAdmin()||busy)return;
  const target=last.find(r=>r.id===id&&r.status==="pending");
  if(!target)return;
- const plan=$("request-plan-"+id)?.value||"VIP Regular";
  if(!window.confirm("¿Crear y activar una cuenta para "+target.full_name+" ("+target.email+")?\nConfirma que el solicitante controla ese correo. Se generará una contraseña temporal visible solo ahora."))return;
  busy=true;
  try{
-  const result=await call("approve",{id,plan});
+  const result=await call("approve",{id});
   status("Cuenta de "+target.full_name+" creada y activada. Guarda sus credenciales temporales antes de cerrar.");
   showCredentials(result);
  }catch(e){status("No se pudo crear esta cuenta: "+String(e.message||e),true);}

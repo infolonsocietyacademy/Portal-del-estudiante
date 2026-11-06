@@ -13,14 +13,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>OLON Society Academy | Private Trading Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 
 
-<link rel="stylesheet" href="./style.css?v=20261106-signature-v6">
+<link rel="stylesheet" href="./style.css?v=20261106-menu-vip">
+<noscript><style>#olonLoader{display:none}</style></noscript>
 
 <style>
 /* Chat Público OLON */
@@ -67,23 +68,11 @@
 html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!important}
 #portal:not(.hidden){display:grid!important;position:relative!important;z-index:50!important}
 #auth.hidden,#codeResult.hidden{display:none!important;pointer-events:none!important;visibility:hidden!important}
-#olonLoader.hide{display:none!important;pointer-events:none!important;visibility:hidden!important}
-#portalEnterLoader{display:none;pointer-events:none!important}
-#portalEnterLoader.show{display:grid!important;pointer-events:auto!important}
 .authBgArt,.authOrb,.authMesh,.authBigText,.auth:before,.authHero:before{pointer-events:none!important}
-.sidebar,.nav,.nav button,.mobileBtn,.mobileBottomNav,.mobileBottomNav button{pointer-events:auto!important}
-.sidebar{z-index:9999!important}
-.nav button{position:relative!important;z-index:10000!important;cursor:pointer!important}
 .page.hidden{display:none!important}
 .page:not(.hidden){display:block!important}
 .main{position:relative!important;z-index:10!important;pointer-events:auto!important}
 .settingsPanel:not(.show){display:none!important;pointer-events:none!important}
-@media(max-width:980px){
-  .sidebar{position:fixed!important;left:-292px!important;top:0!important;bottom:0!important;height:100dvh!important;transition:left .2s ease!important}
-  .sidebar.open{left:0!important}
-  body.menu-open:after{content:"";position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:9998}
-  body.menu-open .sidebar{z-index:9999!important}
-}
 
 </style>
 </head>
@@ -116,41 +105,24 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 </div>
 
 
-<!-- LOADER PREMIUM OLON -->
-<div id="olonLoader">
-  <div class="loaderBox">
-    <div class="loaderLogoWrap">
-      <img class="loaderLogo" src="./assets/favicon.png" alt="OLON Society Academy">
+<div id="olonLoader" class="portalLoader" role="status" aria-live="polite" aria-atomic="true">
+  <div class="portalLoaderPanel">
+    <div class="portalLoaderEmblem" aria-hidden="true">
+      <img src="./assets/favicon.png" width="66" height="66" alt="">
     </div>
-    <div class="loaderTitle">OLON Society Academy</div>
-    <div class="loaderSub">Cargando portal seguro...</div>
-    <div class="loaderBar"><span></span></div>
+    <span class="portalLoaderKicker">PORTAL PRIVADO</span>
+    <strong class="portalLoaderBrand">OLON <em>Society</em></strong>
+    <span class="portalLoaderAcademy">ACADEMY</span>
+    <div class="portalLoaderTrack" aria-hidden="true"><span></span></div>
+    <p id="portalLoaderStatus">Preparando el portal…</p>
   </div>
 </div>
-
-
-<!-- LOADING ULTRA PREMIUM PARA ENTRAR AL PORTAL -->
-<div id="portalEnterLoader">
-  <div class="portalEnterBox">
-    <div class="portalEnterLogo">
-      <img src="./assets/favicon.png" alt="OLON Society Academy">
-    </div>
-    <div class="portalEnterKicker">🔐 Acceso validado</div>
-    <div class="portalEnterTitle">BIENVENIDO <span id="loaderStudentName">ESTUDIANTE</span></div>
-    <div class="portalEnterText">Preparando tu dashboard privado...</div>
-    <div class="portalEnterPlan" id="loaderStudentPlan">VIP REGULAR</div>
-
-    <div class="portalLoadingSteps">
-      <div class="portalStep active"><i>✓</i><span>Verificando acceso seguro</span></div>
-      <div class="portalStep active"><i>✓</i><span>Cargando datos del estudiante</span></div>
-      <div class="portalStep active"><i>✓</i><span>Activando experiencia OLON</span></div>
-    </div>
-
-    <div class="portalProgress"><span></span></div>
-    <div class="portalDots"><span></span><span></span><span></span></div>
-  </div>
-</div>
-
+<script>
+window.addEventListener("load", () => {
+  const loader = document.getElementById("olonLoader");
+  if (loader && !loader.dataset.managed) loader.hidden = true;
+}, {once: true});
+</script>
 
 
 <section id="auth" class="auth authFullScreenPro homePremium">
@@ -218,7 +190,7 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
           <div class="field"><label for="signupEmail">Correo electrónico</label><input id="signupEmail" type="email" placeholder="correo@ejemplo.com" autocomplete="email"></div>
           <div class="field"><label for="signupEmailConfirm">Confirma tu correo</label><input id="signupEmailConfirm" type="email" placeholder="Repite tu correo" autocomplete="email"><div id="emailVerifyStatus" class="emailStatus neutral">Verifica que tu correo esté escrito correctamente.</div><button type="button" class="btn secondary full verifyBtn" onclick="verifySignupEmail()">Comprobar correo</button></div>
           <div class="signupHoney" aria-hidden="true"><label for="signupWebsite">Sitio web</label><input type="text" id="signupWebsite" tabindex="-1" autocomplete="off"></div>
-          <div class="field"><label for="signupPlan">Plan VIP</label><select id="signupPlan" disabled><option value="VIP Regular">Pendiente de aprobación</option></select><small>El administrador asignará tu plan cuando apruebe la cuenta.</small></div>
+          <div class="signupMembership"><span>Membresía</span><strong>VIP</strong></div>
           <button id="signupSubmitBtn" class="btn full" type="button" onclick="signup()">Enviar solicitud de acceso →</button>
           <div id="signupRequestResult" class="authNote" role="status" aria-live="polite" hidden></div><div class="authLegal"><div class="authLegalItem"><div class="authLegalIcon">🛡️</div><div><b>Acceso sujeto a aprobación</b><p>Enviar la solicitud no crea una cuenta de inmediato. Cuando el administrador la apruebe, te dará una contraseña temporal.</p></div></div></div>
         </div>
@@ -268,26 +240,28 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 
 <section id="portal" class="app hidden">
 
-  <button type="button" class="portalMenuBackdrop" aria-label="Cerrar menú" onclick="closeMenu()"></button>
+  <button id="portalMenuBackdrop" type="button" class="portalMenuBackdrop" aria-label="Cerrar menú" tabindex="-1" hidden></button>
   <aside id="sidebar" class="sidebar portalSidebar" aria-label="Menú principal">
     <div class="portalSidebarTop">
       <div class="brand portalBrand">
-        <img src="./assets/logo.png" alt="OLON Society Academy" width="49" height="49">
+        <img src="./assets/favicon.png" alt="" width="46" height="46">
         <div class="portalBrandText">
           <h1>OLON <span>Society</span></h1>
-          <small id="portalMode">Student Portal</small>
+          <small>ACADEMY</small>
         </div>
-        <button type="button" class="portalSidebarClose" onclick="toggleMenu()" aria-label="Cerrar menú">×</button>
+        <button id="portalMenuClose" type="button" class="portalSidebarClose" aria-label="Cerrar menú">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
       </div>
-      <div class="portalSidebarEyebrow"><span class="portalLiveDot"></span> ÁREA PRIVADA <span class="portalEdition">2026</span></div>
+      <div class="portalSidebarEyebrow"><span class="portalLiveDot" aria-hidden="true"></span><span id="portalMode">Portal del estudiante</span></div>
     </div>
     <nav class="nav portalNav" aria-label="Navegación del portal">
-      <div class="portalNavGroup studentNav">PANEL PERSONAL</div>
+      <div class="portalNavGroup studentNav">TRADING</div>
       <button type="button" class="portalNavLink studentNav active" data-page="dashboard" onclick="showPage('dashboard',this)" aria-label="Resumen"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></span><span class="portalNavText">Resumen</span></button>
       <button type="button" class="portalNavLink studentNav" data-page="registro" onclick="showPage('registro',this)" aria-label="Registrar día"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/><rect x="2.5" y="2.5" width="19" height="19" rx="4"/></svg></span><span class="portalNavText">Registrar día</span></button>
       <button type="button" class="portalNavLink studentNav" data-page="historial" onclick="showPage('historial',this)" aria-label="Historial"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 14h3M8 17h7"/></svg></span><span class="portalNavText">Historial</span></button>
       <button type="button" class="portalNavLink studentNav" data-page="comparacion" onclick="showPage('comparacion',this)" aria-label="Resultados"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V11M10 20V5M16 20v-8M22 20V3"/><path d="M2 20h20"/></svg></span><span class="portalNavText">Resultados</span></button>
-      <div class="portalNavGroup studentNav portalNavGroupSecondary">ACADEMIA Y COMUNIDAD</div>
+      <div class="portalNavGroup studentNav portalNavGroupSecondary">ACADEMIA</div>
       <button type="button" class="portalNavLink studentNav" data-page="publicChat" onclick="showPage('publicChat',this)" aria-label="Comunidad"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5c0 4.7-3.9 8.5-8.7 8.5-1.5 0-3-.4-4.2-1l-5.1 2 1.6-4.9A8.1 8.1 0 0 1 3 11.5C3 6.8 7 3 12 3s9 3.8 9 8.5Z"/><path d="M8 11h8M8 14h5"/></svg></span><span class="portalNavText">Comunidad</span></button>
       <button type="button" class="portalNavLink studentNav" data-page="newsProPage" onclick="showPage('newsProPage',this)" aria-label="Noticias"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10M7 11h4M13 11h4M7 15h10M7 18h7"/></svg></span><span class="portalNavText">Noticias</span></button>
       <button type="button" class="portalNavLink studentNav" data-page="noloAIPage" onclick="showPage('noloAIPage',this)" aria-label="Nolo IA"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="6" width="14" height="14" rx="3"/><path d="M12 2v4M2 12h3M19 12h3M9 10v3M15 10v3M9 16h6"/></svg></span><span class="portalNavText">Nolo IA</span></button>
@@ -298,23 +272,21 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
     </nav>
     <div class="portalSidebarBottom">
       <div class="sideBox portalAccessCard">
-        <span class="portalAccessEyebrow"><span class="portalLiveDot"></span> ESTADO DE TU ACCESO</span>
-        <h3 id="accessStatus">Cuenta activa</h3>
-        <small>OLON Society Academy · Portal privado</small>
+        <span class="portalAccessEyebrow">TU CUENTA</span>
+        <h3 id="accessStatus">Membresía VIP</h3>
       </div>
-      <button type="button" class="portalExitBtn" data-olon-logout onclick="logout()" aria-label="Cerrar sesión del portal"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5M17 16l4-4-4-4M21 12H9"/></svg></span><span>Salir del portal</span><span class="portalExitArrow">↗</span></button>
-      <p class="portalSidebarCopyright">© 2026 OLON Society Academy</p>
+      <button type="button" class="portalExitBtn" data-olon-logout onclick="logout()" aria-label="Cerrar sesión del portal"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5M17 16l4-4-4-4M21 12H9"/></svg></span><span>Salir del portal</span></button>
     </div>
   </aside>
 
   <main class="main">
-    <button id="mobileMenuToggle" class="mobileMenuToggle" type="button" onclick="toggleMenu()" aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false">
-      <span id="mobileMenuIcon">☰</span>
-    </button>
     <div class="topbar portalTopbar">
+      <button id="mobileMenuToggle" class="mobileMenuToggle" type="button" aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+      </button>
       <div class="portalPageInfo">
-        <div class="portalTopBreadcrumb">OLON SOCIETY <span> / </span> PORTAL PRIVADO</div>
-        <h2 id="pageTitle">OLON Command Center</h2>
+        <div class="portalTopBreadcrumb">PORTAL PRIVADO</div>
+        <h2 id="pageTitle">Resumen</h2>
         <p id="pageSubtitle">Control privado de rendimiento, disciplina, reportes y progreso del trader.</p>
       </div>
       <div class="portalTopActions">
@@ -335,6 +307,17 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
         </div>
       </div>
 
+      <section class="vipPayment studentOnly" id="vipPayment" aria-labelledby="vipPaymentTitle" data-state="unassigned">
+        <header class="vipPaymentHeader">
+          <span class="vipPaymentIcon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 10h18m-13 6 2 2 5-5"/></svg></span>
+          <div><span class="vipPaymentKicker">TU MEMBRESÍA</span><h3 id="vipPaymentTitle">Acceso VIP</h3></div>
+          <span class="vipPaymentBadge" id="vipPaymentBadge">Fecha pendiente</span>
+        </header>
+        <dl class="vipPaymentDetails">
+          <div><dt>Próximo pago</dt><dd id="vipPaymentDate">Sin fecha asignada</dd></div>
+          <div><dt>Días para renovar tu acceso</dt><dd id="vipPaymentDays">—</dd></div>
+        </dl>
+      </section>
 
       <div class="olonIdentityStrip">
         <div>
@@ -491,8 +474,6 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
             Este portal no compara estudiantes. Cada persona se mide contra su propio progreso:
             mes actual vs mes anterior.
           </p>
-          <div class="regularOnly" style="margin:14px 0;padding:12px;border-radius:16px;background:rgba(59,130,246,.10);border:1px solid rgba(59,130,246,.18);color:var(--muted);font-size:13px;line-height:1.5">🔥 Estilo VIP Regular activo: dashboard limpio, privado y directo.</div>
-          <div class="premiumOnly" style="margin:14px 0;padding:12px;border-radius:16px;background:rgba(255,216,107,.10);border:1px solid rgba(255,216,107,.25);color:#fde68a;font-size:13px;line-height:1.5">💎 Estilo VIP Premium activo: experiencia visual premium con glow, detalles dorados y diseño más exclusivo.</div>
           <button class="btn" onclick="showPageById('registro')">Registrar resultado de hoy</button>
         </div>
       </div>
@@ -853,7 +834,7 @@ Entrada al grupo</textarea>
         <div class="adminRequestNotice">Al aprobar, se crea una cuenta real con contraseña temporal. <strong>Confirma primero que el correo pertenece al estudiante.</strong> Comparte la contraseña por privado y pídele que la cambie. Las solicitudes no envían correos automáticamente.</div>
         <div id="adminRequestsFeedback" class="adminActionFeedback" role="status" aria-live="polite" hidden></div>
         <div id="adminRequestsList" class="adminRequestsList"><p class="adminRequestEmpty">Cargando solicitudes…</p></div>
-        <div class="adminDirectoryFooter">Las solicitudes pendientes aún no aparecen en el directorio. Los estudiantes aparecerán allí después de crear y activar su cuenta.</div>
+        <div class="adminDirectoryFooter">Al crear una cuenta, busca al estudiante en el directorio para asignar su próxima fecha de pago.</div>
       </section>
 
 
@@ -866,7 +847,7 @@ Entrada al grupo</textarea>
         <button type="button" class="adminMetric adminMetricBtn" onclick="olonAdmin.filter('active')"><span class="adminMetricIcon">✓</span><small>Activos</small><b id="adminActiveUsers">—</b><span>Con acceso aprobado</span></button>
         <button type="button" class="adminMetric adminMetricBtn adminMetricPending" onclick="olonAdmin.filter('pending')"><span class="adminMetricIcon">◷</span><small>Por aprobar</small><b id="adminPendingUsers">—</b><span>Solicitudes pendientes</span></button>
         <button type="button" class="adminMetric adminMetricBtn" onclick="olonAdmin.filter('suspended')"><span class="adminMetricIcon">⊘</span><small>Suspendidos</small><b id="adminSuspendedUsers">—</b><span>Acceso detenido</span></button>
-        <button type="button" class="adminMetric adminMetricBtn" onclick="olonAdmin.plan('premium')"><span class="adminMetricIcon">◆</span><small>VIP Premium</small><b id="adminPremiumUsers">—</b><span>Plan Premium asignado</span></button>
+        <div class="adminMetric"><span class="adminMetricIcon" aria-hidden="true">◷</span><small>Pagos próximos</small><b id="adminUpcomingPayments">—</b><span>Vencen en los próximos 5 días</span></div>
         <button type="button" class="adminMetric adminMetricBtn" onclick="olonAdmin.openChat()"><span class="adminMetricIcon">✉</span><small>Mensajes pendientes</small><b id="adminChatMetric">—</b><span>Conversaciones por atender</span></button>
       </div>
 
@@ -890,7 +871,7 @@ Entrada al grupo</textarea>
 
       <section id="adminStudentsBlock" class="adminWorkspaceCard adminWorkspaceDirectory" aria-labelledby="adminStudentsHeading">
         <div class="adminWorkspaceCardHead adminDirectoryHead">
-          <div><span class="adminSectionEyebrow">04 / DIRECTORIO</span><h4 id="adminStudentsHeading">Gestión de estudiantes</h4><p>Aprueba solicitudes, actualiza planes, administra accesos y revisa vencimientos.</p></div>
+          <div><span class="adminSectionEyebrow">04 / DIRECTORIO</span><h4 id="adminStudentsHeading">Gestión de estudiantes</h4><p>Administra accesos y asigna la próxima fecha de pago de cada estudiante VIP.</p></div>
           <div class="adminDirectoryHeadRight"><span id="adminCountPill" class="adminCountPill">0 resultados</span><button id="adminApproveAllBtn" type="button" class="adminBtn adminBtnGold" onclick="olonAdmin.approveAll()">✓ Aprobar pendientes</button></div>
         </div>
         <div class="adminDirectoryControls">
@@ -904,13 +885,12 @@ Entrada al grupo</textarea>
           <div class="adminTools adminGodTools">
             <label class="adminSearchWrap"><span>Buscar estudiante</span><input id="adminSearch" class="adminSearch" placeholder="Nombre, correo o código OLON…" autocomplete="off" oninput="olonAdmin.render()"></label>
             <label><span>Estado</span><select id="adminStatusFilter" class="adminSelect" onchange="olonAdmin.render()"><option value="all">Todos los estados</option><option value="pending">Pendientes</option><option value="active">Activos</option><option value="suspended">Suspendidos</option><option value="expired">Expirados</option></select></label>
-            <label><span>Membresía</span><select id="adminPlanFilter" class="adminSelect" onchange="olonAdmin.render()"><option value="all">Todos los planes</option><option value="regular">VIP Regular</option><option value="premium">VIP Premium</option></select></label>
           </div>
         </div>
         <div id="adminActionFeedback" class="adminActionFeedback" role="status" aria-live="polite" hidden></div>
         <div class="tableWrap adminTable adminGodTable adminDirectoryTable">
           <table>
-            <thead><tr><th>Estudiante</th><th>Código</th><th>Plan VIP</th><th>Acceso</th><th>Próximo pago</th><th>Seguimiento</th><th>Acciones</th></tr></thead>
+            <thead><tr><th>Estudiante</th><th>Código</th><th>Membresía</th><th>Acceso</th><th>Próximo pago</th><th>Seguimiento</th><th>Acciones</th></tr></thead>
             <tbody id="usersBody"><tr><td colspan="7">Cargando estudiantes…</td></tr></tbody>
           </table>
         </div>
@@ -975,18 +955,6 @@ Entrada al grupo</textarea>
     </section>
 
 
-    <nav class="mobileBottomNav studentOnly" aria-label="Navegación móvil">
-      <button class="active" type="button" onclick="mobileGo('dashboard', this)"><span>⌂</span><small>Inicio</small></button>
-      <button type="button" onclick="mobileGo('registro', this)"><span>＋</span><small>Trade</small></button>
-      <button type="button" onclick="mobileGo('historial', this)"><span>▤</span><small>Historial</small></button>
-      <button type="button" onclick="mobileGo('comparacion', this)"><span>↗</span><small>Reporte</small></button>
-      <button type="button" onclick="mobileGo('newsProPage', this)"><span>📰</span><small>Noticias</small></button>
-      <button type="button" onclick="mobileGo('noloAIPage', this)"><span>🤖</span><small>Nolo IA</small></button>
-      <button type="button" onclick="mobileGo('entretenimiento', this)"><span>🎮</span><small>Gana</small></button>
-      <button type="button" onclick="mobileOpenAccount(this)"><span>◉</span><small>Cuenta</small></button>
-      <button type="button" class="portalMobileLogoutBtn" data-olon-logout onclick="logout()" aria-label="Salir del portal"><span>↪</span><small>Salir</small></button>
-    </nav>
-
     <footer class="portalFooter">
       <img class="portalFooterSeal" src="./assets/footer-seal.png" alt="OLON Society Academy">
       <p>© 2026 OLON Society Academy. Todos los derechos reservados.</p>
@@ -996,9 +964,9 @@ Entrada al grupo</textarea>
 </section>
 
 
-<script src="./script.js?v=20261106-portal-premium-v3" defer></script>
-<script src="./admin-workspace.js?v=20261106-admin-flex-7" defer></script>
-<script src="./admin-registration.js?v=20261106-request-2" defer></script>
+<script src="./script.js?v=20261106-menu-vip" defer></script>
+<script src="./admin-workspace.js?v=20261106-menu-vip" defer></script>
+<script src="./admin-registration.js?v=20261106-menu-vip" defer></script>
 
 <script>
 /* FIX FUERTE: La pantalla de código NO se muestra al cargar.
@@ -1028,269 +996,6 @@ Entrada al grupo</textarea>
     lockCodeResult();
   }
 })();
-</script>
-
-<script id="olon-rescue-js">
-
-/* ===== OLON RESCUE FIX: MENU INTERACTIVO ===== */
-(function(){
-  function $(id){ return document.getElementById(id); }
-  function clean(t){ return String(t||"").replace(/[^\wÁÉÍÓÚáéíóúñÑ# ]/g,"").replace(/\s+/g," ").trim(); }
-
-  const subtitles = {
-    dashboard:"Control privado de rendimiento, disciplina, reportes y progreso del trader.",
-    registro:"Registra depósito, ganancia, pérdida y notas del día.",
-    historial:"Consulta tu historial individual.",
-    comparacion:"Compara tu mes actual con el mes anterior.",
-    publicChat:"Canal público para todos los estudiantes.",
-    admin:"Panel administrativo profesional.",
-    adminChat:"Centro de mensajes privados."
-  };
-
-  function forceOpenPortalIfLogged(){
-    try{
-      const saved = null; // Solo Supabase Auth puede restaurar una sesión.
-      if(saved && $("portal") && $("auth")){
-        $("auth").classList.add("hidden");
-        $("codeResult")?.classList.add("hidden");
-        $("portal").classList.remove("hidden");
-      }
-    }catch(e){}
-  }
-
-  window.showPage = function(id, btn){
-    try{
-      const page = $(id);
-      if(!page){
-        console.warn("No existe page:", id);
-        return;
-      }
-
-      document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
-      page.classList.remove("hidden");
-
-      document.querySelectorAll(".nav button,.mobileBottomNav button").forEach(b => b.classList.remove("active"));
-      if(btn) btn.classList.add("active");
-
-      const title = $("pageTitle");
-      if(title) title.innerText = btn ? clean(btn.textContent) : clean(id);
-
-      const sub = $("pageSubtitle");
-      if(sub && subtitles[id]) sub.innerText = subtitles[id];
-
-      const sidebar = $("sidebar");
-      if(sidebar) sidebar.classList.remove("open");
-      document.body.classList.remove("menu-open");
-
-      if(id === "publicChat" && typeof window.loadPublicChat === "function") setTimeout(window.loadPublicChat, 80);
-      if(id === "adminChat" && typeof window.loadAdminChatInbox === "function") setTimeout(window.loadAdminChatInbox, 80);
-      if(id === "admin" && typeof window.renderUsers === "function") setTimeout(window.renderUsers, 80);
-      if(id === "dashboard" && typeof window.updatePortalWelcome === "function") setTimeout(window.updatePortalWelcome, 80);
-    }catch(err){
-      console.error("RESCUE showPage error", err);
-    }
-  };
-
-  window.showPageById = function(id){
-    const btn = document.querySelector(`[data-page="${id}"], .nav button[onclick*="'${id}'"]`);
-    window.showPage(id, btn);
-  };
-
-  window.toggleMenu = function(){
-    const sidebar = $("sidebar");
-    if(!sidebar) return;
-    sidebar.classList.toggle("open");
-    document.body.classList.toggle("menu-open", sidebar.classList.contains("open"));
-  };
-
-  window.mobileGo = function(id, btn){ window.showPage(id, btn); };
-  window.mobileOpenAccount = function(btn){ window.showPage("dashboard", btn); };
-
-  document.addEventListener("click", function(e){
-    const navBtn = e.target.closest(".nav button[data-page], .nav button[onclick*='showPage']");
-    if(navBtn){
-      let id = navBtn.getAttribute("data-page");
-      if(!id){
-        const on = navBtn.getAttribute("onclick") || "";
-        const m = on.match(/showPage\('([^']+)'/);
-        if(m) id = m[1];
-      }
-      if(id){
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        window.showPage(id, navBtn);
-        return false;
-      }
-    }
-
-    const menuBtn = e.target.closest(".mobileBtn");
-    if(menuBtn && String(menuBtn.getAttribute("onclick")||"").includes("toggleMenu")){
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      window.toggleMenu();
-      return false;
-    }
-  }, true);
-
-  document.addEventListener("click", function(e){
-    if(!document.body.classList.contains("menu-open")) return;
-    const sidebar = $("sidebar");
-    if(sidebar && !sidebar.contains(e.target) && !e.target.closest(".mobileBtn")){
-      sidebar.classList.remove("open");
-      document.body.classList.remove("menu-open");
-    }
-  });
-
-  document.addEventListener("DOMContentLoaded", function(){
-    forceOpenPortalIfLogged();
-
-    const loader = $("olonLoader");
-    if(loader){
-      setTimeout(() => {
-        loader.classList.add("hide");
-        loader.style.display = "none";
-      }, 1800);
-    }
-    const enterLoader = $("portalEnterLoader");
-    if(enterLoader && !enterLoader.classList.contains("show")){
-      enterLoader.style.display = "none";
-    }
-  });
-})();
-
-</script>
-
-<script>
-
-/* =====================================================
-   MENU TOGGLE WEB + MOBILE + IPAD - FINAL
-   ===================================================== */
-(function(){
-  function getPortal(){ return document.getElementById("portal"); }
-  function getSidebar(){ return document.getElementById("sidebar"); }
-  function getIcon(){ return document.getElementById("mobileMenuIcon"); }
-  function getBtn(){ return document.getElementById("mobileMenuToggle"); }
-
-  function isDesktop(){
-    return window.matchMedia("(min-width: 981px)").matches;
-  }
-
-  function isOpen(){
-    const portal = getPortal();
-    const sidebar = getSidebar();
-
-    if(isDesktop()){
-      return !(portal && portal.classList.contains("sidebar-closed"));
-    }
-
-    return !!(sidebar && sidebar.classList.contains("open"));
-  }
-
-  function updateMenuUI(){
-    const opened = isOpen();
-    const icon = getIcon();
-    const btn = getBtn();
-
-    if(icon) icon.textContent = opened ? "×" : "☰";
-    if(btn) btn.setAttribute("aria-label", opened ? "Cerrar menú" : "Abrir menú");
-
-    document.body.classList.toggle("menu-open", opened && !isDesktop());
-  }
-
-  window.toggleMenu = function(){
-    const portal = getPortal();
-    const sidebar = getSidebar();
-    if(!portal || !sidebar) return;
-
-    if(isDesktop()){
-      portal.classList.toggle("sidebar-closed");
-      sidebar.classList.remove("open");
-      document.body.classList.remove("menu-open");
-    }else{
-      sidebar.classList.toggle("open");
-      portal.classList.remove("sidebar-closed");
-    }
-
-    updateMenuUI();
-  };
-
-  window.closeMenu = function(){
-    const portal = getPortal();
-    const sidebar = getSidebar();
-
-    if(isDesktop()){
-      if(portal) portal.classList.add("sidebar-closed");
-    }else{
-      if(sidebar) sidebar.classList.remove("open");
-      document.body.classList.remove("menu-open");
-    }
-
-    updateMenuUI();
-  };
-
-  window.openMenu = function(){
-    const portal = getPortal();
-    const sidebar = getSidebar();
-
-    if(isDesktop()){
-      if(portal) portal.classList.remove("sidebar-closed");
-    }else{
-      if(sidebar) sidebar.classList.add("open");
-    }
-
-    updateMenuUI();
-  };
-
-  document.addEventListener("click", function(e){
-    const btn = e.target.closest("#mobileMenuToggle");
-    if(btn){
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      window.toggleMenu();
-      return false;
-    }
-
-    if(!isDesktop() && document.body.classList.contains("menu-open")){
-      const sidebar = getSidebar();
-      if(sidebar && !sidebar.contains(e.target) && !e.target.closest("#mobileMenuToggle")){
-        sidebar.classList.remove("open");
-        updateMenuUI();
-      }
-    }
-  }, true);
-
-  document.addEventListener("DOMContentLoaded", function(){
-    const portal = getPortal();
-    const sidebar = getSidebar();
-
-    // Desktop comienza abierto; móvil comienza cerrado
-    if(isDesktop()){
-      if(portal) portal.classList.remove("sidebar-closed");
-      if(sidebar) sidebar.classList.remove("open");
-    }else{
-      if(sidebar) sidebar.classList.remove("open");
-      if(portal) portal.classList.remove("sidebar-closed");
-      document.body.classList.remove("menu-open");
-    }
-
-    updateMenuUI();
-  });
-
-  window.addEventListener("resize", function(){
-    const portal = getPortal();
-    const sidebar = getSidebar();
-
-    if(isDesktop()){
-      if(sidebar) sidebar.classList.remove("open");
-      document.body.classList.remove("menu-open");
-    }else{
-      if(portal) portal.classList.remove("sidebar-closed");
-    }
-
-    updateMenuUI();
-  });
-})();
-
 </script>
 
 <script>

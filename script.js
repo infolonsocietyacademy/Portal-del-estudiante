@@ -186,19 +186,22 @@ document.addEventListener("DOMContentLoaded", function(){
   }
 })();
 
-// ===== LOADER PREMIUM OLON =====
-window.addEventListener("load", () => {
-  const loader = document.getElementById("olonLoader");
-  if(!loader) return;
-  setTimeout(() => {
-    loader.classList.add("hide");
-    setTimeout(() => loader.remove(), 900);
-  }, 1200);
-});
-
 const SUPABASE_URL = "https://xanhhfashgkyrvphprts.supabase.co";
 const SUPABASE_KEY = "sb_publishable_JQ9TWOn3GvY2nTth0JLHIQ_AtTgwz8B";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function showPortalLoader(message){
+  const loader = $("olonLoader");
+  loader.dataset.managed = "true";
+  $("portalLoaderStatus").textContent = message;
+  loader.hidden = false;
+  $("auth").inert = true;
+}
+
+function hidePortalLoader(){
+  $("olonLoader").hidden = true;
+  $("auth").inert = false;
+}
 
 // Totales públicos agregados por el servidor (sin exponer perfiles ni resultados privados).
 let olonMetricsRequest=null;
@@ -232,42 +235,6 @@ function updateAuthRealStats(){
  updateAuthStudentCount();
  updateAuthTradeCount();
 }
-
-function setLoaderStudentName(name, plan){
-  const first = (name || "Estudiante").trim().split(" ")[0] || "Estudiante";
-  const planText = (plan || "VIP Regular").toUpperCase();
-  const elName = document.getElementById("loaderStudentName");
-  const elPlan = document.getElementById("loaderStudentPlan");
-  if(elName) elName.innerText = first.toUpperCase();
-  if(elPlan) elPlan.innerText = planText.includes("PREMIUM") || planText.includes("ADMIN") ? "💎 VIP PREMIUM EXPERIENCE" : "🔥 VIP REGULAR ACCESS";
-}
-
-function showPortalEnterLoader(){
-  const loader = document.getElementById("portalEnterLoader");
-  if(loader){
-    loader.style.display = "grid";
-    loader.classList.remove("closing");
-    loader.classList.add("show");
-  }
-  if(typeof unlockOlonAudio === "function") unlockOlonAudio();
-  if(typeof playPortalLoadingSound === "function") playPortalLoadingSound();
-}
-
-function hidePortalEnterLoader(){
-  const loader = document.getElementById("portalEnterLoader");
-  if(!loader) return;
-  loader.classList.add("closing");
-  setTimeout(() => {
-    loader.classList.remove("show");
-    loader.classList.remove("closing");
-    loader.style.display = "none";
-  }, 900);
-}
-
-function waitPortalLoading(ms = 4000){
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 
 // ===== LIVE CHAT OLON SUPABASE =====
 let selectedChatStudentId = null;
@@ -666,19 +633,45 @@ function setupEmailVerificationListeners(){
   if(confirm) confirm.addEventListener("input", resetEmailVerification);
 }
 
-function applyPlanStyle(plan){
-  const cleanPlan = (plan || "VIP Regular").toLowerCase();
-  document.body.classList.remove("plan-regular", "plan-premium");
-  if(cleanPlan.includes("premium") || cleanPlan.includes("admin")){
-    document.body.classList.add("plan-premium");
-  }else{
-    document.body.classList.add("plan-regular");
-  }
-}
-
 function getStudentFirstName(user){
   const fullName = (user?.full_name || "Estudiante").trim();
   return fullName.split(" ")[0] || "Estudiante";
+}
+
+const puertoRicoBillingDate = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "America/Puerto_Rico", year: "numeric", month: "2-digit", day: "2-digit"
+});
+const vipPaymentDateLabel = new Intl.DateTimeFormat("es-PR", {dateStyle: "long", timeZone: "UTC"});
+
+function getVipPayment(value, now = new Date()){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(value || "")) return null;
+  const date = new Date(value + "T00:00:00Z");
+  if(!Number.isFinite(date.getTime()) || date.toISOString().slice(0, 10) !== value) return null;
+
+  const {year, month, day} = Object.fromEntries(
+    puertoRicoBillingDate.formatToParts(now).map(({type, value}) => [type, value])
+  );
+  const today = Date.parse(year + "-" + month + "-" + day + "T00:00:00Z");
+  return {date, days: (date.getTime() - today) / 86400000};
+}
+
+function renderVipPayment(profile){
+  if(!profile || isAdminUser(profile)) return;
+  const card = $("vipPayment");
+  const payment = getVipPayment(profile.next_payment_date);
+  if(!payment){
+    card.dataset.state = "unassigned";
+    setTextSafe("vipPaymentBadge", "Fecha pendiente");
+    setTextSafe("vipPaymentDate", "Sin fecha asignada");
+    setTextSafe("vipPaymentDays", "—");
+    return;
+  }
+
+  const remaining = Math.max(0, payment.days);
+  card.dataset.state = payment.days < 0 ? "overdue" : payment.days <= 5 ? "upcoming" : "current";
+  setTextSafe("vipPaymentBadge", payment.days < 0 ? "Pago vencido" : payment.days === 0 ? "Vence hoy" : payment.days <= 5 ? "Pago próximo" : "Al día");
+  setTextSafe("vipPaymentDate", vipPaymentDateLabel.format(payment.date));
+  setTextSafe("vipPaymentDays", remaining + (remaining === 1 ? " día" : " días"));
 }
 
 function typeWelcomeMessage(el, text){
@@ -697,13 +690,14 @@ function typeWelcomeMessage(el, text){
 function updatePortalWelcome(){
   if(!currentUser) return;
 
+  renderVipPayment(currentUser);
   const fullName = currentUser.full_name || "Estudiante";
   const adminView = isAdminUser(currentUser);
 
   // Topbar principal: evita duplicar el saludo.
   const pageTitle = document.getElementById("pageTitle");
   if(pageTitle){
-    pageTitle.innerText = adminView ? "Administración" : "OLON Command Center";
+    pageTitle.innerText = adminView ? "Administración" : "Resumen";
   }
 
   const pageSubtitle = document.getElementById("pageSubtitle");
@@ -782,14 +776,11 @@ async function enterPortal(){
   currentUser.status = admin ? "active" : normalizeStatus(currentUser.status);
   localStorage.setItem("olon_current_user", JSON.stringify(currentUser));
 
-  applyPlanStyle(currentUser.plan || (admin ? "VIP Premium" : "VIP Regular"));
-
   setTextSafe("studentName", currentUser.full_name || "Estudiante");
   setTextSafe("avatarText", currentUser.full_name?.[0]?.toUpperCase() || "O");
   setTextSafe("userCodeText", "Código: " + (currentUser.access_code || "OLON"));
-  setTextSafe("planBadge", admin ? "👑 ADMIN" : ((currentUser.plan || "VIP Regular").toLowerCase().includes("premium") ? "💎 VIP PREMIUM" : "🔥 VIP REGULAR"));
-  setTextSafe("accessStatus", admin ? "Administrador activo" : (currentUser.plan || "VIP Regular") + " " + (currentUser.status === "active" ? "Activo" : currentUser.status));
-  setTextSafe("paymentDate", ": " + (currentUser.next_payment_date || "No asignado"));
+  setTextSafe("planBadge", admin ? "ADMIN" : "VIP");
+  setTextSafe("accessStatus", admin ? "Administrador activo" : "Membresía VIP");
 
   hideSafe("auth");
   hideSafe("codeResult");
@@ -797,7 +788,7 @@ async function enterPortal(){
   const portal = $("portal");
   if(portal) portal.classList.add("portalReady");
 
-  setTextSafe("portalMode", admin ? "Admin Portal" : "Student Portal");
+  setTextSafe("portalMode", admin ? "Administración" : "Portal del estudiante");
   document.querySelectorAll(".studentNav").forEach(el => el.classList.toggle("hidden", admin));
   document.querySelectorAll(".adminNav").forEach(el => el.classList.toggle("hidden", !admin));
   document.querySelectorAll(".studentOnly").forEach(el => el.classList.toggle("hidden", admin));
@@ -818,10 +809,8 @@ function logout(){
   localStorage.removeItem("olon_current_user");
   currentUser = null; cachedRecords = []; cachedUsers = [];
   document.getElementById("portal").classList.add("hidden");
-  document.body.classList.remove("plan-regular", "plan-premium");
   document.getElementById("auth").classList.remove("hidden");
 }
-function toggleMenu(){document.getElementById("sidebar").classList.toggle("open")}
 function showPage(id,btn){
   document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
   const targetPage = document.getElementById(id);
@@ -837,8 +826,6 @@ function showPage(id,btn){
   document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
   if(btn) btn.classList.add("active");
 
-  const sidebar = document.getElementById("sidebar");
-  if(sidebar) sidebar.classList.remove("open");
 
   if(id === "publicChat" && typeof loadPublicChat === "function"){
     setTimeout(loadPublicChat, 150);
@@ -1120,8 +1107,7 @@ function getPortalLogoSrc(){
   const selectors = [
     ".brand img",
     ".authLogo",
-    ".loaderLogo",
-    ".portalEnterLogo img",
+    ".portalLoaderEmblem img",
     "img[alt*='OLON']",
     "link[rel='apple-touch-icon']",
     "link[rel='icon']"
@@ -1164,7 +1150,7 @@ function buildPDFReportHTML(){
   const wr = winRateFromRecords(records);
   const bw = bestWorst(records);
   const student = currentUser?.full_name || document.getElementById("studentName")?.innerText || "Estudiante";
-  const plan = currentUser?.plan || document.getElementById("planBadge")?.innerText || "VIP";
+  const plan = isAdminUser(currentUser) ? "Administración" : "VIP";
   const today = new Date().toLocaleDateString("es-PR", {year:"numeric", month:"long", day:"numeric"});
   const netClass = Number(t.net || 0) >= 0 ? "positive" : "negative";
   const growthClass = Number(t.growth || 0) >= 0 ? "positive" : "negative";
@@ -1499,24 +1485,6 @@ async function clearData(){
 }
 setupEmailVerificationListeners();
 updateAuthRealStats();
-if(currentUser){
-  setLoaderStudentName(currentUser.full_name, currentUser.plan);
-  showPortalEnterLoader();
-  waitPortalLoading(4200).then(async () => {
-    try{
-      await enterPortal();
-    }catch(err){
-      console.error("Auto login error", err);
-      localStorage.removeItem("olon_current_user");
-      currentUser = null;
-      showSafe("auth");
-      hideSafe("portal");
-    }finally{
-      hidePortalEnterLoader();
-    }
-  });
-}
-
 /* ===== BIENVENIDO ANIMADO PRO ===== */
 (function(){
   function startWelcomeAnimation(){
@@ -1644,18 +1612,6 @@ function showWelcome(user){
   });
 })();
 
-// ===== MOBILE APP MODE HELPERS =====
-function mobileGo(id, btn){
-  showPageById(id);
-  document.querySelectorAll('.mobileBottomNav button').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-}
-function mobileOpenAccount(btn){
-  showPageById('dashboard');
-  document.querySelectorAll('.mobileBottomNav button').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  setTimeout(()=>document.querySelector('.userPill')?.scrollIntoView({behavior:'smooth',block:'center'}),80);
-}
 function renderHistoryMobileCards(records){
   const box = document.getElementById('historyMobileCards');
   if(!box) return;
@@ -1690,12 +1646,6 @@ if(typeof olonOriginalRender === 'function'){
     p.style.visibility = 'visible';
     p.style.opacity = '1';
   }
-  function closeLoaders(){
-    const a = el('portalEnterLoader');
-    if(a){ a.classList.remove('show'); a.classList.add('forceClose'); a.style.display='none'; }
-    const b = el('olonLoader');
-    if(b){ b.classList.add('hide'); b.style.display='none'; }
-  }
   function clean(s){ return String(s || '').trim(); }
   function roleOf(u){
     const r = clean(u?.role).toLowerCase();
@@ -1707,9 +1657,7 @@ if(typeof olonOriginalRender === 'function'){
     document.querySelectorAll('.page').forEach(p=>{p.classList.add('hidden'); p.classList.remove('forceActive'); p.style.display='none';});
     const page = el(id);
     if(page){ page.classList.remove('hidden'); page.classList.add('forceActive'); page.style.display='block'; }
-    document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
-    const btn = [...document.querySelectorAll('.nav button')].find(b => (b.getAttribute('onclick') || '').includes("'" + id + "'"));
-    if(btn) btn.classList.add('active');
+    syncPortalNavigation(id);
   }
   async function safeBackgroundRender(isAdmin){
     setTimeout(async function(){
@@ -1728,22 +1676,19 @@ if(typeof olonOriginalRender === 'function'){
 
     const isAdmin = role === 'admin';
     el('portal')?.classList.toggle('admin-mode', isAdmin);
-    try{ if(typeof applyPlanStyle === 'function') applyPlanStyle(currentUser.plan || (isAdmin ? 'Admin' : 'VIP Regular')); }catch(e){}
-
     txt('studentName', currentUser.full_name || (isAdmin ? 'Admin' : 'Estudiante'));
     txt('avatarText', (currentUser.full_name || 'O').charAt(0).toUpperCase());
     txt('userCodeText', 'Código: ' + (currentUser.access_code || 'OLON'));
-    txt('planBadge', isAdmin ? '👑 ADMIN' : clean(currentUser.plan).toLowerCase().includes('premium') ? '💎 VIP PREMIUM' : '🔥 VIP REGULAR');
-    txt('accessStatus', isAdmin ? 'Administrador activo' : (currentUser.plan || 'VIP Regular') + ' Activo');
-    txt('paymentDate', ': ' + (currentUser.next_payment_date || 'No asignado'));
-    txt('portalMode', isAdmin ? 'Admin Portal' : 'Student Portal');
-    txt('pageTitle', isAdmin ? 'Administración' : 'OLON Command Center');
+    txt('planBadge', isAdmin ? 'ADMIN' : 'VIP');
+    txt('accessStatus', isAdmin ? 'Administrador activo' : 'Membresía VIP');
+    txt('portalMode', isAdmin ? 'Administración' : 'Portal del estudiante');
+    renderVipPayment(currentUser);
+    txt('pageTitle', isAdmin ? 'Administración' : 'Resumen');
     txt('pageSubtitle', isAdmin ? 'Gestión de miembros, solicitudes y mensajes.' : 'Control privado de rendimiento, disciplina, reportes y progreso del trader.');
     txt('portalWelcomeText', 'Hola, ' + (currentUser.full_name || 'Estudiante'));
 
     hide('auth');
     hide('codeResult');
-    closeLoaders();
     showPortal();
 
     document.querySelectorAll('.studentNav').forEach(x=>x.classList.toggle('hidden', isAdmin));
@@ -1799,10 +1744,6 @@ if(typeof olonOriginalRender === 'function'){
     adminChat:"Centro de mensajes privados."
   };
 
-  // Nunca restaurar el portal desde un dato del navegador.
-  // Solamente restoreSupabaseSession valida Supabase Auth y el perfil.
-  function forceOpenPortalIfLogged(){ return; }
-
   window.showPage = function(id, btn){
     try{
       const page = $(id);
@@ -1814,7 +1755,7 @@ if(typeof olonOriginalRender === 'function'){
       document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
       page.classList.remove("hidden");
 
-      document.querySelectorAll(".nav button,.mobileBottomNav button").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll("#sidebar .portalNavLink").forEach(b => b.classList.remove("active"));
       if(btn) btn.classList.add("active");
 
       const title = $("pageTitle");
@@ -1822,10 +1763,6 @@ if(typeof olonOriginalRender === 'function'){
 
       const sub = $("pageSubtitle");
       if(sub && subtitles[id]) sub.innerText = subtitles[id];
-
-      const sidebar = $("sidebar");
-      if(sidebar) sidebar.classList.remove("open");
-      document.body.classList.remove("menu-open");
 
       if(id === "publicChat" && typeof window.loadPublicChat === "function") setTimeout(window.loadPublicChat, 80);
       if(id === "adminChat" && typeof window.loadAdminChatInbox === "function") setTimeout(window.loadAdminChatInbox, 80);
@@ -1841,66 +1778,6 @@ if(typeof olonOriginalRender === 'function'){
     window.showPage(id, btn);
   };
 
-  window.toggleMenu = function(){
-    const sidebar = $("sidebar");
-    if(!sidebar) return;
-    sidebar.classList.toggle("open");
-    document.body.classList.toggle("menu-open", sidebar.classList.contains("open"));
-  };
-
-  window.mobileGo = function(id, btn){ window.showPage(id, btn); };
-  window.mobileOpenAccount = function(btn){ window.showPage("dashboard", btn); };
-
-  document.addEventListener("click", function(e){
-    const navBtn = e.target.closest(".nav button[data-page], .nav button[onclick*='showPage']");
-    if(navBtn){
-      let id = navBtn.getAttribute("data-page");
-      if(!id){
-        const on = navBtn.getAttribute("onclick") || "";
-        const m = on.match(/showPage\('([^']+)'/);
-        if(m) id = m[1];
-      }
-      if(id){
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        window.showPage(id, navBtn);
-        return false;
-      }
-    }
-
-    const menuBtn = e.target.closest(".mobileBtn");
-    if(menuBtn && String(menuBtn.getAttribute("onclick")||"").includes("toggleMenu")){
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      window.toggleMenu();
-      return false;
-    }
-  }, true);
-
-  document.addEventListener("click", function(e){
-    if(!document.body.classList.contains("menu-open")) return;
-    const sidebar = $("sidebar");
-    if(sidebar && !sidebar.contains(e.target) && !e.target.closest(".mobileBtn")){
-      sidebar.classList.remove("open");
-      document.body.classList.remove("menu-open");
-    }
-  });
-
-  document.addEventListener("DOMContentLoaded", function(){
-    forceOpenPortalIfLogged();
-
-    const loader = $("olonLoader");
-    if(loader){
-      setTimeout(() => {
-        loader.classList.add("hide");
-        loader.style.display = "none";
-      }, 1800);
-    }
-    const enterLoader = $("portalEnterLoader");
-    if(enterLoader && !enterLoader.classList.contains("show")){
-      enterLoader.style.display = "none";
-    }
-  });
 })();
 
 /* =========================================
@@ -2119,135 +1996,6 @@ function handlePublicChatEnter(e){
 }
 
 
-
-/* =====================================================
-   MENU TOGGLE WEB + MOBILE + IPAD - FINAL
-   ===================================================== */
-(function(){
-  function getPortal(){ return document.getElementById("portal"); }
-  function getSidebar(){ return document.getElementById("sidebar"); }
-  function getIcon(){ return document.getElementById("mobileMenuIcon"); }
-  function getBtn(){ return document.getElementById("mobileMenuToggle"); }
-
-  function isDesktop(){
-    return window.matchMedia("(min-width: 981px)").matches;
-  }
-
-  function isOpen(){
-    const portal = getPortal();
-    const sidebar = getSidebar();
-
-    if(isDesktop()){
-      return !(portal && portal.classList.contains("sidebar-closed"));
-    }
-
-    return !!(sidebar && sidebar.classList.contains("open"));
-  }
-
-  function updateMenuUI(){
-    const opened = isOpen();
-    const icon = getIcon();
-    const btn = getBtn();
-
-    if(icon) icon.textContent = opened ? "×" : "☰";
-    if(btn) btn.setAttribute("aria-label", opened ? "Cerrar menú" : "Abrir menú");
-
-    document.body.classList.toggle("menu-open", opened && !isDesktop());
-  }
-
-  window.toggleMenu = function(){
-    const portal = getPortal();
-    const sidebar = getSidebar();
-    if(!portal || !sidebar) return;
-
-    if(isDesktop()){
-      portal.classList.toggle("sidebar-closed");
-      sidebar.classList.remove("open");
-      document.body.classList.remove("menu-open");
-    }else{
-      sidebar.classList.toggle("open");
-      portal.classList.remove("sidebar-closed");
-    }
-
-    updateMenuUI();
-  };
-
-  window.closeMenu = function(){
-    const portal = getPortal();
-    const sidebar = getSidebar();
-
-    if(isDesktop()){
-      if(portal) portal.classList.add("sidebar-closed");
-    }else{
-      if(sidebar) sidebar.classList.remove("open");
-      document.body.classList.remove("menu-open");
-    }
-
-    updateMenuUI();
-  };
-
-  window.openMenu = function(){
-    const portal = getPortal();
-    const sidebar = getSidebar();
-
-    if(isDesktop()){
-      if(portal) portal.classList.remove("sidebar-closed");
-    }else{
-      if(sidebar) sidebar.classList.add("open");
-    }
-
-    updateMenuUI();
-  };
-
-  document.addEventListener("click", function(e){
-    const btn = e.target.closest("#mobileMenuToggle");
-    if(btn){
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      window.toggleMenu();
-      return false;
-    }
-
-    if(!isDesktop() && document.body.classList.contains("menu-open")){
-      const sidebar = getSidebar();
-      if(sidebar && !sidebar.contains(e.target) && !e.target.closest("#mobileMenuToggle")){
-        sidebar.classList.remove("open");
-        updateMenuUI();
-      }
-    }
-  }, true);
-
-  document.addEventListener("DOMContentLoaded", function(){
-    const portal = getPortal();
-    const sidebar = getSidebar();
-
-    // Desktop comienza abierto; móvil comienza cerrado
-    if(isDesktop()){
-      if(portal) portal.classList.remove("sidebar-closed");
-      if(sidebar) sidebar.classList.remove("open");
-    }else{
-      if(sidebar) sidebar.classList.remove("open");
-      if(portal) portal.classList.remove("sidebar-closed");
-      document.body.classList.remove("menu-open");
-    }
-
-    updateMenuUI();
-  });
-
-  window.addEventListener("resize", function(){
-    const portal = getPortal();
-    const sidebar = getSidebar();
-
-    if(isDesktop()){
-      if(sidebar) sidebar.classList.remove("open");
-      document.body.classList.remove("menu-open");
-    }else{
-      if(portal) portal.classList.remove("sidebar-closed");
-    }
-
-    updateMenuUI();
-  });
-})();
 
 /* =====================================================
    FIX FINAL YTD MOBILE - JS SAFE
@@ -2510,16 +2258,6 @@ window.currentNewsCategory = currentNewsCategory;
       const logout = Array.from(nav.children).find(x => String(x.textContent || "").includes("Salir"));
       if(logout) nav.insertBefore(btn, logout); else nav.appendChild(btn);
     }
-
-    const bottom = document.querySelector(".mobileBottomNav");
-    if(bottom && !bottom.querySelector('[onclick*="newsProPage"], .olonNewsMobileBtn')){
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "olonNewsMobileBtn";
-      btn.innerHTML = "<span>📰</span><small>Noticias</small>";
-      btn.onclick = function(){ window.showPage("newsProPage", btn); };
-      bottom.appendChild(btn);
-    }
   }
 
   function setActiveNewsButton(category){
@@ -2610,7 +2348,7 @@ window.currentNewsCategory = currentNewsCategory;
     document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
     const page = document.getElementById(id);
     if(page) page.classList.remove("hidden");
-    document.querySelectorAll(".nav button,.mobileBottomNav button").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll("#sidebar .portalNavLink").forEach(b => b.classList.remove("active"));
     if(btn) btn.classList.add("active");
     if(id === "newsProPage"){
       const title = document.getElementById("pageTitle");
@@ -2639,7 +2377,6 @@ window.currentNewsCategory = currentNewsCategory;
       localShowPage(id, btn);
     };
 
-    window.mobileGo = function(id, btn){ window.showPage(id, btn); };
   }
 
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", installNewsHardFix);
@@ -2681,7 +2418,7 @@ window.currentNewsCategory = currentNewsCategory;
     const traderScore=Math.round((consistency*.45)+(riskControl*.35)+(Math.max(0,Math.min(100,50+growth))*0.20));
     let suggestion="Registra más días para que Nolo IA pueda medir tu progreso con más precisión.";
     if(days>=3){ if(consistency<55) suggestion="Mejora la consistencia: busca menos entradas impulsivas y registra cada día."; else if(riskControl<60) suggestion="Tu punto principal es control de riesgo: reduce pérdidas grandes y respeta stop loss."; else if(net<0) suggestion="Aunque tienes días positivos, el neto está negativo. Revisa tamaño de pérdida vs ganancia."; else suggestion="Vas bien. Mantén disciplina, evita sobreoperar y protege el capital."; }
-    return {studentName:user.full_name||"Estudiante",plan:user.plan||"VIP Regular",status:user.status||"",days,deposit,gain,loss,net,balance:deposit+net,growth,positiveDays,negativeDays,consistency,riskControl,traderScore,suggestion,recentNotes:records.slice(-5).map(r=>({date:r.record_date||r.date,gain:r.gain||0,loss:r.loss||0,note:r.note||"",emotion:r.emotion||""}))};
+    return {studentName:user.full_name||"Estudiante",plan:isAdminUser(user)?"Administración":"VIP",status:user.status||"",days,deposit,gain,loss,net,balance:deposit+net,growth,positiveDays,negativeDays,consistency,riskControl,traderScore,suggestion,recentNotes:records.slice(-5).map(r=>({date:r.record_date||r.date,gain:r.gain||0,loss:r.loss||0,note:r.note||"",emotion:r.emotion||""}))};
   }
   function getPuertoRicoParts(){
     const parts = new Intl.DateTimeFormat("en-US", {
@@ -2843,7 +2580,7 @@ window.currentNewsCategory = currentNewsCategory;
     if(window.noloUsage.loaded&&window.noloUsage.remaining<=0){setStatus(0,DAILY_LIMIT); addBubble("ai",`Llegaste al límite diario de ${DAILY_LIMIT} mensajes. Puedes hablar con admin si necesitas ayuda.`); return;}
     startNoloCooldown();
     clearInputs(); addBubble("user",text); setTyping(true);
-    try{const res=await fetch(NOLO_AI_FUNCTION_URL,{method:"POST",headers:await noloAuthHeaders(),body:JSON.stringify({action:"chat",userId:user.id,userName:user.full_name||user.name||"Estudiante",plan:user.plan||"VIP Regular",message:text,newsContext:getNewsContext(),performanceProfile:getPerformanceProfile(),dailyLimit:DAILY_LIMIT,modelMode:NOLO_MODEL_MODE,systemMode:NOLO_SYSTEM_MODE,portalBrand:"OLON Society Academy",assistantName:"Nolo IA Mini",safetyRules:["educativo", "sin prometer ganancias", "no señales garantizadas", "enfocado en riesgo y disciplina"]})}); const data=await res.json().catch(()=>({})); setTyping(false); if(res.status===429){setStatus(data.remaining??0,data.used??DAILY_LIMIT); addBubble("ai",`Llegaste al límite diario de ${DAILY_LIMIT} mensajes. Usa el botón Hablar con admin si necesitas ayuda.`); playNoloSound(); return;} if(!res.ok)throw new Error(data.error||"Error conectando Nolo IA"); addBubble("ai",data.reply||"No recibí respuesta de Nolo IA."); playNoloSound(); setStatus(data.remaining,data.used); resetNoloIdleTimer();}
+    try{const res=await fetch(NOLO_AI_FUNCTION_URL,{method:"POST",headers:await noloAuthHeaders(),body:JSON.stringify({action:"chat",userId:user.id,userName:user.full_name||user.name||"Estudiante",plan:isAdminUser(user)?"Administración":"VIP",message:text,newsContext:getNewsContext(),performanceProfile:getPerformanceProfile(),dailyLimit:DAILY_LIMIT,modelMode:NOLO_MODEL_MODE,systemMode:NOLO_SYSTEM_MODE,portalBrand:"OLON Society Academy",assistantName:"Nolo IA Mini",safetyRules:["educativo", "sin prometer ganancias", "no señales garantizadas", "enfocado en riesgo y disciplina"]})}); const data=await res.json().catch(()=>({})); setTyping(false); if(res.status===429){setStatus(data.remaining??0,data.used??DAILY_LIMIT); addBubble("ai",`Llegaste al límite diario de ${DAILY_LIMIT} mensajes. Usa el botón Hablar con admin si necesitas ayuda.`); playNoloSound(); return;} if(!res.ok)throw new Error(data.error||"Error conectando Nolo IA"); addBubble("ai",data.reply||"No recibí respuesta de Nolo IA."); playNoloSound(); setStatus(data.remaining,data.used); resetNoloIdleTimer();}
     catch(err){setTyping(false); console.error("sendNoloMessage",err); addBubble("ai","No pude conectar con Nolo IA. Revisa que subiste smart-api.ts actualizado y corriste el SQL nuevo en Supabase."); playNoloSound(); await refreshUsage();}
   };
   window.openNoloAdminContact=function(){if(window.openNoloFloatingChat)window.openNoloFloatingChat(); const box=document.getElementById("noloAdminBox"); if(box)box.classList.toggle("hidden"); const input=document.getElementById("noloAdminInput"); if(input)setTimeout(()=>input.focus(),80);};
@@ -3620,10 +3357,6 @@ setTimeout(function(){
   const $auth = id => document.getElementById(id);
   const PROFILE_FIELDS = "id,email,full_name,access_code,role,plan,status,next_payment_date,created_at";
 
-  function closeAuthLoader(){
-    const loader = $auth("portalEnterLoader");
-    if(loader){ loader.classList.remove("show"); loader.style.display="none"; }
-  }
   function showAuthError(error, fallback){
     console.error("OLON Auth:", error);
     const msg = String(error?.message || "").toLowerCase();
@@ -3656,7 +3389,7 @@ setTimeout(function(){
     const portalElement = document.getElementById("portal");
     if(portalElement) portalElement.classList.toggle("admin-mode", String(profile?.role||"").trim().toLowerCase()==="admin");
     localStorage.setItem("olon_current_user", JSON.stringify(profile));
-    if(typeof setLoaderStudentName === "function") setLoaderStudentName(profile.full_name,profile.plan);
+    showPortalLoader("Preparando tu espacio…");
     await window.enterPortal();
   }
   function setBusy(busy){
@@ -3678,6 +3411,8 @@ setTimeout(function(){
       return;
     }
     setBusy(true);
+    showPortalLoader("Verificando tu acceso…");
+    if(typeof window.playPortalLoadingSound === "function") window.playPortalLoadingSound();
     try{
       const {data,error} = await supabaseClient.auth.signInWithPassword({email,password});
       if(error) throw error;
@@ -3696,7 +3431,7 @@ setTimeout(function(){
       await supabaseClient.auth.signOut().catch(()=>{});
     }finally{
       setBusy(false);
-      closeAuthLoader();
+      hidePortalLoader();
     }
   };
 
@@ -3732,7 +3467,6 @@ setTimeout(function(){
       alert(showAuthError(error,"No se pudo enviar la solicitud."));
     }finally{
       setBusy(false);
-      closeAuthLoader();
     }
   };
   // Anular todos los logins heredados y delegar al sistema seguro.
@@ -3749,8 +3483,7 @@ setTimeout(function(){
       if(error)throw error;
       localStorage.removeItem("olon_current_user");
       currentUser=null;cachedRecords=[];cachedUsers=[];
-      document.getElementById("sidebar")?.classList.remove("open");
-      document.body.classList.remove("menu-open");
+      setPortalMenu(false);
       document.getElementById("portal")?.classList.add("hidden");
       document.getElementById("auth")?.classList.remove("hidden");
       window.scrollTo(0,0);
@@ -3765,6 +3498,7 @@ setTimeout(function(){
   };
 
   async function restoreSupabaseSession(){
+    showPortalLoader("Comprobando tu sesión…");
     try{
       const {data,error} = await supabaseClient.auth.getUser();
       if(error || !data?.user) return;
@@ -3778,6 +3512,8 @@ setTimeout(function(){
       console.warn("OLON: no se restauró la sesión Auth",error);
       currentUser=null;
       localStorage.removeItem("olon_current_user");
+    }finally{
+      hidePortalLoader();
     }
   }
   // Espera a que el DOM y los demás parches visuales hayan terminado.
@@ -3785,48 +3521,66 @@ setTimeout(function(){
   else restoreSupabaseSession();
 })();
 
+const portalMenuBreakpoint = window.matchMedia("(max-width: 980px)");
 
-/* OLON MOBILE NAVIGATION: begin each page at the top, never trap the document. */
-(function(){
-  const isMobile=()=>window.matchMedia("(max-width:980px)").matches;
-  const resetDocumentScroll=()=>{
-    if(!isMobile())return;
-    // Both Safari (documentElement) and older browsers (body) are supported.
-    const scrollElement=document.scrollingElement||document.documentElement;
-    if(scrollElement)scrollElement.scrollTop=0;
-    document.documentElement.scrollTop=0;
-    document.body.scrollTop=0;
-    window.scrollTo(0,0);
+function setPortalMenu(open, restoreFocus = false){
+  const sidebar = $("sidebar");
+  const toggle = $("mobileMenuToggle");
+  const wasOpen = sidebar.classList.contains("open");
+  const isMobile = portalMenuBreakpoint.matches;
+  const expanded = isMobile && open;
+
+  sidebar.classList.toggle("open", expanded);
+  sidebar.inert = isMobile && !expanded;
+  toggle.closest("main").inert = expanded;
+  toggle.setAttribute("aria-expanded", String(expanded));
+  $("portalMenuBackdrop").hidden = !expanded;
+
+  if(expanded && !wasOpen) $("portalMenuClose").focus({preventScroll: true});
+  if(!expanded && wasOpen && restoreFocus && isMobile) toggle.focus({preventScroll: true});
+}
+
+function syncPortalNavigation(pageId){
+  document.querySelectorAll("#sidebar .portalNavLink").forEach(link => {
+    const active = link.dataset.page === pageId;
+    link.classList.toggle("active", active);
+    if(active) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  });
+}
+
+function installPortalNavigation(){
+  const toggle = $("mobileMenuToggle");
+  const closeMenu = () => setPortalMenu(false, true);
+  toggle.addEventListener("click", () => setPortalMenu(true));
+  $("portalMenuClose").addEventListener("click", closeMenu);
+  $("portalMenuBackdrop").addEventListener("click", closeMenu);
+  portalMenuBreakpoint.addEventListener("change", () => setPortalMenu(false));
+  document.addEventListener("keydown", event => {
+    if(event.key === "Escape" && toggle.getAttribute("aria-expanded") === "true"){
+      event.preventDefault();
+      closeMenu();
+    }
+  });
+  setPortalMenu(false);
+
+  const showPage = window.showPage;
+  window.showPage = function(id, button){
+    const previous = document.querySelector("#portal .page:not(.hidden)")?.id;
+    const result = showPage.call(this, id, button);
+    const current = document.querySelector("#portal .page:not(.hidden)")?.id;
+    if(current !== id) return result;
+
+    syncPortalNavigation(id);
+    closeMenu();
+    if(portalMenuBreakpoint.matches && previous !== id) window.scrollTo({top: 0, behavior: "instant"});
+    return result;
   };
-  if(typeof window.showPage==="function"){
-    const original=window.showPage;
-    window.showPage=function(id,button){
-      const previous=document.querySelector("#portal .page:not(.hidden)")?.id||"";
-      const outcome=original.apply(this,arguments);
-      if(previous!==id)resetDocumentScroll();
-      return outcome;
-    };
-  }
-  if(typeof window.mobileOpenAccount==="function"){
-    window.mobileOpenAccount=function(){
-      // "Cuenta" opens the real account/menu drawer on mobile.
-      const sidebar=document.getElementById("sidebar");
-      if(!sidebar)return;
-      sidebar.classList.add("open");
-      document.body.classList.add("menu-open");
-      document.getElementById("mobileMenuToggle")?.setAttribute("aria-expanded","true");
-      document.getElementById("mobileMenuIcon") && (document.getElementById("mobileMenuIcon").textContent="×");
-    };
-  }
-  const mobileButton=document.getElementById("mobileMenuToggle");
-  const syncMenu=()=>{
-    if(!mobileButton)return;
-    const sidebar=document.getElementById("sidebar");
-    const expanded=!!sidebar?.classList.contains("open");
-    mobileButton.setAttribute("aria-expanded",expanded?"true":"false");
-  };
-  document.addEventListener("click",syncMenu);
-  window.addEventListener("resize",syncMenu,{passive:true});
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",syncMenu);
-  else syncMenu();
-})();
+}
+
+if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", installPortalNavigation);
+else installPortalNavigation();
+
+document.addEventListener("visibilitychange", () => {
+  if(!document.hidden) renderVipPayment(currentUser);
+});
