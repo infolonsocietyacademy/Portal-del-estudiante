@@ -200,145 +200,38 @@ const SUPABASE_URL = "https://xanhhfashgkyrvphprts.supabase.co";
 const SUPABASE_KEY = "sb_publishable_JQ9TWOn3GvY2nTth0JLHIQ_AtTgwz8B";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// Totales públicos agregados por el servidor (sin exponer perfiles ni resultados privados).
+let olonMetricsRequest=null;
+async function olonFetchPublicMetrics(){
+ if(!olonMetricsRequest) olonMetricsRequest=supabaseClient.rpc("olon_public_portal_metrics")
+  .then(({data,error})=>{if(error)throw error;return Array.isArray(data)?data[0]:data;})
+  .catch(e=>{olonMetricsRequest=null;throw e;});
+ return olonMetricsRequest;
+}
 async function updateAuthStudentCount(){
-  const el = document.getElementById("authActiveStudents");
-  if(!el) return;
-  try{
-    const { count, error } = await supabaseClient
-      .from("profiles")
-      .select("id", { count:"exact", head:true })
-      .eq("role", "student");
-    if(error){ throw error; }
-    el.innerText = "+" + Number(count || 0).toLocaleString("en-US");
-  }catch(err){
-    console.warn("No se pudo contar estudiantes registrados", err);
-    el.innerText = "+0";
-  }
+ const el=document.getElementById("authActiveStudents");
+ if(!el)return;
+ try{
+  const data=await olonFetchPublicMetrics();
+  el.textContent=Number(data?.active_students||0).toLocaleString("en-US");
+ }catch(e){console.warn("No se pudo cargar total de estudiantes",e);el.textContent="—";}
 }
-
 async function updateAuthTradeCount(){
-  const el = document.getElementById("authTradesRegistered");
-  if(!el) return;
-  try{
-    const { count, error } = await supabaseClient
-      .from("student_records")
-      .select("id", { count:"exact", head:true });
-    if(error){ throw error; }
-    el.innerText = "+" + Number(count || 0).toLocaleString("en-US");
-  }catch(err){
-    console.warn("No se pudo contar trades registrados", err);
-    el.innerText = "+0";
-  }
+ const el=document.getElementById("authTradesRegistered");
+ if(!el)return;
+ try{
+  const data=await olonFetchPublicMetrics();
+  el.textContent=Number(data?.registered_trades||0).toLocaleString("en-US");
+ }catch(e){console.warn("No se pudo cargar total de registros",e);el.textContent="—";}
 }
-
-
 async function loadTop3LoginStudents(){
-  const box = document.getElementById("top3LoginList");
-  if(!box || typeof supabaseClient === "undefined") return;
-
-  try{
-    const now = new Date();
-    const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0,10);
-    const end = new Date(now.getFullYear(), now.getMonth()+1, 0).toISOString().slice(0,10);
-
-    const { data: records, error: recError } = await supabaseClient
-      .from("student_records")
-      .select("student_id,deposit,gain,loss,record_date")
-      .gte("record_date", start)
-      .lte("record_date", end);
-
-    if(recError) throw recError;
-
-    const grouped = {};
-    (records || []).forEach(r=>{
-      const id = r.student_id;
-      if(!id) return;
-      if(!grouped[id]) grouped[id] = {deposit:0,gain:0,loss:0};
-      grouped[id].deposit += Number(r.deposit || 0);
-      grouped[id].gain += Number(r.gain || 0);
-      grouped[id].loss += Number(r.loss || 0);
-    });
-
-    const ids = Object.keys(grouped);
-    if(!ids.length){
-      box.innerHTML = `<div class="top3Empty">Todavía no hay registros este mes.</div>`;
-      return;
-    }
-
-    const { data: profiles, error: profError } = await supabaseClient
-      .from("profiles")
-      .select("id,full_name,role,status")
-      .in("id", ids);
-
-    if(profError) throw profError;
-
-    const profileMap = {};
-    (profiles || []).forEach(p=>profileMap[p.id] = p);
-
-    const ranking = ids.map(id=>{
-      const t = grouped[id];
-      const net = Number(t.gain || 0) - Number(t.loss || 0);
-      const ret = Number(t.deposit || 0) > 0 ? (net / Number(t.deposit || 0)) * 100 : -999999;
-      const profile = profileMap[id] || {};
-      return {
-        id,
-        name: profile.full_name || "Estudiante",
-        role: profile.role || "student",
-        status: profile.status || "active",
-        returnPct: ret
-      };
-    })
-    .filter(x=>x.role !== "admin" && x.status !== "suspended" && x.returnPct > -999999)
-    .sort((a,b)=>b.returnPct - a.returnPct)
-    .slice(0,3);
-
-    if(!ranking.length){
-      box.innerHTML = `<div class="top3Empty">El ranking aparece cuando haya depósitos y resultados registrados.</div>`;
-      return;
-    }
-
-    const cards = [
-      {pos:2, cls:"silver", medal:"🥈"},
-      {pos:1, cls:"gold main", medal:"🥇"},
-      {pos:3, cls:"bronze", medal:"🥉"}
-    ];
-
-    const ordered = [ranking[1], ranking[0], ranking[2]];
-
-    box.innerHTML = `<div class="top3Grid">` + ordered.map((student, idx)=>{
-      const meta = cards[idx];
-      if(!student){
-        return `<div class="topCard ${meta.cls}">
-          <div class="topMedal">${meta.medal}</div>
-          <div class="topRank">#${meta.pos}</div>
-          <div class="topName">---</div>
-          <div class="topReturn">Sin data</div>
-        </div>`;
-      }
-
-      const firstName = String(student.name || "Estudiante").trim().split(" ")[0].toUpperCase();
-      const ret = Number(student.returnPct || 0).toFixed(1) + "%";
-
-      return `<div class="topCard ${meta.cls}">
-        <div class="topMedal">${meta.medal}</div>
-        <div class="topRank">#${meta.pos}</div>
-        <div class="topName">${firstName}</div>
-        <div class="topReturn">${ret}</div>
-      </div>`;
-    }).join("") + `</div>`;
-
-  }catch(err){
-    console.warn("No se pudo cargar Top 3", err);
-    box.innerHTML = `<div class="top3Empty">Top 3 no disponible. Revisa permisos de Supabase.</div>`;
-  }
+ const box=document.getElementById("top3LoginList");
+ if(box)box.innerHTML='<div class="top3Empty">El rendimiento de los estudiantes es privado. Inicia sesión para ver tu posición en el ranking.</div>';
 }
-
 function updateAuthRealStats(){
-  updateAuthStudentCount();
-  updateAuthTradeCount();
+ updateAuthStudentCount();
+ updateAuthTradeCount();
 }
-
-
 
 function setLoaderStudentName(name, plan){
   const first = (name || "Estudiante").trim().split(" ")[0] || "Estudiante";
