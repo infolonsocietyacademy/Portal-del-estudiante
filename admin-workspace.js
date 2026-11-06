@@ -59,7 +59,7 @@
   }
   function setLoading(value) {
     const btn=$("adminRefreshBtn"); if(btn){btn.disabled=value;btn.textContent=value?"Actualizando…":"↻ Actualizar datos";}
-    const approve=$("adminApproveAllBtn"); if(approve)approve.disabled=value||busy;
+    const approve=$("adminApproveAllBtn"); if(approve)approve.disabled=value||busy||!students().some(u=>norm(u.status)==="pending");
   }
   function dateText(s) {
     if(!s)return "Sin asignar";
@@ -186,8 +186,10 @@
     const el=$("adminNoloUsageList");
     if(!el)return;
     try {
-      const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Puerto_Rico",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
-      const start=new Date(parts+"T04:00:00Z").toISOString();
+      const parts=new Intl.DateTimeFormat("en-US",{timeZone:"America/Puerto_Rico",year:"numeric",month:"2-digit",day:"2-digit"})
+        .formatToParts(new Date()).reduce((all,p)=>{all[p.type]=p.value;return all;},{});
+      const day=parts.year+"-"+parts.month+"-"+parts.day;
+      const start=new Date(day+"T04:00:00Z").toISOString();
       const {data,error}=await supabaseClient.from("nolo_messages")
         .select("user_id,role,created_at").eq("role","user").gte("created_at",start);
       if(error)throw error;
