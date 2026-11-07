@@ -1892,3 +1892,10 @@ body.atlas-dark #publicChat :is(.waName,.waMeta,.waEmpty){color:#c7e3cf}
  .profilePhotoFields{grid-template-columns:minmax(0,1fr)}
  #portal .profileHeroAvatar{width:55px;height:55px;font-size:21px}
 }
+
+/* OLON class countdown */
+.academyClassCountdown{display:inline-flex;align-items:center;gap:8px;max-width:100%;width:fit-content;margin:10px 0;padding:12px 16px;border:1px solid var(--line,#354257);border-radius:12px;background:var(--panel2,#182336);color:var(--text,#f2f5fb);font-size:clamp(14px,2.6vw,19px);font-weight:850;letter-spacing:.025em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.academyClassCountdown[data-state="upcoming"]{border-color:var(--accent,#e72a3e);box-shadow:inset 3px 0 0 var(--accent,#e72a3e)}
+.academyClassCountdown[data-state="live"]{color:#16a34a;border-color:#16a34a;box-shadow:inset 3px 0 0 #16a34a}
+.academyClassCountdown[data-state="ended"]{opacity:.65}
+@media(max-width:600px){.academyClassCountdown{width:100%;justify-content:center;text-align:center;padding:12px 9px}.academyItemHead{flex-wrap:wrap;gap:8px}}
