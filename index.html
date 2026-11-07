@@ -25,7 +25,7 @@
 <link rel="stylesheet" href="./trader.css?v=20261106-trader-marca">
 <link rel="stylesheet" href="./landing-cyber.css?v=20261106-cyber-console-1">
 <link rel="stylesheet" href="./interior-cyber.css?v=20261106-premium-profile-5">
-<link rel="stylesheet" href="./leaderboard.css?v=20261107-ranking-1">
+<link rel="stylesheet" href="./leaderboard.css?v=20261107-ranking-preview-2">
 <noscript><style>#olonLoader{display:none}</style></noscript>
 
 <style id="olon-rescue-css">
@@ -806,7 +806,13 @@ window.addEventListener("load", () => {
         <span class="adminSectionEyebrow">RECONOCIMIENTO / OLON SOCIETY</span>
         <h4 id="olonRankingAdminTitle">🏆 Administrar TOP 3</h4>
         <p>Selecciona estudiantes activos y registra el porcentaje obtenido. Puedes publicar rankings semanales, mensuales y anuales; el podio del Inicio muestra el período actual.</p>
-        <p class="olonRankingExplain">Confirma previamente con cada estudiante que autoriza publicar su nombre y rendimiento. Solo aparecerán los resultados guardados por Administración, nunca números de ejemplo.</p>
+        <p class="olonRankingExplain">Los resultados calculados están guardados como <strong>borradores</strong>. Aquí podrás verlos antes de publicarlos. Confirma que cada estudiante autoriza mostrar su nombre y rendimiento; los datos no se mostrarán a otros estudiantes hasta que publiques.</p>
+        <div class="olonRankPreview" aria-live="polite" aria-label="Vista previa de ranking">
+          <div class="olonRankPreviewHead"><strong>VISTA PREVIA / TOP 3</strong><span id="olonRankPreviewStatus">Consultando...</span></div>
+          <div class="olonRankPreviewRows" id="olonRankPreviewRows">
+            <div class="olonRankPreviewItem">Selecciona un período para consultar el ranking.</div>
+          </div>
+        </div>
         <div class="olonRankingAdminControls">
           <label>Tipo de ranking
             <select id="olonRankPeriod">
@@ -1063,7 +1069,7 @@ window.addEventListener("load", () => {
 <script src="./premium-report.js?v=20261106-registros-pdf" defer></script>
 <script src="./academy-tools.js?v=20261106-comunidad-perfil" defer></script>
 <script src="./admin-workspace.js?v=20261106-trader" defer></script>
-<script src="./leaderboard.js?v=20261107-ranking-draft-2" defer></script>
+<script src="./leaderboard.js?v=20261107-ranking-preview-3" defer></script>
 <script src="./admin-registration.js?v=20261106-trader" defer></script>
 <script src="./password-settings.js?v=20261106-trader" defer></script>
 
