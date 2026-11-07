@@ -21,7 +21,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 
 
-<link rel="stylesheet" href="./style.css?v=20261107-admin-command">
+<link rel="stylesheet" href="./style.css?v=20261107-billing">
 <link rel="stylesheet" href="./trader.css?v=20261107-calendar-link-restored">
 <link rel="stylesheet" href="./landing-cyber.css?v=20261106-cyber-console-1">
 <link rel="stylesheet" href="./interior-cyber.css?v=20261106-premium-profile-5">
@@ -758,6 +758,7 @@ window.addEventListener("load", () => {
           <button type="button" onclick="olonRequests.go()" class="adminCommandAction"><span>✓</span><strong>Solicitudes</strong><small>Revisar pendientes</small></button>
           <button type="button" data-academy-page="academyAdminClassesPage" class="adminCommandAction"><span>▣</span><strong>Clases</strong><small>Programar y publicar</small></button>
           <button type="button" data-academy-page="academyAdminVipPage" class="adminCommandAction"><span>◈</span><strong>Pagos VIP</strong><small>Comprobantes</small></button>
+          <button type="button" onclick="olonAdmin.go('adminBillingBlock')" class="adminCommandAction"><span>▤</span><strong>Facturación</strong><small>Crear facturas PDF</small></button>
           <button type="button" onclick="olonAdmin.openChat()" class="adminCommandAction"><span>✉</span><strong>Mensajes</strong><small>Atender estudiantes</small></button>
         </div>
       </div>
@@ -768,8 +769,20 @@ window.addEventListener("load", () => {
         <button type="button" id="olonRankNav">🏆 TOP 3</button>
         <button type="button" data-academy-page="academyAdminClassesPage">Clases</button>
         <button type="button" data-academy-page="academyAdminVipPage">Comprobantes VIP</button>
+        <button type="button" onclick="olonAdmin.go('adminBillingBlock')">Facturación</button>
         <button type="button" onclick="olonAdmin.openChat()">Mensajes <span id="adminNavUnread">0</span></button>
       </nav>
+      <section class="adminWorkspaceCard adminBillingBlock" id="adminBillingBlock" aria-labelledby="adminBillingHeading">
+        <div class="adminWorkspaceCardHead">
+          <div><span class="adminSectionEyebrow">FINANZAS / HERRAMIENTAS</span><h4 id="adminBillingHeading">▤ Centro de facturación</h4><p>Crea facturas profesionales, asigna numeración y genera PDF con tu facturador OLFX.</p></div>
+          <a class="adminBtn adminBtnGold" href="https://infolonsocietyacademy.github.io/Facturaci-nOLFX/" target="_blank" rel="noopener noreferrer">Abrir facturador ↗</a>
+        </div>
+        <div class="adminBillingNotice">El facturador es una herramienta independiente. Sus facturas y numeración no se sincronizan todavía con la base de datos de estudiantes. Evita incluir información confidencial que no sea necesaria.</div>
+        <div class="adminBillingFrameWrap">
+          <iframe title="Facturador OLFX" class="adminBillingFrame" data-admin-billing-frame data-src="https://infolonsocietyacademy.github.io/Facturaci-nOLFX/" loading="lazy" referrerpolicy="no-referrer" sandbox="allow-scripts allow-forms allow-same-origin allow-downloads allow-popups allow-popups-to-escape-sandbox"></iframe>
+        </div>
+        <p class="adminBillingHelp">Si el facturador no aparece aquí, utiliza «Abrir facturador» para trabajar en una pestaña nueva. En iPhone, esta opción puede facilitar la descarga del PDF.</p>
+      </section>
       <section class="adminWorkspaceCard" id="adminRequestsBlock" aria-labelledby="adminRequestsHeading">
         <div class="adminWorkspaceCardHead">
           <div><span class="adminSectionEyebrow">SOLICITUDES / NUEVOS ACCESOS</span><h4 id="adminRequestsHeading">Solicitudes de inscripción <span class="adminRequestCount" id="adminRequestCount">0</span></h4><p>Registros recibidos aunque el correo automático de Supabase esté limitado.</p></div>
