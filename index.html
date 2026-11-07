@@ -25,6 +25,7 @@
 <link rel="stylesheet" href="./trader.css?v=20261106-trader-marca">
 <link rel="stylesheet" href="./landing-cyber.css?v=20261106-cyber-console-1">
 <link rel="stylesheet" href="./interior-cyber.css?v=20261106-premium-profile-5">
+<link rel="stylesheet" href="./leaderboard.css?v=20261107-ranking-1">
 <noscript><style>#olonLoader{display:none}</style></noscript>
 
 <style id="olon-rescue-css">
@@ -265,6 +266,49 @@ window.addEventListener("load", () => {
           <button class="profileEditButton" type="button" data-edit-profile>Editar perfil</button>
         </div>
       </div>
+
+      <section id="olonLeaderboard" class="card olonLeaderboard studentOnly" aria-labelledby="olonLeaderboardTitle">
+        <div class="olonLeaderboardTop">
+          <div>
+            <span class="olonLeaderboardKicker">✦ OLON SOCIETY ACADEMY</span>
+            <h3 id="olonLeaderboardTitle">🏆 TOP 3 TRADERS</h3>
+            <p>Reconocimiento a los estudiantes destacados de nuestra comunidad.</p>
+          </div>
+          <span class="olonLeaderboardMark" aria-hidden="true">♛</span>
+        </div>
+        <div class="olonLeaderboardTabs" role="tablist" aria-label="Período del ranking">
+          <button type="button" role="tab" data-leaderboard-period="weekly" aria-selected="true" class="active">Semanal</button>
+          <button type="button" role="tab" data-leaderboard-period="monthly" aria-selected="false" tabindex="-1">Mensual</button>
+          <button type="button" role="tab" data-leaderboard-period="annual" aria-selected="false" tabindex="-1">Anual</button>
+        </div>
+        <div class="olonLeaderboardMeta">
+          <span id="olonLeaderboardPeriod">Período actual</span>
+          <span class="olonLeaderboardPrivacy">Solo estudiantes autorizados por Administración</span>
+        </div>
+        <div class="olonPodium" aria-live="polite" aria-atomic="true">
+          <div class="olonPodiumEntry isEmpty" data-leaderboard-rank="2" style="--olon-rank:#bbc5d4">
+            <span class="olonTopAvatar" data-top-initials>—</span>
+            <strong class="olonTopName" data-top-name>Sin clasificar</strong>
+            <span class="olonTopPercent" data-top-percent>—</span>
+            <div class="olonTopPlatform"><span class="olonTopMedal" aria-hidden="true">🥈</span><span class="olonTopRank">#2</span></div>
+          </div>
+          <div class="olonPodiumEntry isEmpty" data-leaderboard-rank="1" style="--olon-rank:#e5b65b">
+            <span class="olonTopAvatar" data-top-initials>—</span>
+            <strong class="olonTopName" data-top-name>Sin clasificar</strong>
+            <span class="olonTopPercent" data-top-percent>—</span>
+            <div class="olonTopPlatform"><span class="olonTopMedal" aria-hidden="true">🥇</span><span class="olonTopRank">#1</span></div>
+          </div>
+          <div class="olonPodiumEntry isEmpty" data-leaderboard-rank="3" style="--olon-rank:#ce9572">
+            <span class="olonTopAvatar" data-top-initials>—</span>
+            <strong class="olonTopName" data-top-name>Sin clasificar</strong>
+            <span class="olonTopPercent" data-top-percent>—</span>
+            <div class="olonTopPlatform"><span class="olonTopMedal" aria-hidden="true">🥉</span><span class="olonTopRank">#3</span></div>
+          </div>
+        </div>
+        <p id="olonLeaderboardLoading" class="olonLeaderboardNotice" role="status">Cargando ranking...</p>
+        <p id="olonLeaderboardEmpty" class="olonLeaderboardNotice" hidden>Aún no hay TOP 3 publicado para este período.</p>
+        <p id="olonLeaderboardError" class="olonLeaderboardNotice" role="status" hidden></p>
+      </section>
 
       <section class="vipPayment studentOnly" id="vipPayment" aria-labelledby="vipPaymentTitle" data-state="unassigned">
         <header class="vipPaymentHeader">
@@ -741,6 +785,7 @@ window.addEventListener("load", () => {
         <button type="button" onclick="olonAdmin.go('adminOverviewBlock')">Resumen</button>
         <button type="button" onclick="olonRequests.go()">Solicitudes <span id="adminRequestsNavCount">0</span></button>
         <button type="button" onclick="olonAdmin.go('adminStudentsBlock')">Estudiantes</button>
+        <button type="button" id="olonRankNav">🏆 TOP 3</button>
         <button type="button" data-academy-page="academyAdminClassesPage">Clases</button>
         <button type="button" data-academy-page="academyAdminVipPage">Comprobantes VIP</button>
         <button type="button" onclick="olonAdmin.openChat()">Mensajes <span id="adminNavUnread">0</span></button>
@@ -756,6 +801,49 @@ window.addEventListener("load", () => {
         <div class="adminDirectoryFooter">Al crear una cuenta, busca al estudiante en el directorio para asignar su próxima fecha de pago.</div>
       </section>
 
+
+      <section id="olonRankingAdmin" class="adminWorkspaceCard olonRankingAdmin" aria-labelledby="olonRankingAdminTitle">
+        <span class="adminSectionEyebrow">RECONOCIMIENTO / OLON SOCIETY</span>
+        <h4 id="olonRankingAdminTitle">🏆 Administrar TOP 3</h4>
+        <p>Selecciona estudiantes activos y registra el porcentaje obtenido. Puedes publicar rankings semanales, mensuales y anuales; el podio del Inicio muestra el período actual.</p>
+        <p class="olonRankingExplain">Confirma previamente con cada estudiante que autoriza publicar su nombre y rendimiento. Solo aparecerán los resultados guardados por Administración, nunca números de ejemplo.</p>
+        <div class="olonRankingAdminControls">
+          <label>Tipo de ranking
+            <select id="olonRankPeriod">
+              <option value="weekly">TOP semanal</option>
+              <option value="monthly">TOP mensual</option>
+              <option value="annual">TOP anual</option>
+            </select>
+          </label>
+          <label>Período
+            <input id="olonRankKey" type="week" aria-label="Semana del ranking" required>
+          </label>
+          <button class="btn secondary" id="olonRankReload" type="button">↻ Consultar período</button>
+        </div>
+        <div class="olonRankEditor">
+          <div class="olonRankSlot">
+            <strong>🥇 #1 — Primer lugar</strong>
+            <label>Estudiante<select id="olonRankStudent1"><option value="">Sin asignar</option></select></label>
+            <label>Rendimiento (%)<input id="olonRankPct1" type="number" min="-100" max="100000" step="0.01" inputmode="decimal" placeholder="Ej.: 25.50"></label>
+          </div>
+          <div class="olonRankSlot">
+            <strong>🥈 #2 — Segundo lugar</strong>
+            <label>Estudiante<select id="olonRankStudent2"><option value="">Sin asignar</option></select></label>
+            <label>Rendimiento (%)<input id="olonRankPct2" type="number" min="-100" max="100000" step="0.01" inputmode="decimal" placeholder="Ej.: 14.20"></label>
+          </div>
+          <div class="olonRankSlot">
+            <strong>🥉 #3 — Tercer lugar</strong>
+            <label>Estudiante<select id="olonRankStudent3"><option value="">Sin asignar</option></select></label>
+            <label>Rendimiento (%)<input id="olonRankPct3" type="number" min="-100" max="100000" step="0.01" inputmode="decimal" placeholder="Ej.: 8.75"></label>
+          </div>
+        </div>
+        <label class="olonRankingConsent"><input type="checkbox" id="olonRankConsent"> Confirmo que todos los estudiantes seleccionados autorizaron mostrar su nombre y porcentaje de rendimiento en el portal.</label>
+        <div class="olonRankingActions">
+          <button class="btn" id="olonRankSave" type="button">Publicar TOP 3</button>
+          <button class="btn secondary" id="olonRankClear" type="button">Retirar ranking</button>
+        </div>
+        <p id="olonRankFeedback" class="olonRankingFeedback" role="status" aria-live="polite" hidden></p>
+      </section>
 
       <div id="adminOverviewBlock" class="adminSectionIntro">
         <div><span class="adminSectionEyebrow">01 / PANORAMA</span><h4>Resumen general</h4></div>
@@ -975,6 +1063,7 @@ window.addEventListener("load", () => {
 <script src="./premium-report.js?v=20261106-registros-pdf" defer></script>
 <script src="./academy-tools.js?v=20261106-comunidad-perfil" defer></script>
 <script src="./admin-workspace.js?v=20261106-trader" defer></script>
+<script src="./leaderboard.js?v=20261107-ranking-1" defer></script>
 <script src="./admin-registration.js?v=20261106-trader" defer></script>
 <script src="./password-settings.js?v=20261106-trader" defer></script>
 
