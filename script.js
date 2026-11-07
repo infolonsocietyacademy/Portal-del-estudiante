@@ -10,6 +10,32 @@ document.addEventListener("DOMContentLoaded", function(){
 });
 
 // ===== OLON AUDIO ENGINE FIXED MULTI USER =====
+  // Sonido original enviado por el propietario: pulsacion breve del teclado mecanico.
+  // Se incrusta como MP3 de ~0.24s para evitar cargar la grabacion completa de 15.6s en cada toque.
+  const keyboardClickMp3 = "data:audio/mpeg;base64,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";
+  const keyboardClickPool = [];
+  let keyboardClickIndex = 0;
+  function playKeyboardSample(volume = 0.27){
+    if(!soundEnabled()) return;
+    try{
+      // Pool pequeño: permite clics consecutivos sin detener la reproduccion anterior.
+      if(!keyboardClickPool.length){
+        for(let i = 0; i < 4; i++){
+          const sample = new Audio(keyboardClickMp3);
+          sample.preload = "auto";
+          keyboardClickPool.push(sample);
+        }
+      }
+      const sample = keyboardClickPool[keyboardClickIndex++ % keyboardClickPool.length];
+      sample.pause();
+      sample.currentTime = 0;
+      sample.volume = Math.min(1, Math.max(0, volume));
+      sample.playbackRate = 0.96 + Math.random() * 0.08;
+      const task = sample.play();
+      if(task && typeof task.catch === "function") task.catch(() => {});
+    }catch(error){ /* No bloquear la navegacion si el navegador restringe el audio. */ }
+  }
+
 (function(){
   let ctx = null;
   let unlocked = false;
@@ -78,11 +104,9 @@ document.addEventListener("DOMContentLoaded", function(){
 
   function playMechanicalKeySound(){
     const now = Date.now();
-    if(now - lastKey < 34) return;
+    if(now - lastKey < 45) return;
     lastKey = now;
-
-    tone(1120 + Math.random()*180, 0.024, 0.030, "square");
-    tone(160 + Math.random()*40, 0.060, 0.024, "triangle");
+    playKeyboardSample(0.18);
   }
 
   function playBackspaceSound(){
@@ -101,18 +125,14 @@ document.addEventListener("DOMContentLoaded", function(){
   }
 
   function playHoverSound(){
-    const now = Date.now();
-    if(now - lastHover < 130) return;
-    lastHover = now;
-    tone(410, 0.04, 0.010, "sine");
+    // Sin pitidos al pasar el raton; suena solamente al interactuar.
   }
 
   function playClickSound(){
     const now = Date.now();
-    if(now - lastClick < 80) return;
+    if(now - lastClick < 85) return;
     lastClick = now;
-    tone(260, 0.045, 0.022, "triangle");
-    tone(520, 0.032, 0.012, "sine", 0.028);
+    playKeyboardSample(0.27);
   }
 
   function playPortalLoadingSound(){
@@ -160,7 +180,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
     document.addEventListener("click", function(e){
       unlockAudio();
-      if(e.target.closest("button,.nav button,.calDay:not(.empty),.adminChatUser")){
+      if(e.target.closest("button,a,[role=button],.nav button,.calDay:not(.empty),.adminChatUser")){
         playClickSound();
       }
     }, true);
