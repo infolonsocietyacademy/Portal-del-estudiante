@@ -208,7 +208,11 @@
       const label=document.createElement("strong");
       label.textContent=item?(user?.full_name||"Estudiante registrado"):"Puesto disponible";
       const note=document.createElement("small");
-      note.textContent=item?(item.published?"Publicado":"Borrador privado"):"Sin resultados registrados";
+      note.textContent=item?
+        (item.published
+          ? (item.photo_consent_confirmed ? "Publicado · Foto autorizada" : "Publicado · Foto pendiente de autorización")
+          : "Borrador privado")
+        : "Sin resultados registrados";
       copy.append(label,note);
       const pct=document.createElement("strong");
       pct.className="olonRankPreviewPercent";
@@ -236,8 +240,15 @@
         $("olonRankPct"+rank).value=entry?.return_pct==null?"":String(entry.return_pct);
       }
       $("olonRankConsent").checked=false;
-      // Explicit photo permission is reconfirmed on each publication.
-      $("olonRankPhotoConsent").checked=false;
+      const publishedEntries=(data||[]).filter(item=>item.published);
+      const allPhotoApproved=publishedEntries.length>0 && publishedEntries.every(item=>item.photo_consent_confirmed);
+      $("olonRankPhotoConsent").checked=allPhotoApproved;
+      $("olonRankSavePhotos").disabled=publishedEntries.length===0;
+      showStatus("olonRankPhotoStatus", publishedEntries.length===0
+        ? "Publica el ranking antes de autorizar fotos."
+        : allPhotoApproved
+          ? "Fotos autorizadas para el TOP 3 actual. Se mostrarán las fotos guardadas en cada perfil."
+          : "Hay fotos pendientes de autorización. Marca la casilla y pulsa «Guardar permiso de fotos» cuando tengas el consentimiento.");
       showAdminPreview(data||[],period,key);
       const drafts=(data||[]).filter(entry=>!entry.published);
       const published=(data||[]).filter(entry=>entry.published);
@@ -253,6 +264,43 @@
       console.warn("[OLON TOP 3] Admin load",err);
     }
   }
+  async function savePhotos(){
+    if(!activeAdmin()||state.isSaving)return;
+    const period=$("olonRankPeriod").value;
+    const key=selectedAdminKey();
+    if(!validPeriodKey(period,key)){
+      showStatus("olonRankPhotoStatus","Elige un período válido.",true);
+      return;
+    }
+    const approved=$("olonRankPhotoConsent").checked;
+    if(approved&&!window.confirm("¿Confirmas que todos los estudiantes publicados en este TOP 3 autorizaron mostrar sus fotos de perfil a los miembros del portal?")){
+      return;
+    }
+    state.isSaving=true;
+    $("olonRankSavePhotos").disabled=true;
+    showStatus("olonRankPhotoStatus",approved?"Autorizando las fotos...":"Retirando las fotos...");
+    try{
+      // Modify only the photo consent; existing ranks, percentages and names remain intact.
+      const {data,error}=await supabaseClient.from("olon_leaderboard")
+        .update({photo_consent_confirmed:approved})
+        .eq("period_type",period).eq("period_key",key)
+        .eq("published",true).eq("consent_confirmed",true)
+        .select("rank,photo_consent_confirmed");
+      if(error)throw error;
+      if(!data?.length)throw new Error("No hay puestos publicados o no tienes permisos para editarlos.");
+      await loadAdmin();
+      if(period===state.selected&&key===currentKey(period))await loadPublic(period);
+      showStatus("olonRankPhotoStatus",approved
+        ? "Fotos autorizadas y guardadas. El TOP 3 ya puede mostrar las fotos de perfil de los estudiantes."
+        : "Permiso retirado. El ranking mostrará las iniciales.");
+    }catch(error){
+      showStatus("olonRankPhotoStatus","No se pudo guardar el permiso de fotos: "+String(error?.message||"Error desconocido"),true);
+    }finally{
+      state.isSaving=false;
+      $("olonRankSavePhotos").disabled=false;
+    }
+  }
+
   function getEntries(){
     const entries=[];
     for(let rank=1;rank<=3;rank++){
@@ -329,6 +377,7 @@
     $("olonRankKey").addEventListener("change",loadAdmin);
     $("olonRankReload").addEventListener("click",async()=>{await loadAdminUsers();await loadAdmin();});
     $("olonRankSave").addEventListener("click",()=>saveAdmin(false));
+    $("olonRankSavePhotos").addEventListener("click",savePhotos);
     $("olonRankClear").addEventListener("click",()=>saveAdmin(true));
     $("olonRankNav")?.addEventListener("click",async()=>{
       $("olonRankingAdmin").scrollIntoView({behavior:"smooth",block:"start"});
