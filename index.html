@@ -21,8 +21,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 
 
-<link rel="stylesheet" href="./style.css?v=20261106-trader-fondos">
-<link rel="stylesheet" href="./trader.css?v=20261106-trader">
+<link rel="stylesheet" href="./style.css?v=20261106-trader-marca">
+<link rel="stylesheet" href="./trader.css?v=20261106-trader-marca">
 <noscript><style>#olonLoader{display:none}</style></noscript>
 
 <style id="olon-rescue-css">
@@ -179,10 +179,12 @@ window.addEventListener("load", () => {
   <aside id="sidebar" class="sidebar portalSidebar" aria-label="Menú principal">
     <div class="portalSidebarTop">
       <div class="brand portalBrand">
-        <img src="./assets/favicon.png" alt="" width="46" height="46">
+        <span class="portalBrandMark" aria-hidden="true">
+          <img src="./assets/favicon.png" alt="" width="46" height="46">
+        </span>
         <div class="portalBrandText">
-          <h1>OLON <span>Society</span></h1>
-          <small>ACADEMY</small>
+          <h1 aria-label="OLON Society Academy">OLON <span>Society</span></h1>
+          <small aria-hidden="true">Academy</small>
         </div>
         <button id="portalMenuClose" type="button" class="portalSidebarClose" aria-label="Cerrar menú">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
@@ -896,7 +898,7 @@ window.addEventListener("load", () => {
     <div class="appearanceFields">
       <label class="field">Color principal<span class="appearanceColor"><input type="color" name="accent" value="#335fa8"><output id="appearanceAccentHex">#335FA8</output></span></label>
       <div class="field appearanceTextField"><label for="appearanceTextColor">Color del texto</label><div class="appearanceColor"><input type="color" name="text" id="appearanceTextColor" value="#17263a"><button type="button" class="profileRemovePhoto" id="appearanceTextAuto">Automático</button></div></div>
-      <label class="field appearanceFont">Tipo de letra<select name="font"><option value="inter">Inter</option><option value="system">Del sistema</option><option value="rounded">Trebuchet</option><option value="serif">Georgia</option><option value="mono">Monoespaciada</option></select></label>
+      <label class="field appearanceFont">Tipo de letra<select name="font"><option value="mono">Monoespaciada</option><option value="inter">Inter</option><option value="system">Del sistema</option><option value="rounded">Trebuchet</option><option value="serif">Georgia</option></select></label>
     </div>
     <div class="appearancePreview">
       <strong>Vista previa</strong><span>Bitácora de trading · OLON Society Academy</span><span class="appearanceSample">Color principal</span>
@@ -939,7 +941,7 @@ window.addEventListener("load", () => {
 </dialog>
 
 <script src="./script.js?v=20261106-trader" defer></script>
-<script src="./appearance.js?v=20261106-trader" defer></script>
+<script src="./appearance.js?v=20261106-trader-marca" defer></script>
 <script src="./trade-history.js?v=20261106-trader" defer></script>
 <script src="./community-chat.js?v=20261106-comunidad-perfil" defer></script>
 <script src="./profile-settings.js?v=20261106-comunidad-perfil" defer></script>

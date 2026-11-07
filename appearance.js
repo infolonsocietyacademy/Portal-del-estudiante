@@ -7,13 +7,13 @@
   const password = document.getElementById("olonChangePasswordBtn");
   const sounds = document.getElementById("soundSwitch");
   const guestKey = "olon_trader_guest_appearance";
-  const defaultStyle = {mode:"light",accent:"#335fa8",text:null,font:"inter"};
+  const defaultStyle = {mode:"light",accent:"#335fa8",text:null,font:"mono"};
   const fonts = {
     inter:'Inter,system-ui,-apple-system,"Segoe UI",sans-serif',
     system:'system-ui,-apple-system,"Segoe UI",sans-serif',
     rounded:'"Trebuchet MS",system-ui,sans-serif',
     serif:'Georgia,"Times New Roman",serif',
-    mono:'ui-monospace,"SFMono-Regular",Consolas,monospace'
+    mono:'var(--font-mono)'
   };
   const palettes = {
     light:{text:"#17263a",surfaces:["#f2f5fa","#ffffff","#e9eff7"]},

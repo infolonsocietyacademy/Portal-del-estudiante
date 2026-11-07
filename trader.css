@@ -4,7 +4,7 @@ body.trader-themed {
   --trader-accent-ink:#335fa8;
   --trader-accent-on:#fff;
   --trader-text:#17263a;
-  --trader-font:Inter,system-ui,sans-serif;
+  --trader-font:var(--font-mono);
   --trader-hero:color-mix(in srgb,var(--trader-accent) 38%,#111b2a);
   --trader-hero-deep:color-mix(in srgb,var(--trader-accent) 18%,#0b1423);
   --trader-soft:color-mix(in srgb,var(--trader-accent) 12%,var(--panel));
