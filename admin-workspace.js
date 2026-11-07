@@ -89,6 +89,7 @@
       (state==="pending"?'<button type="button" class="adminSmallButton approve" onclick="olonAdmin.status(\''+id+'\',\'active\')">✓ Aprobar</button>':'')+
       (state==="suspended"?'<button type="button" class="adminSmallButton" onclick="olonAdmin.status(\''+id+'\',\'pending\')">Reabrir</button>':
        '<button type="button" class="adminSmallButton" onclick="olonAdmin.status(\''+id+'\',\'suspended\')">Suspender</button>')+
+      '<button type="button" class="adminSmallButton" data-billing-student="'+id+'">Facturar</button>'+
       '<button type="button" class="adminSmallButton" data-manage-account="reset" data-student-id="'+id+'">Cambiar contraseña</button>'+remove+
       '</div>';
   }
@@ -192,6 +193,7 @@
         window.cachedUsers=lastUsers;
         if(typeof cachedUsers!=="undefined")cachedUsers=lastUsers;
         updateStats();renderTable();renderAlerts();
+        window.olonBilling?.setStudents(lastUsers);
         setText("adminLastSync","Actualizado "+new Date().toLocaleTimeString("es-PR",{hour:"numeric",minute:"2-digit"}));
         setText("adminConnectionState","● Datos sincronizados");
         const el=$("adminConnectionState");if(el)el.classList.remove("failure");
@@ -269,8 +271,7 @@
     if(!authorized())return;
     const section=$(anchor);
     if(anchor==="adminBillingBlock"){
-      const frame=document.querySelector("#adminBillingBlock [data-admin-billing-frame]");
-      if(frame && !frame.getAttribute("src") && frame.dataset.src)frame.src=frame.dataset.src;
+      window.olonBilling?.activate();
     }
     if(section)section.scrollIntoView({behavior:"smooth",block:"start"});
   }

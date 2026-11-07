@@ -1,0 +1,75 @@
+/* Inherits the portal's color, type, and light/dark preferences. */
+#adminBillingBlock{--billing-panel:var(--cyber-ui-panel,var(--panel,#192232));--billing-panel-2:var(--cyber-ui-panel-2,var(--panel2,#222d40));--billing-text:var(--cyber-ui-ink,var(--text,#e9effa));--billing-muted:var(--cyber-ui-muted,var(--muted,#9eacc0));--billing-line:var(--cyber-ui-border,var(--border,#344055));--billing-accent:var(--trader-accent,#e72a3e);color:var(--billing-text);font-family:var(--font-mono,ui-monospace,SFMono-Regular,Menlo,Consolas,monospace);overflow:hidden}
+#adminBillingBlock [hidden]{display:none!important}
+#adminBillingBlock .billingHeading{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px;border-bottom:1px solid var(--billing-line);background:linear-gradient(120deg,color-mix(in srgb,var(--billing-accent) 9%,var(--billing-panel)),var(--billing-panel))}
+#adminBillingBlock .billingHeading h4{margin:7px 0 8px;font-size:clamp(21px,3vw,28px);letter-spacing:-.045em;color:var(--billing-text)}
+#adminBillingBlock .billingHeading p{margin:0;max-width:62ch;font-size:12px;color:var(--billing-muted);line-height:1.8}
+#adminBillingBlock .billingEyebrow{font-size:9px;letter-spacing:.15em;font-weight:700;color:var(--trader-accent-ink,var(--billing-accent))}
+#adminBillingBlock .billingHeadingActions{display:flex;flex-wrap:wrap;gap:8px;flex-shrink:0}
+#adminBillingBlock button,#adminBillingBlock select,#adminBillingBlock input{font-family:inherit}
+#adminBillingBlock .billingButton{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 14px;border:1px solid var(--billing-line);border-radius:9px;background:var(--billing-panel);color:var(--billing-text);font-size:11px;font-weight:700;cursor:pointer}
+#adminBillingBlock .billingButton.primary{background:var(--billing-accent);border-color:var(--billing-accent);color:var(--trader-accent-on,#fff)}
+#adminBillingBlock button:hover{filter:brightness(1.08)}
+#adminBillingBlock button:disabled{opacity:.5;cursor:default}
+#adminBillingBlock :is(button,input,select):focus-visible{outline:2px solid var(--billing-accent);outline-offset:3px}
+#adminBillingBlock .billingMetrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-bottom:1px solid var(--billing-line)}
+#adminBillingBlock .billingMetric{padding:21px 24px;min-width:0;border-right:1px solid var(--billing-line)}
+#adminBillingBlock .billingMetric:last-child{border-right:0}
+#adminBillingBlock .billingMetric>span{display:block;color:var(--billing-muted);font-size:10px}
+#adminBillingBlock .billingMetric>strong{display:block;margin:7px 0 4px;font-size:clamp(18px,2vw,25px);font-weight:700;letter-spacing:-.05em;overflow-wrap:anywhere}
+#adminBillingBlock .billingMetric>small{font-size:9px;color:var(--billing-muted)}
+#adminBillingBlock .billingMetric.paid>strong{color:var(--billing-text)}
+#adminBillingBlock .billingContent{padding:22px 24px}
+#adminBillingBlock .billingHistoryHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+#adminBillingBlock .billingHistoryHeader h5{margin:0;font-size:13px;color:var(--billing-text)}
+#adminBillingBlock .billingSync{display:flex;align-items:center;gap:6px;font-size:9px;color:var(--billing-muted)}
+#adminBillingBlock .billingSync::before{content:"";width:5px;height:5px;background:var(--billing-accent);border-radius:50%}
+#adminBillingBlock .billingFilters{display:grid;grid-template-columns:minmax(0,1fr) 175px;gap:10px;margin-bottom:18px}
+#adminBillingBlock .billingFilters label,#adminBillingBlock .billingStudentPicker label{display:block;font-size:10px;font-weight:600;color:var(--billing-muted)}
+#adminBillingBlock :is(.billingFilters,.billingStudentPicker) :is(input,select){display:block;width:100%;min-width:0;min-height:44px;margin-top:7px;border:1px solid var(--billing-line);border-radius:8px;padding:10px 12px;background:var(--billing-panel-2);color:var(--billing-text);font-size:12px}
+#adminBillingBlock input::placeholder{color:var(--billing-muted);opacity:1}
+#adminBillingBlock .billingTableLabels{display:grid;grid-template-columns:160px minmax(0,1fr) 150px 210px;gap:14px;padding:10px 0;border-bottom:1px solid var(--billing-line);font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:var(--billing-muted)}
+#adminBillingBlock .billingInvoiceRow{display:grid;grid-template-columns:160px minmax(0,1fr) 150px 210px;gap:14px;align-items:center;padding:18px 0;border-bottom:1px solid var(--billing-line)}
+#adminBillingBlock .billingInvoiceIdentity{display:flex;align-items:center;gap:11px;min-width:0}
+#adminBillingBlock .billingDocIcon{display:grid;place-items:center;width:33px;height:40px;flex:none;border:1px solid var(--billing-line);border-radius:6px;background:var(--billing-panel-2);color:var(--trader-accent-ink,var(--billing-accent));font-size:19px}
+#adminBillingBlock .billingInvoiceRow strong{display:block;font-size:11px;font-weight:700;overflow-wrap:anywhere}
+#adminBillingBlock .billingInvoiceRow small{display:block;margin-top:5px;font-size:9px;color:var(--billing-muted);line-height:1.6;overflow-wrap:anywhere}
+#adminBillingBlock .billingInvoiceAmount strong{font-size:14px}
+#adminBillingBlock .billingInvoiceActions{display:flex;align-items:center;justify-content:flex-end;gap:8px}
+#adminBillingBlock .billingState{min-height:40px;max-width:106px;border:1px solid var(--billing-line);border-radius:7px;padding:7px;background:var(--billing-panel-2);color:var(--billing-text);font-size:10px}
+#adminBillingBlock .billingState.paid{border-color:color-mix(in srgb,#32b384 45%,var(--billing-line))}
+#adminBillingBlock .billingState.pending{border-color:color-mix(in srgb,#d6a441 45%,var(--billing-line))}
+#adminBillingBlock .billingState.cancelled{opacity:.7}
+#adminBillingBlock .billingOpen{display:flex;gap:8px;align-items:center;min-height:44px;padding:8px 10px;border:1px solid var(--billing-line);border-radius:7px;background:transparent;color:var(--billing-text);font-size:10px;white-space:nowrap;cursor:pointer}
+#adminBillingBlock .billingOpen span{color:var(--trader-accent-ink,var(--billing-accent))}
+#adminBillingBlock .billingEmpty{padding:42px 16px;text-align:center;border:1px dashed var(--billing-line);border-radius:12px;margin:12px 0 4px}
+#adminBillingBlock .billingEmpty>span{display:grid;place-items:center;width:52px;height:52px;margin:0 auto 17px;border:1px solid var(--billing-line);border-radius:12px;background:var(--billing-panel-2);color:var(--trader-accent-ink,var(--billing-accent));font-size:27px}
+#adminBillingBlock .billingEmpty>strong{display:block;font-size:13px;font-weight:700}
+#adminBillingBlock .billingEmpty>p{max-width:52ch;margin:9px auto 0;font-size:11px;line-height:1.8;color:var(--billing-muted)}
+#adminBillingBlock .billingFooter{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 24px;border-top:1px solid var(--billing-line);color:var(--billing-muted);font-size:9px;line-height:1.8;background:var(--billing-panel-2)}
+#adminBillingBlock .billingFooter strong{color:var(--billing-text);font-weight:600}
+#adminBillingBlock .billingPagination{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:18px;font-size:10px;color:var(--billing-muted)}
+#adminBillingBlock .billingFeedback{margin:18px 24px 0;padding:12px 14px;border:1px solid var(--billing-line);border-left:3px solid var(--billing-accent);border-radius:8px;font-size:11px;line-height:1.8;color:var(--billing-text)}
+#adminBillingBlock .billingFeedback.error{border-left-color:#ef616e}
+#adminBillingBlock .billingStudentPicker{padding:16px;margin-bottom:20px;border:1px solid var(--billing-line);border-radius:10px;background:var(--billing-panel-2)}
+#adminBillingBlock .billingStudentPicker p{margin:8px 0 0;color:var(--billing-muted);font-size:10px;line-height:1.7}
+#adminBillingBlock .billingEditorLoading{padding:30px;color:var(--billing-muted);font-size:12px;text-align:center}
+#admin .adminCommandActions{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(min-width:1500px){#admin .adminCommandActions{grid-template-columns:repeat(6,minmax(0,1fr))}}
+@media(max-width:1200px){#adminBillingBlock .billingTableLabels,#adminBillingBlock .billingInvoiceRow{grid-template-columns:145px minmax(0,1fr) 120px}#adminBillingBlock .billingTableLabels span:last-child{display:none}#adminBillingBlock .billingInvoiceActions{grid-column:2/4;justify-content:flex-start}}
+@media(max-width:800px){#adminBillingBlock .billingHeading{align-items:flex-start;flex-direction:column;padding:20px}#adminBillingBlock .billingMetric{padding:18px}#adminBillingBlock .billingContent{padding:20px}#adminBillingBlock .billingFooter{padding:14px 20px}#adminBillingBlock .billingHeadingActions{width:100%}#adminBillingBlock .billingHeadingActions .billingButton{flex:1}}
+@media(max-width:600px){#admin .adminCommandActions{grid-template-columns:repeat(2,minmax(0,1fr))}#admin .adminCommandAction:last-child{grid-column:auto}#adminBillingBlock .billingHeading{padding:18px 14px}#adminBillingBlock .billingHeading h4{font-size:22px}#adminBillingBlock .billingHeading p{font-size:11px}#adminBillingBlock .billingMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}#adminBillingBlock .billingMetric{padding:16px 14px}#adminBillingBlock .billingMetric:nth-child(2){border-right:0}#adminBillingBlock .billingMetric:nth-child(-n+2){border-bottom:1px solid var(--billing-line)}#adminBillingBlock .billingMetric>strong{font-size:22px}#adminBillingBlock .billingContent{padding:18px 14px}#adminBillingBlock .billingFilters{grid-template-columns:1fr}#adminBillingBlock .billingTableLabels{display:none}#adminBillingBlock .billingInvoiceRow{grid-template-columns:minmax(0,1fr) auto;gap:12px;border:1px solid var(--billing-line);border-radius:10px;padding:14px;margin:10px 0;background:var(--billing-panel-2)}#adminBillingBlock .billingInvoiceIdentity{grid-column:1/3}#adminBillingBlock .billingInvoiceClient{grid-column:1}#adminBillingBlock .billingInvoiceAmount{text-align:right}#adminBillingBlock .billingInvoiceActions{grid-column:1/3;justify-content:space-between;border-top:1px solid var(--billing-line);padding-top:10px}#adminBillingBlock .billingState{min-height:44px}#adminBillingBlock .billingFooter{flex-direction:column;align-items:flex-start;padding:14px}#adminBillingBlock .billingHistoryHeader{align-items:flex-start;flex-direction:column}#adminBillingBlock .billingFeedback{margin-inline:14px}}
+
+/* Keep billing controls legible alongside older global portal form styles. */
+body.trader-themed #portal.app #adminBillingBlock :is(input,select){color:var(--billing-text)!important;background:var(--billing-panel-2)!important;border-color:var(--billing-line)!important}
+body.trader-themed #portal.app #adminBillingBlock .billingButton.primary{background:var(--billing-accent)!important;color:var(--trader-accent-on,#fff)!important;border-color:var(--billing-accent)!important}
+body.trader-themed #portal.app #adminBillingBlock .billingHeading{background:linear-gradient(120deg,color-mix(in srgb,var(--billing-accent) 9%,var(--billing-panel)),var(--billing-panel))!important}
+body.trader-themed #portal.app #adminBillingBlock :is(.billingMetric>small,.billingFilters label){font-size:calc(10px * var(--trader-font-scale,1))!important}
+@media(max-width:600px){body.trader-themed #portal.app #adminBillingBlock :is(input,select){font-size:16px!important}#adminBillingBlock .billingState{max-width:145px}}
+body.trader-themed #portal.app #admin #adminBillingBlock{padding:0!important}
+body.trader-themed #portal.app #admin #adminBillingBlock .billingHeading p{font-size:calc(12px * var(--trader-font-scale,1))!important}
+body.trader-themed #portal.app #admin #adminBillingBlock button{font-size:calc(11px * var(--trader-font-scale,1))!important}
+body.trader-themed #portal.app #admin #adminBillingBlock :is(input,select){font-size:calc(12px * var(--trader-font-scale,1))!important}
+body.trader-themed #portal.app #admin #adminBillingBlock .billingInvoiceRow small{font-size:calc(10px * var(--trader-font-scale,1))!important}
+body.trader-themed #portal.app #admin #adminBillingBlock :is(.billingEmpty p,.billingStudentPicker p,.billingFeedback){font-size:calc(11px * var(--trader-font-scale,1))!important}
+@media(max-width:600px){body.trader-themed #portal.app #admin #adminBillingBlock :is(input,select){font-size:max(16px,calc(14px * var(--trader-font-scale,1)))!important}body.trader-themed #portal.app #admin #adminBillingBlock .billingHeading p{font-size:calc(11px * var(--trader-font-scale,1))!important}}

@@ -1955,11 +1955,3 @@ body.atlas-dark #publicChat :is(.waName,.waMeta,.waEmpty){color:#c7e3cf}
 @media(prefers-reduced-motion:reduce){#admin .adminCommandAction{transition:none}#admin .adminCommandAction:hover{transform:none}}
 
 /* OLFX billing workspace: administrative embedded invoicing */
-#admin .adminBillingBlock{scroll-margin-top:22px}
-#admin .adminBillingBlock .adminWorkspaceCardHead{gap:16px}
-#admin .adminBillingBlock .adminWorkspaceCardHead .adminBtn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;white-space:nowrap;min-height:42px}
-#admin .adminBillingNotice{margin:12px 18px 16px;padding:12px 14px;border:1px solid var(--border,rgba(130,150,175,.22));border-radius:10px;color:var(--muted,#b2bdcc);font-size:12px;line-height:1.6}
-#admin .adminBillingFrameWrap{margin:0 18px 12px;border:1px solid var(--border,rgba(130,150,175,.25));border-radius:14px;overflow:hidden;background:#f1f4f8}
-#admin .adminBillingFrame{display:block;width:100%;height:min(1000px,85vh);min-height:620px;border:0;background:#f1f4f8}
-#admin .adminBillingHelp{margin:0 18px 18px;color:var(--muted,#a8b7ca);font-size:12px;line-height:1.6}
-@media(max-width:650px){#admin .adminBillingFrameWrap{margin-inline:10px}#admin .adminBillingFrame{height:760px;min-height:560px}#admin .adminBillingNotice,#admin .adminBillingHelp{margin-inline:10px}}

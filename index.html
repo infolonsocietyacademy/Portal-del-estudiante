@@ -26,6 +26,7 @@
 <link rel="stylesheet" href="./landing-cyber.css?v=20261106-cyber-console-1">
 <link rel="stylesheet" href="./interior-cyber.css?v=20261106-premium-profile-5">
 <link rel="stylesheet" href="./leaderboard.css?v=20261107-ranking-avatar-3">
+<link rel="stylesheet" href="./admin-billing.css?v=20261107-integrated">
 <noscript><style>#olonLoader{display:none}</style></noscript>
 
 <style id="olon-rescue-css">
@@ -733,7 +734,7 @@ window.addEventListener("load", () => {
         <div class="adminWorkspaceHeroMain">
           <div>
             <h3>Centro de administración<span class="adminWorkspaceAccent">.</span></h3>
-            <p>Estudiantes, solicitudes, membresías y comunicaciones. Todo organizado en un solo espacio.</p>
+            <p>Estudiantes, membresías, facturación y comunicaciones. Todo organizado en un solo espacio.</p>
           </div>
           <div class="adminWorkspaceMainActions">
             <button type="button" class="adminBtn adminBtnOutline" onclick="olonAdmin.refresh()" id="adminRefreshBtn">↻ Actualizar datos</button>
@@ -758,7 +759,7 @@ window.addEventListener("load", () => {
           <button type="button" onclick="olonRequests.go()" class="adminCommandAction"><span>✓</span><strong>Solicitudes</strong><small>Revisar pendientes</small></button>
           <button type="button" data-academy-page="academyAdminClassesPage" class="adminCommandAction"><span>▣</span><strong>Clases</strong><small>Programar y publicar</small></button>
           <button type="button" data-academy-page="academyAdminVipPage" class="adminCommandAction"><span>◈</span><strong>Pagos VIP</strong><small>Comprobantes</small></button>
-          <button type="button" onclick="olonAdmin.go('adminBillingBlock')" class="adminCommandAction"><span>▤</span><strong>Facturación</strong><small>Crear facturas PDF</small></button>
+          <button type="button" onclick="olonAdmin.go('adminBillingBlock')" class="adminCommandAction"><span>▤</span><strong>Facturación</strong><small>Facturas y cuentas por cobrar</small></button>
           <button type="button" onclick="olonAdmin.openChat()" class="adminCommandAction"><span>✉</span><strong>Mensajes</strong><small>Atender estudiantes</small></button>
         </div>
       </div>
@@ -773,15 +774,30 @@ window.addEventListener("load", () => {
         <button type="button" onclick="olonAdmin.openChat()">Mensajes <span id="adminNavUnread">0</span></button>
       </nav>
       <section class="adminWorkspaceCard adminBillingBlock" id="adminBillingBlock" aria-labelledby="adminBillingHeading">
-        <div class="adminWorkspaceCardHead">
-          <div><span class="adminSectionEyebrow">FINANZAS / HERRAMIENTAS</span><h4 id="adminBillingHeading">▤ Centro de facturación</h4><p>Crea facturas profesionales, asigna numeración y genera PDF con tu facturador OLFX.</p></div>
-          <a class="adminBtn adminBtnGold" href="https://infolonsocietyacademy.github.io/Facturaci-nOLFX/" target="_blank" rel="noopener noreferrer">Abrir facturador ↗</a>
+        <header class="billingHeading">
+          <div><span class="billingEyebrow">OLON SOCIETY / FINANZAS</span><h4 id="adminBillingHeading">Centro de facturación</h4><p>De la primera factura al último pago. Gestiona tus clientes y documentos desde un solo lugar.</p></div>
+          <div class="billingHeadingActions"><button type="button" class="billingButton" id="billingBack" hidden>← Historial</button><button type="button" class="billingButton" id="billingRefresh" aria-label="Actualizar facturas">↻ Actualizar</button><button type="button" class="billingButton primary" id="billingNew">＋ Nueva factura</button></div>
+        </header>
+        <div class="billingMetrics" aria-label="Resumen de facturación">
+          <div class="billingMetric paid"><span>Pagadas</span><strong id="billingPaidTotal">—</strong><small>Total registrado en USD</small></div>
+          <div class="billingMetric"><span>Por cobrar</span><strong id="billingPendingTotal">—</strong><small>Facturas pendientes</small></div>
+          <div class="billingMetric"><span>Emitido este mes</span><strong id="billingMonthTotal">—</strong><small>Excluye facturas anuladas</small></div>
+          <div class="billingMetric"><span>Documentos</span><strong id="billingInvoiceCount">—</strong><small>Historial del portal</small></div>
         </div>
-        <div class="adminBillingNotice">El facturador es una herramienta independiente. Sus facturas y numeración no se sincronizan todavía con la base de datos de estudiantes. Evita incluir información confidencial que no sea necesaria.</div>
-        <div class="adminBillingFrameWrap">
-          <iframe title="Facturador OLFX" class="adminBillingFrame" data-admin-billing-frame data-src="https://infolonsocietyacademy.github.io/Facturaci-nOLFX/" loading="lazy" referrerpolicy="no-referrer" sandbox="allow-scripts allow-forms allow-same-origin allow-downloads allow-popups allow-popups-to-escape-sandbox"></iframe>
+        <p class="billingFeedback" id="billingFeedback" role="status" hidden></p>
+        <div class="billingContent" id="billingHistoryPanel">
+          <div class="billingHistoryHeader"><h5 id="billingResults">Historial de facturas</h5><span class="billingSync" id="billingSync">Acceso administrativo</span></div>
+          <div class="billingFilters"><label>Buscar factura<input type="search" id="billingSearch" placeholder="Nombre del cliente o número de factura" maxlength="110" autocomplete="off"></label><label>Estado<select id="billingStatus"><option value="all">Todos los estados</option><option value="pending">Pendientes</option><option value="paid">Pagadas</option><option value="cancelled">Anuladas</option></select></label></div>
+          <div class="billingTableLabels" aria-hidden="true"><span>Documento / fecha</span><span>Cliente / servicio</span><span>Importe</span><span>Estado / acciones</span></div>
+          <div id="billingRows" aria-live="polite"></div>
+          <div class="billingPagination" id="billingPagination" hidden><button type="button" class="billingButton" id="billingPrev">← Anterior</button><span id="billingPage"></span><button type="button" class="billingButton" id="billingNext">Siguiente →</button></div>
         </div>
-        <p class="adminBillingHelp">Si el facturador no aparece aquí, utiliza «Abrir facturador» para trabajar en una pestaña nueva. En iPhone, esta opción puede facilitar la descarga del PDF.</p>
+        <div class="billingContent" id="billingEditorPanel" hidden>
+          <div class="billingStudentPicker"><label for="billingStudent">Facturar a un estudiante<select id="billingStudent"><option value="">Cliente particular</option></select></label><p>Selecciona un estudiante para completar su nombre y contacto, o escribe los datos de un cliente particular.</p></div>
+          <p class="billingEditorLoading" id="billingEditorLoading" role="status" hidden>Preparando el editor y el generador PDF…</p>
+          <div id="billingEditorHost"></div>
+        </div>
+        <footer class="billingFooter"><span><strong>Serie OSA-P</strong> · Numeración automática compartida entre dispositivos.</span><span>Facturador OLFX · Solo administración</span></footer>
       </section>
       <section class="adminWorkspaceCard" id="adminRequestsBlock" aria-labelledby="adminRequestsHeading">
         <div class="adminWorkspaceCardHead">
@@ -1066,7 +1082,8 @@ window.addEventListener("load", () => {
 <script src="./student-records.js?v=20261106-registros-pdf" defer></script>
 <script src="./premium-report.js?v=20261106-registros-pdf" defer></script>
 <script src="./academy-tools.js?v=20261107-class-countdown" defer></script>
-<script src="./admin-workspace.js?v=20261107-billing" defer></script>
+<script src="./admin-workspace.js?v=20261107-integrated" defer></script>
+<script src="./admin-billing.js?v=20261107-integrated" defer></script>
 <script src="./leaderboard.js?v=20261107-ranking-avatar-image-load-6" defer></script>
 <script src="./admin-registration.js?v=20261106-trader" defer></script>
 <script src="./password-settings.js?v=20261107-security-hardening" defer></script>
