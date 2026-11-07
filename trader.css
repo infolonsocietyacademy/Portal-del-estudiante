@@ -356,3 +356,44 @@ body.trader-themed.atlas-dark .traderDialog .profileFeedback[data-error="true"]{
   .historyFilters{width:100%}
   .historyFilters label{flex:1;min-width:0}
 }
+
+/* OLON mobile accessibility and adjustable reading size (85–125%). */
+:root{--trader-font-scale:1}
+#portal .portalNavText,
+#portal .card p,
+#portal .card h3,
+#portal .page p,
+#portal .page label,
+#portal .page button,
+#portal .page input,
+#portal .page select,
+#portal .page textarea,
+#portal .page td,
+#portal .page th,
+#portal .page small,
+#portal .page li{
+  font-size:calc(1em * var(--trader-font-scale)) !important;
+}
+.appearanceFontSize{display:grid;gap:9px;min-width:0}
+.appearanceFontSize output{font-weight:800;font-variant-numeric:tabular-nums}
+.appearanceFontSize input[type="range"]{width:100%;min-width:0;accent-color:var(--trader-accent);min-height:44px;touch-action:pan-y}
+.appearanceFontSize small{font-size:12px;opacity:.8}
+@media(max-width:980px){
+  #portal .main,#portal .page,#portal .card,#portal .topbar{min-width:0;max-width:100%}
+  #portal .page{overflow-wrap:anywhere}
+  #portal .page :is(table,.table){max-width:100%}
+  #portal .page :is(input,select,textarea){max-width:100%;min-width:0}
+  #portal .page :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),select,textarea){font-size:max(16px,1em)}
+  #portal .page :is(button,[role="button"]){min-height:42px}
+  #portal .page :is(.tableWrap,.tableResponsive,.table-scroll,.tableContainer){max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  #portal .portalTopbar{gap:8px}
+  #portal .portalTopActions{min-width:0;flex-wrap:wrap;justify-content:flex-end}
+}
+@media(max-width:480px){
+  #portal .page :is(.card,.panel){max-width:100%;min-width:0}
+  #portal .page :is(.profileDialogActions,.formActions){flex-wrap:wrap}
+  #appearanceDialog{max-width:calc(100vw - 20px);max-height:calc(100dvh - 20px);overflow-y:auto}
+}
+@media(prefers-reduced-motion:reduce){
+  #portal .sidebar,#portal .portalMenuBackdrop{transition:none!important}
+}
