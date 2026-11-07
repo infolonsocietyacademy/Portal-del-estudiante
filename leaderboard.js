@@ -51,6 +51,7 @@
       if(!card)return;
       const entry=byRank.get(rank);
       card.classList.toggle("isEmpty",!entry);
+      card.dataset.avatarStudent=entry?.student_id||"";
       const avatar=card.querySelector("[data-top-avatar]");
       const fallback=card.querySelector("[data-top-initials]");
       avatar.hidden=true;
@@ -90,17 +91,25 @@
           if(!card)return;
           const image=card.querySelector("[data-top-avatar]");
           const fallback=card.querySelector("[data-top-initials]");
-          image.onload=()=>{
-            if(request!==state.fetchSeq || image.getAttribute("src")!==asset.signedUrl)return;
+          // Preload separately: a hidden <img loading="lazy"> may never load,
+          // so its onload event cannot make it visible. This fixes that deadlock.
+          const probe=new Image();
+          probe.onload=()=>{
+            if(request!==state.fetchSeq)return;
+            if(card.dataset.avatarStudent!==entry.student_id)return;
+            image.src=asset.signedUrl;
             image.hidden=false;
             fallback.hidden=true;
           };
-          image.onerror=()=>{
+          probe.onerror=()=>{
+            if(request!==state.fetchSeq)return;
             image.hidden=true;
             fallback.hidden=false;
             image.removeAttribute("src");
+            console.warn("[OLON TOP 3] No se pudo abrir la foto del puesto",entry.rank);
           };
-          image.src=asset.signedUrl;
+          card.dataset.avatarStudent=entry.student_id;
+          probe.src=asset.signedUrl;
         }catch(error){ /* Keep initials when a photo is unavailable. */ }
       }));
     }catch(error){
