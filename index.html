@@ -82,7 +82,7 @@ window.addEventListener("load", () => {
     <div class="authShell homeShell">
       <div class="authHero homeHero">
         <div class="homeEyebrow">OLON SOCIETY ACADEMY</div>
-        <h1>Portal del <em>Trader</em></h1>
+        <h1 aria-label="Portal del Trader">Portal del <em id="typewriterTrader" aria-hidden="true">Trader</em></h1>
         <h2>Tu formación y tus resultados en un solo lugar</h2>
         <p class="homeLead">Lleva tu bitácora de trading, consulta las próximas clases y conversa con la comunidad privada de OLON.</p>
         <div class="homeTraits" aria-label="Herramientas del portal">
@@ -1062,6 +1062,38 @@ window.addEventListener("load", () => {
   });
 })();
 
+</script>
+<script id="olonTypewriterInit">
+/* Efecto de escritura: solo en la portada pública. Preserva el texto accesible y las preferencias de movimiento. */
+(function(){
+  function initTraderTypewriter(){
+    const word = document.getElementById("typewriterTrader");
+    if(!word) return;
+    const text = "Trader";
+    if(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+      word.textContent = text;
+      return;
+    }
+    // Evita saltos visuales: el texto permanece presente si JavaScript está deshabilitado.
+    let frame = 0;
+    let timeoutId;
+    function write(){
+      if(!word.isConnected) return;
+      word.textContent = text.slice(0,frame++);
+      if(frame <= text.length + 1) timeoutId = window.setTimeout(write, 115);
+    }
+    window.setTimeout(function(){
+      word.textContent = "";
+      frame = 0;
+      write();
+    }, 210);
+  }
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded",initTraderTypewriter,{once:true});
+  }else{
+    initTraderTypewriter();
+  }
+})();
 </script>
 </body>
 </html>
