@@ -25,7 +25,7 @@
 <link rel="stylesheet" href="./trader.css?v=20261106-trader-marca">
 <link rel="stylesheet" href="./landing-cyber.css?v=20261106-cyber-console-1">
 <link rel="stylesheet" href="./interior-cyber.css?v=20261106-premium-profile-5">
-<link rel="stylesheet" href="./leaderboard.css?v=20261107-ranking-preview-2">
+<link rel="stylesheet" href="./leaderboard.css?v=20261107-ranking-avatar-3">
 <noscript><style>#olonLoader{display:none}</style></noscript>
 
 <style id="olon-rescue-css">
@@ -287,19 +287,19 @@ window.addEventListener("load", () => {
         </div>
         <div class="olonPodium" aria-live="polite" aria-atomic="true">
           <div class="olonPodiumEntry isEmpty" data-leaderboard-rank="2" style="--olon-rank:#bbc5d4">
-            <span class="olonTopAvatar" data-top-initials>—</span>
+            <span class="olonTopAvatar"><span data-top-initials>—</span><img data-top-avatar alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" hidden></span>
             <strong class="olonTopName" data-top-name>Sin clasificar</strong>
             <span class="olonTopPercent" data-top-percent>—</span>
             <div class="olonTopPlatform"><span class="olonTopMedal" aria-hidden="true">🥈</span><span class="olonTopRank">#2</span></div>
           </div>
           <div class="olonPodiumEntry isEmpty" data-leaderboard-rank="1" style="--olon-rank:#e5b65b">
-            <span class="olonTopAvatar" data-top-initials>—</span>
+            <span class="olonTopAvatar"><span data-top-initials>—</span><img data-top-avatar alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" hidden></span>
             <strong class="olonTopName" data-top-name>Sin clasificar</strong>
             <span class="olonTopPercent" data-top-percent>—</span>
             <div class="olonTopPlatform"><span class="olonTopMedal" aria-hidden="true">🥇</span><span class="olonTopRank">#1</span></div>
           </div>
           <div class="olonPodiumEntry isEmpty" data-leaderboard-rank="3" style="--olon-rank:#ce9572">
-            <span class="olonTopAvatar" data-top-initials>—</span>
+            <span class="olonTopAvatar"><span data-top-initials>—</span><img data-top-avatar alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" hidden></span>
             <strong class="olonTopName" data-top-name>Sin clasificar</strong>
             <span class="olonTopPercent" data-top-percent>—</span>
             <div class="olonTopPlatform"><span class="olonTopMedal" aria-hidden="true">🥉</span><span class="olonTopRank">#3</span></div>
@@ -844,6 +844,7 @@ window.addEventListener("load", () => {
           </div>
         </div>
         <label class="olonRankingConsent"><input type="checkbox" id="olonRankConsent"> Confirmo que todos los estudiantes seleccionados autorizaron mostrar su nombre y porcentaje de rendimiento en el portal.</label>
+        <label class="olonRankingConsent"><input type="checkbox" id="olonRankPhotoConsent"> Confirmo que los estudiantes seleccionados también autorizaron mostrar su foto de perfil en el TOP 3. Si no marcas esta opción, se mostrarán sus iniciales.</label>
         <div class="olonRankingActions">
           <button class="btn" id="olonRankSave" type="button">Publicar TOP 3</button>
           <button class="btn secondary" id="olonRankClear" type="button">Retirar ranking</button>
@@ -1069,7 +1070,7 @@ window.addEventListener("load", () => {
 <script src="./premium-report.js?v=20261106-registros-pdf" defer></script>
 <script src="./academy-tools.js?v=20261106-comunidad-perfil" defer></script>
 <script src="./admin-workspace.js?v=20261106-trader" defer></script>
-<script src="./leaderboard.js?v=20261107-ranking-preview-3" defer></script>
+<script src="./leaderboard.js?v=20261107-ranking-avatar-4" defer></script>
 <script src="./admin-registration.js?v=20261106-trader" defer></script>
 <script src="./password-settings.js?v=20261106-trader" defer></script>
 
