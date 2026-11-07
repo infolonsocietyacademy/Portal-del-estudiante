@@ -14,7 +14,7 @@
 <title>Portal del Trader | OLON Society Academy</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
@@ -23,6 +23,7 @@
 
 <link rel="stylesheet" href="./style.css?v=20261106-trader-marca">
 <link rel="stylesheet" href="./trader.css?v=20261106-trader-marca">
+<link rel="stylesheet" href="./landing-cyber.css?v=20261106-cyber-console-1">
 <noscript><style>#olonLoader{display:none}</style></noscript>
 
 <style id="olon-rescue-css">
@@ -61,10 +62,11 @@ window.addEventListener("load", () => {
 
 
 <section id="auth" class="auth authFullScreenPro homePremium">
+  <div class="homeCyberAmbient" aria-hidden="true"><div class="homeOrbitalGlobe"></div></div>
   <header class="homeTopbar">
     <a class="homeBrand" href="#auth" aria-label="OLON Society Academy - Inicio">
       <img src="./assets/favicon.png" alt="" width="43" height="43">
-      <span class="homeBrandName">OLON Society <span>Academy</span></span>
+      <span class="homeBrandName">OLON Society <span>Academy</span></span><span class="homeBrandMeta">EDUCACIÓN · TRADING · COMUNIDAD</span>
     </a>
     <nav class="homeNav" aria-label="Navegación principal">
       <a href="#auth">Inicio</a>
@@ -97,6 +99,7 @@ window.addEventListener("load", () => {
             <path d="M0 149L85 137L165 131L248 104L330 100L410 78L495 61L600 46" stroke="#d7b775" stroke-opacity=".7" stroke-width="1.8" stroke-dasharray="5 6" fill="none"/>
             <circle cx="555" cy="19" r="4" fill="#d7b775"/>
           </svg>
+          <div class="homeMarketKpis" aria-hidden="true"><span>REGISTRA</span><span>ANALIZA</span><span>EVOLUCIONA</span></div>
           <div class="homeMarketFoot"><span>Seguimiento de rendimiento</span><strong>PORTAL PRIVADO</strong></div>
         </div>
       </div>
@@ -109,7 +112,7 @@ window.addEventListener("load", () => {
         </div>
         <div id="loginForm" class="form active">
           <div class="field"><label for="loginCode">Usuario o correo electrónico</label><input id="loginCode" type="text" placeholder="correo@ejemplo.com" autocomplete="username" autocapitalize="none" spellcheck="false"></div>
-          <div class="field"><label for="loginPass">Contraseña</label><input id="loginPass" type="password" placeholder="Tu contraseña" autocomplete="current-password"></div>
+          <div class="field"><label for="loginPass">Contraseña</label><div class="cyberPasswordField"><input id="loginPass" type="password" placeholder="Tu contraseña" autocomplete="current-password"><button class="togglePassword" id="toggleLoginPassword" type="button" aria-label="Mostrar contraseña" aria-pressed="false" onclick="var p=document.getElementById('loginPass');var visible=p.type==='password';p.type=visible?'text':'password';this.setAttribute('aria-pressed',String(visible));this.setAttribute('aria-label',visible?'Ocultar contraseña':'Mostrar contraseña')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
           <div class="recoveryShortcut"><a href="./recuperar.html">¿Olvidaste tu contraseña?</a></div>
           <button id="loginSubmitBtn" class="btn full" type="button" onclick="login()">Entrar al Portal del Trader</button>
           <div class="authHelp" id="homeSupport">¿Necesitas ayuda? <a href="mailto:infolonsocietyacademy@gmail.com?subject=Soporte%20Portal%20del%20Trader">Contactar soporte</a></div>
@@ -151,6 +154,7 @@ window.addEventListener("load", () => {
           <div class="homeSupportLinks"><a href="./recuperar.html">Recuperar contraseña</a><a href="mailto:infolonsocietyacademy@gmail.com?subject=Soporte%20de%20acceso">Contactar soporte</a></div>
         </div>
       </div>
+      <div class="homeConsoleStrip" aria-label="Plataforma educativa"><strong>PORTAL DEL TRADER</strong><span>FORMACIÓN</span><span>BITÁCORA</span><span>COMUNIDAD</span><span>ACCESO PRIVADO</span></div>
       <footer class="homeFooter"><span>© 2026 OLON Society Academy. Todos los derechos reservados.</span><span>Formación • Disciplina • Comunidad</span></footer>
     </section>
   </main>
