@@ -986,6 +986,7 @@ window.addEventListener("load", () => {
       <label class="field">Color principal<span class="appearanceColor"><input type="color" name="accent" value="#335fa8"><output id="appearanceAccentHex">#335FA8</output></span></label>
       <div class="field appearanceTextField"><label for="appearanceTextColor">Color del texto</label><div class="appearanceColor"><input type="color" name="text" id="appearanceTextColor" value="#17263a"><button type="button" class="profileRemovePhoto" id="appearanceTextAuto">Automático</button></div></div>
       <label class="field appearanceFont">Tipo de letra<select name="font"><option value="mono">Monoespaciada</option><option value="inter">Inter</option><option value="system">Del sistema</option><option value="rounded">Trebuchet</option><option value="serif">Georgia</option></select></label>
+      <label class="field appearanceFontSize" for="appearanceFontSize">Tamaño de letra <output id="appearanceFontSizeValue" for="appearanceFontSize">100%</output><input id="appearanceFontSize" name="fontSize" type="range" min="85" max="125" step="5" value="100" aria-label="Tamaño de letra del portal"><small>85% pequeño · 100% normal · 125% grande</small></label>
     </div>
     <div class="appearancePreview">
       <strong>Vista previa</strong><span>Bitácora de trading · OLON Society Academy</span><span class="appearanceSample">Color principal</span>
@@ -1030,7 +1031,7 @@ window.addEventListener("load", () => {
 
 <script src="./script.js?v=20261107-keyboard-audio-fixed-2" defer></script>
 <script src="./interior-typewriter.js?v=20261106-interior-typing-1" defer></script>
-<script src="./appearance.js?v=20261106-trader-marca" defer></script>
+<script src="./appearance.js?v=20261107-fontsize-mobile" defer></script>
 <script src="./trade-history.js?v=20261106-trader" defer></script>
 
 
