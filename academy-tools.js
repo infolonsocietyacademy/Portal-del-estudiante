@@ -144,14 +144,50 @@
     return actions;
   }
 
+  function classCountdownText(start, end, now = Date.now()){
+    if(!Number.isFinite(start) || !Number.isFinite(end)) return "Horario pendiente";
+    if(now >= end) return "Clase finalizada";
+    if(now >= start) return "🔴 Clase en curso";
+    const seconds = Math.max(0, Math.ceil((start - now) / 1000));
+    const days = Math.floor(seconds / 86400), hours = Math.floor(seconds % 86400 / 3600);
+    const minutes = Math.floor(seconds % 3600 / 60), secs = seconds % 60;
+    return "Comienza en " + (days ? days + "d " : "") + String(hours).padStart(2,"0") + ":" +
+      String(minutes).padStart(2,"0") + ":" + String(secs).padStart(2,"0");
+  }
+  function updateClassCountdowns(){
+    document.querySelectorAll("[data-olon-class-countdown]").forEach(el => {
+      const start = Number(el.dataset.starts), end = Number(el.dataset.ends);
+      const now = Date.now(), next = classCountdownText(start,end,now);
+      if(el.textContent !== next) el.textContent = next;
+      el.dataset.state = now >= end ? "ended" : now >= start ? "live" : "upcoming";
+      const badge = el.closest(".academyItem")?.querySelector("[data-class-state]");
+      if(badge) badge.textContent = now >= end ? "Finalizada" : now >= start ? "En curso" : "Programada";
+      const join = el.closest(".academyItem")?.querySelector("[data-class-join]");
+      if(join) join.hidden = now >= end;
+    });
+  }
+  setInterval(() => { if(!document.hidden) updateClassCountdowns(); }, 1000);
+  document.addEventListener("visibilitychange", () => {
+    if(!document.hidden) updateClassCountdowns();
+  });
+
   function classCard(item, manage = false){
     const card = node("article","","academyItem");
     const start = +new Date(item.starts_at), end = start + item.duration_minutes * 60_000;
     const now = Date.now(), upcoming = end >= now;
     const state = !item.published ? "Oculta" : upcoming ? (start <= now ? "En curso" : "Programada") : "Finalizada";
     const head = node("div","","academyItemHead");
-    head.append(node("h5",item.title),node("span",state,"academyBadge"));
+    const stateBadge = node("span",state,"academyBadge");
+    if(!manage && item.published) stateBadge.dataset.classState = "true";
+    head.append(node("h5",item.title),stateBadge);
     card.append(head,node("p",dateTime.format(new Date(item.starts_at)) + " PR · " + item.duration_minutes + " min","academyMeta"));
+    if(!manage && item.published){
+      const countdown = node("div",classCountdownText(start,end),"academyClassCountdown");
+      countdown.dataset.olonClassCountdown = "true";
+      countdown.dataset.starts = String(start);
+      countdown.dataset.ends = String(end);
+      card.append(countdown);
+    }
     if(item.description) card.append(node("p",item.description,"academyCopy"));
     const actions = node("div","","academyActions");
     if(manage){
@@ -170,7 +206,11 @@
     }else{
       for(const [text,url] of [["Entrar a la clase",upcoming && item.join_url],
         ["Ver grabación",item.replay_url],["Material de repaso",item.material_url]]){
-        if(url){ try{ actions.append(link(text,url)); }catch{ /* An invalid link stays out of the student view. */ } }
+        if(url){ try{
+          const actionLink = link(text,url);
+          if(text === "Entrar a la clase") actionLink.dataset.classJoin = "true";
+          actions.append(actionLink);
+        }catch{ /* An invalid link stays out of the student view. */ } }
       }
       if(upcoming && !item.join_url) card.append(node("p","Enlace de la sesión pendiente.","academyMeta"));
       if(!upcoming && !item.replay_url) card.append(node("p","Grabación pendiente.","academyMeta"));
@@ -225,7 +265,10 @@
     const state = {owner, request:0};
     classNotifications = state;
     state.channel = supabaseClient.channel("olon-class-notifications")
-      .on("postgres_changes", {event:"*",schema:"public",table:"olon_classes"}, () => void refreshClassUnread(state))
+      .on("postgres_changes", {event:"*",schema:"public",table:"olon_classes"}, () => {
+        void refreshClassUnread(state);
+        if(classesVisible()) void loadClasses(false, true);
+      })
       .subscribe(status => {
         if(status === "SUBSCRIBED") void refreshClassUnread(state);
       });
@@ -264,6 +307,7 @@
       const recent = row => +new Date(row.starts_at) + row.duration_minutes * 60_000 >= now;
       setList(sections[0],rows.filter(recent).map(row=>classCard(row)),"Todavía no hay clases programadas.");
       setList(sections[1],rows.filter(row=>!recent(row)).reverse().map(row=>classCard(row)),"Las clases pasadas aparecerán aquí.");
+      updateClassCountdowns();
       if(classesVisible()){
         const publications = rows.map(row => row.publication_id).filter(Boolean);
         if(publications.length){
