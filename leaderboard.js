@@ -139,6 +139,35 @@
       console.warn("[OLON TOP 3] Estudiantes",err);
     }
   }
+  function showAdminPreview(entries, period, key){
+    const holder=$("olonRankPreviewRows");
+    const status=$("olonRankPreviewStatus");
+    if(!holder||!status)return;
+    holder.replaceChildren();
+    status.textContent="Período: "+periodLabel(period,key);
+    const byRank=new Map((entries||[]).map(entry=>[Number(entry.rank),entry]));
+    for(let rank=1;rank<=3;rank++){
+      const item=byRank.get(rank);
+      const row=document.createElement("div");
+      row.className="olonRankPreviewItem"+(item?" hasEntry":"");
+      const marker=document.createElement("span");
+      marker.className="olonRankPreviewMedal";
+      marker.textContent=rank===1?"🥇":rank===2?"🥈":"🥉";
+      const copy=document.createElement("span");
+      copy.className="olonRankPreviewStudent";
+      const user=state.users.find(u=>u.id===item?.student_id);
+      const label=document.createElement("strong");
+      label.textContent=item?(user?.full_name||"Estudiante registrado"):"Puesto disponible";
+      const note=document.createElement("small");
+      note.textContent=item?(item.published?"Publicado":"Borrador privado"):"Sin resultados registrados";
+      copy.append(label,note);
+      const pct=document.createElement("strong");
+      pct.className="olonRankPreviewPercent";
+      pct.textContent=item?(Number(item.return_pct)>0?"+":"")+Number(item.return_pct).toFixed(2)+"%":"—";
+      row.append(marker,copy,pct);
+      holder.append(row);
+    }
+  }
   async function loadAdmin(){
     if(!activeAdmin())return;
     const period=$("olonRankPeriod").value;
@@ -158,6 +187,7 @@
         $("olonRankPct"+rank).value=entry?.return_pct==null?"":String(entry.return_pct);
       }
       $("olonRankConsent").checked=false;
+      showAdminPreview(data||[],period,key);
       const drafts=(data||[]).filter(entry=>!entry.published);
       const published=(data||[]).filter(entry=>entry.published);
       showStatus("olonRankFeedback",drafts.length
@@ -166,6 +196,8 @@
         ? "Ranking publicado: "+published.length+" puesto(s) para "+periodLabel(period,key)+"."
         : "Aún no hay puestos para "+periodLabel(period,key)+".");
     }catch(err){
+      const preview=$("olonRankPreviewStatus");
+      if(preview)preview.textContent="Error al consultar";
       showStatus("olonRankFeedback","No se pudo consultar este ranking.",true);
       console.warn("[OLON TOP 3] Admin load",err);
     }
