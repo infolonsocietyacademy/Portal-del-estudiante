@@ -85,7 +85,7 @@ window.addEventListener("load", () => {
         <div class="homeEyebrow">OLON SOCIETY ACADEMY</div>
         <h1 aria-label="Portal del Trader">Portal del <em id="typewriterTrader" aria-hidden="true">Trader</em></h1>
         <h2>Tu formación y tus resultados en un solo lugar</h2>
-        <p class="homeLead">Lleva tu bitácora de trading, consulta las próximas clases y conversa con la comunidad privada de OLON.</p>
+        <p class="homeLead">Lleva tu bitácora de trading, consulta las próximas clases y analiza tu progreso de trading.</p>
         <div class="homeTraits" aria-label="Herramientas del portal">
           <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V8M10 20V13M16 20V4M22 20V10"/></svg> Bitácora</span>
           <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m2 10 10-7 10 7-10 7-10-7Z"/><path d="M6 13v6c4 3 8 3 12 0v-6M22 10v7"/></svg> Clases</span>
@@ -215,7 +215,8 @@ window.addEventListener("load", () => {
       <button type="button" class="portalNavLink adminNav hidden" data-page="academyAdminClassesPage" onclick="showPage('academyAdminClassesPage',this)" aria-label="Gestionar clases"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h8"/></svg></span><span class="portalNavText">Gestionar clases</span></button>
       <button type="button" class="portalNavLink adminNav hidden" data-page="academyAdminVipPage" onclick="showPage('academyAdminVipPage',this)" aria-label="Comprobantes VIP"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg></span><span class="portalNavText">Comprobantes VIP</span></button>
       <button type="button" class="portalNavLink adminNav hidden" data-page="adminChat" onclick="showPage('adminChat',this)" aria-label="Mensajes"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-5-1.5L3 21l1.5-4A9 9 0 1 1 21 12Z"/><path d="M8 12h8M8 15h5"/></svg></span><span class="portalNavText">Mensajes</span><span id="adminChatBadge" class="adminUnread portalNavUnread" style="display:none">0</span></button>
-      <button type="button" class="portalNavLink" data-page="publicChat" onclick="showPage('publicChat',this)" aria-label="Comunidad"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5c0 4.7-3.9 8.5-8.7 8.5-1.5 0-3-.4-4.2-1l-5.1 2 1.6-4.9A8.1 8.1 0 0 1 3 11.5C3 6.8 7 3 12 3s9 3.8 9 8.5Z"/><path d="M8 11h8M8 14h5"/></svg></span><span class="portalNavText">Comunidad</span></button>
+
+
     </nav>
     <div class="portalSidebarBottom">
       <div class="sideBox portalAccessCard">
@@ -665,41 +666,6 @@ window.addEventListener("load", () => {
       </div>
     </section>
 
-    <section id="publicChat" class="page hidden" aria-labelledby="communityTitle">
-      <div class="waChatShell">
-        <header class="waChatHeader">
-          <span class="waAvatar" aria-hidden="true">OS</span>
-          <div>
-            <h3 id="communityTitle">Chat de la comunidad</h3>
-            <p>Canal general para miembros de OLON</p>
-          </div>
-          <button id="publicChatRefresh" class="waRefresh" type="button">Actualizar</button>
-        </header>
-        <div class="waTimeline">
-          <div id="publicChatMessages" class="waMessages" role="log" aria-label="Mensajes de la comunidad" tabindex="0"></div>
-          <button id="waNewMessagesBtn" class="waNewMessagesBtn" type="button" hidden>Ver mensajes nuevos ↓</button>
-        </div>
-        <p id="publicChatStatus" class="waStatus" role="status" hidden></p>
-        <form id="publicChatForm">
-          <div class="waEmojiBar" role="group" aria-label="Añadir un emoji">
-            <button type="button" data-chat-emoji aria-label="Fuego">🔥</button>
-            <button type="button" data-chat-emoji aria-label="Gráfica">📈</button>
-            <button type="button" data-chat-emoji aria-label="Diamante">💎</button>
-            <button type="button" data-chat-emoji aria-label="Aprobado">✅</button>
-            <button type="button" data-chat-emoji aria-label="Manos juntas">🙏</button>
-            <button type="button" data-chat-emoji aria-label="Cohete">🚀</button>
-            <button type="button" data-chat-emoji aria-label="Risa">😂</button>
-            <button type="button" data-chat-emoji aria-label="Ojos">👀</button>
-          </div>
-          <div class="waComposer">
-            <textarea id="publicChatInput" rows="2" maxlength="4000" aria-label="Mensaje para la comunidad" placeholder="Escribe un mensaje…" enterkeyhint="send" required></textarea>
-            <button class="waSendBtn" type="submit">Enviar</button>
-          </div>
-        </form>
-      </div>
-    </section>
-
-
     <section id="newsProPage" class="page hidden" aria-labelledby="marketNewsTitle">
       <header class="marketNewsHero">
         <div class="marketNewsIntro">
@@ -979,7 +945,7 @@ window.addEventListener("load", () => {
   </header>
   <form id="profileForm">
     <label class="field">Nombre visible<input name="display_name" type="text" maxlength="120" autocomplete="nickname" aria-describedby="profileNameHint"></label>
-    <small id="profileNameHint">Aparece en el portal y en tus mensajes nuevos de Comunidad.</small>
+    <small id="profileNameHint">Aparece en tu perfil del Portal del Trader.</small>
     <div class="profilePhotoFields">
       <div class="profilePhotoField">
         <label class="field">Foto de perfil
@@ -1066,7 +1032,8 @@ window.addEventListener("load", () => {
 <script src="./interior-typewriter.js?v=20261106-interior-typing-1" defer></script>
 <script src="./appearance.js?v=20261106-trader-marca" defer></script>
 <script src="./trade-history.js?v=20261106-trader" defer></script>
-<script src="./community-chat.js?v=20261106-comunidad-perfil" defer></script>
+
+
 <script src="./profile-settings.js?v=20261106-comunidad-perfil" defer></script>
 <script src="./student-records.js?v=20261106-registros-pdf" defer></script>
 <script src="./premium-report.js?v=20261106-registros-pdf" defer></script>
