@@ -1,0 +1,164 @@
+/* OLON TOP 3 | Trading academy podium and admin management */
+#portal.app #dashboard .olonLeaderboard{
+  margin:0 0 17px;
+  padding:clamp(18px,2.5vw,28px)!important;
+  background:radial-gradient(ellipse at 85% 20%,color-mix(in srgb,var(--trader-accent) 11%,transparent),transparent 48%),var(--cyber-ui-panel)!important;
+  border:1px solid var(--cyber-ui-border)!important;
+  border-radius:17px!important;min-width:0;
+}
+#portal.app .olonLeaderboardTop{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;margin:0 0 14px;
+}
+#portal.app .olonLeaderboardTop h3{
+  font-size:clamp(18px,2vw,25px)!important;color:var(--cyber-ui-ink)!important;
+  margin:2px 0 4px;letter-spacing:-.055em;
+}
+#portal.app .olonLeaderboardTop p{color:var(--cyber-ui-muted)!important;font-size:11px;line-height:1.5;margin:0}
+#portal.app .olonLeaderboardKicker{display:flex;align-items:center;gap:6px;color:var(--trader-accent-ink);font-size:10px;font-weight:850;letter-spacing:.11em}
+#portal.app .olonLeaderboardMark{
+  display:grid;place-items:center;width:46px;height:46px;border-radius:11px;
+  border:1px solid color-mix(in srgb,#dfa94f 48%,var(--cyber-ui-border));
+  background:linear-gradient(135deg,#efc77d22,#ad792811);
+  color:#e1b866;font-size:25px;flex:none;
+}
+#portal.app .olonLeaderboardTabs{
+  display:flex;gap:5px;align-items:center;width:max-content;max-width:100%;
+  padding:4px;border:1px solid var(--cyber-ui-border);
+  border-radius:10px;background:var(--cyber-ui-panel-2);
+}
+#portal.app .olonLeaderboardTabs button{
+  padding:9px 15px;min-height:39px;border:1px solid transparent;
+  border-radius:7px;background:transparent;color:var(--cyber-ui-muted);
+  font-weight:800;font-size:11px;white-space:nowrap;
+}
+#portal.app .olonLeaderboardTabs button:hover{color:var(--cyber-ui-ink)}
+#portal.app .olonLeaderboardTabs button.active{
+  color:var(--cyber-ui-ink);background:var(--cyber-ui-panel);
+  border-color:var(--trader-accent);box-shadow:0 0 10px var(--cyber-ui-glow);
+}
+#portal.app .olonLeaderboardMeta{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  flex-wrap:wrap;margin:13px 0 10px;
+}
+#portal.app .olonLeaderboardMeta span{
+  font-size:10px;color:var(--cyber-ui-muted);font-weight:750;letter-spacing:.04em
+}
+#portal.app .olonLeaderboardMeta .olonLeaderboardPrivacy{
+  font-size:9px;letter-spacing:0;font-weight:500;
+}
+#portal.app .olonPodium{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;
+  align-items:end;margin-top:18px;min-width:0;
+}
+#portal.app .olonPodiumEntry{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  min-width:0;text-align:center;position:relative;
+}
+#portal.app .olonPodiumEntry .olonTopAvatar{
+  display:grid;place-items:center;width:49px;height:49px;
+  border:1px solid var(--cyber-ui-border);border-radius:50%;
+  background:linear-gradient(145deg,var(--cyber-ui-panel-2),var(--cyber-ui-panel));
+  font-size:15px;font-weight:900;color:var(--cyber-ui-ink);
+}
+#portal.app .olonPodiumEntry[data-leaderboard-rank="1"] .olonTopAvatar{
+  width:58px;height:58px;border-color:#e3b968;box-shadow:0 0 20px #bd923622;
+}
+#portal.app .olonTopName{
+  display:block;min-height:2.8em;line-height:1.4;max-width:100%;
+  font-size:clamp(10px,1vw,13px);font-weight:850;
+  overflow-wrap:anywhere;color:var(--cyber-ui-ink);
+}
+#portal.app .olonTopPercent{
+  display:block;font-size:clamp(12px,1.5vw,18px);font-weight:900;
+  color:var(--cyber-profit);font-variant-numeric:tabular-nums;letter-spacing:-.035em;
+}
+#portal.app .olonPodiumEntry.isEmpty .olonTopPercent{color:var(--cyber-ui-muted)}
+#portal.app .olonTopPlatform{
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  gap:4px;min-width:0;width:100%;min-height:96px;
+  background:linear-gradient(150deg,color-mix(in srgb,var(--olon-rank) 11%,var(--cyber-ui-panel-2)),var(--cyber-ui-panel));
+  border:1px solid var(--cyber-ui-border);border-top:3px solid var(--olon-rank);
+  border-radius:11px 11px 6px 6px;
+}
+#portal.app .olonPodiumEntry[data-leaderboard-rank="1"] .olonTopPlatform{min-height:139px}
+#portal.app .olonPodiumEntry[data-leaderboard-rank="2"] .olonTopPlatform{min-height:113px}
+#portal.app .olonPodiumEntry[data-leaderboard-rank="3"] .olonTopPlatform{min-height:92px}
+#portal.app .olonTopMedal{font-size:22px;line-height:1}
+#portal.app .olonTopRank{font-size:clamp(20px,2vw,28px);font-weight:900;color:var(--olon-rank)}
+#portal.app .olonLeaderboardNotice{
+  font-size:11px;color:var(--cyber-ui-muted);margin:10px 0 0;line-height:1.5;
+}
+#portal.app .olonLeaderboardNotice[data-error="true"]{color:var(--cyber-loss)}
+#portal.app .olonLeaderboardTop .olonLeaderboardMark{font-family:var(--font-mono)}
+#portal.app #admin .olonRankingAdmin{
+  margin:20px 0;padding:clamp(16px,2vw,25px);
+  background:var(--cyber-ui-panel);border:1px solid var(--cyber-ui-border);
+  border-radius:16px;scroll-margin-top:95px;
+}
+#portal.app #admin .olonRankingAdmin h4{margin:3px 0 6px;font-size:clamp(19px,2.2vw,25px);color:var(--cyber-ui-ink)}
+#portal.app #admin .olonRankingAdmin p{font-size:12px;color:var(--cyber-ui-muted);line-height:1.6}
+#portal.app #admin .olonRankingAdminControls{
+  display:grid;grid-template-columns:minmax(155px,1fr) minmax(155px,1fr) auto;
+  gap:10px;margin:15px 0;
+  align-items:end;
+}
+#portal.app #admin .olonRankingAdmin label{display:grid;gap:6px;color:var(--cyber-ui-ink);font-size:12px;font-weight:750}
+#portal.app #admin .olonRankingAdmin input:not([type="checkbox"]),
+#portal.app #admin .olonRankingAdmin select{
+  display:block;width:100%;min-width:0;min-height:43px;
+  padding:8px 11px;border:1px solid var(--cyber-ui-border);
+  border-radius:9px;background:var(--cyber-ui-panel-2);
+  color:var(--cyber-ui-ink);font-size:14px;
+}
+#portal.app #admin .olonRankEditor{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:15px 0;
+}
+#portal.app #admin .olonRankSlot{
+  display:grid;gap:10px;min-width:0;
+  padding:15px;border:1px solid var(--cyber-ui-border);border-radius:12px;
+  background:var(--cyber-ui-panel-2);
+}
+#portal.app #admin .olonRankSlot strong{font-size:14px;color:var(--cyber-ui-ink)}
+#portal.app #admin .olonRankingConsent{
+  display:flex!important;align-items:flex-start;gap:10px;
+  margin:13px 0;font-size:12px!important;line-height:1.6;
+}
+#portal.app #admin .olonRankingConsent input{margin-top:3px;accent-color:var(--trader-accent)}
+#portal.app #admin .olonRankingActions{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-top:13px}
+#portal.app #admin .olonRankingActions button{min-height:43px}
+#portal.app #admin .olonRankingFeedback{
+  display:block;margin:13px 0 0;
+  color:var(--cyber-ui-muted);font-size:12px;line-height:1.5;
+}
+#portal.app #admin .olonRankingFeedback[data-error="true"]{color:var(--cyber-loss)}
+#portal.app #admin .olonRankingAdmin .olonRankingExplain{
+  border-left:3px solid var(--trader-accent);padding-left:12px;margin:10px 0;
+}
+@media(max-width:980px){
+ #portal.app #admin .olonRankEditor{grid-template-columns:minmax(0,1fr)}
+ #portal.app #admin .olonRankSlot{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:end}
+ #portal.app #admin .olonRankSlot strong{grid-column:1/-1}
+}
+@media(max-width:680px){
+ #portal.app .olonLeaderboardTabs{width:100%}
+ #portal.app .olonLeaderboardTabs button{flex:1;min-width:0;padding:8px 6px;font-size:10px}
+ #portal.app #dashboard .olonLeaderboard{padding:16px 12px!important}
+ #portal.app .olonPodium{gap:5px}
+ #portal.app .olonPodiumEntry{gap:6px}
+ #portal.app .olonPodiumEntry .olonTopAvatar{width:40px;height:40px;font-size:12px}
+ #portal.app .olonPodiumEntry[data-leaderboard-rank="1"] .olonTopAvatar{width:46px;height:46px}
+ #portal.app .olonTopName{font-size:10px;min-height:3em}
+ #portal.app .olonTopPercent{font-size:11px}
+ #portal.app .olonTopPlatform{border-radius:7px 7px 4px 4px}
+ #portal.app #admin .olonRankingAdminControls{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #portal.app #admin #olonRankReload{grid-column:1/-1}
+}
+@media(max-width:420px){
+ #portal.app .olonTopRank{font-size:19px}
+ #portal.app .olonTopMedal{font-size:18px}
+ #portal.app .olonPodiumEntry[data-leaderboard-rank="1"] .olonTopPlatform{min-height:100px}
+ #portal.app .olonPodiumEntry[data-leaderboard-rank="2"] .olonTopPlatform{min-height:86px}
+ #portal.app .olonPodiumEntry[data-leaderboard-rank="3"] .olonTopPlatform{min-height:73px}
+ #portal.app #admin .olonRankSlot{grid-template-columns:minmax(0,1fr)}
+}
