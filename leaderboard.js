@@ -51,7 +51,12 @@
       if(!card)return;
       const entry=byRank.get(rank);
       card.classList.toggle("isEmpty",!entry);
-      card.querySelector("[data-top-initials]").textContent=entry?initials(entry.display_name):"—";
+      const avatar=card.querySelector("[data-top-avatar]");
+      const fallback=card.querySelector("[data-top-initials]");
+      avatar.hidden=true;
+      avatar.removeAttribute("src");
+      fallback.hidden=false;
+      fallback.textContent=entry?initials(entry.display_name):"—";
       card.querySelector("[data-top-name]").textContent=entry?entry.display_name:"Sin clasificar";
       card.querySelector("[data-top-percent]").textContent=entry
         ? (Number(entry.return_pct)>0?"+":"")+Number(entry.return_pct).toLocaleString("es-PR",{maximumFractionDigits:2,minimumFractionDigits:2})+"%"
@@ -59,6 +64,49 @@
     });
     $("olonLeaderboardPeriod").textContent=periodLabel(period,key);
     $("olonLeaderboardEmpty").hidden=byRank.size>0;
+  }
+  async function loadPodiumAvatars(entries,request){
+    // Only published students with explicit photo consent may share an avatar.
+    const approved=(entries||[]).filter(entry=>
+      entry.photo_consent_confirmed===true && entry.student_id);
+    if(!approved.length)return;
+    try{
+      const ids=[...new Set(approved.map(entry=>entry.student_id))];
+      const {data,error}=await supabaseClient.from("olon_profile_media")
+        .select("student_id,avatar_path").in("student_id",ids);
+      if(error)throw error;
+      if(request!==state.fetchSeq)return;
+      const rows=new Map((data||[]).map(item=>[item.student_id,item.avatar_path]));
+      await Promise.all(approved.map(async entry=>{
+        const path=rows.get(entry.student_id);
+        if(!path || !path.startsWith(entry.student_id+"/avatar/"))return;
+        try{
+          // Signed URL is temporary; the original storage bucket stays private.
+          const {data:asset,error:assetError}=await supabaseClient.storage
+            .from("olon-profile-media").createSignedUrl(path,600);
+          if(assetError || !asset?.signedUrl || request!==state.fetchSeq)return;
+          const card=$("olonLeaderboard")?.querySelector(
+            '[data-leaderboard-rank="'+Number(entry.rank)+'"]');
+          if(!card)return;
+          const image=card.querySelector("[data-top-avatar]");
+          const fallback=card.querySelector("[data-top-initials]");
+          image.onload=()=>{
+            if(request!==state.fetchSeq || image.getAttribute("src")!==asset.signedUrl)return;
+            image.hidden=false;
+            fallback.hidden=true;
+          };
+          image.onerror=()=>{
+            image.hidden=true;
+            fallback.hidden=false;
+            image.removeAttribute("src");
+          };
+          image.src=asset.signedUrl;
+        }catch(error){ /* Keep initials when a photo is unavailable. */ }
+      }));
+    }catch(error){
+      // A missing/deleted image must not prevent names and percentages from loading.
+      console.warn("[OLON TOP 3] Foto no disponible",error);
+    }
   }
   async function loadPublic(period=state.selected){
     if(!periods.includes(period))return;
@@ -76,11 +124,12 @@
     try{
       if(typeof supabaseClient==="undefined")throw Error("No hay conexión con Supabase.");
       const {data,error}=await supabaseClient.from("olon_leaderboard")
-        .select("rank,display_name,return_pct").eq("period_type",period)
+        .select("rank,student_id,display_name,return_pct,photo_consent_confirmed").eq("period_type",period)
         .eq("period_key",key).eq("published",true).order("rank",{ascending:true});
       if(request!==state.fetchSeq)return;
       if(error)throw error;
       showPodium(data||[],period,key);
+      void loadPodiumAvatars(data||[],request);
       state.loadedKey=key;
       $("olonLeaderboardError").hidden=true;
     }catch(err){
@@ -178,7 +227,7 @@
     showStatus("olonRankFeedback","Consultando TOP 3...");
     try{
       const {data,error}=await supabaseClient.from("olon_leaderboard")
-        .select("rank,student_id,return_pct,consent_confirmed,published")
+        .select("rank,student_id,return_pct,consent_confirmed,published,photo_consent_confirmed")
         .eq("period_type",period).eq("period_key",key).order("rank",{ascending:true});
       if(error)throw error;
       for(let rank=1;rank<=3;rank++){
@@ -187,6 +236,8 @@
         $("olonRankPct"+rank).value=entry?.return_pct==null?"":String(entry.return_pct);
       }
       $("olonRankConsent").checked=false;
+      // Explicit photo permission is reconfirmed on each publication.
+      $("olonRankPhotoConsent").checked=false;
       showAdminPreview(data||[],period,key);
       const drafts=(data||[]).filter(entry=>!entry.published);
       const published=(data||[]).filter(entry=>entry.published);
@@ -219,7 +270,9 @@
     }
     if(new Set(entries.map(e=>e.student_id)).size!==entries.length)
       throw Error("No puedes repetir el mismo estudiante.");
-    return entries;
+    // Explicit opt-in: photos do not appear from historical publication consent alone.
+    const photosAllowed=$("olonRankPhotoConsent").checked;
+    return entries.map(entry=>({...entry,photo_consent_confirmed:photosAllowed}));
   }
   async function saveAdmin(clear=false){
     if(!activeAdmin()||state.isSaving)return;
