@@ -162,3 +162,45 @@
  #portal.app .olonPodiumEntry[data-leaderboard-rank="3"] .olonTopPlatform{min-height:73px}
  #portal.app #admin .olonRankSlot{grid-template-columns:minmax(0,1fr)}
 }
+
+
+/* Private ranking preview in Administration — displays saved draft without publishing. */
+#portal.app #admin .olonRankPreview{
+  margin:15px 0;padding:13px;
+  border:1px solid var(--cyber-ui-border);
+  border-radius:12px;
+  background:linear-gradient(150deg,var(--cyber-ui-panel-2),var(--cyber-ui-panel));
+}
+#portal.app #admin .olonRankPreviewHead{
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:8px;
+  padding:1px 2px 11px;
+  font-size:10px;letter-spacing:.07em;color:var(--cyber-ui-muted);
+}
+#portal.app #admin .olonRankPreviewHead strong{color:var(--cyber-ui-ink);font-size:11px}
+#portal.app #admin .olonRankPreviewRows{display:grid;gap:7px}
+#portal.app #admin .olonRankPreviewItem{
+  display:flex;align-items:center;gap:12px;
+  border:1px solid var(--cyber-ui-border);
+  border-radius:9px;
+  min-height:60px;padding:9px 12px;
+  background:var(--cyber-ui-panel);
+  color:var(--cyber-ui-muted);font-size:12px;
+}
+#portal.app #admin .olonRankPreviewItem.hasEntry{
+  border-color:color-mix(in srgb,var(--trader-accent) 25%,var(--cyber-ui-border));
+}
+#portal.app #admin .olonRankPreviewMedal{font-size:22px;flex:none}
+#portal.app #admin .olonRankPreviewStudent{display:grid;gap:4px;flex:1;min-width:0}
+#portal.app #admin .olonRankPreviewStudent strong{
+  font-size:12px;color:var(--cyber-ui-ink);overflow-wrap:anywhere;
+}
+#portal.app #admin .olonRankPreviewStudent small{font-size:10px;color:var(--cyber-ui-muted)}
+#portal.app #admin .olonRankPreviewPercent{
+  font-size:15px;color:var(--cyber-profit);font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+@media(max-width:420px){
+  #portal.app #admin .olonRankPreviewItem{gap:7px;padding:8px}
+  #portal.app #admin .olonRankPreviewPercent{font-size:12px}
+}
