@@ -153,7 +153,25 @@
     populate();
   });
 
-  sounds.addEventListener("change", () => localStorage.setItem("olon_sound_enabled",String(sounds.checked)));
+  sounds.addEventListener("change", () => {
+    localStorage.setItem("olon_sound_enabled",String(sounds.checked));
+    if(sounds.checked) note("Sonidos activados. Pulsa «Probar sonido» para escucharlo.");
+    else note("Sonidos desactivados.");
+  });
+
+  document.getElementById("soundTestBtn")?.addEventListener("click", () => {
+    if(!sounds.checked){
+      note("Activa «Sonidos del portal» para escuchar el teclado.",true);
+      return;
+    }
+    if(typeof window.testOlonKeyboardSound !== "function"){
+      note("El audio todavía no está disponible. Actualiza la página.",true);
+      return;
+    }
+    // La función reproduce directamente durante el gesto del usuario (incluido iPhone).
+    window.testOlonKeyboardSound();
+    note("Si no lo escuchas, revisa el volumen del dispositivo y el modo silencio.");
+  });
 
   form.addEventListener("submit", async event => {
     event.preventDefault();
