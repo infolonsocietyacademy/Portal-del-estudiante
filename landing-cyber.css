@@ -1,0 +1,247 @@
+/* OLON Society Academy — Portal del Trader | Cyber Console 2026
+   Solo afecta la portada publica. No altera el escritorio, admin ni la autenticacion. */
+body.trader-themed{--font-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Consolas,monospace}
+#auth.homePremium{
+  --cyber-base:#080d15;--cyber-panel:#101822;--cyber-panel2:#151f2c;
+  --cyber-border:#344253;--cyber-white:#f4f6fa;--cyber-muted:#a7b4c7;
+  --cyber-grid:rgba(126,154,187,.075);--cyber-line:rgba(181,200,228,.12);
+  --cyber-accent:var(--trader-accent);--cyber-highlight:var(--trader-accent-ink);
+  --cyber-glow:color-mix(in srgb,var(--trader-accent) 23%,transparent);
+  background:
+    radial-gradient(ellipse at 35% 31%,color-mix(in srgb,var(--trader-accent) 8%,transparent),transparent 43%),
+    radial-gradient(ellipse at 105% 84%,color-mix(in srgb,var(--trader-accent) 15%,transparent),transparent 47%),
+    linear-gradient(145deg,#0a1019 0%,#080c13 52%,#0d1420 100%) !important;
+  color:var(--cyber-white);font-family:var(--font-mono)!important;
+  isolation:isolate;overflow:hidden;min-height:100svh;
+}
+#auth.homePremium *:not(svg):not(path):not(g):not(circle):not(line){font-family:var(--font-mono)!important}
+#auth.homePremium::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.7;
+ background-image:linear-gradient(var(--cyber-grid) 1px,transparent 1px),linear-gradient(90deg,var(--cyber-grid) 1px,transparent 1px);
+ background-size:64px 64px;mask-image:linear-gradient(to bottom,transparent,black 13%,transparent 82%);z-index:0}
+#auth.homePremium::after{content:"";position:absolute;top:84px;left:0;right:0;height:1px;
+ background:linear-gradient(90deg,transparent,var(--cyber-line),transparent);pointer-events:none}
+#auth.homePremium .homeCyberAmbient{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+#auth.homePremium .homeCyberAmbient::before{content:"";position:absolute;top:200px;left:-130px;width:420px;height:440px;opacity:.43;
+ background:repeating-linear-gradient(90deg,transparent 0 17px,rgba(232,66,85,.1) 17px 19px,transparent 19px 43px);
+ mask-image:linear-gradient(150deg,transparent 10%,#000 55%,transparent 80%);transform:skewY(-13deg)}
+#auth.homePremium .homeOrbitalGlobe{
+ position:absolute;width:430px;aspect-ratio:1;left:calc(50% - 150px);top:150px;border-radius:50%;
+ border:1px solid color-mix(in srgb,var(--trader-accent) 32%,transparent);
+ background:radial-gradient(ellipse at 31% 28%,rgba(116,149,185,.23),transparent 54%),
+ repeating-linear-gradient(90deg,transparent 0 48px,rgba(164,188,216,.07) 49px 50px,transparent 51px 70px),
+ repeating-linear-gradient(0deg,transparent 0 42px,rgba(164,188,216,.07) 43px 44px,transparent 45px 66px);
+ opacity:.58;box-shadow:0 0 0 24px rgba(232,48,76,.022),0 0 0 58px rgba(232,48,76,.018),inset -50px -35px 65px rgba(1,5,11,.92);
+ transform:rotate(-13deg)
+}
+#auth.homePremium .homeOrbitalGlobe::before{content:"";position:absolute;inset:-20px;border:1px dashed color-mix(in srgb,var(--trader-accent) 38%,transparent);border-radius:50%;transform:rotate(-23deg) scaleX(.83)}
+#auth.homePremium .homeOrbitalGlobe::after{content:"";position:absolute;inset:12%;border-radius:50%;opacity:.65;
+ background-image:radial-gradient(circle,color-mix(in srgb,var(--trader-accent) 60%,#edf1fb) 1px,transparent 1.65px);
+ background-size:11px 11px;mask-image:radial-gradient(ellipse at 36% 45%,black 0 23%,transparent 56%)}
+#auth.homePremium .homeTopbar,#auth.homePremium .homeMain{position:relative;z-index:1}
+#auth.homePremium .homeTopbar{
+ width:min(1500px,100%);min-height:86px;padding:14px clamp(18px,4.5vw,62px);
+ border-bottom:1px solid var(--cyber-border);
+}
+#auth.homePremium .homeTopbar::after{content:"";position:absolute;bottom:-1px;left:4%;width:180px;height:2px;background:linear-gradient(90deg,transparent,var(--trader-accent),transparent)}
+#auth.homePremium .homeBrand{gap:15px;min-width:0}
+#auth.homePremium .homeBrand img{width:43px;height:43px;transform:scale(1.28);filter:drop-shadow(0 1px 9px rgba(255,194,71,.18))}
+#auth.homePremium .homeBrandName{font-size:clamp(15px,1.35vw,21px);font-weight:800;letter-spacing:-.04em;color:var(--cyber-white);white-space:nowrap}
+#auth.homePremium .homeBrandName span,#auth.homePremium .homeCardMark em{color:var(--cyber-highlight)}
+#auth.homePremium .homeBrandMeta{display:inline-block;margin-left:20px;padding-left:19px;border-left:1px solid var(--cyber-border);color:var(--cyber-muted);font-size:9px;font-weight:600;letter-spacing:.095em;white-space:nowrap}
+#auth.homePremium .homeNav{gap:clamp(10px,1.55vw,23px)}
+#auth.homePremium .homeNav a{color:#dbe5f1;font-size:12px;font-weight:700;transition:color .2s}
+#auth.homePremium .homeNav a:first-child{color:var(--cyber-white);text-decoration:none;border-bottom:2px solid var(--cyber-highlight);padding-bottom:5px}
+#auth.homePremium .homeNav a:hover{color:var(--cyber-highlight)}
+#auth.homePremium .homeNavOutline,#auth.homePremium .traderAppearanceTrigger{
+ min-height:41px;border:1px solid var(--cyber-border);color:var(--cyber-white);
+ background:linear-gradient(150deg,rgba(255,255,255,.055),rgba(255,255,255,.015));
+ border-radius:9px;padding:8px 14px;font-weight:700;font-size:11px;transition:border-color .2s,box-shadow .2s,transform .2s;
+}
+#auth.homePremium .homeNavOutline{border-color:color-mix(in srgb,var(--trader-accent) 70%,#29354a)}
+#auth.homePremium .traderAppearanceTrigger svg{color:var(--cyber-highlight)}
+#auth.homePremium .homeNavOutline:hover,#auth.homePremium .traderAppearanceTrigger:hover{border-color:var(--cyber-highlight);box-shadow:0 0 20px var(--cyber-glow);transform:translateY(-1px)}
+#auth.homePremium .homeMain{max-width:1500px;padding:clamp(30px,4.5vw,62px) clamp(18px,4.5vw,62px) 35px}
+#auth.homePremium .authShell.homeShell{grid-template-columns:minmax(0,1.15fr) minmax(370px,.88fr);align-items:center;gap:clamp(20px,4vw,68px)}
+#auth.homePremium .authHero.homeHero{padding:12px 0 14px;color:var(--cyber-white)}
+#auth.homePremium .homeEyebrow{display:flex;align-items:center;gap:11px;font-size:11px;letter-spacing:.12em;color:var(--cyber-white)}
+#auth.homePremium .homeEyebrow::before{content:"//";font-size:19px;font-weight:900;color:var(--cyber-highlight)}
+#auth.homePremium .homeEyebrow::after{content:"";display:block;width:56px;height:1px;background:color-mix(in srgb,var(--trader-accent) 60%,transparent)}
+#auth.homePremium .homeHero h1{
+ font-size:clamp(53px,6vw,92px)!important;font-weight:850!important;line-height:1.04!important;
+ letter-spacing:-.075em!important;margin:21px 0 19px!important;color:var(--cyber-white)!important;
+ text-shadow:0 3px 19px rgba(185,210,239,.13);
+}
+#auth.homePremium .homeHero h1 em{display:block!important;color:var(--cyber-highlight)!important;text-shadow:0 0 30px var(--cyber-glow)}
+#auth.homePremium .homeHero h1 em::after{content:"_";display:inline-block;color:var(--cyber-highlight);font-size:.75em;margin-left:8px;animation:olonBlink 1.2s steps(2,start) infinite}
+@keyframes olonBlink{0%,45%{opacity:1}46%,100%{opacity:.16}}
+#auth.homePremium .homeHero h2{font-size:clamp(17px,1.62vw,23px)!important;line-height:1.38!important;letter-spacing:-.05em!important;max-width:730px;color:var(--cyber-white)!important}
+#auth.homePremium .homeHero .homeLead{max-width:680px;color:var(--cyber-muted)!important;font-size:13px;line-height:1.8}
+#auth.homePremium .homeTraits{gap:10px;margin:22px 0 26px}
+#auth.homePremium .homeTraits span{
+ color:var(--cyber-white);font-size:11px;font-weight:700;border:1px solid var(--cyber-border);
+ background:rgba(10,16,25,.75);padding:9px 13px;border-radius:8px;
+ box-shadow:inset 0 1px rgba(255,255,255,.035)
+}
+#auth.homePremium .homeTraits svg{stroke:var(--cyber-highlight)}
+#auth.homePremium .homeTraits span:first-child{border-color:color-mix(in srgb,var(--trader-accent) 65%,var(--cyber-border));box-shadow:0 0 16px color-mix(in srgb,var(--trader-accent) 9%,transparent)}
+#auth.homePremium .homeMarketVisual{
+ max-width:none;padding:17px 20px 15px;border:1px solid var(--cyber-border);border-radius:18px;
+ color:var(--cyber-white);background:
+ linear-gradient(135deg,color-mix(in srgb,var(--trader-accent) 6%,#121925),#0a1018 72%);
+ box-shadow:0 20px 48px rgba(0,0,0,.32),0 0 0 1px rgba(255,255,255,.02),inset 0 1px rgba(255,255,255,.04);
+ position:relative
+}
+#auth.homePremium .homeMarketVisual::before{content:"";position:absolute;left:0;top:0;width:80px;height:2px;background:var(--cyber-highlight);box-shadow:0 0 16px var(--trader-accent)}
+#auth.homePremium .homeMarketVisual::after{content:"";position:absolute;right:0;bottom:0;width:62px;height:2px;background:var(--cyber-highlight)}
+#auth.homePremium .homeMarketTop{color:var(--cyber-white);font-size:10px;letter-spacing:.015em}
+#auth.homePremium .homeMarketTop b::before{content:"▥";margin-right:9px;color:var(--cyber-highlight)}
+#auth.homePremium .homeMarketTop span,#auth.homePremium .homeMarketFoot span{color:var(--cyber-muted)}
+#auth.homePremium .homeChart{height:clamp(140px,13vw,190px);margin:13px 0 6px}
+#auth.homePremium .homeChartLine{stroke:color-mix(in srgb,var(--trader-accent) 72%,#fff 28%);filter:drop-shadow(0 0 3px var(--trader-accent))}
+#auth.homePremium .homeChartStop{stop-color:var(--trader-accent)}
+#auth.homePremium .homeMarketKpis{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 13px}
+#auth.homePremium .homeMarketKpis span{font-size:9px;letter-spacing:.1em;font-weight:750;padding:5px 9px;border:1px solid var(--cyber-border);border-radius:5px;color:var(--cyber-muted);background:#151f2b}
+#auth.homePremium .homeMarketKpis span::before{content:"◆";font-size:7px;margin-right:7px;color:var(--cyber-highlight)}
+#auth.homePremium .homeMarketFoot{border-color:var(--cyber-line);padding-top:11px}
+#auth.homePremium .homeMarketFoot strong{color:var(--cyber-highlight)}
+#auth.homePremium .authPanel.homeLoginCard{
+ position:relative;padding:clamp(24px,3vw,41px);border:1px solid var(--cyber-border);border-radius:22px;
+ background:linear-gradient(145deg,rgba(24,34,47,.97),rgba(11,17,27,.98) 76%);
+ color:var(--cyber-white);box-shadow:0 28px 80px rgba(0,0,0,.38),0 0 0 1px rgba(255,255,255,.025),inset 0 1px rgba(255,255,255,.05);
+}
+#auth.homePremium .authPanel.homeLoginCard::before{content:"";position:absolute;top:0;right:18px;width:65px;height:3px;background:var(--cyber-highlight);box-shadow:0 0 18px var(--cyber-glow);pointer-events:none}
+#auth.homePremium .authPanel.homeLoginCard::after{content:"";position:absolute;bottom:0;left:20px;width:86px;height:2px;background:var(--cyber-highlight);pointer-events:none}
+#auth.homePremium .homeCardMark{display:flex;gap:15px;margin-bottom:27px;font-size:15px;font-weight:800;color:var(--cyber-white);letter-spacing:-.04em}
+#auth.homePremium .homeCardMark img{width:40px;height:40px;transform:scale(1.26)}
+#auth.homePremium .homeCardMark span{padding-left:15px;border-left:1px solid var(--cyber-border)}
+#auth.homePremium .authPanelIntro{border-top:1px solid var(--cyber-line);padding-top:20px}
+#auth.homePremium .homeLoginCard .authPanelIntro>span{color:var(--cyber-highlight);font-size:10px;letter-spacing:.13em}
+#auth.homePremium .homeLoginCard .authPanelIntro h2{font-size:clamp(26px,2.3vw,36px);letter-spacing:-.065em;color:var(--cyber-white);margin:7px 0}
+#auth.homePremium .homeLoginCard .authPanelIntro p{color:var(--cyber-muted);line-height:1.6;font-size:11px}
+#auth.homePremium .homeLoginCard .tabs{border:1px solid var(--cyber-border);border-radius:10px;background:#0e1620;padding:4px;display:flex;gap:4px;margin:20px 0 23px}
+#auth.homePremium .homeLoginCard .tabs button{font-size:11px;font-weight:750;border-radius:7px;color:var(--cyber-muted);min-height:43px;transition:background .2s}
+#auth.homePremium .homeLoginCard .tabs button.active{color:var(--cyber-white);background:color-mix(in srgb,var(--trader-accent) 19%,#151e29);box-shadow:inset 0 0 0 1px var(--trader-accent),0 0 13px var(--cyber-glow)}
+#auth.homePremium .homeLoginCard .field{margin-bottom:13px}
+#auth.homePremium .homeLoginCard .field label{display:block;color:var(--cyber-white);font-weight:750;font-size:11px;margin-bottom:7px}
+#auth.homePremium .homeLoginCard .field input{
+ background:#0d1520;border:1px solid #465366;border-radius:9px;color:var(--cyber-white);
+ min-height:48px;width:100%;font-size:12px;transition:border-color .18s,box-shadow .18s;
+}
+#auth.homePremium .homeLoginCard .field input::placeholder{color:#7e90a7;opacity:1}
+#auth.homePremium .homeLoginCard .field input:focus{outline:none;border-color:var(--cyber-highlight);box-shadow:0 0 0 3px var(--cyber-glow)}
+#auth.homePremium .homeLoginCard .field #loginCode{padding-left:42px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2399a6b7' stroke-width='1.7'%3E%3Crect x='3' y='5' width='18' height='14' rx='2'/%3E%3Cpath d='m3 7 9 6 9-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-size:19px;background-position:14px center}
+#auth.homePremium .homeLoginCard .cyberPasswordField{position:relative}
+#auth.homePremium .homeLoginCard .cyberPasswordField #loginPass{padding-left:41px;padding-right:48px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2399a6b7' stroke-width='1.7'%3E%3Crect x='5' y='10' width='14' height='11' rx='2'/%3E%3Cpath d='M8 10V7a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E");background-repeat:no-repeat;background-size:18px;background-position:14px center}
+#auth.homePremium .togglePassword{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:38px;height:38px;border:0;background:transparent;color:var(--cyber-muted);display:grid;place-items:center;border-radius:7px}
+#auth.homePremium .togglePassword:hover{color:var(--cyber-highlight);background:rgba(255,255,255,.055)}
+#auth.homePremium .togglePassword svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#auth.homePremium .recoveryShortcut a{color:var(--cyber-highlight);font-size:11px;font-weight:700}
+#auth.homePremium .homeLoginCard .btn.full{
+ background:linear-gradient(100deg,color-mix(in srgb,var(--trader-accent) 67%,#100f18),color-mix(in srgb,var(--trader-accent) 88%,#222)),var(--trader-accent);
+ border:1px solid var(--trader-accent);color:#fff;font-weight:800;font-size:12px;line-height:1.4;
+ min-height:51px;border-radius:9px;text-shadow:0 1px rgba(0,0,0,.3);
+ box-shadow:0 5px 19px var(--cyber-glow);transition:transform .16s,box-shadow .16s,filter .16s;
+}
+#auth.homePremium .homeLoginCard .btn.full:hover{transform:translateY(-2px);box-shadow:0 7px 28px var(--cyber-glow);filter:brightness(1.1)}
+#auth.homePremium .homeLoginCard .btn.secondary.full{background:rgba(255,255,255,.045);color:var(--cyber-white);border-color:var(--cyber-border);text-shadow:none;box-shadow:none}
+#auth.homePremium .homeLoginCard .authHelp{color:var(--cyber-muted);font-size:11px}
+#auth.homePremium :is(.recoveryShortcut a,.authHelp a,.homeSupportLinks a){color:var(--cyber-highlight)}
+#auth.homePremium .homeLoginCard .authLegal{border-color:var(--cyber-line);margin-top:20px;padding-top:20px}
+#auth.homePremium .homeLoginCard .authLegalItem{align-items:flex-start}
+#auth.homePremium .homeLoginCard .authLegalItem b{color:var(--cyber-white);font-size:11px}
+#auth.homePremium .homeLoginCard .authLegalItem p{color:var(--cyber-muted);font-size:10px;line-height:1.55}
+#auth.homePremium .homeLoginCard .authLegalIcon{background:color-mix(in srgb,var(--trader-accent) 12%,#202a37);border:1px solid var(--cyber-border);border-radius:9px}
+#auth.homePremium .homeLoginCard .form h2{color:var(--cyber-white)}
+#auth.homePremium .homeLoginCard .form>p{color:var(--cyber-muted)}
+#auth.homePremium .homeLoginCard .signupMembership{background:#131e2b;color:var(--cyber-white);border-color:var(--cyber-border)}
+#auth.homePremium .homeLoginCard .signupMembership strong{color:var(--cyber-highlight)}
+#auth.homePremium .homeBelow{padding-top:25px;border-top:1px solid var(--cyber-line)}
+#auth.homePremium .homeSectionHead h2{color:var(--cyber-white);font-size:clamp(22px,2.8vw,32px)}
+#auth.homePremium .homeSectionHead p,#auth.homePremium .homeFeature p,#auth.homePremium .homeInfoPanel p{color:var(--cyber-muted)}
+#auth.homePremium .homeFeature,#auth.homePremium .homeInfoPanel{background:linear-gradient(145deg,#141e29,#101720);border-color:var(--cyber-border);border-radius:13px;padding:20px;box-shadow:inset 0 1px rgba(255,255,255,.035)}
+#auth.homePremium .homeFeatureIcon{background:color-mix(in srgb,var(--trader-accent) 12%,#152131)}
+#auth.homePremium .homeFeatureIcon svg{stroke:var(--cyber-highlight)}
+#auth.homePremium .homeFeature h3,#auth.homePremium .homeInfoPanel h3,#auth.homePremium .homeStatLine b{color:var(--cyber-white)}
+#auth.homePremium .homeSectionLabel{color:var(--cyber-highlight)}
+#auth.homePremium .homeFooter{color:var(--cyber-muted);border-color:var(--cyber-line);margin-top:28px}
+#auth.homePremium .homeConsoleStrip{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:13px 18px;margin-top:22px;border:1px solid var(--cyber-border);border-radius:10px;background:#0c141e;color:var(--cyber-muted);font-size:10px;letter-spacing:.055em}
+#auth.homePremium .homeConsoleStrip strong{color:var(--cyber-white);font-size:10px}
+#auth.homePremium .homeConsoleStrip strong::before{content:"●";font-size:11px;color:var(--cyber-highlight);margin-right:10px}
+#auth.homePremium .homeConsoleStrip span::before{content:"/";color:var(--cyber-highlight);margin-right:10px}
+#auth.homePremium a:focus-visible,#auth.homePremium button:focus-visible,#auth.homePremium input:focus-visible{outline:2px solid var(--cyber-highlight);outline-offset:3px}
+
+/* Light mode remains available to each student and uses the same terminal layout. */
+body.trader-themed:not(.atlas-dark) #auth.homePremium{
+ --cyber-base:#f1f4f9;--cyber-panel:#fff;--cyber-panel2:#f4f6fa;
+ --cyber-border:#cbd5e2;--cyber-white:#152137;--cyber-muted:#53647c;
+ --cyber-grid:rgba(75,96,130,.055);--cyber-line:rgba(62,85,119,.14);
+ background:radial-gradient(ellipse at 7% 15%,color-mix(in srgb,var(--trader-accent) 10%,transparent),transparent 50%),linear-gradient(155deg,#fbfcff,#eaf0f8)!important;
+}
+body.trader-themed:not(.atlas-dark) #auth .homeOrbitalGlobe{opacity:.23}
+body.trader-themed:not(.atlas-dark) #auth .homeTopbar{border-color:var(--cyber-border)}
+body.trader-themed:not(.atlas-dark) #auth .homeNav a{color:#273851}
+body.trader-themed:not(.atlas-dark) #auth .homeNavOutline,body.trader-themed:not(.atlas-dark) #auth .traderAppearanceTrigger{background:#fff;color:#162036}
+body.trader-themed:not(.atlas-dark) #auth .homeTraits span{background:#fff}
+body.trader-themed:not(.atlas-dark) #auth .homeMarketVisual{background:linear-gradient(145deg,#192234,#0e1622);color:#fff}
+body.trader-themed:not(.atlas-dark) #auth .homeMarketTop,body.trader-themed:not(.atlas-dark) #auth .homeMarketFoot strong{color:#fff}
+body.trader-themed:not(.atlas-dark) #auth .authPanel.homeLoginCard{background:linear-gradient(150deg,#fff,#f4f7fb);box-shadow:0 24px 70px rgba(18,36,60,.11)}
+body.trader-themed:not(.atlas-dark) #auth .homeLoginCard .tabs{background:#e9eff6}
+body.trader-themed:not(.atlas-dark) #auth .homeLoginCard .tabs button.active{background:#fff;color:var(--trader-accent-ink)}
+body.trader-themed:not(.atlas-dark) #auth .homeLoginCard .field input{background:#f5f7fb;color:#17243a;border-color:#cbd5e2}
+body.trader-themed:not(.atlas-dark) #auth .homeLoginCard .field input::placeholder{color:#76859a}
+body.trader-themed:not(.atlas-dark) #auth .homeLoginCard .authLegalIcon{background:#f4e5e9}
+body.trader-themed:not(.atlas-dark) #auth .homeFeature,body.trader-themed:not(.atlas-dark) #auth .homeInfoPanel{background:#fff}
+body.trader-themed:not(.atlas-dark) #auth .homeConsoleStrip{background:#fff}
+/* Respect the stored user choice for text color where appropriate in the light theme. */
+body.trader-themed:not(.atlas-dark) #auth .homeHero h1,
+body.trader-themed:not(.atlas-dark) #auth .homeHero h2{color:var(--trader-text)!important}
+
+/* Responsive: functional navigation, login and graph across screen sizes. */
+@media(max-width:1180px){
+ #auth.homePremium .homeBrandMeta{display:none}
+ #auth.homePremium .homeTopbar{padding-inline:24px}
+ #auth.homePremium .authShell.homeShell{grid-template-columns:minmax(0,1fr) minmax(340px,.89fr);gap:28px}
+}
+@media(max-width:900px){
+ #auth.homePremium .homeNav a{display:none}
+ #auth.homePremium .homeBrandName{font-size:16px}
+ #auth.homePremium .homeHero h1{font-size:clamp(45px,6vw,66px)!important}
+ #auth.homePremium .homeMain{padding:33px 22px}
+ #auth.homePremium .authShell.homeShell{gap:20px}
+}
+@media(max-width:720px){
+ #auth.homePremium .homeTopbar{min-height:68px;padding:11px 16px}
+ #auth.homePremium .homeBrand{gap:7px}
+ #auth.homePremium .homeBrand img{width:34px;height:34px}
+ #auth.homePremium .homeBrandName{font-size:clamp(12px,3.2vw,17px);letter-spacing:-.055em}
+ #auth.homePremium .homeNav{gap:7px}
+ #auth.homePremium .authShell.homeShell{grid-template-columns:minmax(0,1fr);gap:22px}
+ #auth.homePremium .homeMain{padding:32px 16px}
+ #auth.homePremium .authHero.homeHero{padding:0 0 3px}
+ #auth.homePremium .homeHero h1{font-size:clamp(43px,10.8vw,76px)!important}
+ #auth.homePremium .homeHero h1 em{display:block!important}
+ #auth.homePremium .homeHero h2{font-size:17px!important}
+ #auth.homePremium .homeHero .homeLead{font-size:12px}
+ #auth.homePremium .homeOrbitalGlobe{left:46%;width:310px;top:150px}
+ #auth.homePremium .homeMarketVisual{display:block;padding:15px}
+ #auth.homePremium .homeCardMark{display:flex}
+ #auth.homePremium .authPanel.homeLoginCard{padding:22px 19px}
+ #auth.homePremium .homeChart{height:140px}
+ #auth.homePremium .homeFeatureGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #auth.homePremium .homeInfoGrid{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:420px){
+ #auth.homePremium .homeNavOutline{font-size:10px;padding:6px 8px;min-height:37px}
+ #auth.homePremium .traderAppearanceTrigger{padding:0;width:37px;height:37px;min-height:37px}
+ #auth.homePremium .homeBrandName span{font-size:10px}
+ #auth.homePremium .homeHero h1{font-size:clamp(39px,10.9vw,48px)!important}
+ #auth.homePremium .homeHero .homeLead{font-size:11px}
+ #auth.homePremium .homeTraits span{font-size:9px;padding:8px}
+ #auth.homePremium .homeFeatureGrid{grid-template-columns:minmax(0,1fr)}
+ #auth.homePremium .homeMarketKpis span{font-size:8px}
+ #auth.homePremium .homeConsoleStrip{font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){
+ #auth.homePremium .homeHero h1 em::after{animation:none}
+ #auth.homePremium *{scroll-behavior:auto!important;transition:none!important}
+}
