@@ -673,24 +673,10 @@ function renderVipPayment(profile){
   setTextSafe("vipPaymentDays", remaining + (remaining === 1 ? " día" : " días"));
 }
 
-function typeWelcomeMessage(el, text){
-  if(!el) return;
-  el.textContent = "";
-  let i = 0;
-  const speed = 34;
-  function type(){
-    el.textContent = text.slice(0, i);
-    i++;
-    if(i <= text.length){ setTimeout(type, speed); }
-  }
-  type();
-}
-
 function updatePortalWelcome(){
   if(!currentUser) return;
 
   renderVipPayment(currentUser);
-  const fullName = currentUser.full_name || "Estudiante";
   const adminView = isAdminUser(currentUser);
 
   // Topbar principal: evita duplicar el saludo.
@@ -708,15 +694,6 @@ function updatePortalWelcome(){
 
   const welcomeCard = document.getElementById("portalWelcomeCard");
   if(welcomeCard){ welcomeCard.classList.toggle("hidden", adminView); }
-
-  // Card de bienvenida: un solo saludo limpio.
-  const welcomeText = document.getElementById("portalWelcomeText");
-  typeWelcomeMessage(welcomeText, "Hola, " + fullName);
-
-  const welcomeSub = document.getElementById("portalWelcomeSub");
-  if(welcomeSub){
-    welcomeSub.innerText = "OLON Command Center";
-  }
 }
 
 
@@ -825,10 +802,6 @@ function showPage(id,btn){
   document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
   if(btn) btn.classList.add("active");
 
-
-  if(id === "publicChat" && typeof loadPublicChat === "function"){
-    setTimeout(loadPublicChat, 150);
-  }
 
   if(id === "adminChat" && typeof loadAdminChatInbox === "function"){
     setTimeout(loadAdminChatInbox, 150);
@@ -1606,6 +1579,8 @@ function renderHistoryMobileCards(records){
     document.querySelectorAll('.studentOnly').forEach(x=>x.classList.toggle('hidden', isAdmin));
 
     activatePage(isAdmin ? 'admin' : 'dashboard');
+    window.olonProfile?.start();
+    window.olonAcademy?.startClassNotifications();
     await safeBackgroundRender(isAdmin);
   }
 
@@ -1649,7 +1624,7 @@ function renderHistoryMobileCards(records){
     registro:"Registra depósito, ganancia, pérdida y notas del día.",
     historial:"Consulta tu historial individual.",
     comparacion:"Compara tu mes actual con el mes anterior.",
-    publicChat:"Canal público para todos los estudiantes.",
+    publicChat:"Conversación general de la academia.",
     newsProPage:"Titulares y calendario económico.",
     academyClassesPage:"Próximas sesiones y material de repaso.",
     academyVipPage:"Comprobantes y próxima fecha de pago.",
@@ -1676,13 +1651,12 @@ function renderHistoryMobileCards(records){
       if(btn) btn.classList.add("active");
 
       const title = $("pageTitle");
-      if(title) title.innerText = btn ? clean(btn.textContent) : id === "academyJournalPage" ? "Diario visual" : clean(id);
+      if(title) title.innerText = btn ? clean(btn.querySelector(".portalNavText")?.textContent || btn.textContent) : id === "academyJournalPage" ? "Diario visual" : clean(id);
 
       const sub = $("pageSubtitle");
       if(sub && subtitles[id]) sub.innerText = subtitles[id];
 
       if(id === "newsProPage") void marketNews.load();
-      if(id === "publicChat" && typeof window.loadPublicChat === "function") setTimeout(window.loadPublicChat, 80);
       if(id === "adminChat" && typeof window.loadAdminChatInbox === "function") setTimeout(window.loadAdminChatInbox, 80);
       if(id === "admin" && typeof window.renderUsers === "function") setTimeout(window.renderUsers, 80);
       if(id === "dashboard" && typeof window.updatePortalWelcome === "function") setTimeout(window.updatePortalWelcome, 80);
@@ -1697,223 +1671,6 @@ function renderHistoryMobileCards(records){
   };
 
 })();
-
-/* =========================================
-   🌍 CHAT PÚBLICO OLON - WHATSAPP STYLE + EMOJIS
-   ========================================= */
-let publicChatSubscribed = false;
-let publicChatLoading = false;
-let publicChatUserNearBottom = true;
-
-function escapePublicChatHTML(str){
-  return String(str || "").replace(/[&<>"']/g, m => ({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#039;"
-  }[m]));
-}
-
-function publicChatTime(value){
-  try{
-    return new Date(value).toLocaleTimeString("es-PR", {
-      hour:"numeric",
-      minute:"2-digit"
-    });
-  }catch(e){ return ""; }
-}
-
-function setupPublicChatScrollWatcher(){
-  const box = document.getElementById("publicChatMessages");
-  if(!box || box.dataset.scrollWatcher === "1") return;
-  box.dataset.scrollWatcher = "1";
-
-  box.addEventListener("scroll", () => {
-    const distanceFromBottom = box.scrollHeight - box.scrollTop - box.clientHeight;
-    publicChatUserNearBottom = distanceFromBottom < 90;
-    const btn = document.getElementById("waNewMessagesBtn");
-    if(btn && publicChatUserNearBottom) btn.style.display = "none";
-  });
-}
-
-function forcePublicChatBottom(smooth = false){
-  const box = document.getElementById("publicChatMessages");
-  const btn = document.getElementById("waNewMessagesBtn");
-  if(!box) return;
-
-  requestAnimationFrame(() => {
-    box.scrollTo({
-      top: box.scrollHeight,
-      behavior: smooth ? "smooth" : "auto"
-    });
-    publicChatUserNearBottom = true;
-    if(btn) btn.style.display = "none";
-  });
-}
-
-function insertPublicEmoji(emoji){
-  const input = document.getElementById("publicChatInput");
-  if(!input) return;
-
-  const start = input.selectionStart || 0;
-  const end = input.selectionEnd || 0;
-  const text = input.value || "";
-
-  input.value = text.slice(0,start) + emoji + text.slice(end);
-  input.focus();
-
-  const pos = start + emoji.length;
-  input.setSelectionRange(pos,pos);
-
-  if(typeof playClickSound === "function") playClickSound();
-}
-
-async function sendPublicMessage(){
-  const input = document.getElementById("publicChatInput");
-  if(!input || !currentUser){
-    alert("No hay usuario activo. Vuelve a iniciar sesión.");
-    return;
-  }
-
-  const message = input.value.trim();
-  if(!message) return;
-
-  const tempMsg = {
-    id: "temp-" + Date.now(),
-    sender_id: currentUser.id,
-    sender_name: currentUser.full_name || "OLON Member",
-    sender_role: currentUser.role || "student",
-    message: message,
-    created_at: new Date().toISOString(),
-    temp:true
-  };
-
-  addPublicMessage(tempMsg, true);
-  input.value = "";
-  forcePublicChatBottom(true);
-
-  const { data, error } = await supabaseClient
-    .from("general_chat_messages")
-    .insert([{
-      sender_id: currentUser.id,
-      sender_name: currentUser.full_name || "OLON Member",
-      sender_role: currentUser.role || "student",
-      message: message
-    }])
-    .select()
-    .single();
-
-  if(error){
-    alert("No se pudo enviar el mensaje público. Revisa si corriste el SQL en Supabase.");
-    console.error("Public chat send error:", error);
-    return;
-  }
-
-  setTimeout(loadPublicChat, 250);
-
-  if(typeof playClickSound === "function") playClickSound();
-}
-
-async function loadPublicChat(){
-  if(publicChatLoading) return;
-  const box = document.getElementById("publicChatMessages");
-  if(!box || typeof supabaseClient === "undefined") return;
-
-  setupPublicChatScrollWatcher();
-  publicChatLoading = true;
-
-  const { data, error } = await supabaseClient
-    .from("general_chat_messages")
-    .select("*")
-    .order("created_at", { ascending: true })
-    .limit(150);
-
-  publicChatLoading = false;
-
-  if(error){
-    box.innerHTML = `<div class="waEmpty"><div class="waEmptyIcon">⚠️</div><h3>No se pudo cargar el Chat Público</h3><p>Revisa la tabla general_chat_messages en Supabase.</p></div>`;
-    console.error("Public chat load error:", error);
-    return;
-  }
-
-  box.innerHTML = "";
-
-  if(!data || !data.length){
-    box.innerHTML = `<div class="waEmpty"><div class="waEmptyIcon">💬</div><h3>Chat Público OLON</h3><p>Sé el primero en escribir.</p></div>`;
-  }else{
-    data.forEach(msg => addPublicMessage(msg, false));
-  }
-
-  subscribePublicChat();
-  forcePublicChatBottom(false);
-}
-
-function addPublicMessage(msg, forceBottom = false){
-  const box = document.getElementById("publicChatMessages");
-  if(!box) return;
-
-  const empty = box.querySelector(".waEmpty, .top3Empty");
-  if(empty) empty.remove();
-
-  if(msg?.id && box.querySelector(`[data-public-chat-id="${msg.id}"]`)) return;
-
-  const isMe = currentUser && msg.sender_id === currentUser.id;
-  const isAdmin = msg.sender_role === "admin";
-
-  const div = document.createElement("div");
-  div.className = "waBubble " + (isAdmin ? "admin " : "") + (isMe ? "me" : "");
-  div.setAttribute("data-public-chat-id", msg.id || "");
-
-  div.innerHTML = `
-    <span class="waName">${escapePublicChatHTML(msg.sender_name || "OLON Member")}${isAdmin ? " 👑" : ""}</span>
-    <div class="waText">${escapePublicChatHTML(msg.message || "")}</div>
-    <div class="waMeta">
-      <span>${escapePublicChatHTML(publicChatTime(msg.created_at))}</span>
-      ${isMe ? `<span class="waChecks">✓✓</span>` : ""}
-    </div>
-  `;
-
-  box.appendChild(div);
-
-  const btn = document.getElementById("waNewMessagesBtn");
-  if(forceBottom || isMe || publicChatUserNearBottom){
-    forcePublicChatBottom(true);
-  }else if(btn){
-    btn.style.display = "inline-flex";
-  }
-}
-
-function subscribePublicChat(){
-  if(publicChatSubscribed || typeof supabaseClient === "undefined") return;
-
-  supabaseClient
-    .channel("olon-public-chat-live")
-    .on(
-      "postgres_changes",
-      {
-        event:"INSERT",
-        schema:"public",
-        table:"general_chat_messages"
-      },
-      payload => {
-        addPublicMessage(payload.new, false);
-        if(typeof playNewMessageSound === "function") playNewMessageSound();
-      }
-    )
-    .subscribe();
-
-  publicChatSubscribed = true;
-}
-
-function handlePublicChatEnter(e){
-  if(e.key === "Enter" && !e.shiftKey){
-    e.preventDefault();
-    sendPublicMessage();
-  }
-}
-
-
 
 /* =====================================================
    FIX FINAL YTD MOBILE - JS SAFE
@@ -3014,6 +2771,9 @@ document.addEventListener("DOMContentLoaded", function(){
       if(error)throw error;
       localStorage.removeItem("olon_current_user");
       currentUser=null;cachedRecords=[];cachedUsers=[];
+      window.olonCommunity?.clear();
+      window.olonProfile?.clear();
+      window.olonAcademy?.stopClassNotifications();
       setPortalMenu(false);
       document.getElementById("portal")?.classList.add("hidden");
       document.getElementById("auth")?.classList.remove("hidden");
@@ -3047,9 +2807,9 @@ document.addEventListener("DOMContentLoaded", function(){
       hidePortalLoader();
     }
   }
-  // Espera a que el DOM y los demás parches visuales hayan terminado.
-  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded",restoreSupabaseSession);
-  else restoreSupabaseSession();
+  // DOMContentLoaded se dispara después de los módulos del portal cargados con defer.
+  if(document.readyState === "complete") void restoreSupabaseSession();
+  else document.addEventListener("DOMContentLoaded",restoreSupabaseSession,{once:true});
 })();
 
 const portalMenuBreakpoint = window.matchMedia("(max-width: 980px)");
@@ -3106,6 +2866,7 @@ function installPortalNavigation(){
     syncPortalNavigation(id);
     closeMenu();
     if(portalMenuBreakpoint.matches && previous !== id) window.scrollTo({top: 0, behavior: "instant"});
+    window.olonCommunity?.setOpen(id === "publicChat");
     window.olonAcademy?.openPage(id);
     return result;
   };

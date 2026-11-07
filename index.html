@@ -21,47 +21,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 
 
-<link rel="stylesheet" href="./style.css?v=20261106-academia">
+<link rel="stylesheet" href="./style.css?v=20261106-comunidad-perfil">
 <noscript><style>#olonLoader{display:none}</style></noscript>
-
-<style>
-/* Chat Público OLON */
-#publicChat .card{min-height:68vh}
-#publicChatMessages{
-  min-height:440px;
-  max-height:58vh;
-  overflow-y:auto;
-  padding:14px;
-  border-radius:20px;
-  background:rgba(0,0,0,.18);
-  border:1px solid rgba(255,255,255,.08);
-  margin:16px 0;
-}
-#publicChat .chatBubble{
-  max-width:86%;
-  margin:0 0 12px;
-  padding:12px 14px;
-  border-radius:18px;
-  background:rgba(255,255,255,.07);
-  border:1px solid rgba(255,255,255,.08);
-}
-#publicChat .chatBubble.admin{
-  background:rgba(246,196,83,.12);
-  border-color:rgba(246,196,83,.22);
-}
-#publicChat .chatBubble.me{
-  margin-left:auto;
-  background:rgba(59,130,246,.13);
-  border-color:rgba(59,130,246,.22);
-}
-#publicChat .chatBubble b{display:block;margin-bottom:5px;color:#f8fafc}
-#publicChat .chatBubble small{display:block;margin-top:6px;color:var(--muted);font-size:11px}
-#publicChat .chatInputArea textarea{min-height:52px}
-@media(max-width:700px){
-  #publicChatMessages{min-height:55vh;max-height:55vh}
-  #publicChat .chatBubble{max-width:95%}
-}
-</style>
 
 <style id="olon-rescue-css">
 
@@ -260,14 +221,13 @@ window.addEventListener("load", () => {
     <nav class="nav portalNav" aria-label="Navegación del portal">
       <div class="portalNavGroup studentNav">TRADING</div>
       <button type="button" class="portalNavLink studentNav active" data-page="dashboard" onclick="showPage('dashboard',this)" aria-label="Resumen"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></span><span class="portalNavText">Resumen</span></button>
-      <button type="button" class="portalNavLink studentNav" data-page="academyClassesPage" onclick="showPage('academyClassesPage',this)" aria-label="Clases"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h8"/></svg></span><span class="portalNavText">Clases</span></button>
+      <button type="button" class="portalNavLink studentNav" data-page="academyClassesPage" onclick="showPage('academyClassesPage',this)" aria-label="Clases"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h8"/></svg></span><span class="portalNavText">Clases</span><span id="classUnreadBadge" class="classUnreadBadge" aria-hidden="true" hidden></span></button>
       <button type="button" class="portalNavLink studentNav" data-page="academyVipPage" onclick="showPage('academyVipPage',this)" aria-label="Renovación VIP"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg></span><span class="portalNavText">Renovación VIP</span></button>
       <button type="button" class="portalNavLink studentNav" data-page="registro" onclick="showPage('registro',this)" aria-label="Registrar día"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/><rect x="2.5" y="2.5" width="19" height="19" rx="4"/></svg></span><span class="portalNavText">Registrar día</span></button>
       <button type="button" class="portalNavLink studentNav" data-page="historial" onclick="showPage('historial',this)" aria-label="Historial"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 14h3M8 17h7"/></svg></span><span class="portalNavText">Historial</span></button>
       <button type="button" class="portalNavLink studentNav" data-page="academyChecklistPage" onclick="showPage('academyChecklistPage',this)" aria-label="Checklist"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="m7 9 1 1 2-2m2 2h4m-9 6 1 1 2-2m2 2h4"/></svg></span><span class="portalNavText">Checklist</span></button>
       <button type="button" class="portalNavLink studentNav" data-page="comparacion" onclick="showPage('comparacion',this)" aria-label="Resultados"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V11M10 20V5M16 20v-8M22 20V3"/><path d="M2 20h20"/></svg></span><span class="portalNavText">Resultados</span></button>
       <div class="portalNavGroup studentNav portalNavGroupSecondary">ACADEMIA</div>
-      <button type="button" class="portalNavLink studentNav" data-page="publicChat" onclick="showPage('publicChat',this)" aria-label="Comunidad"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5c0 4.7-3.9 8.5-8.7 8.5-1.5 0-3-.4-4.2-1l-5.1 2 1.6-4.9A8.1 8.1 0 0 1 3 11.5C3 6.8 7 3 12 3s9 3.8 9 8.5Z"/><path d="M8 11h8M8 14h5"/></svg></span><span class="portalNavText">Comunidad</span></button>
       <button type="button" class="portalNavLink studentNav" data-page="newsProPage" onclick="showPage('newsProPage',this)" aria-label="Noticias"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10M7 11h4M13 11h4M7 15h10M7 18h7"/></svg></span><span class="portalNavText">Noticias</span></button>
       <button type="button" class="portalNavLink studentNav" data-page="entretenimiento" onclick="showPage('entretenimiento',this)" aria-label="Gira y gana"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 12h12M12 6v12"/><path d="m6 4 2 2M18 4l-2 2"/><rect x="2.5" y="3" width="19" height="18" rx="5"/></svg></span><span class="portalNavText">Gira y gana</span></button>
       <div class="portalNavGroup adminNav hidden">ADMINISTRACIÓN</div>
@@ -275,6 +235,7 @@ window.addEventListener("load", () => {
       <button type="button" class="portalNavLink adminNav hidden" data-page="academyAdminClassesPage" onclick="showPage('academyAdminClassesPage',this)" aria-label="Gestionar clases"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h8"/></svg></span><span class="portalNavText">Gestionar clases</span></button>
       <button type="button" class="portalNavLink adminNav hidden" data-page="academyAdminVipPage" onclick="showPage('academyAdminVipPage',this)" aria-label="Comprobantes VIP"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg></span><span class="portalNavText">Comprobantes VIP</span></button>
       <button type="button" class="portalNavLink adminNav hidden" data-page="adminChat" onclick="showPage('adminChat',this)" aria-label="Mensajes"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-5-1.5L3 21l1.5-4A9 9 0 1 1 21 12Z"/><path d="M8 12h8M8 15h5"/></svg></span><span class="portalNavText">Mensajes</span><span id="adminChatBadge" class="adminUnread portalNavUnread" style="display:none">0</span></button>
+      <button type="button" class="portalNavLink" data-page="publicChat" onclick="showPage('publicChat',this)" aria-label="Comunidad"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5c0 4.7-3.9 8.5-8.7 8.5-1.5 0-3-.4-4.2-1l-5.1 2 1.6-4.9A8.1 8.1 0 0 1 3 11.5C3 6.8 7 3 12 3s9 3.8 9 8.5Z"/><path d="M8 11h8M8 14h5"/></svg></span><span class="portalNavText">Comunidad</span></button>
     </nav>
     <div class="portalSidebarBottom">
       <div class="sideBox portalAccessCard">
@@ -289,6 +250,7 @@ window.addEventListener("load", () => {
     <div class="topbar portalTopbar">
       <button id="mobileMenuToggle" class="mobileMenuToggle" type="button" aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+        <span id="classUnreadMenuDot" class="classUnreadMenuDot" aria-hidden="true" hidden></span>
       </button>
       <div class="portalPageInfo">
         <div class="portalTopBreadcrumb">PORTAL PRIVADO</div>
@@ -296,20 +258,22 @@ window.addEventListener("load", () => {
         <p id="pageSubtitle">Control privado de rendimiento, disciplina, reportes y progreso del trader.</p>
       </div>
       <div class="portalTopActions">
-        <div class="userPill portalUserPill">
-          <div class="avatar" id="avatarText">O</div>
-          <div><b id="studentName">Estudiante</b><small id="userCodeText">Código OLON</small><span id="planBadge" class="planBadge">VIP</span></div>
-        </div>
+        <button type="button" class="userPill portalUserPill" data-edit-profile aria-label="Editar mi perfil" title="Editar mi perfil">
+          <span class="avatar profileAvatar" aria-hidden="true"><span id="avatarText" data-profile-initials>O</span><img data-profile-photo="avatar" alt="" hidden></span>
+          <span><b id="studentName">Estudiante</b><small id="userCodeText">Código OLON</small><span id="planBadge" class="planBadge">VIP</span></span>
+        </button>
         <button id="portalLogoutTop" type="button" class="portalTopLogout" data-olon-logout onclick="logout()" aria-label="Salir del portal" title="Cerrar sesión"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5M17 16l4-4-4-4M21 12H9"/></svg><span>Salir</span></button>
       </div>
     </div>
 
     <section id="dashboard" class="page">
-      <div id="portalWelcomeCard" class="card welcomeHeroCard">
+      <div id="portalWelcomeCard" class="card welcomeHeroCard profileHero">
+        <img class="profileHeroCover" data-profile-photo="cover" alt="" hidden>
         <div class="welcomeHeroContent">
-          <div class="welcomeKicker">👑 Private Trading Portal</div>
+          <span class="profileAvatar profileHeroAvatar" aria-hidden="true"><span data-profile-initials>O</span><img data-profile-photo="avatar" alt="" hidden></span>
           <h2 id="portalWelcomeText" class="welcomeTitle">Hola, Estudiante</h2>
-          <p id="portalWelcomeSub" class="welcomeSub">Tu centro privado de disciplina, métricas y progreso profesional.</p>
+          <p class="welcomeSub">Consulta tu rendimiento y tu progreso en la academia.</p>
+          <button class="profileEditButton" type="button" data-edit-profile>Editar perfil</button>
         </div>
       </div>
 
@@ -337,14 +301,6 @@ window.addEventListener("load", () => {
         </div>
         <p id="ledgerNotice" class="ledgerFeedback" role="status" hidden></p>
       </section>
-
-      <div class="olonIdentityStrip">
-        <div>
-          <b>OLON Society Academy</b>
-          <span>Private Trading Education · Performance Tracking · Student Command Center</span>
-        </div>
-        <small>10/10 Brand System</small>
-      </div>
 
       <div class="proQuote" id="dailyQuote">👑 Control, disciplina y progreso: la diferencia entre operar y construir consistencia.</div>
 
@@ -654,38 +610,37 @@ window.addEventListener("load", () => {
       </div>
     </section>
 
-    <section id="publicChat" class="page hidden">
+    <section id="publicChat" class="page hidden" aria-labelledby="communityTitle">
       <div class="waChatShell">
-        <div class="waChatHeader">
-          <div class="waAvatar">OS</div>
+        <header class="waChatHeader">
+          <span class="waAvatar" aria-hidden="true">OS</span>
           <div>
-            <h3>Chat Público OLON</h3>
-            <p>Canal general en vivo · Comunidad</p>
+            <h3 id="communityTitle">Chat de la comunidad</h3>
+            <p>Canal general para miembros de OLON</p>
           </div>
-          <span class="waLive">● Online</span>
+          <button id="publicChatRefresh" class="waRefresh" type="button">Actualizar</button>
+        </header>
+        <div class="waTimeline">
+          <div id="publicChatMessages" class="waMessages" role="log" aria-label="Mensajes de la comunidad" tabindex="0"></div>
+          <button id="waNewMessagesBtn" class="waNewMessagesBtn" type="button" hidden>Ver mensajes nuevos ↓</button>
         </div>
-
-        <div id="publicChatMessages" class="waMessages"></div>
-
-        <button id="waNewMessagesBtn" class="waNewMessagesBtn" type="button" onclick="forcePublicChatBottom(true)" style="display:none">
-          Nuevos mensajes ↓
-        </button>
-
-        <div class="waEmojiBar">
-          <button type="button" onclick="insertPublicEmoji('🔥')">🔥</button>
-          <button type="button" onclick="insertPublicEmoji('📈')">📈</button>
-          <button type="button" onclick="insertPublicEmoji('💎')">💎</button>
-          <button type="button" onclick="insertPublicEmoji('✅')">✅</button>
-          <button type="button" onclick="insertPublicEmoji('🙏')">🙏</button>
-          <button type="button" onclick="insertPublicEmoji('🚀')">🚀</button>
-          <button type="button" onclick="insertPublicEmoji('😂')">😂</button>
-          <button type="button" onclick="insertPublicEmoji('👀')">👀</button>
-        </div>
-
-        <div class="waComposer">
-          <textarea id="publicChatInput" placeholder="Escribe un mensaje..." onkeydown="handlePublicChatEnter(event)"></textarea>
-          <button class="waSendBtn" type="button" onclick="sendPublicMessage()">➤</button>
-        </div>
+        <p id="publicChatStatus" class="waStatus" role="status" hidden></p>
+        <form id="publicChatForm">
+          <div class="waEmojiBar" role="group" aria-label="Añadir un emoji">
+            <button type="button" data-chat-emoji aria-label="Fuego">🔥</button>
+            <button type="button" data-chat-emoji aria-label="Gráfica">📈</button>
+            <button type="button" data-chat-emoji aria-label="Diamante">💎</button>
+            <button type="button" data-chat-emoji aria-label="Aprobado">✅</button>
+            <button type="button" data-chat-emoji aria-label="Manos juntas">🙏</button>
+            <button type="button" data-chat-emoji aria-label="Cohete">🚀</button>
+            <button type="button" data-chat-emoji aria-label="Risa">😂</button>
+            <button type="button" data-chat-emoji aria-label="Ojos">👀</button>
+          </div>
+          <div class="waComposer">
+            <textarea id="publicChatInput" rows="2" maxlength="4000" aria-label="Mensaje para la comunidad" placeholder="Escribe un mensaje…" enterkeyhint="send" required></textarea>
+            <button class="waSendBtn" type="submit">Enviar</button>
+          </div>
+        </form>
       </div>
     </section>
 
@@ -878,7 +833,8 @@ Entrada al grupo</textarea>
     </section>
 
 <section id="admin" class="page hidden adminProPage" aria-label="Centro de administración de OLON">
-      <header class="adminWorkspaceHero">
+      <header class="adminWorkspaceHero profileHero">
+        <img class="profileHeroCover" data-profile-photo="cover" alt="" hidden>
         <div class="adminWorkspaceIdentity"><span class="adminLiveDot"></span> OLON SOCIETY ACADEMY <span class="adminIdentityDivider">/</span> ADMINISTRACIÓN</div>
         <div class="adminWorkspaceHeroMain">
           <div>
@@ -889,6 +845,11 @@ Entrada al grupo</textarea>
             <button type="button" class="adminBtn adminBtnOutline" onclick="olonAdmin.refresh()" id="adminRefreshBtn">↻ Actualizar datos</button>
             <button type="button" class="adminBtn adminBtnGold" onclick="olonAdmin.filter('pending')">Revisar solicitudes <span id="adminPendingCountInline">0</span></button>
           </div>
+        </div>
+        <div class="adminProfileLine">
+          <span class="profileAvatar" aria-hidden="true"><span data-profile-initials>O</span><img data-profile-photo="avatar" alt="" hidden></span>
+          <strong id="adminProfileName">Admin</strong>
+          <button class="profileEditButton" type="button" data-edit-profile>Editar perfil</button>
         </div>
         <div class="adminWorkspaceActivity" aria-live="polite">
           <span id="adminConnectionState" class="adminConnectionState">Conectando con Supabase…</span>
@@ -1034,10 +995,45 @@ Entrada al grupo</textarea>
 </section>
 
 
-<script src="./script.js?v=20261106-academia" defer></script>
+<dialog id="profileDialog" class="profileDialog" aria-labelledby="profileDialogTitle">
+  <header class="profileDialogHead">
+    <div><h2 id="profileDialogTitle">Editar mi perfil</h2><p>Personaliza cómo se ve tu cuenta en OLON.</p></div>
+    <button class="profileCloseButton" type="button" data-close-profile aria-label="Cerrar">×</button>
+  </header>
+  <form id="profileForm">
+    <label class="field">Nombre visible<input name="display_name" type="text" maxlength="120" autocomplete="nickname" aria-describedby="profileNameHint"></label>
+    <small id="profileNameHint">Aparece en el portal y en tus mensajes nuevos de Comunidad.</small>
+    <div class="profilePhotoFields">
+      <div class="profilePhotoField">
+        <label class="field">Foto de perfil
+          <span class="profileAvatar profilePreviewAvatar" aria-hidden="true"><span id="profilePreviewInitials">O</span><img id="profileAvatarPreview" alt="" hidden></span>
+          <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif">
+        </label>
+        <button class="profileRemovePhoto" type="button" data-remove-profile-photo="avatar" hidden>Quitar foto</button>
+      </div>
+      <div class="profilePhotoField">
+        <label class="field">Foto de portada
+          <span class="profilePreviewCover"><img id="profileCoverPreview" alt="" hidden></span>
+          <input type="file" name="cover" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif">
+        </label>
+        <button class="profileRemovePhoto" type="button" data-remove-profile-photo="cover" hidden>Quitar portada</button>
+      </div>
+    </div>
+    <small>JPG, PNG o WebP de hasta 20 MB. HEIC si tu navegador lo admite.</small>
+    <p id="profileFeedback" class="profileFeedback" role="status" hidden></p>
+    <div class="profileDialogActions">
+      <button class="btn secondary" type="button" data-close-profile>Cancelar</button>
+      <button class="btn" type="submit" id="profileSave" disabled>Guardar cambios</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="./script.js?v=20261106-comunidad-perfil" defer></script>
+<script src="./community-chat.js?v=20261106-comunidad-perfil" defer></script>
+<script src="./profile-settings.js?v=20261106-comunidad-perfil" defer></script>
 <script src="./student-records.js?v=20261106-registros-pdf" defer></script>
 <script src="./premium-report.js?v=20261106-registros-pdf" defer></script>
-<script src="./academy-tools.js?v=20261106-academia2" defer></script>
+<script src="./academy-tools.js?v=20261106-comunidad-perfil" defer></script>
 <script src="./admin-workspace.js?v=20261106-academia" defer></script>
 <script src="./admin-registration.js?v=20261106-menu-vip" defer></script>
 <script src="./password-settings.js?v=20261106-password3" defer></script>

@@ -22,6 +22,7 @@
   const safeError = message => Object.assign(new Error(message), {safe:true});
   let classDraft = null, classCreateId = null, receiptDraft = null, journal = null;
   let rules = {}, rulesOwner = null, dayRules = {}, dayRequest = 0, dayReady = null;
+  let classNotifications = null, studentClassRequest = 0, studentClassesLoading = false;
 
   function student(){
     return currentUser && !isAdminUser(currentUser) ? currentUser.id : null;
@@ -178,20 +179,106 @@
     return card;
   }
 
-  async function loadClasses(manage = false){
-    const owner = manage ? admin() : student();
-    if(!owner) return;
-    const sections = manage ? ["academyClassAdminList"] : ["classUpcoming","classReplay"];
-    sections.forEach(id => listMessage(id,"Cargando clases…"));
+  function renderClassUnread(count){
+    const badge = byId("classUnreadBadge");
+    const dot = byId("classUnreadMenuDot");
+    const detail = count === 1 ? "1 clase nueva" : count + " clases nuevas";
+    badge.textContent = count > 99 ? "99+" : count ? String(count) : "";
+    badge.hidden = dot.hidden = !count;
+    badge.parentElement.setAttribute("aria-label", count ? "Clases, " + detail : "Clases");
+    dot.parentElement.setAttribute("aria-label", count ? "Abrir menú, " + detail : "Abrir menú");
+  }
+
+  function classesVisible(){
+    return !document.hidden && !byId("academyClassesPage").classList.contains("hidden");
+  }
+
+  async function refreshClassUnread(state = classNotifications, openNew = true){
+    if(!state || classNotifications !== state || student() !== state.owner || document.hidden) return;
+    const request = ++state.request;
     try{
-      const rows = unwrap(await table("olon_classes").select("*").order("starts_at")) || [];
-      if(owner !== (manage ? admin() : student())) return;
+      const count = Number(unwrap(await supabaseClient.rpc("olon_unread_class_count"))) || 0;
+      if(classNotifications !== state || student() !== state.owner || request !== state.request) return;
+      renderClassUnread(count);
+      if(count && openNew && classesVisible()) void loadClasses(false, true);
+    }catch(error){
+      console.warn("No se pudieron actualizar los avisos de clases", error.message);
+    }
+  }
+
+  function stopClassNotifications(){
+    const state = classNotifications;
+    classNotifications = null;
+    studentClassRequest++;
+    studentClassesLoading = false;
+    renderClassUnread(0);
+    if(!state) return;
+    clearInterval(state.timer);
+    void supabaseClient.removeChannel(state.channel);
+  }
+
+  function startClassNotifications(){
+    const owner = student();
+    if(classNotifications?.owner === owner) return;
+    stopClassNotifications();
+    if(!owner) return;
+    const state = {owner, request:0};
+    classNotifications = state;
+    state.channel = supabaseClient.channel("olon-class-notifications")
+      .on("postgres_changes", {event:"*",schema:"public",table:"olon_classes"}, () => void refreshClassUnread(state))
+      .subscribe(status => {
+        if(status === "SUBSCRIBED") void refreshClassUnread(state);
+      });
+    state.timer = setInterval(() => void refreshClassUnread(state), 20_000);
+    void refreshClassUnread(state);
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if(!document.hidden) void refreshClassUnread();
+  });
+
+  async function readClassRows(){
+    const rows = [];
+    const batchSize = 250;
+    let batch;
+    do{
+      batch = unwrap(await table("olon_classes").select("*").order("starts_at").order("id")
+        .range(rows.length, rows.length + batchSize - 1)) || [];
+      rows.push(...batch);
+    }while(batch.length === batchSize);
+    return rows;
+  }
+
+  async function loadClasses(manage = false, quiet = false){
+    const owner = manage ? admin() : student();
+    if(!owner || (!manage && quiet && studentClassesLoading)) return;
+    const request = manage ? null : ++studentClassRequest;
+    if(!manage) studentClassesLoading = true;
+    const sections = manage ? ["academyClassAdminList"] : ["classUpcoming","classReplay"];
+    if(!quiet) sections.forEach(id => listMessage(id,"Cargando clases…"));
+    try{
+      const rows = await readClassRows();
+      if(owner !== (manage ? admin() : student()) || (!manage && request !== studentClassRequest)) return;
       if(manage) return setList(sections[0],rows.slice().reverse().map(row=>classCard(row,true)),"Todavía no hay clases registradas.");
       const now = Date.now();
       const recent = row => +new Date(row.starts_at) + row.duration_minutes * 60_000 >= now;
       setList(sections[0],rows.filter(recent).map(row=>classCard(row)),"Todavía no hay clases programadas.");
       setList(sections[1],rows.filter(row=>!recent(row)).reverse().map(row=>classCard(row)),"Las clases pasadas aparecerán aquí.");
-    }catch{ sections.forEach(id=>listMessage(id,"No se pudieron cargar las clases. Abre esta sección de nuevo.")); }
+      if(classesVisible()){
+        const publications = rows.map(row => row.publication_id).filter(Boolean);
+        if(publications.length){
+          const {error} = await supabaseClient.rpc("olon_mark_classes_read", {p_publications:publications});
+          if(error) console.warn("No se pudieron marcar las clases como vistas", error.message);
+        }
+        if(student() === owner) void refreshClassUnread(classNotifications, false);
+      }
+    }catch{
+      if(!quiet && (manage || request === studentClassRequest)){
+        sections.forEach(id=>listMessage(id,"No se pudieron cargar las clases. Abre esta sección de nuevo."));
+      }
+    }finally{
+      if(!manage && request === studentClassRequest) studentClassesLoading = false;
+    }
   }
 
   const classForm = byId("academyClassForm");
@@ -549,6 +636,8 @@
   });
 
   window.olonAcademy = {
+    startClassNotifications,
+    stopClassNotifications,
     allows(page){
       return studentPages.has(page) ? Boolean(student()) : adminPages.has(page) ? Boolean(admin()) : true;
     },

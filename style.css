@@ -1414,9 +1414,6 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
 #portal.app .page .welcomeTitle{color:#f7f8f2;font-weight:850;letter-spacing:-.055em}
 #portal.app .page .welcomeSub{color:#c9ded0;max-width:540px}
 #portal.app .page .welcomeKicker{color:#e1c487;font-weight:850;letter-spacing:.11em}
-#portal.app .page .olonIdentityStrip{border-radius:13px;border:1px solid #e3eae2;background:#fff;box-shadow:var(--olon-shadow);padding:15px 18px}
-#portal.app .page .olonIdentityStrip b{color:#1b4b37}
-#portal.app .page .olonIdentityStrip small{color:#987741}
 #portal.app .page .proQuote{border-radius:13px;border:1px solid #e8e5d8;background:linear-gradient(110deg,#fcfbf5,#f6f8f2);color:#526a56}
 #portal.app .page .v3Grid .v3Card{position:relative;overflow:hidden;padding:23px}
 #portal.app .page .v3Grid .v3Card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:#c9ac73}
@@ -1778,8 +1775,6 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
  #portal.app .page .welcomeHeroCard:after{width:210px;height:210px;right:-120px;top:-60px}
  #portal.app .page .welcomeTitle{font-size:clamp(26px,8vw,37px)!important;line-height:1.12}
  #portal.app .page .welcomeSub{font-size:12px;line-height:1.6}
- #portal.app .page .olonIdentityStrip{display:flex;flex-wrap:wrap;gap:9px;padding:12px}
- #portal.app .page .olonIdentityStrip span{font-size:10px}
  #portal.app .page .proQuote{padding:13px;font-size:12px}
  #portal.app .page .v3Grid .v3Card{padding:14px!important;min-height:135px!important}
  #portal.app .page .v3Grid .v3Card h3{font-size:clamp(20px,6vw,27px)!important}
@@ -1907,3 +1902,158 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
   #portal .academyPage .academyItem { padding:.68rem; }
 }
 #portal .academyChartPreview { flex-basis:100%; width:100%; max-width:34rem; max-height:26rem; object-fit:contain; object-position:left center; border-radius:.6rem; }
+
+/* Avisos de clases */
+#portal .classUnreadBadge {
+ display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 5px;
+ border-radius:999px;background:#f2d391;color:#342911;font-size:11px;font-weight:850;
+}
+#portal #mobileMenuToggle{position:relative}
+#portal .classUnreadMenuDot{
+ position:absolute;top:6px;right:6px;width:10px;height:10px;border-radius:50%;
+ background:#eaa63f;border:2px solid #fff;
+}
+#portal :is(.classUnreadBadge,.classUnreadMenuDot)[hidden]{display:none}
+
+/* Chat de la comunidad */
+#portal.app #publicChat .waChatHeader{
+ display:flex;align-items:center;gap:12px;padding:clamp(12px,2.1vw,20px);
+}
+#publicChat .waChatHeader > div{min-width:0;flex:1}
+#publicChat .waChatHeader h3{margin:0 0 3px;font-size:clamp(17px,2vw,23px)}
+#publicChat .waChatHeader p{margin:0;font-size:12px;line-height:1.35}
+#publicChat .waAvatar{
+ display:grid;place-items:center;flex:0 0 40px;height:40px;
+ border:1px solid #e8cf9166;border-radius:12px;background:#ffffff1a;color:#f8e5ae;font-weight:850;
+}
+#publicChat .waRefresh{
+ min-height:38px;padding:6px 11px;border:1px solid #ffffff54;border-radius:9px;
+ background:#ffffff15;color:#fff;font-size:12px;font-weight:750;
+}
+#publicChat .waTimeline{position:relative}
+#portal.app #publicChat .waMessages{
+ display:flex;flex-direction:column;gap:9px;height:clamp(220px,52dvh,540px);
+ overflow:auto;overflow-anchor:none;overscroll-behavior:contain;
+ padding:clamp(10px,2vw,20px);
+}
+#publicChat .waBubble{
+ flex:none;align-self:flex-start;max-width:min(82%,48rem);padding:9px 13px;
+ border:1px solid #dce9df;border-radius:14px 14px 14px 5px;background:#fff;color:#203c32;
+}
+#publicChat .waBubble.me{
+ align-self:flex-end;border-radius:14px 14px 5px 14px;background:#e2f1e6;border-color:#c6e2cd;
+}
+#publicChat .waBubble.admin{border-color:#d9c492}
+#publicChat .waName{display:block;margin-bottom:3px;color:#235942;font-size:12px;overflow-wrap:anywhere}
+#publicChat .waRole{
+ display:inline-block;margin-left:4px;padding:2px 5px;border-radius:5px;background:#f3e8cb;
+ color:#654c20;font-size:10px;line-height:1.3;
+}
+#publicChat .waText{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;line-height:1.5}
+#publicChat .waMeta{display:block;margin-top:5px;color:#526b5e;font-size:10px;text-align:right}
+#publicChat .waEmpty{margin:auto;padding:12px;text-align:center;color:#526b5e;font-size:14px}
+#publicChat .waNewMessagesBtn{
+ position:absolute;bottom:8px;left:50%;transform:translateX(-50%);min-height:36px;
+ padding:6px 12px;border:1px solid #cee3d3;border-radius:99px;background:#fff;
+ color:#20513b;font-size:12px;font-weight:800;white-space:nowrap;box-shadow:var(--shadow);
+}
+#publicChat .waStatus{margin:0;padding:8px 14px;background:#edf6ef;color:#285b42;font-size:12px}
+#publicChat .waStatus[data-error="true"]{background:#fff0eb;color:#833e33}
+#publicChat .waEmojiBar{
+ display:flex;flex-wrap:wrap;gap:4px;padding:6px clamp(9px,1.8vw,17px);
+ background:#fff;border-top:1px solid #e6eee7;
+}
+#publicChat .waEmojiBar button{
+ min-width:30px;min-height:34px;padding:0 3px;border:0;border-radius:7px;background:transparent;font-size:16px;
+}
+#publicChat .waEmojiBar button:hover{background:#edf5ee}
+#portal.app #publicChat .waComposer{display:flex;align-items:flex-end;gap:9px;padding:10px clamp(9px,1.8vw,17px)}
+#publicChat .waComposer textarea{
+ flex:1;min-width:0;min-height:46px;max-height:26dvh;resize:vertical;padding:9px 11px;
+ border:1px solid #ccdcd0;border-radius:10px;background:#f7faf7;color:#193b2c;line-height:1.35;
+}
+#publicChat .waSendBtn{min-height:46px;padding:8px 15px}
+body.atlas-dark #portal.app #publicChat :is(.waMessages,.waChatShell){background:#1b3028;border-color:#365346}
+body.atlas-dark #portal.app #publicChat :is(.waComposer,.waEmojiBar){background:#223a30;border-color:#365346}
+body.atlas-dark #publicChat :is(.waBubble,.waComposer textarea){background:#29463a;color:#eef6ee;border-color:#446557}
+body.atlas-dark #publicChat .waBubble.me{background:#2c543e}
+body.atlas-dark #publicChat :is(.waName,.waMeta,.waEmpty){color:#c7e3cf}
+@media(max-width:650px){
+ #publicChat .waAvatar{display:none}
+ #portal.app #publicChat .waMessages{height:clamp(200px,44dvh,410px)}
+ #publicChat .waBubble{max-width:91%}
+ #publicChat .waComposer textarea{font-size:16px}
+ #publicChat .waSendBtn{padding-inline:11px}
+}
+
+/* Perfil y portada */
+.profileAvatar{
+ position:relative;display:inline-grid;place-items:center;flex:none;overflow:hidden;
+ background:#dcebe2;color:#23563f;font-weight:850;
+}
+.profileAvatar img,.profilePreviewCover img{
+ display:block;width:100%;height:100%;position:absolute;inset:0;object-fit:cover;
+}
+#portal .portalUserPill{text-align:left;color:#163c2e}
+#portal .portalUserPill:hover{border-color:#a3c2aa}
+#portal .profileHero .profileHeroCover{
+ position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;
+}
+#portal .profileHero:has(.profileHeroCover:not([hidden]))::before{
+ content:"";position:absolute;inset:0;width:100%;height:100%;z-index:1;
+ background:linear-gradient(90deg,#091f19df,#0b271c8c 55%,#0b271c44);
+ pointer-events:none;
+}
+#portal .profileHero :is(.welcomeHeroContent,.adminWorkspaceIdentity,.adminWorkspaceHeroMain,.adminWorkspaceActivity,.adminProfileLine){
+ position:relative;z-index:2;
+}
+#portal .profileHero .welcomeHeroContent{width:min(100%,720px);margin-top:0}
+#portal .profileHero .welcomeTitle{margin:8px 0 5px;overflow-wrap:anywhere}
+#portal .profileHero .welcomeSub{margin-bottom:12px}
+#portal .profileHeroAvatar{
+ width:68px;height:68px;border:2px solid #f4dfae;border-radius:19px;
+ box-shadow:0 5px 18px #071e1c56;font-size:26px;
+}
+.profileEditButton{
+ min-height:40px;padding:6px 13px;border:1px solid #f6e6c480;border-radius:10px;
+ background:#15392fba;color:#fff;font-size:13px;font-weight:800;
+}
+.profileEditButton:hover{background:#235942}
+#portal .adminProfileLine{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:16px;color:#f4f8f3}
+.adminProfileLine .profileAvatar{width:38px;height:38px;border:1px solid #e7d39d;border-radius:10px}
+.adminProfileLine strong{font-size:14px;overflow-wrap:anywhere}
+.profileDialog{
+ width:min(620px,calc(100% - 24px));max-height:calc(100dvh - 24px);overflow:auto;
+ padding:clamp(15px,3vw,24px);border:1px solid var(--line);border-radius:17px;
+ background:var(--panel);color:var(--text);box-shadow:0 20px 55px #0e271b55;
+}
+.profileDialog::backdrop{background:#0c2119b3}
+.profileDialogHead{display:flex;justify-content:space-between;gap:10px;margin-bottom:16px}
+.profileDialogHead h2{margin:0 0 4px;font-size:23px}
+.profileDialogHead p,.profileDialog small{margin:0;color:var(--muted);font-size:12px}
+.profileCloseButton,.profileRemovePhoto{
+ min-height:40px;padding:5px 10px;border:1px solid var(--line);border-radius:9px;
+ background:var(--panel2);color:var(--text);font-size:12px;font-weight:750;
+}
+.profileCloseButton{align-self:flex-start;min-width:40px;font-size:21px;line-height:1}
+.profileDialog .field{display:grid;gap:7px;margin:0;color:var(--text);font-size:13px;font-weight:750}
+.profileDialog input{min-width:0;max-width:100%;font-size:16px}
+.profilePhotoFields{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:10px;margin:13px 0 5px}
+.profilePhotoField{min-width:0;padding:10px;border:1px solid var(--line);border-radius:11px}
+.profilePhotoField input[type=file]{padding:6px;font-size:13px}
+.profilePreviewAvatar,.profilePreviewCover{height:80px;border-radius:9px}
+.profilePreviewAvatar{width:80px;font-size:24px}
+.profilePreviewCover{
+ width:100%;position:relative;overflow:hidden;display:block;background:linear-gradient(110deg,#164736,#358363);
+}
+.profileRemovePhoto{margin-top:6px}
+.profileDialogActions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:7px;margin-top:15px}
+.profileFeedback{margin:9px 0 0;color:var(--muted);font-size:13px}
+.profileFeedback[data-error="true"]{color:#a44839}
+:is(#portal,.profileDialog) :is([data-profile-photo],.profileAvatar img,.profilePreviewCover img,.profileRemovePhoto)[hidden]{
+ display:none;
+}
+@media(max-width:480px){
+ .profilePhotoFields{grid-template-columns:minmax(0,1fr)}
+ #portal .profileHeroAvatar{width:55px;height:55px;font-size:21px}
+}
