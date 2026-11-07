@@ -328,3 +328,26 @@ body.trader-themed #portal.app .portalTopbar{
 @media(prefers-reduced-motion:reduce){
  #portal.app .portalNavLink,#portal.app .cyberSidebarProfile,#portal.app .page .btn{transition:none!important}
 }
+
+
+/* Terminal interior — escritura progresiva del titulo y bienvenida.
+   Movimiento reducido: el titulo completo permanece visible. */
+#portal.app .cyberPortalWordmark em#cyberInteriorTypedTrader{
+  display:inline-block;
+  min-width:6ch;
+  text-align:left;
+  vertical-align:baseline;
+}
+#portal.app .cyberPortalWordmark em#cyberInteriorTypedTrader.cyberTypingActive::after,
+#portal.app #dashboard #portalWelcomeText.cyberTypingActive::after{
+  content:"_";
+  display:inline;
+  color:var(--trader-accent-ink);
+  text-shadow:0 0 12px var(--trader-accent);
+  animation:cyberInteriorCursor .8s steps(2,start) infinite;
+}
+#portal.app #dashboard #portalWelcomeText.cyberTypingActive{min-height:1.25em;}
+@keyframes cyberInteriorCursor{0%,49%{opacity:1}50%,100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){
+ #portal.app .cyberTypingActive::after{animation:none!important;content:none!important}
+}
