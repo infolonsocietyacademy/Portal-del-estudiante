@@ -1,0 +1,276 @@
+/* OLON Society Academy — TOP 3 weekly/monthly/yearly.
+   Entries are published manually by an active admin; scores are never fabricated. */
+(function(){
+  "use strict";
+  const $=id=>document.getElementById(id);
+  const periods=["weekly","monthly","annual"];
+  const order=[2,1,3];
+  const state={selected:"weekly",loadedKey:"",fetchSeq:0,adminPeriod:"weekly",users:[],isSaving:false};
+  const pad=v=>String(v).padStart(2,"0");
+  function activeAdmin(){
+    return typeof currentUser!=="undefined" && !!currentUser &&
+      typeof isAdminUser==="function" && isAdminUser(currentUser) &&
+      String(currentUser.status||"").toLowerCase()==="active";
+  }
+  function todayPuertoRico(){
+    const parts=new Intl.DateTimeFormat("en-US",{
+      timeZone:"America/Puerto_Rico",year:"numeric",month:"2-digit",day:"2-digit"
+    }).formatToParts(new Date());
+    const get=name=>Number(parts.find(part=>part.type===name)?.value||0);
+    return {year:get("year"),month:get("month"),day:get("day")};
+  }
+  function currentKey(period){
+    const p=todayPuertoRico();
+    if(period==="annual")return String(p.year);
+    if(period==="monthly")return p.year+"-"+pad(p.month);
+    const date=new Date(Date.UTC(p.year,p.month-1,p.day));
+    const day=date.getUTCDay()||7;
+    date.setUTCDate(date.getUTCDate()+4-day);
+    const isoYear=date.getUTCFullYear();
+    const start=new Date(Date.UTC(isoYear,0,1));
+    const week=Math.ceil((((date-start)/86400000)+1)/7);
+    return isoYear+"-W"+pad(week);
+  }
+  function periodLabel(period,key){
+    return (period==="weekly"?"Semana ":period==="monthly"?"Mes ":"Año ")+key;
+  }
+  function showStatus(id,message,error=false){
+    const el=$(id);if(!el)return;
+    el.textContent=message;el.hidden=false;
+    el.dataset.error=String(error);
+  }
+  function initials(name){
+    return String(name||"?").trim().split(/\s+/).slice(0,2).map(s=>s.charAt(0)).join("").toUpperCase()||"?";
+  }
+  function showPodium(entries,period,key){
+    const section=$("olonLeaderboard");
+    if(!section)return;
+    const byRank=new Map((entries||[]).map(e=>[Number(e.rank),e]));
+    order.forEach(rank=>{
+      const card=section.querySelector('[data-leaderboard-rank="'+rank+'"]');
+      if(!card)return;
+      const entry=byRank.get(rank);
+      card.classList.toggle("isEmpty",!entry);
+      card.querySelector("[data-top-initials]").textContent=entry?initials(entry.display_name):"—";
+      card.querySelector("[data-top-name]").textContent=entry?entry.display_name:"Sin clasificar";
+      card.querySelector("[data-top-percent]").textContent=entry
+        ? (Number(entry.return_pct)>0?"+":"")+Number(entry.return_pct).toLocaleString("es-PR",{maximumFractionDigits:2,minimumFractionDigits:2})+"%"
+        : "—";
+    });
+    $("olonLeaderboardPeriod").textContent=periodLabel(period,key);
+    $("olonLeaderboardEmpty").hidden=byRank.size>0;
+  }
+  async function loadPublic(period=state.selected){
+    if(!periods.includes(period))return;
+    state.selected=period;
+    const key=currentKey(period);
+    const request=++state.fetchSeq;
+    document.querySelectorAll("[data-leaderboard-period]").forEach(button=>{
+      const active=button.dataset.leaderboardPeriod===period;
+      button.classList.toggle("active",active);
+      button.setAttribute("aria-selected",String(active));
+      button.tabIndex=active?0:-1;
+    });
+    $("olonLeaderboardLoading").hidden=false;
+    $("olonLeaderboardEmpty").hidden=true;
+    try{
+      if(typeof supabaseClient==="undefined")throw Error("No hay conexión con Supabase.");
+      const {data,error}=await supabaseClient.from("olon_leaderboard")
+        .select("rank,display_name,return_pct").eq("period_type",period)
+        .eq("period_key",key).eq("published",true).order("rank",{ascending:true});
+      if(request!==state.fetchSeq)return;
+      if(error)throw error;
+      showPodium(data||[],period,key);
+      state.loadedKey=key;
+      $("olonLeaderboardError").hidden=true;
+    }catch(err){
+      if(request!==state.fetchSeq)return;
+      showPodium([],period,key);
+      showStatus("olonLeaderboardError","No se pudo cargar el ranking. Vuelve a intentarlo.",true);
+      console.warn("[OLON TOP 3] Error al cargar",err);
+    }finally{
+      if(request===state.fetchSeq)$("olonLeaderboardLoading").hidden=true;
+    }
+  }
+  function adminPeriodFields(){
+    const period=$("olonRankPeriod").value;
+    state.adminPeriod=period;
+    const field=$("olonRankKey");
+    field.type=period==="weekly"?"week":period==="monthly"?"month":"number";
+    field.min=period==="annual"?"2020":"";
+    field.max=period==="annual"?"2100":"";
+    field.step=period==="annual"?"1":"";
+    field.value=currentKey(period);
+    field.setAttribute("aria-label",period==="weekly"?"Semana":period==="monthly"?"Mes":"Año");
+  }
+  function validPeriodKey(period,key){
+    return period==="weekly"?/^\d{4}-W(0[1-9]|[1-4]\d|5[0-3])$/.test(key):
+      period==="monthly"?/^\d{4}-(0[1-9]|1[0-2])$/.test(key):/^\d{4}$/.test(key);
+  }
+  function selectedAdminKey(){
+    return String($("olonRankKey").value||"").trim();
+  }
+  function renderStudentOptions(){
+    const users=state.users;
+    for(let rank=1;rank<=3;rank++){
+      const select=$("olonRankStudent"+rank);
+      if(!select)continue;
+      const selected=select.value;
+      select.replaceChildren();
+      select.add(new Option("Sin asignar",""));
+      users.forEach(user=>{
+        const detail=user.access_code?" · "+user.access_code:"";
+        select.add(new Option(user.full_name+detail,user.id));
+      });
+      if(users.some(user=>user.id===selected))select.value=selected;
+    }
+  }
+  async function loadAdminUsers(){
+    if(!activeAdmin())return;
+    try{
+      const {data,error}=await supabaseClient.from("profiles")
+        .select("id,full_name,access_code").eq("role","student")
+        .eq("status","active").order("full_name",{ascending:true}).limit(1000);
+      if(error)throw error;
+      state.users=data||[];
+      renderStudentOptions();
+    }catch(err){
+      showStatus("olonRankFeedback","No pude consultar los estudiantes activos. Revisa tu sesión.",true);
+      console.warn("[OLON TOP 3] Estudiantes",err);
+    }
+  }
+  async function loadAdmin(){
+    if(!activeAdmin())return;
+    const period=$("olonRankPeriod").value;
+    const key=selectedAdminKey();
+    if(!validPeriodKey(period,key)){
+      showStatus("olonRankFeedback","Selecciona un período válido.",true);return;
+    }
+    showStatus("olonRankFeedback","Consultando TOP 3...");
+    try{
+      const {data,error}=await supabaseClient.from("olon_leaderboard")
+        .select("rank,student_id,return_pct,consent_confirmed")
+        .eq("period_type",period).eq("period_key",key).order("rank",{ascending:true});
+      if(error)throw error;
+      for(let rank=1;rank<=3;rank++){
+        const entry=(data||[]).find(row=>Number(row.rank)===rank);
+        $("olonRankStudent"+rank).value=entry?.student_id||"";
+        $("olonRankPct"+rank).value=entry?.return_pct==null?"":String(entry.return_pct);
+      }
+      $("olonRankConsent").checked=false;
+      showStatus("olonRankFeedback",data?.length?"Ranking guardado para "+periodLabel(period,key)+".":"Aún no hay puestos para "+periodLabel(period,key)+".");
+    }catch(err){
+      showStatus("olonRankFeedback","No se pudo consultar este ranking.",true);
+      console.warn("[OLON TOP 3] Admin load",err);
+    }
+  }
+  function getEntries(){
+    const entries=[];
+    for(let rank=1;rank<=3;rank++){
+      const studentId=$("olonRankStudent"+rank).value;
+      const field=$("olonRankPct"+rank);
+      if(!studentId){
+        if(field.value.trim())throw Error("Selecciona estudiante para el puesto "+rank+".");
+        continue;
+      }
+      if(!field.value.trim())throw Error("Introduce el porcentaje del puesto "+rank+".");
+      const pct=Number(field.value);
+      if(!Number.isFinite(pct)||pct< -100||pct>100000)
+        throw Error("El porcentaje del puesto "+rank+" no es válido.");
+      entries.push({rank:rank,student_id:studentId,return_pct:pct});
+    }
+    if(new Set(entries.map(e=>e.student_id)).size!==entries.length)
+      throw Error("No puedes repetir el mismo estudiante.");
+    return entries;
+  }
+  async function saveAdmin(clear=false){
+    if(!activeAdmin()||state.isSaving)return;
+    const period=$("olonRankPeriod").value,key=selectedAdminKey();
+    if(!validPeriodKey(period,key)){
+      showStatus("olonRankFeedback","Período inválido.",true);return;
+    }
+    let entries=[];
+    try{if(!clear)entries=getEntries();}
+    catch(error){showStatus("olonRankFeedback",error.message,true);return;}
+    if(entries.length>0&&!$("olonRankConsent").checked){
+      showStatus("olonRankFeedback","Confirma la autorización de todos los estudiantes antes de publicar.",true);return;
+    }
+    if(clear&&!confirm("¿Retirar los tres puestos de "+periodLabel(period,key)+"?"))return;
+    if(!clear&&entries.length===0){
+      showStatus("olonRankFeedback","Selecciona al menos un estudiante, o utiliza Retirar ranking.",true);return;
+    }
+    state.isSaving=true;
+    $("olonRankSave").disabled=true;
+    $("olonRankClear").disabled=true;
+    showStatus("olonRankFeedback",clear?"Retirando ranking...":"Publicando ranking...");
+    try{
+      const {data,error}=await supabaseClient.rpc("olon_replace_leaderboard",{
+        p_period_type:period,p_period_key:key,p_entries:entries,
+        p_consent_confirmed:entries.length>0
+      });
+      if(error)throw error;
+      showStatus("olonRankFeedback",clear?"Ranking retirado correctamente.":"Ranking publicado: "+String(data)+" puesto(s).");
+      await loadAdmin();
+      if(period===state.selected&&key===currentKey(period))await loadPublic(period);
+    }catch(err){
+      showStatus("olonRankFeedback","Error al guardar: "+String(err.message||"Sin conexión."),true);
+    }finally{
+      state.isSaving=false;
+      $("olonRankSave").disabled=false;
+      $("olonRankClear").disabled=false;
+    }
+  }
+  function init(){
+    const board=$("olonLeaderboard"),manager=$("olonRankingAdmin");
+    if(!board||!manager)return;
+    board.querySelectorAll("[data-leaderboard-period]").forEach(button=>{
+      button.addEventListener("click",()=>loadPublic(button.dataset.leaderboardPeriod));
+      button.addEventListener("keydown",e=>{
+        if(e.key!=="ArrowLeft"&&e.key!=="ArrowRight")return;
+        e.preventDefault();
+        const offset=e.key==="ArrowRight"?1:-1;
+        const next=periods[(periods.indexOf(state.selected)+offset+periods.length)%periods.length];
+        loadPublic(next);
+        board.querySelector('[data-leaderboard-period="'+next+'"]')?.focus();
+      });
+    });
+    $("olonRankPeriod").addEventListener("change",()=>{adminPeriodFields();loadAdmin();});
+    $("olonRankKey").addEventListener("change",loadAdmin);
+    $("olonRankReload").addEventListener("click",async()=>{await loadAdminUsers();await loadAdmin();});
+    $("olonRankSave").addEventListener("click",()=>saveAdmin(false));
+    $("olonRankClear").addEventListener("click",()=>saveAdmin(true));
+    $("olonRankNav")?.addEventListener("click",async()=>{
+      $("olonRankingAdmin").scrollIntoView({behavior:"smooth",block:"start"});
+      await loadAdminUsers();await loadAdmin();
+    });
+    adminPeriodFields();
+    // The login script toggles the portal's hidden class after fetching the profile.
+    let previousVisibility=false,loadedAdmin=false;
+    const updateVisibility=()=>{
+      const portal=$("portal"),visible=portal&&!portal.classList.contains("hidden");
+      if(visible&&!previousVisibility){
+        loadPublic(state.selected);
+      }
+      if(!visible){
+        loadedAdmin=false;
+        state.fetchSeq++;
+      }
+      previousVisibility=!!visible;
+      if(visible&&activeAdmin()&&!loadedAdmin){
+        loadedAdmin=true;
+        loadAdminUsers().then(loadAdmin);
+      }
+    };
+    const portal=$("portal");
+    const observer=new MutationObserver(updateVisibility);
+    observer.observe(portal,{attributes:true,attributeFilter:["class"]});
+    updateVisibility();
+    // Recheck after authentication state updates that do not touch portal classes.
+    document.addEventListener("click",event=>{
+      if(!event.target?.closest?.("[data-page='dashboard']"))return;
+      if(!$("portal").classList.contains("hidden"))loadPublic(state.selected);
+    });
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});
+  else init();
+})();
