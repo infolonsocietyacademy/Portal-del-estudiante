@@ -338,8 +338,8 @@ body.trader-themed #portal.app .portalTopbar{
   text-align:left;
   vertical-align:baseline;
 }
-#portal.app .cyberPortalWordmark em#cyberInteriorTypedTrader.cyberTypingActive::after,
-#portal.app #dashboard #portalWelcomeText.cyberTypingActive::after{
+#portal.app .cyberPortalWordmark em#cyberInteriorTypedTrader::after,
+#portal.app #dashboard #portalWelcomeText::after{
   content:"_";
   display:inline;
   color:var(--trader-accent-ink);
@@ -349,5 +349,6 @@ body.trader-themed #portal.app .portalTopbar{
 #portal.app #dashboard #portalWelcomeText.cyberTypingActive{min-height:1.25em;}
 @keyframes cyberInteriorCursor{0%,49%{opacity:1}50%,100%{opacity:0}}
 @media(prefers-reduced-motion:reduce){
- #portal.app .cyberTypingActive::after{animation:none!important;content:none!important}
+ #portal.app .cyberPortalWordmark em#cyberInteriorTypedTrader::after,
+ #portal.app #dashboard #portalWelcomeText::after{animation:none!important;content:none!important}
 }
