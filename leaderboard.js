@@ -149,7 +149,7 @@
     showStatus("olonRankFeedback","Consultando TOP 3...");
     try{
       const {data,error}=await supabaseClient.from("olon_leaderboard")
-        .select("rank,student_id,return_pct,consent_confirmed")
+        .select("rank,student_id,return_pct,consent_confirmed,published")
         .eq("period_type",period).eq("period_key",key).order("rank",{ascending:true});
       if(error)throw error;
       for(let rank=1;rank<=3;rank++){
@@ -158,7 +158,13 @@
         $("olonRankPct"+rank).value=entry?.return_pct==null?"":String(entry.return_pct);
       }
       $("olonRankConsent").checked=false;
-      showStatus("olonRankFeedback",data?.length?"Ranking guardado para "+periodLabel(period,key)+".":"Aún no hay puestos para "+periodLabel(period,key)+".");
+      const drafts=(data||[]).filter(entry=>!entry.published);
+      const published=(data||[]).filter(entry=>entry.published);
+      showStatus("olonRankFeedback",drafts.length
+        ? "Borrador calculado: "+drafts.length+" puesto(s) para "+periodLabel(period,key)+". No visible a los estudiantes hasta confirmar su autorización y pulsar Publicar TOP 3."
+        : published.length
+        ? "Ranking publicado: "+published.length+" puesto(s) para "+periodLabel(period,key)+"."
+        : "Aún no hay puestos para "+periodLabel(period,key)+".");
     }catch(err){
       showStatus("olonRankFeedback","No se pudo consultar este ranking.",true);
       console.warn("[OLON TOP 3] Admin load",err);
