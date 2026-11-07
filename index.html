@@ -21,7 +21,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 
 
-<link rel="stylesheet" href="./style.css?v=20261107-class-countdown">
+<link rel="stylesheet" href="./style.css?v=20261107-terminal-loader">
 <link rel="stylesheet" href="./trader.css?v=20261107-calendar-link-restored">
 <link rel="stylesheet" href="./landing-cyber.css?v=20261106-cyber-console-1">
 <link rel="stylesheet" href="./interior-cyber.css?v=20261106-premium-profile-5">
@@ -44,16 +44,19 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 <body class="trader-themed">
 
 <div id="olonLoader" class="portalLoader" role="status" aria-live="polite" aria-atomic="true">
+  <div class="portalLoaderGrid" aria-hidden="true"></div>
+  <div class="portalLoaderTop" aria-hidden="true"><span>OLON // SYSTEM BOOT</span><span>SECURE TERMINAL <i class="portalLoaderLiveDot"></i></span></div>
   <div class="portalLoaderPanel">
-    <div class="portalLoaderEmblem" aria-hidden="true">
-      <img src="./assets/favicon.png" width="66" height="66" alt="">
-    </div>
-    <span class="portalLoaderKicker">PORTAL PRIVADO</span>
-    <strong class="portalLoaderBrand">OLON <em>Society</em></strong>
-    <span class="portalLoaderAcademy">ACADEMY</span>
+    <div class="portalLoaderIdentity"><span class="portalLoaderIdentityLine"></span><span>OLON SOCIETY ACADEMY</span><span class="portalLoaderIdentityLine"></span></div>
+    <div class="portalLoaderEmblem" aria-hidden="true"><img src="./assets/favicon.png" width="66" height="66" alt=""></div>
+    <span class="portalLoaderKicker">WELCOME TO THE TERMINAL</span>
+    <strong class="portalLoaderBrand">PORTAL <em>DEL TRADER</em><span class="portalLoaderCursor" aria-hidden="true">_</span></strong>
+    <span class="portalLoaderAcademy">INICIALIZANDO SISTEMA SEGURO</span>
     <div class="portalLoaderTrack" aria-hidden="true"><span></span></div>
+    <div class="portalLoaderTelemetry" aria-hidden="true"><span>AUTH // ENCRYPTED</span><span>OLON OS v2.0</span></div>
     <p id="portalLoaderStatus">Preparando el portal…</p>
   </div>
+  <div class="portalLoaderBottom" aria-hidden="true"><span>EST. PUERTO RICO</span><span>DISCIPLINE · PRECISION · PERFORMANCE</span></div>
 </div>
 <script>
 window.addEventListener("load", () => {
