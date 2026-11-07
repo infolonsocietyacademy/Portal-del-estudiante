@@ -6,11 +6,11 @@
    ======================================================================== */
 :root{
   --font-ui:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  --bg:#f4f5f2;--panel:#fff;--panel2:#eef1ed;--line:#e1e6e2;
+  --bg:#f2f5fa;--panel:#fff;--panel2:#e9eff7;--line:#d8e1ed;
   --text:#172b2b;--muted:#6d7b79;--blue:#476c87;--cyan:#549c99;
   --green:#27806c;--red:#c05c58;--yellow:#b38a47;--purple:#6c768b;
   --gold:#b08c54;--shadow:0 10px 30px rgba(30,48,43,.045);
-  --ink:#142b29;--ink-soft:#203b38;--teal:#287768;
+  --ink:#17263a;--ink-soft:#253752;--teal:#335fa8;--portal-backdrop:#080f1eb3;
   --r:16px;--r-lg:22px;--sidebar:258px;
 }
 *,*::before,*::after{box-sizing:border-box}
@@ -38,9 +38,9 @@ h1,h2,h3,h4{letter-spacing:-.035em;line-height:1.2}
   letter-spacing:-.012em;display:inline-flex;align-items:center;justify-content:center;gap:9px;
   transition:background .18s ease,transform .18s ease,border-color .18s ease;
 }
-.btn:hover,.atlas-hero-main-btn:hover,.atlas-quick-action:hover{background:#175f52;transform:translateY(-1px)}
+.btn:hover,.atlas-hero-main-btn:hover,.atlas-quick-action:hover{background:var(--teal);transform:translateY(-1px)}
 .btn.full{width:100%}.btn.secondary{border-color:#d5dfd8;background:#fff;color:var(--ink)}
-.btn.secondary:hover{background:#edf3ee}
+.btn.secondary:hover{background:var(--trader-soft,var(--panel2))}
 .btn.danger{color:#a8423c;background:#fff3f1;border-color:#eecbc6}
 .btn.success{color:#236b50;background:#e8f5ed;border-color:#bce1c9}
 .btn.warnBtn{color:#966c30;background:#fff6e8;border-color:#efdbb5}
@@ -69,7 +69,7 @@ h1,h2,h3,h4{letter-spacing:-.035em;line-height:1.2}
 .formGrid>.full,.full{grid-column:1/-1}
 
 /* AUTENTICACIÓN — diseño totalmente nuevo, institucional y editorial */
-.auth{min-height:100svh;padding:35px;background:#e9eeea;display:grid;place-items:center;overflow:auto}
+.auth{min-height:100svh;padding:35px;background:var(--bg);display:grid;place-items:center;overflow:auto}
 .authShell{display:grid;grid-template-columns:1.07fr .93fr;width:min(1180px,100%);min-height:700px;background:#fff;border:1px solid #dce6dd;border-radius:25px;overflow:hidden;box-shadow:0 30px 90px rgba(22,50,39,.12)}
 .authHero{position:relative;overflow:hidden;background:#173a36;color:#fff;padding:45px 47px;display:flex;flex-direction:column;justify-content:space-between}
 .authHero::after{content:'';position:absolute;inset:auto -110px -190px auto;width:500px;height:500px;border:1px solid rgba(255,255,255,.1);border-radius:50%;box-shadow:0 0 0 56px rgba(255,255,255,.025),0 0 0 112px rgba(255,255,255,.025);pointer-events:none}
@@ -158,7 +158,7 @@ h1,h2,h3,h4{letter-spacing:-.035em;line-height:1.2}
 
 /* CABECERA — sin banners fluorescentes, información primero */
 .welcomeHeroCard{position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:center;min-height:250px;padding:42px 45px;background:#e5eee8;border-color:#d7e5db;border-radius:17px;box-shadow:none}
-.welcomeHeroCard:before{content:'';width:5px;position:absolute;inset:0 auto 0 0;background:#277665}
+.welcomeHeroCard:before{content:'';width:5px;position:absolute;inset:0 auto 0 0;background:var(--teal)}
 .atlas-welcome-top{position:absolute;top:25px;left:46px;right:39px;display:flex;justify-content:space-between;align-items:center;z-index:2}
 .atlas-welcome-overline,.atlas-hero-issue{font-size:10px;font-weight:800;letter-spacing:.10em;color:#567c70}
 .atlas-hero-issue{border:1px solid #cadcd0;background:rgba(255,255,255,.55);border-radius:6px}
@@ -191,17 +191,17 @@ h1,h2,h3,h4{letter-spacing:-.035em;line-height:1.2}
 .chartBox canvas{display:block;width:100%!important;max-height:270px;flex:1;min-height:200px}
 .atlas-chart-sub{display:block;margin-top:-7px;margin-bottom:12px;font-size:9px;font-weight:800;letter-spacing:.09em;color:#96a69c}
 .traderScoreCard{background:#fff}.traderScoreInner{display:grid;grid-template-columns:auto 1fr;gap:25px;align-items:center}
-.scoreRing{display:grid;place-items:center;width:132px;height:132px;border-radius:50%;background:conic-gradient(#3a8674 calc(var(--score,0)*1%),#e6eee8 0)}
-.scoreRing>span{display:grid;place-items:center;width:102px;height:102px;border-radius:50%;background:#fff;font:850 26px var(--font-ui);color:#183f36}
+.scoreRing{display:grid;place-items:center;width:132px;height:132px;border-radius:50%;background:conic-gradient(var(--teal) calc(var(--score,0)*1%),var(--line) 0)}
+.scoreRing>span{display:grid;place-items:center;width:102px;height:102px;border-radius:50%;background:var(--panel);font:850 26px var(--font-ui);color:var(--text)}
 .scoreDetails h3{margin:0 0 8px}.scoreDetails p{font-size:12px;margin:0 0 15px}
 .scoreBars{display:grid;gap:11px}.scoreBarTop{display:flex;justify-content:space-between;gap:12px;font-size:11px;font-weight:750;color:#526c61;margin-bottom:6px}
-.scoreBarTrack,.goalBar{height:7px;border-radius:20px;background:#e7eee9;overflow:hidden}.scoreBarTrack span,.goalBar span{display:block;height:100%;background:#4a937c;border-radius:20px}
+.scoreBarTrack,.goalBar{height:7px;border-radius:20px;background:#e7eee9;overflow:hidden}.scoreBarTrack span,.goalBar span{display:block;height:100%;background:var(--teal);border-radius:20px}
 .goalCard p{font-size:12px}.goalBar{height:9px;margin-top:21px}.goalMeta{display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:#4d7163;margin-top:9px}
-.aiList{display:grid;gap:9px;margin-top:17px}.aiItem,.reportRow{border:1px solid #e7ebe6;border-radius:9px;padding:13px;background:#fafcf9;color:#55685d;font-size:12px;line-height:1.55}
+.aiList{display:grid;gap:9px;margin-top:17px}.aiItem,.reportRow{border:1px solid var(--line);border-radius:9px;padding:13px;background:var(--bg);color:var(--muted);font-size:12px;line-height:1.55}
 .calendarGrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:20px}
 .calDay{min-height:43px;border-radius:8px;background:#f1f4f0;border:1px solid #e4eae4;display:grid;place-items:center;font-size:11px;color:#819084;font-weight:800}
 .calDay.goodDay{background:#e5f3e9;border-color:#c7e1d0;color:#29744c}.calDay.badDay{background:#fbe9e6;border-color:#efcdc7;color:#b44e48}.calDay.flatDay{background:#faf2e5;border-color:#eddcb8;color:#976e3b}
-.reportRows{display:grid;gap:9px}.reportRow{display:flex;justify-content:space-between;gap:12px}.reportRow b{color:#183b32}
+.reportRows{display:grid;gap:9px}.reportRow{display:flex;justify-content:space-between;gap:12px}.reportRow b{color:var(--text)}
 .proQuote{border:1px solid #d9e6dc;border-radius:13px;background:#e9f2eb;color:#326855;padding:20px 25px;font-size:13px;font-weight:750;margin:18px 0 8px}
 
 /* OTRAS PÁGINAS */
@@ -211,8 +211,8 @@ h1,h2,h3,h4{letter-spacing:-.035em;line-height:1.2}
 table{width:100%;border-collapse:collapse;min-width:690px}th,td{padding:14px 15px;text-align:left;border-bottom:1px solid #e7ece7;font-size:12px;white-space:nowrap}
 th{background:#f5f7f3;color:#6a7d72;font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:850}
 tr:last-child td{border-bottom:0}tbody tr:hover{background:#f8faf7}
-.adminHero{margin-bottom:19px;background:#e7efe8;border:1px solid #d7e4da;border-radius:17px;padding:29px 32px}
-.adminHeroTop{display:flex;align-items:center;justify-content:space-between;gap:22px;flex-wrap:wrap}.adminHero h3{font-size:29px;color:#1d493e;margin:10px 0 7px}.adminHero p{font-size:12px;color:#55776a;max-width:740px;margin:0;line-height:1.7}
+.adminHero{margin-bottom:19px;background:var(--panel2);border:1px solid var(--line);border-radius:17px;padding:29px 32px}
+.adminHeroTop{display:flex;align-items:center;justify-content:space-between;gap:22px;flex-wrap:wrap}.adminHero h3{font-size:29px;color:var(--text);margin:10px 0 7px}.adminHero p{font-size:12px;color:var(--muted);max-width:740px;margin:0;line-height:1.7}
 .adminKicker{font-size:10px;font-weight:800;letter-spacing:.1em;color:#397e68;text-transform:uppercase}.adminActions{display:flex;flex-wrap:wrap;gap:8px}
 .adminMetrics{margin:16px 0}.adminMetric{padding:22px}.adminMetric small{display:block;font-size:11px;color:var(--muted);font-weight:750}.adminMetric b{display:block;font:850 29px var(--font-ui);color:#224c3f;margin:8px 0}.adminMetric span{font-size:11px;color:#8c9d92}
 .adminPanelCard{padding:0;overflow:hidden}.adminPanelHead{display:flex;align-items:center;justify-content:space-between;padding:22px 24px;border-bottom:1px solid var(--line);gap:16px}
@@ -222,7 +222,7 @@ tr:last-child td{border-bottom:0}tbody tr:hover{background:#f8faf7}
 .adminTable{border:0;border-radius:0}.adminTable table{min-width:900px}.actionRow{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .passPill{filter:blur(3px);transition:filter .2s}.passPill:hover{filter:none}
 .adminChatLayout{display:grid;grid-template-columns:minmax(220px,.38fr) minmax(0,.62fr);gap:23px;min-height:480px}
-.adminChatList{display:grid;gap:9px;align-content:start;max-height:520px;overflow:auto}.adminChatBox{background:#f7faf7;border:1px solid #e0e9e2;padding:18px;border-radius:12px;min-width:0;display:flex;flex-direction:column}
+.adminChatList{display:grid;gap:9px;align-content:start;max-height:520px;overflow:auto}.adminChatBox{background:var(--panel);border:1px solid var(--line);padding:18px;border-radius:12px;min-width:0;display:flex;flex-direction:column}
 .adminChatTitle{font-size:16px!important}.chatMessages{flex:1;overflow-y:auto;min-height:170px;max-height:420px;padding:12px;border-radius:9px;background:#f7faf7}
 .adminReplyArea,.chatInputArea{display:flex;gap:9px;align-items:end;margin-top:12px}.adminReplyArea textarea,.chatInputArea textarea{flex:1;min-width:0;min-height:42px;padding:10px;border:1px solid #dce5dc;background:#fff;color:var(--text);border-radius:9px;resize:vertical}
 .adminReplyArea button,.chatInputArea button{border:0;border-radius:9px;background:#236e5c;color:white;padding:12px 16px;font-weight:800}
@@ -230,7 +230,7 @@ tr:last-child td{border-bottom:0}tbody tr:hover{background:#f8faf7}
 
 /* CHAT Y PREFERENCIAS */
 .chatFab{position:fixed;right:22px;bottom:20px;z-index:70;padding:12px 17px;background:#1d6253;color:white;border:0;border-radius:11px;box-shadow:0 10px 30px rgba(18,56,46,.18);font-weight:850}
-.chatFabBadge{background:#ddf2e6;color:#1d6253;padding:2px 6px;border-radius:5px;margin-left:5px}
+.chatFabBadge{background:var(--panel);color:var(--trader-accent-ink,var(--ink));padding:2px 6px;border-radius:5px;margin-left:5px}
 .studentChatPanel{position:fixed;right:22px;bottom:82px;z-index:71;width:min(380px,calc(100vw - 28px));max-height:min(610px,calc(100svh - 100px));display:none;flex-direction:column;padding:0;background:#fff;border-radius:16px;box-shadow:0 25px 85px rgba(24,50,40,.22);border:1px solid #d9e3dc;overflow:hidden}
 .studentChatPanel.open{display:flex}.chatHead{display:flex;align-items:start;justify-content:space-between;gap:12px;padding:17px;background:#1c4039;color:#fff}.chatHead h3{font-size:15px;margin:0 0 5px}.chatHead small{font-size:11px;color:#bdcdc4}.chatClose{border:0;background:transparent;color:white;font-size:19px}.studentChatPanel .chatMessages{min-height:240px;max-height:350px}.studentChatPanel .chatInputArea{padding:12px;margin:0;background:#fff}
 .portalFooter{text-align:center;padding:26px 0 10px;margin-top:20px;color:#94a399}.portalFooter p{font-size:10px;letter-spacing:.02em;margin:0}.portalFooterSeal{display:none}.atlas-footer-label{font-weight:800;font-size:9px;color:#68877b}
@@ -245,8 +245,8 @@ tr:last-child td{border-bottom:0}tbody tr:hover{background:#f8faf7}
   overflow:auto;
   padding:20px;
   background:
-    radial-gradient(ellipse at 50% 34%, rgba(58,115,88,.34), transparent 56%),
-    linear-gradient(145deg, #102f27, #061b16 72%);
+    radial-gradient(ellipse at 50% 34%, #365e9845, transparent 56%),
+    linear-gradient(145deg, #1c3153, #101622 72%);
 }
 .portalLoader[hidden] {display:none}
 .portalLoaderPanel {
@@ -267,7 +267,7 @@ tr:last-child td{border-bottom:0}tbody tr:hover{background:#f8faf7}
   margin:0 auto 22px;
   border:1px solid rgba(224,191,125,.38);
   border-radius:24px;
-  background:radial-gradient(circle, #2c4e37, #123329 76%);
+  background:radial-gradient(circle, var(--trader-hero,#253b5d), var(--trader-hero-deep,#131f33) 76%);
   box-shadow:0 0 30px rgba(220,181,103,.13);
 }
 .portalLoaderEmblem img {display:block;object-fit:contain}
@@ -356,18 +356,18 @@ body.atlas-dark .main,body.atlas-dark .app{background:var(--bg)}
 body.atlas-dark .topbar{background:rgba(17,27,26,.94);border-color:#33463e}
 body.atlas-dark .topbar h2,body.atlas-dark .atlas-section-heading h3,body.atlas-dark .card h3,body.atlas-dark .adminPanelHead h4{color:#eaf1eb}
 body.atlas-dark .card,body.atlas-dark .adminMetric,body.atlas-dark .userPill,body.atlas-dark .studentChatPanel{background:#1c2926;border-color:#34463e;color:#e6eee8;box-shadow:none}
-body.atlas-dark .welcomeHeroCard,body.atlas-dark .adminHero,body.atlas-dark .atlas-page-banner{background:#244239;border-color:#33594a}
+body.atlas-dark .welcomeHeroCard,body.atlas-dark .adminHero,body.atlas-dark .atlas-page-banner{background:var(--panel2);border-color:var(--line)}
 body.atlas-dark .welcomeTitle,body.atlas-dark .adminHero h3,body.atlas-dark .atlas-page-banner h2{color:#ecf6ed}
 body.atlas-dark .welcomeSub,body.atlas-dark .adminHero p{color:#afc9bb}
 body.atlas-dark .metric h3,body.atlas-dark .v3Card h3,body.atlas-dark .adminMetric b,body.atlas-dark .reportRow b{color:var(--text)!important}
-body.atlas-dark .v3Card,body.atlas-dark .top3Container,body.atlas-dark .adminChatBox,body.atlas-dark .chatMessages{background:#1e2c28;border-color:#364c40}
+body.atlas-dark .v3Card,body.atlas-dark .top3Container,body.atlas-dark .adminChatBox,body.atlas-dark .chatMessages{background:var(--panel);border-color:var(--line)}
 body.atlas-dark .metric small,body.atlas-dark .v3Card small,body.atlas-dark .card p,body.atlas-dark .adminMetric span{color:#9db4a7}
 body.atlas-dark .atlas-metric-glyph,body.atlas-dark .adminAvatar,body.atlas-dark .calDay{background:#2c463c;color:#bce4cc}
-body.atlas-dark .field input,body.atlas-dark .field textarea,body.atlas-dark .field select,body.atlas-dark .adminSearch,body.atlas-dark .adminSelect,body.atlas-dark .adminReplyArea textarea,body.atlas-dark .chatInputArea textarea{background:#152420;border-color:#3b5346;color:#edf6ef}
+body.atlas-dark .field input,body.atlas-dark .field textarea,body.atlas-dark .field select,body.atlas-dark .adminSearch,body.atlas-dark .adminSelect,body.atlas-dark .adminReplyArea textarea,body.atlas-dark .chatInputArea textarea{background:var(--bg);border-color:var(--line);color:var(--text)}
 body.atlas-dark .formGrid label,body.atlas-dark .field label{color:#b4c7b9}
-body.atlas-dark .aiItem,body.atlas-dark .reportRow,body.atlas-dark .proQuote{background:#26372f;border-color:#3b5143;color:#c4d7cb}
+body.atlas-dark .aiItem,body.atlas-dark .reportRow,body.atlas-dark .proQuote{background:var(--panel2);border-color:var(--line);color:var(--muted)}
 body.atlas-dark .tableWrap{border-color:#394d42}body.atlas-dark th{background:#24382f;color:#b0c5b5}body.atlas-dark td{border-color:#394d42}body.atlas-dark tbody tr:hover{background:#26382f}
-body.atlas-dark .scoreRing>span{background:#1c2926;color:#e9f2ea}body.atlas-dark .scoreBarTrack,body.atlas-dark .goalBar{background:#34493b}
+body.atlas-dark .scoreBarTrack,body.atlas-dark .goalBar{background:var(--line)}
 body.atlas-dark .auth{background:#0c1615}body.atlas-dark .authShell{background:#1c2926;border-color:#40574b}body.atlas-dark .authPanel{background:#1c2926;color:#edf2eb}
 body.atlas-dark .form>p,body.atlas-dark .form h2{color:#e9f1eb}body.atlas-dark .tabs{background:#243b30}body.atlas-dark .tabs button.active{background:#416653;color:#f6fcf6}
 body.atlas-dark .authLegal{border-color:#3c5145}body.atlas-dark .authLegalItem p{color:#b0c3b5}body.atlas-dark .authLegalItem b{color:#eff7ed}
@@ -376,7 +376,7 @@ body.atlas-dark .authLegal{border-color:#3c5145}body.atlas-dark .authLegalItem p
 #auth.homePremium .recoveryShortcut{display:flex;justify-content:flex-end;margin:-4px 0 15px}
 #auth.homePremium .recoveryShortcut a{font-size:12px;font-weight:750;color:#d7b775;text-decoration:none}
 #auth.homePremium .recoveryShortcut a:hover{text-decoration:underline}
-body.olonRecoveryPage{margin:0;min-height:100vh;min-height:100svh;background:radial-gradient(ellipse at 70% 8%,#174337 0%,transparent 48%),linear-gradient(140deg,#041610,#08291e 68%,#03130f);color:#ecf6eb;font-family:var(--font-ui)}
+body.olonRecoveryPage{margin:0;min-height:100vh;min-height:100svh;background:radial-gradient(ellipse at 70% 8%,#263f64 0%,transparent 48%),#101622;color:#e9effa;font-family:var(--font-ui)}
 .olonRecoveryPage .recoveryHeader{max-width:1170px;padding:26px 24px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid rgba(238,233,205,.15)}
 .olonRecoveryPage .recoveryBrand{display:inline-flex;align-items:center;gap:12px;text-decoration:none;color:#f1f6ed;font:700 23px Georgia,serif}
 .olonRecoveryPage .recoveryBrand img{border-radius:8px;object-fit:contain}
@@ -384,26 +384,26 @@ body.olonRecoveryPage{margin:0;min-height:100vh;min-height:100svh;background:rad
 .olonRecoveryPage .recoveryBack{font-size:12px;font-weight:700;color:#d8c497;text-decoration:none}
 .olonRecoveryPage .recoveryBack:hover{text-decoration:underline}
 .olonRecoveryPage .recoveryMain{display:grid;justify-items:center;padding:clamp(40px,8vh,95px) 20px 40px}
-.olonRecoveryPage .recoveryCard{width:min(100%,510px);background:linear-gradient(160deg,rgba(16,57,44,.97),rgba(2,24,19,.97));border:1px solid rgba(226,205,151,.3);padding:clamp(26px,5vw,43px);border-radius:21px;box-shadow:0 30px 75px rgba(0,0,0,.29)}
+.olonRecoveryPage .recoveryCard{width:min(100%,510px);background:#192232;border:1px solid #354258;padding:clamp(26px,5vw,43px);border-radius:21px;box-shadow:0 30px 75px rgba(0,0,0,.29)}
 .olonRecoveryPage .recoveryMark{display:grid;place-items:center;width:53px;height:53px;background:rgba(214,183,117,.12);border:1px solid rgba(214,183,117,.22);border-radius:15px;font-size:25px;margin-bottom:18px}
 .olonRecoveryPage .recoveryEyebrow{font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#dcc18a;margin-bottom:13px}
 .olonRecoveryPage .recoveryCard h1{font:600 clamp(30px,4vw,39px)/1.16 Georgia,serif;color:#fffaf0;margin:0 0 10px;letter-spacing:-.025em}
-.olonRecoveryPage .recoveryDescription{color:#b5c8bc;line-height:1.7;font-size:13px;margin:0 0 27px}
+.olonRecoveryPage .recoveryDescription{color:#b0bed3;line-height:1.7;font-size:13px;margin:0 0 27px}
 .olonRecoveryPage .recoveryCard form[hidden],.olonRecoveryPage .recoveryMessage[hidden]{display:none!important}
-.olonRecoveryPage .recoveryCard label{display:block;color:#e5efe0;font-size:12px;font-weight:700;margin:18px 0 8px}
-.olonRecoveryPage .recoveryCard input{display:block;width:100%;min-height:51px;border:1px solid rgba(205,224,205,.28);border-radius:10px;padding:12px 14px;color:#f7fff4;background:rgba(221,239,223,.06);font:inherit;font-size:14px}
-.olonRecoveryPage .recoveryCard input::placeholder{color:#99b4a6}
+.olonRecoveryPage .recoveryCard label{display:block;color:#e9effa;font-size:12px;font-weight:700;margin:18px 0 8px}
+.olonRecoveryPage .recoveryCard input{display:block;width:100%;min-height:51px;border:1px solid #354258;border-radius:10px;padding:12px 14px;color:#e9effa;background:#101622;font:inherit;font-size:14px}
+.olonRecoveryPage .recoveryCard input::placeholder{color:#a4b4cb}
 .olonRecoveryPage .recoveryCard input:focus{outline:2px solid rgba(218,189,130,.65);outline-offset:2px}
 .olonRecoveryPage .recoveryPrimary{margin-top:20px;width:100%;min-height:49px;border:0;border-radius:10px;background:linear-gradient(110deg,#ead099,#c8a769);color:#263325;font:800 13px var(--font-ui);cursor:pointer}
 .olonRecoveryPage .recoveryPrimary:hover{filter:brightness(1.08)}
 .olonRecoveryPage .recoveryPrimary:disabled{opacity:.65;cursor:wait}
-.olonRecoveryPage .recoveryHelp{font-size:11px;line-height:1.7;color:#91b2a0;margin:17px 0 0}
+.olonRecoveryPage .recoveryHelp{font-size:11px;line-height:1.7;color:#b0bed3;margin:17px 0 0}
 .olonRecoveryPage .recoveryMessage{border-radius:10px;padding:12px 15px;font-size:12px;line-height:1.7;margin-top:18px;background:rgba(215,188,123,.1);border:1px solid rgba(215,188,123,.28);color:#f7d98e}
 .olonRecoveryPage .recoveryMessage[data-status="error"]{background:rgba(192,74,68,.12);border-color:rgba(227,115,105,.3);color:#ffc9c3}
 .olonRecoveryPage .recoveryMessage[data-status="success"]{background:rgba(58,151,112,.16);border-color:rgba(108,207,159,.32);color:#c5f6d2}
 .olonRecoveryPage .recoveryBottomLink{display:block;text-align:center;margin-top:24px;font-size:12px;color:#e0c385;text-decoration:none;font-weight:700}
 .olonRecoveryPage .recoveryBottomLink:hover{text-decoration:underline}
-.olonRecoveryPage .recoveryFoot{color:#91b1a1;font-size:11px;line-height:1.5;text-align:center;margin:24px auto}
+.olonRecoveryPage .recoveryFoot{color:#b0bed3;font-size:11px;line-height:1.5;text-align:center;margin:24px auto}
 @media(max-width:620px){.olonRecoveryPage .recoveryHeader{padding:19px 15px}.olonRecoveryPage .recoveryBrand{font-size:17px}.olonRecoveryPage .recoveryBrand img{width:30px;height:30px}.olonRecoveryPage .recoveryBack{font-size:10px}}
 
 
@@ -411,8 +411,8 @@ body.olonRecoveryPage{margin:0;min-height:100vh;min-height:100svh;background:rad
 .olonRecoveryPage .recoveryFallback{margin:20px 0 0;padding:15px 16px;border:1px solid rgba(218,189,130,.28);border-radius:11px;background:rgba(218,189,130,.06)}
 .olonRecoveryPage .recoveryFallback[hidden]{display:none!important}
 .olonRecoveryPage .recoveryFallback summary{cursor:pointer;color:#e6cd91;font-size:12px;font-weight:750;line-height:1.5}
-.olonRecoveryPage .recoveryFallback p{color:#c4d2c6;font-size:12px;line-height:1.7;margin:12px 0}
-.olonRecoveryPage .recoveryFallback textarea{display:block;width:100%;border-radius:9px;background:rgba(221,239,223,.06);border:1px solid rgba(205,224,205,.28);color:#f7fff4;min-height:84px;padding:12px;font-size:12px;font-family:inherit;resize:vertical;overflow-wrap:anywhere}
+.olonRecoveryPage .recoveryFallback p{color:#b0bed3;font-size:12px;line-height:1.7;margin:12px 0}
+.olonRecoveryPage .recoveryFallback textarea{display:block;width:100%;border-radius:9px;background:#101622;border:1px solid #354258;color:#e9effa;min-height:84px;padding:12px;font-size:12px;font-family:inherit;resize:vertical;overflow-wrap:anywhere}
 .olonRecoveryPage .recoveryFallback textarea:focus{outline:2px solid rgba(218,189,130,.65);outline-offset:2px}
 
 /* OLON Society Academy — ADMIN WORKSPACE 2026 */
@@ -434,14 +434,14 @@ body.olonRecoveryPage{margin:0;min-height:100vh;min-height:100svh;background:rad
 #admin .adminBtn:disabled{opacity:.5;cursor:not-allowed}
 #admin .adminBtnOutline{color:#e9ebdd;background:rgba(255,255,255,.075);border:1px solid rgba(231,242,221,.28)}
 #admin .adminBtnGold{color:#193626;background:linear-gradient(115deg,#f0d4a0,#d9b979);border:1px solid #d1b173}
-#admin .adminBtnGold span{display:inline-grid;place-items:center;margin-left:6px;background:rgba(30,60,39,.12);min-width:21px;height:21px;border-radius:7px;font-size:10px}
+#admin .adminBtnGold span{display:inline-grid;place-items:center;margin-left:6px;background:#10162225;min-width:21px;height:21px;border-radius:7px;font-size:10px}
 #admin .adminWorkspaceActivity{position:relative;z-index:1;margin-top:30px;padding-top:17px;border-top:1px solid rgba(241,245,223,.17);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;color:#b7d0bd;font-size:10px;font-weight:650}
 #admin .adminConnectionState{color:#b3e0bc}
 #admin .adminConnectionState.failure{color:#ffd3b8}
 #admin .adminWorkspaceNav{display:flex;align-items:center;gap:7px;margin:17px 0 28px;padding:7px;background:#eaf1eb;border:1px solid #e0eae1;border-radius:13px;overflow-x:auto;scrollbar-width:thin}
 #admin .adminWorkspaceNav button{flex:none;white-space:nowrap;padding:10px 15px;border:0;border-radius:9px;background:transparent;font-size:11px;font-weight:750;color:#47695a;cursor:pointer}
 #admin .adminWorkspaceNav button:hover{color:#184e37;background:#fff}
-#admin .adminWorkspaceNav button span{font-size:10px;background:#d7e6da;border-radius:5px;padding:2px 5px;margin-left:4px}
+#admin .adminWorkspaceNav button span{font-size:10px;background:var(--trader-soft,var(--panel2));border-radius:5px;padding:2px 5px;margin-left:4px}
 #admin .adminSectionIntro{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:0 0 15px}
 #admin .adminSectionEyebrow{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.19em;font-weight:850;color:#b08b52;margin-bottom:8px}
 #admin .adminSectionIntro h4,#admin .adminWorkspaceCardHead h4{font:700 21px/1.2 var(--font-ui);letter-spacing:-.035em;margin:0;color:#193e31}
@@ -450,7 +450,7 @@ body.olonRecoveryPage{margin:0;min-height:100vh;min-height:100svh;background:rad
 #admin .adminWorkspaceMetrics .adminMetric{position:relative;min-width:0;min-height:145px;text-align:left;background:var(--aw-card);border:1px solid #e1e9e2;border-radius:15px;box-shadow:0 4px 16px rgba(31,70,44,.035);padding:20px 22px;display:flex;flex-direction:column;align-items:flex-start;gap:0}
 #admin .adminWorkspaceMetrics .adminMetricBtn{cursor:pointer;transition:border-color .2s,transform .2s,box-shadow .2s}
 #admin .adminWorkspaceMetrics .adminMetricBtn:hover{transform:translateY(-2px);border-color:#bbd2bf;box-shadow:0 10px 22px rgba(21,56,38,.07)}
-#admin .adminWorkspaceMetrics .adminMetric .adminMetricIcon{display:grid;place-items:center;position:absolute;top:16px;right:17px;width:32px;height:32px;border-radius:9px;background:#e9f2e9;color:#3e7961;font-size:16px;font-weight:800}
+#admin .adminWorkspaceMetrics .adminMetric .adminMetricIcon{display:grid;place-items:center;position:absolute;top:16px;right:17px;width:32px;height:32px;border-radius:9px;background:var(--trader-soft,var(--panel2));color:var(--trader-accent-ink,var(--ink));font-size:16px;font-weight:800}
 #admin .adminWorkspaceMetrics .adminMetric small{color:#7a9080;font-size:10px;font-weight:750;letter-spacing:.01em}
 #admin .adminWorkspaceMetrics .adminMetric b{font:800 34px/1.1 var(--font-ui);margin:15px 0 6px;color:#1a4734;letter-spacing:-.05em}
 #admin .adminWorkspaceMetrics .adminMetric>span:last-child{font-size:10px;color:#8e9f95}
@@ -461,23 +461,22 @@ body.olonRecoveryPage{margin:0;min-height:100vh;min-height:100svh;background:rad
 #admin .adminWorkspaceCardHead{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:23px 23px 18px;border-bottom:1px solid #edf1ed}
 #admin .adminWorkspaceCardHead h4{font-size:17px}
 #admin .adminWorkspaceCardHead p{font-size:11px;color:#8a9b91;margin:7px 0 0;line-height:1.55}
-#admin .adminHeadIndicator{font-size:9px;font-weight:800;letter-spacing:.12em;color:#698c76;background:#eff5ef;padding:8px 10px;border-radius:7px}
+#admin .adminHeadIndicator{font-size:9px;font-weight:800;letter-spacing:.12em;color:var(--muted);background:var(--panel2);padding:8px 10px;border-radius:7px}
 #admin .adminWorkspaceCard .adminAlertList{padding:12px 17px 17px;min-height:120px}
-#admin .adminAlertItem{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 11px;border-radius:9px;color:#4e6356;font-size:11px;line-height:1.5;background:#f7faf7;margin:6px 0;border:1px solid #eaf0eb}
+#admin .adminAlertItem{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 11px;border-radius:9px;color:var(--text);font-size:11px;line-height:1.5;background:var(--panel2);margin:6px 0;border:1px solid var(--line)}
 #admin .adminAlertItem.warn{background:#fffaf0;border-color:#f1e2c5;color:#75572a}
 #admin .adminAlertItem.bad{background:#fff3f0;border-color:#f1d3cd;color:#934b3e}
-#admin .adminAlertItem.good{background:#f1f8f2;border-color:#dcece1;color:#356f4f}
 #admin .adminSmallButton{border:1px solid #ccdcd0;background:#fff;color:#285d44;padding:8px 11px;border-radius:8px;font-size:10px;line-height:1.15;font-weight:800;cursor:pointer;white-space:nowrap}
 #admin .adminSmallButton:hover{border-color:#5f9779;background:#f3f8f3}
 #admin .adminSmallButton.approve{background:#24704e;color:#fff;border-color:#24704e}
 #admin .adminWorkspaceDirectory{overflow:hidden}
 #admin .adminDirectoryHeadRight{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-#admin .adminCountPill{background:#eaf3eb;color:#386b4d;border:1px solid #d9e9db;border-radius:9px;font-size:11px;font-weight:800;padding:9px 12px;white-space:nowrap}
-#admin .adminDirectoryControls{padding:16px 22px 17px;background:#fcfdfc;border-bottom:1px solid #e9eee8}
+#admin .adminCountPill{background:var(--trader-soft,var(--panel2));color:var(--trader-accent-ink,var(--ink));border:1px solid var(--line);border-radius:9px;font-size:11px;font-weight:800;padding:9px 12px;white-space:nowrap}
+#admin .adminDirectoryControls{padding:16px 22px 17px;background:var(--bg);border-bottom:1px solid var(--line)}
 #admin .adminQuickFilters{display:flex;align-items:center;gap:6px;overflow:auto;white-space:nowrap;margin-bottom:16px;padding-bottom:2px}
 #admin .adminQuickFilters button{border:1px solid transparent;background:transparent;padding:9px 13px;border-radius:9px;font-size:10px;color:#788e80;font-weight:800;cursor:pointer}
-#admin .adminQuickFilters button:hover{background:#f2f7f1;color:#2e684c}
-#admin .adminQuickFilters button.active{border-color:#d2e6d3;background:#e9f3ea;color:#256344}
+#admin .adminQuickFilters button:hover{background:var(--panel2);color:var(--text)}
+#admin .adminQuickFilters button.active{border-color:var(--line);background:var(--trader-soft,var(--panel2));color:var(--trader-accent-ink,var(--ink))}
 #admin .adminGodTools{display:grid;grid-template-columns:minmax(190px,1.55fr) minmax(110px,1fr);gap:10px;align-items:end}
 #admin .adminGodTools>label{display:block;min-width:0;font-size:10px;color:#769081;font-weight:750}
 #admin .adminGodTools>label>span{display:block;margin:0 0 7px}
@@ -486,29 +485,29 @@ body.olonRecoveryPage{margin:0;min-height:100vh;min-height:100svh;background:rad
 #admin .adminDirectoryTable{border:0;border-radius:0;margin:0;max-width:100%;overflow:auto}
 #admin .adminDirectoryTable table{min-width:940px;table-layout:auto}
 #admin .adminDirectoryTable th{background:#f6f9f6;color:#819285;font-size:9px;letter-spacing:.08em;font-weight:850;padding:14px 16px}
-#admin .adminDirectoryTable td{background:#fff;font-size:11px;padding:14px 16px;vertical-align:middle;border-color:#edf1ed}
-#admin .adminDirectoryTable tr:hover td{background:#fbfdfb}
+#admin .adminDirectoryTable td{background:var(--panel);font-size:11px;padding:14px 16px;vertical-align:middle;border-color:#edf1ed}
+#admin .adminDirectoryTable tr:hover td{background:var(--panel2)}
 #admin .adminDirectoryTable .adminStudent{display:flex;align-items:center;gap:10px;min-width:150px}
 #admin .adminAvatar{height:37px;width:37px;border:1px solid #d9e9dc;border-radius:11px;background:#eaf4eb;display:grid;place-items:center;color:#377459;font-weight:800;flex:none;font-size:11px}
 #admin .adminDirectoryTable .adminStudent b{font-weight:850;font-size:11px;color:#284b3a;display:block}
 #admin .adminDirectoryTable .adminStudent small{font-size:10px;color:#95a59a;display:block;margin-top:3px;white-space:normal;overflow-wrap:anywhere;max-width:190px}
-#admin .adminCode{color:#718b79;font-size:10px;border:1px solid #e9eee8;background:#f7faf7;padding:6px 8px;border-radius:7px}
+#admin .adminCode{color:var(--muted);font-size:10px;border:1px solid var(--line);background:var(--panel2);padding:6px 8px;border-radius:7px}
 #admin .adminInlineSelect{min-width:108px;max-width:145px;border-radius:8px;border:1px solid #dce7df;background:#f8fbf8;color:#37664e;font-size:10px;padding:9px 8px;cursor:pointer}
 #admin .adminPaymentCell{display:flex;align-items:center;gap:5px;min-width:155px}
 #admin .adminDateInput{width:122px;max-width:100%;min-height:35px;border:1px solid #dce7df;border-radius:8px;color:#416a50;font-size:10px;background:#fff;padding:6px 5px}
 #admin .adminDateSave{border:1px solid #d5e6d9;background:#ecf6ee;color:#326c4c;border-radius:7px;padding:9px 7px;font-size:9px;font-weight:800;cursor:pointer}
 #admin .adminRowActions{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
-#admin .adminRoleProtected{background:#e9f4ed;color:#447257;border:1px solid #d9eade;padding:8px 9px;border-radius:8px;font-size:10px;font-weight:750}
+#admin .adminRoleProtected{background:var(--panel2);color:var(--text);border:1px solid var(--line);padding:8px 9px;border-radius:8px;font-size:10px;font-weight:750}
 #admin .adminRisk{font-size:10px;font-weight:750;padding:7px 9px;border-radius:8px;white-space:nowrap}
 #admin .adminRisk.good{background:#edf7ee;color:#327451}
 #admin .adminRisk.warn{background:#fff4e2;color:#9c6d35}
 #admin .adminRisk.bad{background:#ffedeb;color:#a64745}
 #admin .adminRisk.neutral{background:#f4f6f4;color:#859489}
-#admin .adminDirectoryFooter{padding:14px 22px;color:#8b9d90;background:#fafcfa;font-size:10px;line-height:1.6;border-top:1px solid #ecf1eb}
+#admin .adminDirectoryFooter{padding:14px 22px;color:var(--muted);background:var(--bg);font-size:10px;line-height:1.6;border-top:1px solid var(--line)}
 #admin .adminActionFeedback{margin:16px 22px;padding:12px 16px;border-radius:9px;font-size:11px;line-height:1.6}
 #admin .adminActionFeedback.success{background:#eff9f2;color:#286c4a;border:1px solid #cce7d6}
 #admin .adminActionFeedback.error{background:#fff0ef;color:#913e35;border:1px solid #f0cfcd}
-#admin .adminEmptyTable{text-align:center;padding:27px!important;font-size:11px;color:#90a392;background:#fbfcfb}
+#admin .adminEmptyTable{text-align:center;padding:27px!important;font-size:11px;color:var(--muted);background:var(--panel)}
 #admin .adminMobileCards{display:none}
 #admin .adminStudentMobile{border:1px solid #e3ebe4;border-radius:13px;background:#fff;padding:16px;margin-bottom:11px}
 #admin .adminStudentMobileTop{display:flex;align-items:center;gap:10px;min-width:0}
@@ -516,8 +515,8 @@ body.olonRecoveryPage{margin:0;min-height:100vh;min-height:100svh;background:rad
 #admin .adminStudentMobileTop b{display:block;font-size:12px;color:#274834}
 #admin .adminStudentMobileTop small{display:block;color:#87998e;font-size:10px;overflow-wrap:anywhere;margin-top:3px}
 #admin .adminStudentMobileData{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0}
-#admin .adminStudentMobileData span{background:#f6f9f6;border-radius:8px;padding:10px;color:#91a195;font-size:9px}
-#admin .adminStudentMobileData strong{display:block;color:#3b6e53;font-size:11px;margin-top:5px;overflow-wrap:anywhere}
+#admin .adminStudentMobileData span{background:var(--panel2);border-radius:8px;padding:10px;color:var(--muted);font-size:9px}
+#admin .adminStudentMobileData strong{display:block;color:var(--text);font-size:11px;margin-top:5px;overflow-wrap:anywhere}
 #admin .adminStudentMobileFields{min-width:0}
 #admin .adminStudentMobileFields label,#admin .adminStudentMobilePayment label{display:block;font-size:10px;font-weight:750;color:#728879}
 #admin .adminStudentMobileFields select{display:block;width:100%;max-width:100%;margin-top:5px}
@@ -526,19 +525,17 @@ body.olonRecoveryPage{margin:0;min-height:100vh;min-height:100svh;background:rad
 #admin .adminStudentMobilePayment input{display:block;margin-top:6px;width:100%}
 #admin .adminStudentMobileActions{margin-top:13px}
 #adminChat .adminChatLayout{grid-template-columns:minmax(220px,.34fr) minmax(0,.66fr);gap:15px}
-#adminChat .adminChatBox{border:1px solid #dce8df;border-radius:12px}
+#adminChat .adminChatBox{border:1px solid var(--line);border-radius:12px}
 #adminChat .adminChatList{max-height:580px}
 #adminChat .adminChatUser{border-radius:9px}
 body.atlas-dark #admin.adminProPage{--aw-ink:#edf5ee;--aw-muted:#b5c6b9;--aw-line:#384e41;--aw-card:#172d23}
 body.atlas-dark #admin .adminWorkspaceNav{background:#1a3427;border-color:#304d39}
 body.atlas-dark #admin .adminWorkspaceNav button{color:#c8d9c9}
-body.atlas-dark #admin .adminWorkspaceNav button:hover{background:#264633;color:#fff}
-body.atlas-dark #admin .adminWorkspaceMetrics .adminMetric,body.atlas-dark #admin .adminWorkspaceCard,body.atlas-dark #admin .adminStudentMobile,body.atlas-dark #admin .adminDirectoryTable td{background:#1c2d25;border-color:#3a5140;color:#ecf4e9}
+body.atlas-dark #admin .adminWorkspaceNav button:hover{background:var(--panel2);color:var(--text)}
+body.atlas-dark #admin .adminWorkspaceMetrics .adminMetric,body.atlas-dark #admin .adminWorkspaceCard,body.atlas-dark #admin .adminStudentMobile{background:var(--panel);border-color:var(--line);color:var(--text)}
 body.atlas-dark #admin .adminSectionIntro h4,body.atlas-dark #admin .adminWorkspaceCardHead h4,body.atlas-dark #admin .adminWorkspaceMetrics .adminMetric b,body.atlas-dark #admin .adminDirectoryTable .adminStudent b{color:#ecf6ee}
-body.atlas-dark #admin .adminDirectoryControls,body.atlas-dark #admin .adminDirectoryFooter{background:#1b2b23}
 body.atlas-dark #admin .adminDirectoryTable th{background:#263a2d;color:#c0d3c4}
 body.atlas-dark #admin .adminSearch,body.atlas-dark #admin .adminSelect,body.atlas-dark #admin .adminInlineSelect,body.atlas-dark #admin .adminDateInput{background:#233d2e;color:#e1eee5;border-color:#43604d}
-body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-color:#3a5140}
 @media(max-width:1199px){
  #admin .adminWorkspaceMetrics{grid-template-columns:repeat(3,minmax(0,1fr))}
  #admin .adminWorkspaceHeroMain{align-items:start;flex-direction:column}
@@ -629,7 +626,7 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
     z-index:30;
     padding:0;
     border:0;
-    background:rgba(1,18,13,.62);
+    background:var(--portal-backdrop);
     touch-action:none;
   }
 }
@@ -733,7 +730,7 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
 #signupRequestResult{background:#d8eddd;color:#195332;border:1px solid #a7d2b3;border-radius:10px;padding:13px;margin:14px 0;font-weight:700;font-size:12px}
 #adminRequestsBlock{margin:0 0 24px;scroll-margin-top:110px}
 #adminRequestsHeading{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
-#admin .adminRequestCount{display:inline-grid;place-items:center;min-width:26px;height:26px;border-radius:8px;background:#e2efe5;color:#346c4b;font-size:12px;font-family:var(--font-ui)}
+#admin .adminRequestCount{display:inline-grid;place-items:center;min-width:26px;height:26px;border-radius:8px;background:var(--trader-soft,var(--panel2));color:var(--trader-accent-ink,var(--ink));font-size:12px;font-family:var(--font-ui)}
 #admin .adminRequestNotice{margin:14px 20px 0;border:1px solid #eeddb7;border-radius:10px;background:#fffaf0;color:#785a2b;font-size:11px;line-height:1.6;padding:12px 16px}
 #admin .adminRequestsList{padding:12px 19px 18px}
 #admin .adminRequestEmpty{padding:17px 4px;font-size:12px;line-height:1.6;color:#799185}
@@ -748,7 +745,7 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
 #admin .adminRequestActions label{font-size:10px;color:#759182}
 #admin .adminRequestActions select{display:block;margin-top:6px;padding:9px;border:1px solid #d3e4d6;background:#fff;border-radius:8px;font-size:11px;color:#345945}
 #admin .adminRequestRow.processed{opacity:.66}
-#admin .adminRequestStatus{padding:7px 11px;border-radius:8px;background:#edf6ef;color:#397051!important;font-weight:800}
+#admin .adminRequestStatus{padding:7px 11px;border-radius:8px;background:var(--panel2);color:var(--text)!important;font-weight:800}
 .adminTempField{display:grid;gap:6px;background:#f1f7f2;border:1px solid #e0e9e1;padding:15px;border-radius:9px;margin:10px 0}
 .adminTempField small{font-size:10px;color:#7b9080}
 .adminTempField strong{font-size:13px;overflow-wrap:anywhere}
@@ -1022,8 +1019,8 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
 .vipPaymentBadge {
   padding:5px 8px;
   border-radius:7px;
-  background:#e6efe8;
-  color:#365947;
+  background:var(--trader-soft,var(--panel2));
+  color:var(--trader-accent-ink,var(--ink));
   font-size:10px;
   font-weight:800;
   white-space:nowrap;
@@ -1034,17 +1031,17 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
 .vipPaymentDetails > div{min-width:0;padding:8px 10px;border-left:1px solid #c9ded0}
 .vipPaymentDetails dt{color:#496a57;font-size:11px;font-weight:750}
 .vipPaymentDetails dd{margin:4px 0 0;color:#183e2b;font:800 clamp(13px,1.45vw,17px)/1.3 var(--font-ui)}
-#admin .adminStateTag {padding:5px 9px;border-radius:7px;background:#e6f1e7;color:#315e44;font-size:11px;font-weight:800}
+#admin .adminStateTag {padding:5px 9px;border-radius:7px;background:var(--trader-soft,var(--panel2));color:var(--trader-accent-ink,var(--ink));font-size:11px;font-weight:800}
 #portal [data-olon-logout]:disabled{opacity:.55;cursor:wait}
 #portal .calendarCard{border:1px solid #e1eae2;border-radius:17px;padding:22px;box-shadow:0 8px 25px rgba(22,65,44,.035)}
 #portal .portalCalendarHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
 #portal .portalCalendarEyebrow{font:850 9px var(--font-ui);color:#609377;letter-spacing:.12em}
 #portal .portalCalendarHeader h3{margin:6px 0 5px;color:#1c3b2c;font:850 20px/1.2 var(--font-ui)}
 #portal #calendarMonthLabel{margin:0;text-transform:capitalize;font-size:12px;color:#779084}
-#portal .portalCalendarTotal{min-width:130px;border-radius:12px;background:#edf6ef;padding:12px;text-align:right}
-#portal .portalCalendarTotal small{display:block;font-size:9px;letter-spacing:.08em;color:#6e907c}
-#portal .portalCalendarTotal strong{display:block;margin-top:4px;font:850 17px var(--font-ui);color:#255c42}
-#portal .portalCalendarTotal strong.negative{color:#ba5148}
+#portal .portalCalendarTotal{min-width:130px;border-radius:12px;background:var(--panel2);padding:12px;text-align:right}
+#portal .portalCalendarTotal small{display:block;font-size:9px;letter-spacing:.08em;color:var(--muted)}
+#portal .portalCalendarTotal strong{display:block;margin-top:4px;font:850 17px var(--font-ui);color:var(--text)}
+#portal .portalCalendarTotal strong.negative{color:var(--red)}
 #portal .portalCalendarLegend{display:flex;flex-wrap:wrap;gap:14px;margin:18px 0 13px;color:#668071;font-size:10px;font-weight:750}
 #portal .portalCalendarLegend span{display:flex;align-items:center;gap:6px}
 #portal .calendarDot{width:8px;height:8px;border-radius:50%;display:inline-block}
@@ -1235,8 +1232,8 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
 #portal.app .page .selectedReportHead h3{color:#1c4935}
 #portal.app .page .reportRow{border-bottom:1px solid #eef2ee}
 #portal.app .page .traderScoreCard .scoreRing{filter:drop-shadow(0 5px 12px rgba(30,89,58,.10))}
-#portal.app .page .goalBar{border-radius:99px;background:#e7eee7;overflow:hidden}
-#portal.app .page .goalBar span{border-radius:99px;background:linear-gradient(90deg,#1f7751,#6cb58a)}
+#portal.app .page .goalBar{border-radius:99px;background:var(--line);overflow:hidden}
+#portal.app .page .goalBar span{border-radius:99px;background:var(--teal)}
 #portal.app .page .metric{padding:20px}
 #portal.app .page .metric small{color:#738e7b;font-weight:850}
 #portal.app .page .metric h3{color:#194b36;font-weight:900;letter-spacing:-.05em}
@@ -1289,7 +1286,7 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
   inset:0;
   pointer-events:none;
   background:
-    linear-gradient(90deg,transparent,#204d3e10 35%,#e9d5a612),
+    linear-gradient(90deg,transparent,#ffffff10 35%,#e9d5a612),
     repeating-linear-gradient(90deg,transparent 0 47px,#e9d5a615 47px 48px),
     repeating-linear-gradient(0deg,transparent 0 47px,#e9d5a610 47px 48px);
   mask-image:linear-gradient(110deg,transparent 32%,#000 85%);
@@ -1369,7 +1366,7 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
   white-space:nowrap;
   touch-action:manipulation;
 }
-.newsFilterBtn:hover{background:#edf5ee;color:var(--news-ink)}
+.newsFilterBtn:hover{background:var(--panel2);color:var(--news-ink)}
 .newsFilterBtn[aria-pressed="true"]{background:#e4f1e6;border-color:#cce3d1;color:#1a5a3e}
 .newsSearchBox {
   display:flex;
@@ -1415,7 +1412,7 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
   font-weight:800;
   touch-action:manipulation;
 }
-.newsRefresh:hover{background:#e7f2e8}
+.newsRefresh:hover{background:var(--panel2)}
 
 .newsResultsHeader {
   display:flex;
@@ -1470,8 +1467,8 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
 .newsSource {
   padding:4px 7px;
   border-radius:6px;
-  background:#eaf3e9;
-  color:#245c42;
+  background:var(--trader-soft,var(--panel2));
+  color:var(--news-accent);
   font-weight:800;
   overflow-wrap:anywhere;
 }
@@ -1518,10 +1515,10 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
   border:1px solid var(--news-border);
   border-radius:15px;
   background:
-    linear-gradient(#dce9df,#dce9df) 15px 23px / 22% 8px no-repeat,
-    linear-gradient(#e6ede5,#e6ede5) 15px 51px / 76% 10px no-repeat,
-    linear-gradient(#e6ede5,#e6ede5) 15px 73px / 48% 10px no-repeat,
-    #f9fbf7;
+    linear-gradient(var(--line),var(--line)) 15px 23px / 22% 8px no-repeat,
+    linear-gradient(var(--panel2),var(--panel2)) 15px 51px / 76% 10px no-repeat,
+    linear-gradient(var(--panel2),var(--panel2)) 15px 73px / 48% 10px no-repeat,
+    var(--panel);
 }
 .newsSkeleton:first-child{grid-column:1/-1}
 
@@ -1609,7 +1606,7 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
 #portal .ledgerButtons { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
 #portal .ledgerButtons :is(button,a) { min-height: 42px; text-decoration: none; }
 #portal #ledgerModes { margin-bottom: .9rem; }
-#portal #ledgerModes button[aria-pressed="true"] { background: #145541; color: #fff; border-color: #145541; }
+#portal #ledgerModes button[aria-pressed="true"] { background: var(--teal); color: var(--trader-accent-on,#fff); border-color: var(--teal); }
 #portal .ledgerEntry .formGrid { align-items: start; }
 #portal .ledgerEntry .ledgerFields { margin: 0; padding: 0; min-width: 0; border: 0; }
 #portal .ledgerEntry .ledgerDetails { border: 1px solid #d6e4dc; border-radius: .65rem; padding: .65rem .85rem; }
@@ -1619,11 +1616,10 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
 #portal .ledgerHistoryActions button { font-size: .8rem; padding: .46rem .72rem; }
 #portal .ledgerFeedback, #portal .ledgerPending {
   margin: .5rem 0; padding: .65rem .85rem; border-radius: .65rem;
-  background: #f0f6f2; border: 1px solid #d6e4dc; color: #2b5142; font-size: .85rem;
+  background: var(--panel2); border: 1px solid var(--line); color: var(--text); font-size: .85rem;
 }
 #portal .ledgerQuickActions .ledgerFeedback { flex-basis: 100%; padding: .55rem .75rem; }
 #portal .ledgerFeedback[data-tone="error"] { background: #fff4f0; color: #873b2a; border-color: #e8c7bd; }
-#portal .ledgerFeedback[data-tone="success"] { color: #15583c; }
 #portal .ledgerPendingRow { display: flex; justify-content: space-between; gap: .5rem; align-items: center; border-top: 1px solid #d6e4dc; padding: .55rem 0; }
 #portal .reportPdfOptions { margin: .3rem 0 .85rem; }
 #portal .calendarDot.cash { background: #3778a7; }
@@ -1748,7 +1744,7 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
  padding:6px 12px;border:1px solid #cee3d3;border-radius:99px;background:#fff;
  color:#20513b;font-size:12px;font-weight:800;white-space:nowrap;box-shadow:var(--shadow);
 }
-#publicChat .waStatus{margin:0;padding:8px 14px;background:#edf6ef;color:#285b42;font-size:12px}
+#publicChat .waStatus{margin:0;padding:8px 14px;background:var(--panel2);color:var(--text);font-size:12px}
 #publicChat .waStatus[data-error="true"]{background:#fff0eb;color:#833e33}
 #publicChat .waEmojiBar{
  display:flex;flex-wrap:wrap;gap:4px;padding:6px clamp(9px,1.8vw,17px);
@@ -1757,7 +1753,7 @@ body.atlas-dark #admin .adminAlertItem{background:#25382d;color:#e3f0e1;border-c
 #publicChat .waEmojiBar button{
  min-width:30px;min-height:34px;padding:0 3px;border:0;border-radius:7px;background:transparent;font-size:16px;
 }
-#publicChat .waEmojiBar button:hover{background:#edf5ee}
+#publicChat .waEmojiBar button:hover{background:var(--panel2)}
 #portal.app #publicChat .waComposer{display:flex;align-items:flex-end;gap:9px;padding:10px clamp(9px,1.8vw,17px)}
 #publicChat .waComposer textarea{
  flex:1;min-width:0;min-height:46px;max-height:26dvh;resize:vertical;padding:9px 11px;
@@ -1780,7 +1776,7 @@ body.atlas-dark #publicChat :is(.waName,.waMeta,.waEmpty){color:#c7e3cf}
 /* Perfil y portada */
 .profileAvatar{
  position:relative;display:inline-grid;place-items:center;flex:none;overflow:hidden;
- background:#dcebe2;color:#23563f;font-weight:850;
+ background:var(--trader-soft,var(--panel2));color:var(--trader-accent-ink,var(--ink));font-weight:850;
 }
 .profileAvatar img,.profilePreviewCover img{
  display:block;width:100%;height:100%;position:absolute;inset:0;object-fit:cover;
@@ -1809,7 +1805,7 @@ body.atlas-dark #publicChat :is(.waName,.waMeta,.waEmpty){color:#c7e3cf}
  min-height:40px;padding:6px 13px;border:1px solid #f6e6c480;border-radius:10px;
  background:#15392fba;color:#fff;font-size:13px;font-weight:800;
 }
-.profileEditButton:hover{background:#235942}
+.profileEditButton:hover{background:var(--trader-hero,#243957)}
 #portal .adminProfileLine{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:16px;color:#f4f8f3}
 .adminProfileLine .profileAvatar{width:38px;height:38px;border:1px solid #e7d39d;border-radius:10px}
 .adminProfileLine strong{font-size:14px;overflow-wrap:anywhere}
@@ -1818,7 +1814,7 @@ body.atlas-dark #publicChat :is(.waName,.waMeta,.waEmpty){color:#c7e3cf}
  padding:clamp(15px,3vw,24px);border:1px solid var(--line);border-radius:17px;
  background:var(--panel);color:var(--text);box-shadow:0 20px 55px #0e271b55;
 }
-.profileDialog::backdrop{background:#0c2119b3}
+.profileDialog::backdrop{background:var(--portal-backdrop,#080f1eb3)}
 .profileDialogHead{display:flex;justify-content:space-between;gap:10px;margin-bottom:16px}
 .profileDialogHead h2{margin:0 0 4px;font-size:23px}
 .profileDialogHead p,.profileDialog small{margin:0;color:var(--muted);font-size:12px}
@@ -1835,7 +1831,7 @@ body.atlas-dark #publicChat :is(.waName,.waMeta,.waEmpty){color:#c7e3cf}
 .profilePreviewAvatar,.profilePreviewCover{height:80px;border-radius:9px}
 .profilePreviewAvatar{width:80px;font-size:24px}
 .profilePreviewCover{
- width:100%;position:relative;overflow:hidden;display:block;background:linear-gradient(110deg,#164736,#358363);
+ width:100%;position:relative;overflow:hidden;display:block;background:var(--trader-hero-gradient,#223757);
 }
 .profileRemovePhoto{margin-top:6px}
 .profileDialogActions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:7px;margin-top:15px}
