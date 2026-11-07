@@ -1929,3 +1929,27 @@ body.atlas-dark #publicChat :is(.waName,.waMeta,.waEmpty){color:#c7e3cf}
 @keyframes olonBootProgress{from{transform:translateX(-120%)}to{transform:translateX(410%)}}@keyframes olonBootPulse{50%{box-shadow:0 0 0 11px #4782b016,0 0 0 23px #4782b00a,0 0 50px #60b5f54a}}@keyframes olonBootBlink{50%{opacity:0}}@keyframes olonBootScan{to{top:110%}}
 @media(max-width:520px){#olonLoader .portalLoaderPanel{padding:28px 17px}#olonLoader .portalLoaderBrand{font-size:clamp(25px,8vw,35px)}#olonLoader .portalLoaderBottom{font-size:8px;letter-spacing:0}#olonLoader .portalLoaderTop{font-size:8px;letter-spacing:0}#olonLoader .portalLoaderIdentity{font-size:8px;letter-spacing:.1em}#olonLoader .portalLoaderEmblem{width:86px;height:86px;margin:23px auto 18px}}
 @media(prefers-reduced-motion:reduce){#olonLoader .portalLoaderEmblem,#olonLoader .portalLoaderCursor,#olonLoader .portalLoaderLiveDot,#olonLoader .portalLoaderTrack span,#olonLoader.portalLoader::after{animation:none}}
+
+/* Admin Command Center 2026 — fast operations, restrained professional style */
+#admin.adminProPage .adminWorkspaceHero{border-radius:18px;overflow:hidden}
+#admin .adminWorkspaceHeroMain h3{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:-.045em;font-weight:800}
+#admin .adminCommandBar{margin:18px 0 16px;padding:22px;border:1px solid var(--border,rgba(134,156,182,.22));border-radius:18px;background:var(--card,var(--panel,#111a29));box-shadow:0 12px 34px #00000010}
+#admin .adminCommandIntro{display:flex;flex-direction:column;gap:5px;margin-bottom:17px}
+#admin .adminCommandEyebrow{font:700 10px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.16em;color:var(--accent,#a4b9d4)}
+#admin .adminCommandIntro strong{font-size:clamp(18px,3vw,25px);font-weight:800;letter-spacing:-.04em;color:var(--text,#f4f7fb)}
+#admin .adminCommandIntro small{color:var(--muted,#a6b3c4);font-size:12px}
+#admin .adminCommandActions{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+#admin .adminCommandAction{display:flex;min-width:0;flex-direction:column;align-items:flex-start;gap:8px;padding:16px 14px;border:1px solid var(--border,rgba(134,156,182,.2));border-radius:12px;background:var(--surface,var(--panel2,#172235));color:var(--text,#f4f7fb);cursor:pointer;text-align:left;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;transition:transform .16s,border-color .16s,background .16s}
+#admin .adminCommandAction>span{display:grid;place-items:center;width:35px;height:35px;border-radius:9px;background:color-mix(in srgb,var(--accent,#7fb9e7) 14%,transparent);color:var(--accent,#7fb9e7);font-size:19px}
+#admin .adminCommandAction strong{font-size:13px;font-weight:800}
+#admin .adminCommandAction small{font-size:11px;color:var(--muted,#9eacc0);line-height:1.5}
+#admin .adminCommandAction:hover{transform:translateY(-2px);border-color:var(--accent,#7fb9e7)}
+#admin .adminCommandAction:focus-visible{outline:3px solid var(--accent,#7fb9e7);outline-offset:2px}
+#admin .adminWorkspaceNav{position:relative;display:flex;flex-wrap:nowrap;gap:7px;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:thin;scroll-padding-inline:14px;padding:10px 2px 13px}
+#admin .adminWorkspaceNav button{flex:0 0 auto;white-space:nowrap}
+#admin .adminWorkspaceCard{scroll-margin-top:24px}
+#admin .adminWorkspaceMetrics{gap:12px}
+#admin .adminMetricBtn:focus-visible{outline:3px solid var(--accent,#7fb9e7);outline-offset:2px}
+@media(max-width:950px){#admin .adminCommandActions{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:600px){#admin .adminCommandBar{margin:12px 0;padding:16px 12px;border-radius:14px}#admin .adminCommandActions{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#admin .adminCommandAction{padding:12px;gap:6px}#admin .adminCommandAction:last-child{grid-column:span 2}#admin .adminWorkspaceNav{margin-inline:-5px;padding-inline:5px}#admin .adminWorkspaceHeroMain{gap:15px}#admin .adminWorkspaceMainActions{display:flex;flex-wrap:wrap;gap:8px}#admin .adminWorkspaceMainActions button{min-width:0}}
+@media(prefers-reduced-motion:reduce){#admin .adminCommandAction{transition:none}#admin .adminCommandAction:hover{transform:none}}
