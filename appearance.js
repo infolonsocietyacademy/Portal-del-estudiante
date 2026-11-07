@@ -7,7 +7,7 @@
   const password = document.getElementById("olonChangePasswordBtn");
   const sounds = document.getElementById("soundSwitch");
   const guestKey = "olon_trader_guest_appearance";
-  const defaultStyle = {mode:"dark",accent:"#e72a3e",text:null,font:"mono"};
+  const defaultStyle = {mode:"dark",accent:"#e72a3e",text:null,font:"mono",fontSize:100};
   const fonts = {
     inter:'Inter,system-ui,-apple-system,"Segoe UI",sans-serif',
     system:'system-ui,-apple-system,"Segoe UI",sans-serif',
@@ -34,7 +34,8 @@
       mode:value?.mode === "dark" ? "dark" : "light",
       accent:hex(value?.accent) || defaultStyle.accent,
       text:hex(value?.text),
-      font:Object.hasOwn(fonts,value?.font) ? value.font : defaultStyle.font
+      font:Object.hasOwn(fonts,value?.font) ? value.font : defaultStyle.font,
+      fontSize:Math.min(125,Math.max(85,Number(value?.fontSize) || 100))
     };
   }
 
@@ -86,6 +87,8 @@
     body.style.setProperty("--trader-accent-on",contrast(theme.accent,"#ffffff") >= 4.5 ? "#ffffff" : "#000000");
     body.style.setProperty("--trader-text",ink);
     body.style.setProperty("--trader-font",fonts[theme.font]);
+    body.style.setProperty("--trader-font-scale",String(theme.fontSize / 100));
+    document.documentElement.style.setProperty("--trader-font-scale",String(theme.fontSize / 100));
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content",palette.surfaces[0]);
     document.getElementById("appearanceAccentHex").value = theme.accent.toUpperCase();
     document.getElementById("appearanceContrast").hidden = !theme.text || theme.text === ink;
@@ -100,6 +103,8 @@
     form.elements.accent.value = draft.accent;
     form.elements.text.value = draft.text || palettes[draft.mode].text;
     form.elements.font.value = draft.font;
+    form.elements.fontSize.value = String(draft.fontSize);
+    document.getElementById("appearanceFontSizeValue").textContent = draft.fontSize + "%";
     document.getElementById("appearanceTextAuto").setAttribute("aria-pressed",String(!draft.text));
     apply(draft);
   }
@@ -140,6 +145,7 @@
     if(input.name === "accent") draft.accent = input.value;
     if(input.name === "text") draft.text = input.value;
     if(input.name === "font") draft.font = input.value;
+    if(input.name === "fontSize") draft.fontSize = Number(input.value);
     populate();
   });
 
