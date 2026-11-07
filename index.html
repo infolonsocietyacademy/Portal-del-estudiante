@@ -27,6 +27,7 @@
 <link rel="stylesheet" href="./interior-cyber.css?v=20261106-premium-profile-5">
 <link rel="stylesheet" href="./leaderboard.css?v=20261107-ranking-avatar-3">
 <link rel="stylesheet" href="./admin-billing.css?v=20261107-integrated">
+<link rel="stylesheet" href="./admin-rebates.css?v=20261107-rebates">
 <noscript><style>#olonLoader{display:none}</style></noscript>
 
 <style id="olon-rescue-css">
@@ -760,6 +761,7 @@ window.addEventListener("load", () => {
           <button type="button" data-academy-page="academyAdminClassesPage" class="adminCommandAction"><span>▣</span><strong>Clases</strong><small>Programar y publicar</small></button>
           <button type="button" data-academy-page="academyAdminVipPage" class="adminCommandAction"><span>◈</span><strong>Pagos VIP</strong><small>Comprobantes</small></button>
           <button type="button" onclick="olonAdmin.go('adminBillingBlock')" class="adminCommandAction"><span>▤</span><strong>Facturación</strong><small>Facturas y cuentas por cobrar</small></button>
+          <button type="button" onclick="olonAdmin.go('adminRebatesBlock')" class="adminCommandAction"><span>⇧</span><strong>Rebates</strong><small>Subir Excel y acumular</small></button>
           <button type="button" onclick="olonAdmin.openChat()" class="adminCommandAction"><span>✉</span><strong>Mensajes</strong><small>Atender estudiantes</small></button>
         </div>
       </div>
@@ -771,6 +773,7 @@ window.addEventListener("load", () => {
         <button type="button" data-academy-page="academyAdminClassesPage">Clases</button>
         <button type="button" data-academy-page="academyAdminVipPage">Comprobantes VIP</button>
         <button type="button" onclick="olonAdmin.go('adminBillingBlock')">Facturación</button>
+        <button type="button" onclick="olonAdmin.go('adminRebatesBlock')">Rebates / Excel</button>
         <button type="button" onclick="olonAdmin.openChat()">Mensajes <span id="adminNavUnread">0</span></button>
       </nav>
       <section class="adminWorkspaceCard adminBillingBlock" id="adminBillingBlock" aria-labelledby="adminBillingHeading">
@@ -798,6 +801,31 @@ window.addEventListener("load", () => {
           <div id="billingEditorHost"></div>
         </div>
         <footer class="billingFooter"><span><strong>Serie OSA-P</strong> · Numeración automática compartida entre dispositivos.</span><span>Facturador OLFX · Solo administración</span></footer>
+      </section>
+      <section class="adminWorkspaceCard" id="adminRebatesBlock" aria-labelledby="rebateTitle">
+        <header class="rebateHead"><div><span class="rebateEyebrow">OLON SOCIETY / REPORTES DEL BRÓKER</span><h4 id="rebateTitle">Volumen y rebates</h4><p>Sube tus reportes Excel y sigue acumulando el volumen en lotes y los rebates generados.</p></div><div class="rebateActions"><button type="button" class="rebateButton" id="rebateRefresh">↻ Actualizar</button><button type="button" class="rebateButton primary" id="rebateChoose">⇧ Subir Excel</button><input id="rebateFile" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Seleccionar reporte Excel" hidden></div></header>
+        <div class="rebateUploadHint"><span id="rebateUploadStatus" role="status">Excel .xlsx · Hasta 10 MB y 5,000 registros por archivo</span><span>Los registros repetidos se cuentan una sola vez.</span></div>
+        <div class="rebateMetrics" aria-label="Acumulado de reportes">
+          <div class="rebateMetric"><span>Volumen total (lotes)</span><strong id="rebateTotalLots">—</strong><small id="rebateEarningLots">—</small></div>
+          <div class="rebateMetric"><span>Rebates generados</span><strong class="rebateMoney" id="rebateTotalAmount">—</strong><small>Importes reportados por moneda</small></div>
+          <div class="rebateMetric"><span>Registros acumulados</span><strong id="rebateTotalRows">—</strong><small>Órdenes únicas importadas</small></div>
+          <div class="rebateMetric"><span>Clientes</span><strong id="rebateTotalClients">—</strong><small>Según el reporte del bróker</small></div>
+        </div>
+        <p class="rebateFeedback" id="rebateFeedback" role="status" hidden></p>
+        <div class="rebatePreview" id="rebatePreview" hidden>
+          <div class="rebatePreviewTitle"><strong id="rebatePreviewName"></strong><span class="rebateEyebrow">VISTA PREVIA DEL ARCHIVO</span></div><p class="rebateHint" id="rebatePreviewPeriod"></p>
+          <div class="rebatePreviewMetrics"><div><span>Volumen del archivo (lotes)</span><strong id="rebatePreviewLots"></strong></div><div><span>Rebates del archivo</span><strong class="rebateMoney" id="rebatePreviewAmount"></strong></div><div><span>Registros nuevos para sumar</span><strong id="rebatePreviewNew"></strong></div></div>
+          <div id="rebatePreviewClients"></div><p class="rebateHint" id="rebatePreviewStatus"></p><p class="rebateHint" id="rebatePreviewWarnings"></p>
+          <div class="rebateActions"><button type="button" class="rebateButton" id="rebateClear">Cancelar</button><button type="button" class="rebateButton primary" id="rebateImport">Importar y sumar</button></div>
+        </div>
+        <div class="rebateBody">
+          <div class="rebateSectionTitle"><h5>Lotaje y rebates por cliente</h5><span id="rebateRange">Aún sin importar</span></div>
+          <div class="rebateFilters"><label>Desde<input type="date" id="rebateFrom"></label><label>Hasta<input type="date" id="rebateTo"></label><label>Buscar cliente<input type="search" id="rebateSearch" placeholder="Nombre o ID del bróker" maxlength="160"></label><button type="button" class="rebateButton" id="rebateApply">Filtrar</button></div>
+          <div class="rebateEmpty" id="rebateEmpty"><strong>Tu acumulado empieza con el primer Excel</strong><p class="rebateHint">Selecciona un archivo, revisa los datos y pulsa Importar y sumar. Cada reporte nuevo se añade al historial.</p></div>
+          <div id="rebateClientRows"></div><div class="rebatePager" id="rebatePager" hidden><button type="button" class="rebateButton" id="rebatePrev">← Anterior</button><span id="rebatePage"></span><button type="button" class="rebateButton" id="rebateNext">Siguiente →</button></div>
+          <p class="rebateHint">El volumen suma la columna Size/Lots, incluyendo registros sin rebate. Los rebates se toman de Rebate Earnings; no se calcula una tarifa fija ni se consideran pagos recibidos.</p>
+        </div>
+        <footer class="rebateHistory"><h5>Últimas 10 importaciones</h5><div id="rebateReportRows"></div></footer>
       </section>
       <section class="adminWorkspaceCard" id="adminRequestsBlock" aria-labelledby="adminRequestsHeading">
         <div class="adminWorkspaceCardHead">
@@ -1082,8 +1110,9 @@ window.addEventListener("load", () => {
 <script src="./student-records.js?v=20261106-registros-pdf" defer></script>
 <script src="./premium-report.js?v=20261106-registros-pdf" defer></script>
 <script src="./academy-tools.js?v=20261107-class-countdown" defer></script>
-<script src="./admin-workspace.js?v=20261107-integrated" defer></script>
+<script src="./admin-workspace.js?v=20261107-rebates" defer></script>
 <script src="./admin-billing.js?v=20261107-integrated" defer></script>
+<script src="./admin-rebates.js?v=20261107-rebates" defer></script>
 <script src="./leaderboard.js?v=20261107-ranking-avatar-image-load-6" defer></script>
 <script src="./admin-registration.js?v=20261106-trader" defer></script>
 <script src="./password-settings.js?v=20261107-security-hardening" defer></script>

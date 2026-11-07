@@ -1,0 +1,65 @@
+#adminRebatesBlock{--rb-panel:var(--cyber-ui-panel,var(--panel,#fff));--rb-soft:var(--cyber-ui-panel-2,var(--panel2,#eaf0f7));--rb-line:var(--cyber-ui-border,var(--line,#ccd6e4));--rb-ink:var(--cyber-ui-ink,var(--text,#1a293e));--rb-muted:var(--cyber-ui-muted,var(--muted,#5c6d84));--rb-accent:var(--trader-accent,#335fa8);color:var(--rb-ink);font-family:var(--font-mono,ui-monospace,monospace);overflow:hidden;scroll-margin-top:24px}
+#adminRebatesBlock [hidden]{display:none!important}
+body.trader-themed #portal.app #admin #adminRebatesBlock{padding:0!important}
+#adminRebatesBlock .rebateHead{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px;border-bottom:1px solid var(--rb-line);background:linear-gradient(120deg,color-mix(in srgb,var(--rb-accent) 9%,var(--rb-panel)),var(--rb-panel))}
+#adminRebatesBlock .rebateEyebrow{font-size:9px;letter-spacing:.15em;color:var(--trader-accent-ink,var(--rb-accent));font-weight:700}
+#adminRebatesBlock h4{font-size:clamp(21px,3vw,28px);margin:7px 0 8px;letter-spacing:-.04em}
+#adminRebatesBlock .rebateActions{display:flex;flex-wrap:wrap;gap:8px;flex-shrink:0}
+#adminRebatesBlock .rebateButton{min-height:44px;border:1px solid var(--rb-line);border-radius:9px;padding:10px 14px;background:var(--rb-panel);color:var(--rb-ink);cursor:pointer;font-weight:700}
+#adminRebatesBlock .rebateButton.primary{background:var(--rb-accent);color:var(--trader-accent-on,#fff);border-color:var(--rb-accent)}
+#adminRebatesBlock button:disabled{opacity:.5;cursor:default}
+#adminRebatesBlock :is(button,input):focus-visible{outline:2px solid var(--rb-accent);outline-offset:3px}
+#adminRebatesBlock .rebateMetrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-bottom:1px solid var(--rb-line)}
+#adminRebatesBlock .rebateMetric{padding:20px 24px;border-right:1px solid var(--rb-line);min-width:0}
+#adminRebatesBlock .rebateMetric:last-child{border:0}
+#adminRebatesBlock .rebateMetric>span{display:block;color:var(--rb-muted);font-size:10px}
+#adminRebatesBlock .rebateMetric>strong{display:block;margin:8px 0 5px;font-size:24px;overflow-wrap:anywhere}
+#adminRebatesBlock .rebateMoney>span{display:block}
+#adminRebatesBlock .rebateMoney small{font-weight:400;color:var(--rb-muted)}
+#adminRebatesBlock .rebateBody{padding:22px 24px}
+#adminRebatesBlock .rebateUploadHint{display:flex;justify-content:space-between;gap:10px;padding:14px 24px;border-bottom:1px solid var(--rb-line);color:var(--rb-muted);font-size:10px;line-height:1.8;background:var(--rb-soft)}
+#adminRebatesBlock .rebateFeedback{margin:18px 24px 0;padding:12px 14px;border:1px solid var(--rb-line);border-left:3px solid var(--rb-accent);border-radius:8px;line-height:1.8}
+#adminRebatesBlock .rebateFeedback.error{border-left-color:#ed6977}
+#adminRebatesBlock .rebatePreview{margin:20px 24px;border:1px solid var(--rb-accent);border-radius:12px;padding:20px;background:var(--rb-soft);scroll-margin-top:20px}
+#adminRebatesBlock .rebatePreviewTitle{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#adminRebatesBlock .rebatePreviewTitle strong{overflow-wrap:anywhere;font-size:13px}
+#adminRebatesBlock .rebatePreviewMetrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}
+#adminRebatesBlock .rebatePreviewMetrics>div{padding:14px;border:1px solid var(--rb-line);border-radius:8px;background:var(--rb-panel)}
+#adminRebatesBlock .rebatePreviewMetrics span{color:var(--rb-muted);font-size:10px;display:block}
+#adminRebatesBlock .rebatePreviewMetrics strong{display:block;font-size:21px;margin-top:6px;overflow-wrap:anywhere}
+#adminRebatesBlock .rebatePreviewMetrics .rebateMoney span{font-size:18px;color:var(--rb-ink)}
+#adminRebatesBlock .rebatePreviewClient{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:14px;padding:9px 0;border-bottom:1px solid var(--rb-line);font-size:10px}
+#adminRebatesBlock .rebatePreviewClient>span{overflow-wrap:anywhere}
+#adminRebatesBlock .rebatePreview .rebateActions{margin-top:16px}
+#adminRebatesBlock .rebateFilters{display:grid;grid-template-columns:1fr 1fr minmax(0,1.5fr) auto;gap:10px;align-items:end;margin:18px 0}
+#adminRebatesBlock .rebateFilters label{color:var(--rb-muted)}
+#adminRebatesBlock .rebateFilters input{display:block;width:100%;min-width:0;min-height:44px;padding:10px;margin-top:7px;border:1px solid var(--rb-line);border-radius:8px;background:var(--rb-soft);color:var(--rb-ink);font-family:inherit}
+#adminRebatesBlock .rebateSectionTitle{display:flex;justify-content:space-between;gap:12px;align-items:center}
+#adminRebatesBlock h5{font-size:13px;margin:0}
+#adminRebatesBlock .rebateSectionTitle>span{font-size:10px;color:var(--rb-muted)}
+#adminRebatesBlock .rebateClient{display:grid;grid-template-columns:minmax(0,1fr) 180px 170px;align-items:center;gap:16px;padding:16px 0;border-bottom:1px solid var(--rb-line)}
+#adminRebatesBlock .rebateClient :is(strong,b){font-size:12px;display:block;overflow-wrap:anywhere}
+#adminRebatesBlock .rebateClient small{display:block;color:var(--rb-muted);margin-top:5px}
+#adminRebatesBlock .rebateClientAmount{text-align:right;font-size:14px;font-weight:700}
+#adminRebatesBlock .rebateClientAmount small{display:inline}
+#adminRebatesBlock .rebateEmpty{padding:36px 20px;text-align:center;border:1px dashed var(--rb-line);border-radius:10px;margin:14px 0}
+#adminRebatesBlock .rebateEmpty strong{font-size:13px}
+#adminRebatesBlock .rebateHint{color:var(--rb-muted);line-height:1.8}
+#adminRebatesBlock .rebateHistory{border-top:1px solid var(--rb-line);padding:20px 24px;background:var(--rb-soft)}
+#adminRebatesBlock .rebateReport{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:13px 0;border-bottom:1px solid var(--rb-line)}
+#adminRebatesBlock .rebateReport strong{display:block;font-size:10px;overflow-wrap:anywhere}
+#adminRebatesBlock .rebateReport span{font-size:10px;white-space:nowrap}
+#adminRebatesBlock .rebateReport small{display:block;color:var(--rb-muted);margin-top:6px}
+#adminRebatesBlock .rebatePager{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:18px;font-size:10px}
+body.trader-themed #portal.app #admin #adminRebatesBlock :is(p,button,label,small){font-size:calc(11px * var(--trader-font-scale,1))!important}
+body.trader-themed #portal.app #admin #adminRebatesBlock small{font-size:calc(9px * var(--trader-font-scale,1))!important}
+body.trader-themed #portal.app #admin #adminRebatesBlock p{max-width:70ch;margin:8px 0 0;line-height:1.8}
+body.trader-themed #portal.app #admin #adminRebatesBlock input{font-size:calc(12px * var(--trader-font-scale,1))!important;color:var(--rb-ink)!important;background:var(--rb-soft)!important}
+body.trader-themed #portal.app #admin #adminRebatesBlock button{background:var(--rb-panel)!important;color:var(--rb-ink)!important}
+body.trader-themed #portal.app #admin #adminRebatesBlock button.primary{background:var(--rb-accent)!important;color:var(--trader-accent-on,#fff)!important}
+@media(max-width:1000px){#adminRebatesBlock .rebateHead{align-items:flex-start;flex-direction:column}#adminRebatesBlock .rebateFilters{grid-template-columns:1fr 1fr}#adminRebatesBlock .rebateClient{grid-template-columns:minmax(0,1fr) 130px 140px}}
+@media(max-width:600px){#adminRebatesBlock .rebateHead,#adminRebatesBlock .rebateBody,#adminRebatesBlock .rebateHistory{padding:18px 14px}#adminRebatesBlock .rebateActions{width:100%}#adminRebatesBlock .rebateActions button{flex:1}#adminRebatesBlock .rebateMetrics{grid-template-columns:1fr 1fr}#adminRebatesBlock .rebateMetric{padding:16px 14px}#adminRebatesBlock .rebateMetric:nth-child(2){border-right:0}#adminRebatesBlock .rebateMetric:nth-child(-n+2){border-bottom:1px solid var(--rb-line)}#adminRebatesBlock .rebateMetric>strong{font-size:21px}#adminRebatesBlock .rebateUploadHint{padding:12px 14px;flex-direction:column}#adminRebatesBlock .rebatePreview{margin:16px 14px;padding:14px}#adminRebatesBlock .rebatePreviewMetrics{grid-template-columns:1fr}.rebatePreviewTitle{flex-direction:column;align-items:flex-start!important}#adminRebatesBlock .rebatePreviewClient{grid-template-columns:minmax(0,1fr) auto}#adminRebatesBlock .rebatePreviewClient>span:first-child{grid-column:1/3}#adminRebatesBlock .rebateClient{grid-template-columns:1fr auto;gap:12px;border:1px solid var(--rb-line);border-radius:9px;margin:10px 0;padding:14px;background:var(--rb-soft)}#adminRebatesBlock .rebateClient>div:first-child{grid-column:1/3}#adminRebatesBlock .rebateSectionTitle,#adminRebatesBlock .rebateReport{align-items:flex-start;flex-direction:column;gap:7px}#adminRebatesBlock .rebateReport>div{min-width:0;max-width:100%}body.trader-themed #portal.app #admin #adminRebatesBlock input{font-size:max(16px,calc(14px * var(--trader-font-scale,1)))!important}}
+#adminRebatesBlock .rebateFilters label{min-width:0}
+body.trader-themed.atlas-dark #adminRebatesBlock input{color-scheme:dark}
+body.trader-themed:not(.atlas-dark) #adminRebatesBlock input{color-scheme:light}
+@media(max-width:600px){#adminRebatesBlock .rebateFilters{grid-template-columns:minmax(0,1fr)}}

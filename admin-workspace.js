@@ -194,6 +194,7 @@
         if(typeof cachedUsers!=="undefined")cachedUsers=lastUsers;
         updateStats();renderTable();renderAlerts();
         window.olonBilling?.setStudents(lastUsers);
+        window.olonRebates?.onAdminReady();
         setText("adminLastSync","Actualizado "+new Date().toLocaleTimeString("es-PR",{hour:"numeric",minute:"2-digit"}));
         setText("adminConnectionState","● Datos sincronizados");
         const el=$("adminConnectionState");if(el)el.classList.remove("failure");
@@ -273,6 +274,7 @@
     if(anchor==="adminBillingBlock"){
       window.olonBilling?.activate();
     }
+    if(anchor==="adminRebatesBlock")window.olonRebates?.activate();
     if(section)section.scrollIntoView({behavior:"smooth",block:"start"});
   }
   function filter(status){
