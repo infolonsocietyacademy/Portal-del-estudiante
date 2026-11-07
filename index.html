@@ -21,7 +21,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 
 
-<link rel="stylesheet" href="./style.css?v=20261107-terminal-loader">
+<link rel="stylesheet" href="./style.css?v=20261107-admin-command">
 <link rel="stylesheet" href="./trader.css?v=20261107-calendar-link-restored">
 <link rel="stylesheet" href="./landing-cyber.css?v=20261106-cyber-console-1">
 <link rel="stylesheet" href="./interior-cyber.css?v=20261106-premium-profile-5">
@@ -751,6 +751,16 @@ window.addEventListener("load", () => {
         </div>
       </header>
 
+      <div class="adminCommandBar" aria-label="Accesos rápidos de administración">
+        <div class="adminCommandIntro"><span class="adminCommandEyebrow">PANEL DE CONTROL / OLON OS</span><strong>¿Qué necesitas gestionar hoy?</strong><small>Accede a tus tareas frecuentes sin buscar entre secciones.</small></div>
+        <div class="adminCommandActions">
+          <button type="button" onclick="olonAdmin.go('adminStudentsBlock')" class="adminCommandAction"><span>👥</span><strong>Estudiantes</strong><small>Accesos y pagos</small></button>
+          <button type="button" onclick="olonRequests.go()" class="adminCommandAction"><span>✓</span><strong>Solicitudes</strong><small>Revisar pendientes</small></button>
+          <button type="button" data-academy-page="academyAdminClassesPage" class="adminCommandAction"><span>▣</span><strong>Clases</strong><small>Programar y publicar</small></button>
+          <button type="button" data-academy-page="academyAdminVipPage" class="adminCommandAction"><span>◈</span><strong>Pagos VIP</strong><small>Comprobantes</small></button>
+          <button type="button" onclick="olonAdmin.openChat()" class="adminCommandAction"><span>✉</span><strong>Mensajes</strong><small>Atender estudiantes</small></button>
+        </div>
+      </div>
       <nav class="adminWorkspaceNav" aria-label="Secciones de administración">
         <button type="button" onclick="olonAdmin.go('adminOverviewBlock')">Resumen</button>
         <button type="button" onclick="olonRequests.go()">Solicitudes <span id="adminRequestsNavCount">0</span></button>
