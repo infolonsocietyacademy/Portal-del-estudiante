@@ -268,6 +268,10 @@
   function go(anchor){
     if(!authorized())return;
     const section=$(anchor);
+    if(anchor==="adminBillingBlock"){
+      const frame=document.querySelector("#adminBillingBlock [data-admin-billing-frame]");
+      if(frame && !frame.getAttribute("src") && frame.dataset.src)frame.src=frame.dataset.src;
+    }
     if(section)section.scrollIntoView({behavior:"smooth",block:"start"});
   }
   function filter(status){
