@@ -1532,7 +1532,8 @@ function showWelcome(user){
     registro:"Registra depósito, ganancia, pérdida y notas del día.",
     historial:"Revisa tus resultados y movimientos de capital.",
     comparacion:"Compara tu mes actual con el mes anterior.",
-    publicChat:"Conversación general de la academia.",
+
+
     newsProPage:"Titulares y calendario económico.",
     academyClassesPage:"Próximas sesiones y material de repaso.",
     academyVipPage:"Comprobantes y próxima fecha de pago.",
@@ -2184,7 +2185,6 @@ function installPortalNavigation(){
     syncPortalNavigation(id);
     closeMenu();
     if(portalMenuBreakpoint.matches && previous !== id) window.scrollTo({top: 0, behavior: "instant"});
-    window.olonCommunity?.setOpen(id === "publicChat");
     window.olonAcademy?.openPage(id);
     return result;
   };
