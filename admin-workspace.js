@@ -62,6 +62,7 @@
   }
   function paymentRisk(user) {
     const status=norm(user.status);
+    if(status==="deleting")return {text:"Eliminación pendiente",kind:"bad"};
     if(status==="suspended"||status==="expired")return {text:"Revisar acceso",kind:"bad"};
     if(status==="pending")return {text:"Por aprobar",kind:"warn"};
     if(!user.next_payment_date)return {text:"Sin fecha",kind:"neutral"};
@@ -81,10 +82,14 @@
     if(norm(u.role)==="admin")return '<span class="adminRoleProtected">● Cuenta protegida</span>';
     if(!uuid(id))return '<span class="adminRoleProtected">ID inválido</span>';
     const state=norm(u.status);
+    const remove='<button type="button" class="adminSmallButton adminDeleteStudent" data-manage-account="delete" data-student-id="'+id+'">'+
+      (state==="deleting"?"Reintentar eliminación":"Eliminar estudiante")+'</button>';
+    if(state==="deleting")return '<div class="adminRowActions">'+remove+'</div>';
     return '<div class="adminRowActions">'+
       (state==="pending"?'<button type="button" class="adminSmallButton approve" onclick="olonAdmin.status(\''+id+'\',\'active\')">✓ Aprobar</button>':'')+
       (state==="suspended"?'<button type="button" class="adminSmallButton" onclick="olonAdmin.status(\''+id+'\',\'pending\')">Reabrir</button>':
        '<button type="button" class="adminSmallButton" onclick="olonAdmin.status(\''+id+'\',\'suspended\')">Suspender</button>')+
+      '<button type="button" class="adminSmallButton" data-manage-account="reset" data-student-id="'+id+'">Cambiar contraseña</button>'+remove+
       '</div>';
   }
   function row(u) {
@@ -93,22 +98,23 @@
     const avatar=esc(String(u.full_name||"O").split(/\s+/).map(w=>w.charAt(0)).join("").slice(0,2).toUpperCase());
     const safeId=String(u.id||"");
     const isRoot=norm(u.role)==="admin";
+    const deleting=norm(u.status)==="deleting";
     const membership=isRoot?'<span class="adminRoleProtected">Administrador</span>':'<span class="adminStateTag active">VIP</span>';
-    const state=isRoot?'<span class="adminStateTag active">Activo · Admin</span>':
+    const state=isRoot?'<span class="adminStateTag active">Activo · Admin</span>':deleting?'<span class="adminStateTag suspended">Bloqueado</span>':
       selector(safeId,norm(u.status)==="approved"?"active":norm(u.status),states,"status","Acceso de "+String(u.full_name||"estudiante"));
-    const pay=isRoot?'—':'<div class="adminPaymentCell"><input type="date" class="adminDateInput" aria-label="Fecha próximo pago de '+name+'" value="'+esc(u.next_payment_date||"")+'"><button type="button" class="adminDateSave" title="Guardar fecha de pago" onclick="olonAdmin.payment(\''+safeId+'\',this)">Guardar</button></div>';
+    const pay=isRoot||deleting?'—':'<div class="adminPaymentCell"><input type="date" class="adminDateInput" aria-label="Fecha próximo pago de '+name+'" value="'+esc(u.next_payment_date||"")+'"><button type="button" class="adminDateSave" title="Guardar fecha de pago" onclick="olonAdmin.payment(\''+safeId+'\',this)">Guardar</button></div>';
     return '<tr><td><div class="adminStudent"><span class="adminAvatar">'+avatar+'</span><div><b>'+name+'</b><small>'+email+'</small></div></div></td>'+
       '<td><span class="adminCode">'+esc(u.access_code||"—")+'</span></td>'+
       '<td>'+membership+'</td><td>'+state+'</td><td>'+pay+'</td>'+
       '<td><span class="adminRisk '+risk.kind+'">'+esc(risk.text)+'</span></td><td>'+actionButtons(u)+'</td></tr>';
   }
   function mobile(u) {
-    const id=String(u.id),root=norm(u.role)==="admin",risk=paymentRisk(u);
+    const id=String(u.id),root=norm(u.role)==="admin",deleting=norm(u.status)==="deleting",risk=paymentRisk(u);
     const initials=esc(String(u.full_name||"O").split(/\s+/).map(w=>w.charAt(0)).join("").slice(0,2).toUpperCase());
     return '<article class="adminStudentMobile"><div class="adminStudentMobileTop"><span class="adminAvatar">'+initials+'</span><div><b>'+esc(u.full_name||"Sin nombre")+'</b><small>'+esc(u.email||"Sin correo")+'</small></div>'+
       '<span class="adminRisk '+risk.kind+'">'+esc(risk.text)+'</span></div>'+
       '<div class="adminStudentMobileData"><span>Código<strong>'+esc(u.access_code||"—")+'</strong></span><span>Membresía<strong>'+(root?"Administrador":"VIP")+'</strong></span></div>'+
-      (!root?'<div class="adminStudentMobileFields"><label>Acceso'+selector(id,norm(u.status)==="approved"?"active":norm(u.status),states,"status","Acceso")+'</label></div>'+
+      (deleting?'<div class="adminRoleProtected">Acceso bloqueado</div>':!root?'<div class="adminStudentMobileFields"><label>Acceso'+selector(id,norm(u.status)==="approved"?"active":norm(u.status),states,"status","Acceso")+'</label></div>'+
       '<div class="adminStudentMobilePayment"><label>Próximo pago<input type="date" class="adminDateInput" value="'+esc(u.next_payment_date||"")+'"></label><button type="button" class="adminSmallButton" onclick="olonAdmin.payment(\''+id+'\',this)">Guardar fecha</button></div>':'<div class="adminRoleProtected">Cuenta administradora protegida</div>')+
       '<div class="adminStudentMobileActions">'+actionButtons(u)+'</div></article>';
   }
@@ -285,8 +291,15 @@
     },90000);
   }
 
+  $("adminStudentsBlock").addEventListener("click",event=>{
+    const button=event.target.closest("[data-manage-account]");
+    if(!button||!authorized()||busy)return;
+    const student=findStudent(button.dataset.studentId);
+    if(student)window.olonRequests?.manageAccount(student,button.dataset.manageAccount);
+  });
+
   window.olonAdmin={
-    refresh,render:renderTable,filter,go,openChat,
+    refresh,render:renderTable,filter,go,openChat,notify,
     status:setStatus,approveAll,
     payment:setPayment
   };

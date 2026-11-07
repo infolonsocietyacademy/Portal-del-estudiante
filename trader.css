@@ -1,0 +1,358 @@
+/* Appearance preferences and the public Trader entrance. */
+body.trader-themed {
+  --trader-accent:#335fa8;
+  --trader-accent-ink:#335fa8;
+  --trader-accent-on:#fff;
+  --trader-text:#17263a;
+  --trader-font:Inter,system-ui,sans-serif;
+  --trader-hero:color-mix(in srgb,var(--trader-accent) 38%,#111b2a);
+  --trader-hero-deep:color-mix(in srgb,var(--trader-accent) 18%,#0b1423);
+  --trader-soft:color-mix(in srgb,var(--trader-accent) 12%,var(--panel));
+  --trader-hero-gradient:linear-gradient(120deg,var(--trader-hero-deep),var(--trader-hero));
+  --bg:#f2f5fa;--panel:#fff;--panel2:#e9eff7;--line:#d8e1ed;
+  --text:var(--trader-text);--muted:#47596f;--ink:var(--text);
+  --teal:var(--trader-accent);--font-ui:var(--trader-font);
+  --shadow:0 10px 28px #172b4610;
+  color:var(--text);background:var(--bg);font-family:var(--font-ui);
+  accent-color:var(--trader-accent);
+}
+body.trader-themed.atlas-dark {
+  --bg:#101622;--panel:#192232;--panel2:#222d40;--line:#354258;
+  --text:var(--trader-text);--muted:#b0bed3;--ink:var(--text);
+  --green:#77dab1;--red:#ffaaa1;--shadow:0 8px 26px #030a1660;
+}
+
+#auth.homePremium {
+  display:block;position:relative;min-height:100svh;padding:0 !important;
+  background:radial-gradient(ellipse at 14% 17%,var(--trader-soft),transparent 51%),var(--bg) !important;
+  color:var(--text);font-family:var(--font-ui);
+}
+#auth.homePremium .homeTopbar {
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  width:min(1380px,100%);min-height:78px;margin:auto;padding:13px clamp(16px,4vw,48px);
+  border-bottom:1px solid var(--line);
+}
+#auth.homePremium .homeBrand {
+  display:flex;align-items:center;gap:10px;color:var(--text);text-decoration:none;
+}
+.homeBrand img,.homeCardMark img{display:block;object-fit:contain;transform:scale(2);pointer-events:none}
+.homeBrandName{font-size:clamp(15px,2vw,21px);font-weight:850;letter-spacing:-.035em}
+.homeBrandName span,.homeCardMark em{color:var(--trader-accent-ink);font-style:normal}
+.homeNav{display:flex;align-items:center;gap:clamp(8px,1.65vw,22px)}
+.homeNav a,.homeNavOutline{
+  color:var(--text);text-decoration:none;font-size:13px;font-weight:700;white-space:nowrap;
+}
+.homeNav a:hover,.homeSupportLinks a:hover{text-decoration:underline}
+.homeNavOutline,.traderAppearanceTrigger {
+  border:1px solid var(--line);background:var(--panel);border-radius:11px;min-height:42px;
+  padding:8px 13px;color:var(--text);font:750 12px var(--font-ui);
+}
+.traderAppearanceTrigger{display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.traderAppearanceTrigger svg{width:19px;height:19px;flex:none;color:var(--trader-accent-ink)}
+.traderAppearanceTrigger:hover,.homeNavOutline:hover{border-color:var(--trader-accent);background:var(--trader-soft)}
+#auth.homePremium .homeMain{max-width:1380px;margin:auto;padding:clamp(24px,5vw,68px) clamp(16px,4vw,48px) 35px}
+#auth.homePremium .authShell.homeShell {
+  width:100%;max-width:none;display:grid;grid-template-columns:minmax(0,1.23fr) minmax(340px,.87fr);
+  align-items:start;gap:clamp(24px,5vw,74px);min-height:0;overflow:visible;
+  border:0;border-radius:0;background:none;box-shadow:none;
+}
+#auth.homePremium .authHero.homeHero{display:block;padding:clamp(5px,1.5vw,22px) 0;background:none;min-width:0}
+#auth.homePremium .authHero.homeHero::after{display:none}
+.homeEyebrow,.homeSectionLabel,.traderKicker {
+  display:block;color:var(--trader-accent-ink);font-weight:850;font-size:11px;letter-spacing:.14em;
+}
+#auth.homePremium .homeHero h1 {
+  font:850 clamp(48px,6.9vw,98px)/.99 var(--font-ui);letter-spacing:-.072em;
+  margin:19px 0 17px;color:var(--text);overflow-wrap:anywhere;
+}
+#auth.homePremium .homeHero h1 em{display:block;font-style:normal;color:var(--trader-accent-ink)}
+#auth.homePremium .homeHero h2{font:800 clamp(19px,2.4vw,28px)/1.18 var(--font-ui);margin:0 0 10px;color:var(--text)}
+#auth.homePremium .homeHero .homeLead{font-size:clamp(14px,1.5vw,16px);line-height:1.64;margin:0;max-width:525px;color:var(--muted)}
+.homeTraits{display:flex;flex-wrap:wrap;gap:7px;margin:18px 0 24px}
+.homeTraits span {
+  display:inline-flex;align-items:center;gap:6px;padding:5px 9px;background:var(--panel);
+  border:1px solid var(--line);border-radius:100px;color:var(--text);font-size:11px;font-weight:750;
+}
+.homeTraits svg,.homeFeatureIcon svg {
+  width:17px;height:17px;fill:none;stroke:var(--trader-accent-ink);stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round;
+}
+.homeMarketVisual {
+  background:var(--trader-hero-gradient);border-radius:17px;padding:15px 19px 12px;
+  color:#fff;box-shadow:0 14px 32px #101d3b24;max-width:640px;overflow:hidden;
+}
+.homeMarketTop,.homeMarketFoot{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:11px}
+.homeMarketTop b,.homeMarketFoot strong{letter-spacing:.09em;font-size:10px}
+.homeMarketTop span,.homeMarketFoot span{color:#dbe5f5}
+.homeMarketFoot{border-top:1px solid #ffffff26;padding-top:9px}
+.homeChart{display:block;width:100%;height:clamp(100px,12vw,154px);margin:8px 0}
+.homeChartLine{stroke:color-mix(in srgb,var(--trader-accent),#fff 54%)}
+.homeChartStop{stop-color:color-mix(in srgb,var(--trader-accent),#fff 54%)}
+#auth.homePremium .authPanel.homeLoginCard {
+  display:block;min-width:0;padding:clamp(21px,3.5vw,43px);border:1px solid var(--line);
+  border-radius:21px;background:var(--panel);color:var(--text);box-shadow:var(--shadow);
+}
+.homeCardMark{display:flex;align-items:center;gap:9px;margin-bottom:17px;font-size:15px;font-weight:850}
+.homeCardMark img{width:37px;height:37px}
+.homeLoginCard .authPanelIntro{margin:0 0 19px}
+.homeLoginCard .authPanelIntro>span{font-size:10px;font-weight:850;letter-spacing:.12em;color:var(--trader-accent-ink)}
+.homeLoginCard .authPanelIntro h2{font:850 clamp(25px,3vw,34px)/1.16 var(--font-ui);margin:4px 0}
+.homeLoginCard .authPanelIntro p,.homeLoginCard .form>p{font-size:13px;color:var(--muted);margin:5px 0 14px}
+#auth.homePremium .homeLoginCard .tabs{margin:0 0 18px;background:var(--panel2);border-color:var(--line)}
+#auth.homePremium .homeLoginCard .tabs button{color:var(--muted);min-height:41px}
+#auth.homePremium .homeLoginCard .tabs button.active{background:var(--panel);color:var(--trader-accent-ink)}
+#auth.homePremium .homeLoginCard .form{display:none}
+#auth.homePremium .homeLoginCard .form.active{display:block}
+.homeLoginCard .form h2{font-size:18px}
+#auth.homePremium .homeLoginCard .field label{color:var(--text);font-weight:750}
+#auth.homePremium .homeLoginCard .field input{border-color:var(--line);background:var(--bg);color:var(--text);min-height:47px}
+#auth.homePremium .homeLoginCard .field input:focus{border-color:var(--trader-accent)}
+#auth.homePremium .homeLoginCard .btn.full{min-height:47px}
+#auth.homePremium :is(.recoveryShortcut a,.authHelp a,.homeSupportLinks a){color:var(--trader-accent-ink)}
+.homeLoginCard .authHelp{margin:13px 0 0;color:var(--muted);font-size:12px;text-align:center}
+.homeLoginCard .authLegal{padding-top:14px;margin-top:15px;border-color:var(--line)}
+.homeLoginCard .authLegalItem b{color:var(--text)}
+.homeLoginCard .authLegalItem p{color:var(--muted)}
+.homeLoginCard .authLegalIcon{background:var(--trader-soft)}
+.homeLoginCard .signupMembership{border-color:var(--line);background:var(--trader-soft);color:var(--text)}
+.homeLoginCard .signupMembership strong{color:var(--trader-accent-ink)}
+.homeBelow{margin-top:clamp(29px,5vw,60px)}
+.homeSectionHead{display:flex;justify-content:space-between;align-items:end;gap:18px;margin-bottom:14px}
+.homeSectionHead h2{font:850 clamp(23px,3vw,35px)/1.12 var(--font-ui);margin:5px 0 0;color:var(--text)}
+.homeSectionHead p,.homeFeature p,.homeInfoPanel p{color:var(--muted);font-size:13px;margin:0;line-height:1.55}
+.homeSectionHead p{max-width:270px}
+.homeFeatureGrid,.homeInfoGrid{display:grid;gap:11px}
+.homeFeatureGrid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.homeInfoGrid{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:11px}
+.homeFeature,.homeInfoPanel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:17px;min-width:0}
+.homeFeatureIcon{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:var(--trader-soft);margin-bottom:10px}
+.homeFeature h3,.homeInfoPanel h3{font-size:15px;margin:0 0 5px;color:var(--text)}
+.homeStatLine,.homeSupportLinks{display:flex;flex-wrap:wrap;gap:13px;margin-top:11px}
+.homeStatLine b{display:block;color:var(--text);font-size:24px}
+.homeStatLine small{font-size:11px;color:var(--muted)}
+.homeSupportLinks a{font-weight:750;font-size:12px;text-underline-offset:3px}
+.homeFooter{margin-top:20px;padding-top:14px;display:flex;justify-content:space-between;gap:7px;border-top:1px solid var(--line);color:var(--muted);font-size:11px}
+.trader-themed .portalLoader{background:var(--trader-hero-gradient)}
+.trader-themed .portalLoaderTrack span{background:var(--trader-accent)}
+
+@media(max-width:920px){
+  #auth.homePremium .authShell.homeShell{grid-template-columns:minmax(0,1fr) minmax(285px,.94fr);gap:22px}
+  .homeNav a{display:none}
+  .homeFeatureGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:660px){
+  #auth.homePremium .authShell.homeShell{grid-template-columns:minmax(0,1fr);gap:14px}
+  #auth.homePremium .homeTopbar{min-height:63px}
+  #auth.homePremium .homeBrand img{width:33px;height:33px}
+  #auth.homePremium .homeHero h1{font-size:clamp(36px,10.8vw,63px);margin:9px 0}
+  #auth.homePremium .homeHero h1 em{display:inline}
+  #auth.homePremium .homeHero h2{font-size:17px;margin-bottom:6px}
+  .homeTraits{margin:11px 0 0}
+  .homeMarketVisual,.homeCardMark{display:none}
+  .homeSectionHead{display:block}
+  .homeSectionHead p{margin-top:7px}
+  .homeInfoGrid{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:500px){
+  .traderAppearanceTrigger{width:42px;flex:none;padding:0}
+  .traderAppearanceTrigger span{display:none}
+  .homeNavOutline{padding-inline:8px;font-size:11px}
+  .homeBrandName span{display:block;font-size:11px;line-height:1}
+  .homeFooter{flex-direction:column}
+}
+
+/* Shared surfaces, accent controls and typography inside the portal. */
+body.trader-themed #portal.app {
+  --olon-ink:var(--text);--olon-muted:var(--muted);--olon-line:var(--line);
+  --olon-surface:var(--panel);--olon-canvas:var(--bg);--olon-soft:var(--panel2);--olon-shadow:var(--shadow);
+}
+body.trader-themed #portal.app :is(.portalSidebar,#mobileMenuToggle){background:var(--trader-hero-gradient);border-color:#ffffff28;color:#fff}
+body.trader-themed #portal .portalSidebar .portalNavLink{color:#e6eefc}
+body.trader-themed #portal .portalNav .portalNavLink.active{background:#ffffff26;border-color:#ffffff43;color:#fff}
+body.trader-themed #portal .portalNav .portalNavLink.active::before{background:color-mix(in srgb,var(--trader-accent),#fff 54%)}
+body.trader-themed #portal .portalNavLink .portalNavIcon{color:#e5efff}
+body.trader-themed #portal :is(.portalNavGroup,.portalSidebarEyebrow,.portalAccessEyebrow){color:#c4d2eb}
+body.trader-themed #portal .portalTopbar{background:var(--panel);border-color:var(--line)}
+body.trader-themed #portal .portalTopbar :is(h2,.portalUserPill){color:var(--text)}
+body.trader-themed #portal .portalTopbar :is(p,.portalTopBreadcrumb,.portalUserPill small){color:var(--muted)}
+body.trader-themed #portal .portalUserPill{background:var(--panel);border-color:var(--line)}
+body.trader-themed #portal :is(.profileAvatar,.vipPaymentIcon,.adminAvatar){background:var(--trader-soft);color:var(--trader-accent-ink)}
+body.trader-themed #portal.app .page :is(.card,.adminWorkspaceCard)>h3,
+body.trader-themed #portal.app .page :is(.v3Grid .v3Card h3,.metric h3,.selectedReportHead h3,.academyCard h4,.academyItem h5){color:var(--text)}
+body.trader-themed #portal.app .page :is(.v3Grid .v3Card small,.v3Grid .v3Card span,.metric small,.field label,.academyMeta,.academyEmpty,.academyCopy,.academyNote,.academyHero p){color:var(--muted)}
+body.trader-themed #portal.app .page :is(.card,.adminWorkspaceCard,.adminMetric):focus-within{border-color:var(--trader-accent)}
+body.trader-themed #portal.app .page :is(input,select,textarea),
+body.trader-themed :is(.profileDialog,.traderDialog) .field :is(input,select,textarea){
+  background:var(--bg);color:var(--text);border-color:var(--line);
+}
+body.trader-themed #portal.app .page :is(input,select,textarea):focus{border-color:var(--trader-accent);box-shadow:0 0 0 3px var(--trader-soft)}
+body.trader-themed #portal.app .page :is(button,.btn,a.btn):focus-visible,
+body.trader-themed :is(.traderDialog,.profileDialog) :is(button,input,select):focus-visible,
+body.trader-themed .traderAppearanceTrigger:focus-visible{outline:2px solid var(--trader-accent-ink);outline-offset:2px}
+body.trader-themed #portal.app .page :is(.btn:not(.secondary):not(.danger),.waSendBtn,.adminBtnGold),
+body.trader-themed #auth .homeLoginCard .btn:not(.secondary),
+body.trader-themed :is(.profileDialog,.traderDialog) .btn:not(.secondary):not(.danger),
+body.trader-themed :is(.chatFab,.chatInputArea button,.adminReplyArea button){
+  background:var(--trader-accent);color:var(--trader-accent-on);border-color:var(--trader-accent);box-shadow:none;
+}
+body.trader-themed .btn.secondary,
+body.trader-themed #portal.app .page :is(.btn.secondary,.adminBtnOutline){
+  background:var(--panel2);color:var(--text);border-color:var(--line);
+}
+body.trader-themed .btn.secondary:hover{background:var(--trader-soft)}
+body.trader-themed #portal.app .page .welcomeHeroCard,
+body.trader-themed #portal.app #admin .adminWorkspaceHero,
+body.trader-themed #portal.app #publicChat .waChatHeader,
+body.trader-themed #portal :is(.marketNewsHero,.chatHead){
+  background:var(--trader-hero-gradient);border-color:var(--trader-hero);color:#fff;
+}
+body.trader-themed #portal .profileHero:has(.profileHeroCover:not([hidden]))::before{
+  background:linear-gradient(90deg,#081222df,#08122281 60%,#08122242);
+}
+body.trader-themed #portal .profileEditButton{background:#152340bd}
+body.trader-themed #portal #admin .adminWorkspaceHeroMain h3{font-family:var(--font-ui)}
+body.trader-themed #portal.app .page :is(.proQuote,.reportSwitch,.academyHero,.academyItem,.academyCheckItem),
+body.trader-themed #portal .vipPayment{background:var(--panel2);border-color:var(--line);color:var(--text)}
+body.trader-themed #portal :is(.academyHero h3,.vipPayment h3,.vipPaymentDetails dd){color:var(--text)}
+body.trader-themed #portal :is(.academyHero > span,.vipPaymentKicker,.academyPaymentDate){color:var(--trader-accent-ink)}
+body.trader-themed #portal .vipPaymentDetails > div{border-color:var(--line)}
+body.trader-themed #portal .vipPaymentDetails dt{color:var(--muted)}
+body.trader-themed #portal :is(.academyBadge,.calendarDayDetail,.calDay:not(.goodDay,.badDay,.flatDay,.cashDay),.ledgerPending){
+  background:var(--panel2);border-color:var(--line);color:var(--text);
+}
+body.trader-themed #portal.app .page .v3Grid .v3Card::before,
+body.trader-themed #portal.app .page .goalBar span{background:var(--trader-accent)}
+body.trader-themed #portal.app .page .reportTapBtn.active{color:var(--trader-accent-ink);background:var(--panel)}
+body.trader-themed #portal.app .page :is(.reportRow,.selectedReportHead){border-color:var(--line)}
+body.trader-themed #portal.app #comparacion :is(.tableWrap,td){background:var(--panel);border-color:var(--line);color:var(--text)}
+body.trader-themed #portal.app #comparacion th{background:var(--panel2);color:var(--muted)}
+body.trader-themed #portal #newsProPage{--news-ink:var(--text);--news-muted:var(--muted);--news-border:var(--line);--news-accent:var(--trader-accent-ink)}
+body.trader-themed #portal #newsProPage :is(.newsProToolbar,.newsCard,.newsEmpty,.newsUpdated){background:var(--panel);border-color:var(--line)}
+body.trader-themed #portal #newsProPage :is(.newsSearchBox,.newsFilterBtn[aria-pressed="true"],.newsRefresh){background:var(--trader-soft);border-color:var(--line);color:var(--trader-accent-ink)}
+body.trader-themed #portal.app #publicChat :is(.waChatShell,.waComposer,.waEmojiBar),
+body.trader-themed #portal.app #adminChat .adminChatLayout,
+body.trader-themed .studentChatPanel,
+body.trader-themed .studentChatPanel .chatInputArea{background:var(--panel);border-color:var(--line);color:var(--text)}
+body.trader-themed #portal.app #publicChat .waMessages,
+body.trader-themed #portal.app #adminChat :is(.chatMessages,.adminChatList),
+body.trader-themed .studentChatPanel .chatMessages{background:var(--bg)}
+body.trader-themed #portal #publicChat .waBubble{background:var(--panel);border-color:var(--line);color:var(--text)}
+body.trader-themed #portal #publicChat .waBubble.me{background:var(--trader-soft);border-color:var(--line)}
+body.trader-themed #portal #publicChat :is(.waName,.waMeta,.waEmpty){color:var(--muted)}
+body.trader-themed #portal.app #admin :is(.adminWorkspaceNav,.adminMetric,.adminStudentMobile,.adminDirectoryTable){
+  background:var(--panel);border-color:var(--line);color:var(--text);
+}
+body.trader-themed #portal.app #admin :is(.adminDirectoryTable th,.adminDirectoryTable td,.adminWorkspaceCardHead){border-color:var(--line)}
+body.trader-themed #portal.app #admin .adminDirectoryTable th{background:var(--panel2);color:var(--muted)}
+body.trader-themed #portal.app #admin :is(.adminMetric b,.adminWorkspaceCardHead h4,.adminStudent b,.adminStudentMobile b,.adminDirectoryHead h4,.adminSectionIntro h4){color:var(--text)}
+body.trader-themed #portal.app #admin :is(.adminWorkspaceNav button,.adminDirectoryHead p,.adminStudent small,.adminStudentMobile small){color:var(--muted)}
+body.trader-themed #portal.app #admin :is(.adminSmallButton,.adminDateSave){background:var(--panel2);color:var(--text);border-color:var(--line)}
+body.trader-themed #portal.app #admin .adminDeleteStudent,.accountDeleteWarning{
+  color:#9a332c;background:#fff1ef;border-color:#f2cbc6;
+}
+body.trader-themed.atlas-dark #portal.app #admin .adminDeleteStudent,
+body.trader-themed.atlas-dark .accountDeleteWarning{
+  color:#ffd0cc;background:#462b33;border-color:#6c3a44;
+}
+@media(max-width:550px){
+  #portal .portalTopbar .portalUserPill{width:42px;min-height:42px;padding:5px;justify-content:center}
+  #portal .portalTopbar .portalUserPill > span:last-child{display:none}
+  #portal .portalTopbar .traderAppearanceTrigger{width:42px;padding:0}
+  #portal .portalTopbar .traderAppearanceTrigger span{display:none}
+}
+
+/* Appearance and account actions. */
+.traderDialog{color:var(--text);background:var(--panel);border-color:var(--line)}
+.traderDialog [hidden],#historial [hidden]{display:none}
+.appearanceModes{
+  display:flex;flex-wrap:wrap;gap:8px;margin:0 0 13px;padding:0;border:0;
+}
+.appearanceModes legend,.appearanceFields .field{font-size:13px;font-weight:800;color:var(--text)}
+.appearanceModes legend{margin-bottom:5px}
+.appearanceModes label{
+  flex:1 1 125px;display:flex;align-items:center;gap:7px;padding:9px 10px;
+  border:1px solid var(--line);background:var(--panel2);border-radius:9px;font-size:13px;cursor:pointer;
+}
+.appearanceModes label:has(input:checked){border-color:var(--trader-accent);background:var(--trader-soft)}
+.appearanceModes input,.appearanceSound input{margin:0}
+.appearanceFields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.appearanceFields .appearanceTextField label{margin:0;color:var(--text);font-size:inherit}
+.appearanceFont{grid-column:1/-1}
+.appearanceColor{display:flex;align-items:center;gap:7px}
+#appearanceDialog input[type="color"]{width:52px;min-width:52px;height:41px;padding:4px;cursor:pointer}
+.appearanceColor output{font-size:12px;color:var(--muted)}
+#appearanceTextAuto{margin:0}
+#appearanceTextAuto[aria-pressed="true"]{border-color:var(--trader-accent);color:var(--trader-accent-ink)}
+.appearancePreview{
+  display:flex;flex-direction:column;align-items:flex-start;gap:3px;margin-top:11px;padding:10px 13px;
+  background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:10px;font-size:13px;
+}
+.appearanceSample{
+  margin-top:5px;padding:4px 8px;background:var(--trader-accent);color:var(--trader-accent-on);
+  border-radius:6px;font-size:11px;font-weight:800;
+}
+.appearanceContrast,.accountHint{margin:6px 0 0;color:var(--muted);font-size:12px}
+.appearanceExtras{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:13px;padding-top:11px;border-top:1px solid var(--line)}
+.appearanceSound{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text);cursor:pointer}
+.appearanceExtras button{min-height:37px;font-size:12px;padding:5px 9px}
+.accountDeleteWarning{padding:10px 12px;border:1px solid;border-radius:8px;font-size:13px}
+.adminCredentialDialog h3{font-size:22px;margin-bottom:6px}
+.adminCredentialDialog p{color:var(--muted);font-size:13px}
+.adminCredentialDialog .adminTempField{background:var(--panel2);border-color:var(--line)}
+.adminCredentialDialog .adminTempField small{color:var(--muted)}
+body.trader-themed.atlas-dark .traderDialog .profileFeedback[data-error="true"]{color:#ffb0a7}
+@media(max-width:390px){
+  .appearanceFields{grid-template-columns:minmax(0,1fr)}
+}
+
+/* Trading history */
+#portal #historial .traderHistoryHero{
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:11px;
+  background:linear-gradient(125deg,var(--panel),var(--trader-soft));margin:0;
+}
+#portal #historial .traderHistoryHero h3{margin:5px 0 4px;font-size:clamp(23px,3.6vw,34px)}
+.traderHistoryHero p{margin:0;color:var(--muted);font-size:13px}
+.historyMetrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:13px 0}
+.historyMetrics div{
+  min-width:0;padding:13px clamp(10px,2vw,18px);background:var(--panel);border:1px solid var(--line);border-radius:13px;
+}
+.historyMetrics dt{color:var(--muted);font-size:12px;font-weight:750}
+.historyMetrics dd{margin:3px 0 0;color:var(--text);font-size:clamp(17px,2.3vw,26px);font-weight:850;overflow-wrap:anywhere}
+.historyDirectoryHead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.historyDirectoryHead h4{margin:0 0 2px;font-size:20px}
+.historyDirectoryHead p{margin:0;color:var(--muted);font-size:13px}
+.historyFilters{display:flex;gap:8px;flex-wrap:wrap}
+.historyFilters label{display:grid;gap:3px;color:var(--muted);font-size:12px;font-weight:800}
+#portal #historial .historyFilters select{min-width:135px;min-height:40px;padding:5px 8px;font-size:14px}
+.historyListHead,.historyRow{
+  display:grid;grid-template-columns:minmax(100px,.7fr) minmax(130px,1.55fr) minmax(80px,.68fr) minmax(148px,1fr);
+  align-items:center;gap:11px;padding:10px 12px;
+}
+.historyListHead{border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--muted);font-size:11px;font-weight:850}
+.historyList{list-style:none;margin:0;padding:0}
+.historyRow{border-bottom:1px solid var(--line)}
+.historyWhen{display:grid;justify-items:start;gap:3px;min-width:0}
+.historyWhen time{font-size:12px;font-weight:800;color:var(--text)}
+.historyWhen span{background:var(--trader-soft);color:var(--trader-accent-ink);border-radius:6px;padding:2px 6px;font-size:10px;font-weight:750}
+.historyDetail{min-width:0}
+#portal #historial .historyDetail p{margin:0;color:var(--text);font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}
+.historyDetail small{color:var(--muted);font-size:11px;overflow-wrap:anywhere}
+.historyAmount{color:var(--text);font-size:14px;font-weight:850;overflow-wrap:anywhere}
+#portal #historial .ledgerHistoryActions{display:flex;flex-wrap:wrap;gap:4px}
+#portal #historial .ledgerHistoryActions button{font-size:11px;min-height:36px;padding:5px 7px}
+#portal #historial .ledgerHistoryActions [data-record-delete]{color:var(--red)}
+.historyEmpty{padding:18px 0;margin:0;color:var(--muted);font-size:14px}
+#historyMore{margin-top:12px}
+@media(max-width:760px){
+  .historyMetrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .historyListHead{display:none}
+  .historyList{display:grid;gap:7px}
+  .historyRow{grid-template-columns:minmax(0,1fr) minmax(74px,auto);gap:7px;padding:9px;border:1px solid var(--line);border-radius:9px}
+  .historyDetail{grid-column:1/-1;grid-row:2}
+  .historyAmount{grid-column:2;grid-row:1;text-align:right}
+  #portal #historial .ledgerHistoryActions{grid-column:1/-1}
+  #portal #historial .ledgerHistoryActions button{min-height:40px}
+  #portal #historial .historyFilters select{min-width:0;width:100%;font-size:16px}
+  .historyFilters{width:100%}
+  .historyFilters label{flex:1;min-width:0}
+}

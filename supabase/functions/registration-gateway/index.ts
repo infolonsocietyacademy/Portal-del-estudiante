@@ -12,6 +12,7 @@ const db=async(path:string,init:RequestInit={})=>{
  return data;
 };
 const goodEmail=(v:string)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)&&v.length<=254;
+const goodId=(v:string)=>/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(v);
 const hex=async(v:string)=>{
  const result=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(v));
  return Array.from(new Uint8Array(result)).map(c=>c.toString(16).padStart(2,"0")).join("");
@@ -32,6 +33,28 @@ function temporaryPassword(){
  const bytes=crypto.getRandomValues(new Uint8Array(24));
  return Array.from(bytes,b=>alphabet[b%alphabet.length]).join("");
 }
+
+async function removeStudentFiles(id:string){
+ for(let batch=0;batch<20;batch++){
+  const files:Array<{bucket_id:string;name:string}>=await db("rpc/olon_student_storage_batch",{
+   method:"POST",body:JSON.stringify({p_student:id})
+  });
+  if(!files.length)return true;
+  const buckets=new Map<string,string[]>();
+  for(const file of files){
+   if(!buckets.has(file.bucket_id))buckets.set(file.bucket_id,[]);
+   buckets.get(file.bucket_id)!.push(file.name);
+  }
+  for(const [bucket,paths] of buckets){
+   const response=await fetch(URL_BASE+"/storage/v1/object/"+encodeURIComponent(bucket),{
+    method:"DELETE",headers:svc(),body:JSON.stringify({prefixes:paths})
+   });
+   if(!response.ok)return false;
+  }
+ }
+ return false;
+}
+
 Deno.serve(async(req:Request)=>{
  if(req.method==="OPTIONS")return new Response(null,{status:204,headers:HEAD});
  if(req.method!=="POST")return respond({error:"Método no permitido"},405);
@@ -61,6 +84,57 @@ Deno.serve(async(req:Request)=>{
   }
   const admin=await whoIsAdmin(req);
   if(!admin)return respond({error:"Acceso exclusivo del administrador."},403);
+  if(action==="reset_student_password"||action==="delete_student"){
+   const id=String(body.id||"").toLowerCase();
+   if(!goodId(id)||id===admin.id)return respond({error:"Selecciona una cuenta de estudiante válida."},400);
+   const profilePath="profiles?id=eq."+encodeURIComponent(id);
+   const students=await db(profilePath+"&select=id,email,role,status");
+   const student=students?.[0];
+   if(student && student.role!=="student")return respond({error:"La cuenta seleccionada está protegida."},403);
+   const authPath=URL_BASE+"/auth/v1/admin/users/"+encodeURIComponent(id);
+
+   if(action==="reset_student_password"){
+    if(!student)return respond({error:"La cuenta ya no está en el portal."},404);
+    if(student.status==="deleting")return respond({error:"La cuenta está pendiente de eliminación."},409);
+    const password=body.password;
+    if(typeof password!=="string"||!password.trim()||Array.from(password).length<12||
+       new TextEncoder().encode(password).length>72){
+     return respond({error:"Usa al menos 12 caracteres y un máximo de 72 bytes."},400);
+    }
+    const result=await fetch(authPath,{method:"PUT",headers:svc(),body:JSON.stringify({password})});
+    if(!result.ok){
+     const invalid=[400,422].includes(result.status);
+     return respond({error:invalid?"Escoge otra contraseña que cumpla los requisitos de seguridad.":"No se pudo confirmar el cambio de contraseña."},invalid?400:503);
+    }
+    return respond({ok:true});
+   }
+
+   const confirmation=String(body.confirmation||"").trim().toLowerCase();
+   const email=String(student?.email||"").trim().toLowerCase();
+   const expected=goodEmail(email)?email:id;
+   if(student ? confirmation!==expected : !goodEmail(confirmation)&&confirmation!==id){
+    return respond({error:"La confirmación no coincide con la cuenta."},400);
+   }
+   if(!student)return respond({ok:true});
+   if(student.status!=="deleting"){
+    const frozen=await db(profilePath+"&role=eq.student&select=id",{
+     method:"PATCH",headers:{Prefer:"return=representation"},body:JSON.stringify({status:"deleting"})
+    });
+    if(!frozen?.length)return respond({error:"La cuenta cambió. Actualiza el directorio."},409);
+   }
+   const pending=()=>respond({error:"La cuenta quedó bloqueada. Reintenta la eliminación desde el directorio.",pending:true},503);
+   try{
+    if(!await removeStudentFiles(id))return pending();
+    const removed=await fetch(authPath,{
+     method:"DELETE",headers:svc(),body:JSON.stringify({should_soft_delete:false})
+    });
+    if(!removed.ok&&removed.status!==404)return pending();
+    const remaining=await db(profilePath+"&select=id");
+    return remaining?.length?pending():respond({ok:true});
+   }catch{
+    return pending();
+   }
+  }
   if(action==="list"){
    const requests=await db("access_requests?select=id,full_name,email,status,created_at,processed_at&order=created_at.desc&limit=300");
    return respond({requests});

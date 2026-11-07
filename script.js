@@ -764,7 +764,7 @@ async function enterPortal(){
   const portal = $("portal");
   if(portal) portal.classList.add("portalReady");
 
-  setTextSafe("portalMode", admin ? "Administración" : "Portal del estudiante");
+  setTextSafe("portalMode", admin ? "Administración" : "Portal del Trader");
   document.querySelectorAll(".studentNav").forEach(el => el.classList.toggle("hidden", admin));
   document.querySelectorAll(".adminNav").forEach(el => el.classList.toggle("hidden", !admin));
   document.querySelectorAll(".studentOnly").forEach(el => el.classList.toggle("hidden", admin));
@@ -1314,13 +1314,7 @@ async function render(){
   }
   document.getElementById("mLoss").innerText = money(t.loss);
   document.getElementById("mGrowth").innerText = pct(t.growth);
-  const body = document.getElementById("historyBody");
-  body.innerHTML = records.slice().reverse().map(r=>{
-    const net = netAmount(r.gain, r.loss);
-    const result = isTradingRecord(r) ? '<span class="badge ' + (net < 0 ? "red" : "green") + '">' + signedTradeMoney(net) + '</span>' : "—";
-    return `<tr><td>${escapeHTML(r.date)}</td><td>${money(r.deposit)}</td><td>${money(r.withdrawal)}</td><td class="good">${money(r.gain)}</td><td class="bad">${money(r.loss)}</td><td>${result}</td><td>${escapeHTML(r.note) || "—"}</td><td>${recordHistoryActions(r)}</td></tr>`;
-  }).join("") || `<tr><td colspan="8" style="color:var(--muted)">No hay registros todavía.</td></tr>`;
-  renderHistoryMobileCards(records);
+  window.olonHistory?.render(records);
   renderCompare(); renderChart(); renderProDashboard();
 }
 
@@ -1353,7 +1347,19 @@ function renderChart(){
   const labels = sorted.map(r=>r.date);
   const data = sorted.map(r=>{ running += r.deposit - r.withdrawal + r.gain - r.loss; return running; });
   if(chart) chart.destroy();
-  chart = new Chart(ctx,{ type:"line", data:{labels: labels.length?labels:["Inicio"], datasets:[{label:"Balance", data:data.length?data:[0], tension:.4, fill:true}]}, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:"#f8fafc"}}}, scales:{x:{ticks:{color:"#94a3b8"},grid:{color:"rgba(255,255,255,.08)"}}, y:{ticks:{color:"#94a3b8"},grid:{color:"rgba(255,255,255,.08)"}}} } });
+  const theme = getComputedStyle(document.body);
+  const accent = theme.getPropertyValue("--trader-accent").trim() || "#335fa8";
+  const ticks = {color:theme.getPropertyValue("--muted").trim()};
+  const grid = {color:theme.getPropertyValue("--line").trim()};
+  chart = new Chart(ctx,{
+    type:"line",
+    data:{labels:labels.length ? labels : ["Inicio"],datasets:[{
+      label:"Balance",data:data.length ? data : [0],tension:.4,fill:true,
+      borderColor:accent,backgroundColor:accent + "25"
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:ticks.color}}},
+      scales:{x:{ticks,grid},y:{ticks,grid}}}
+  });
 }
 async function clearData(){
   if(!currentUser || isAdminUser(currentUser)) return;
@@ -1412,106 +1418,6 @@ function showWelcome(user){
   }, 30);
 }
 
-// ===== SETTINGS FLOATING OLON FIX =====
-(function(){
-  function isSoundEnabled(){
-    return localStorage.getItem("olon_sound_enabled") !== "false";
-  }
-
-  window.isSoundEnabled = isSoundEnabled;
-
-  function applySoundSwitch(){
-    const sw = document.getElementById("soundSwitch");
-    if(sw) sw.classList.toggle("on", isSoundEnabled());
-  }
-
-  function safeClickSound(){
-    try{
-      if(isSoundEnabled() && typeof window.playClickSound === "function"){
-        window.playClickSound();
-      }
-    }catch(e){}
-  }
-
-  function toggleSoundSetting(){
-    const next = !isSoundEnabled();
-    localStorage.setItem("olon_sound_enabled", next ? "true" : "false");
-    applySoundSwitch();
-    safeClickSound();
-  }
-
-  function setThemeMode(mode){
-    localStorage.setItem("olon_theme_mode", mode);
-    applyThemeMode();
-    safeClickSound();
-  }
-
-  function applyThemeMode(){
-    const mode = localStorage.getItem("olon_theme_mode") || "dark";
-    document.body.classList.toggle("light-mode", mode === "light");
-
-    const darkBtn = document.getElementById("darkThemeBtn");
-    const lightBtn = document.getElementById("lightThemeBtn");
-
-    if(darkBtn) darkBtn.classList.toggle("active", mode === "dark");
-    if(lightBtn) lightBtn.classList.toggle("active", mode === "light");
-  }
-
-  function toggleSettingsPanel(){
-    const panel = document.getElementById("settingsPanel");
-    if(panel) panel.classList.toggle("show");
-    safeClickSound();
-  }
-
-  window.toggleSettingsPanel = toggleSettingsPanel;
-  window.toggleSoundSetting = toggleSoundSetting;
-  window.setThemeMode = setThemeMode;
-
-  document.addEventListener("DOMContentLoaded", function(){
-    const fab = document.getElementById("settingsFab");
-    const soundSwitch = document.getElementById("soundSwitch");
-    const darkBtn = document.getElementById("darkThemeBtn");
-    const lightBtn = document.getElementById("lightThemeBtn");
-
-    if(fab) fab.addEventListener("click", toggleSettingsPanel);
-    if(soundSwitch) soundSwitch.addEventListener("click", toggleSoundSetting);
-    if(darkBtn) darkBtn.addEventListener("click", function(){ setThemeMode("dark"); });
-    if(lightBtn) lightBtn.addEventListener("click", function(){ setThemeMode("light"); });
-
-    applySoundSwitch();
-    applyThemeMode();
-
-    document.addEventListener("click", function(e){
-      const panel = document.getElementById("settingsPanel");
-      const btn = document.getElementById("settingsFab");
-      if(!panel || !btn) return;
-      if(panel.classList.contains("show") && !panel.contains(e.target) && !btn.contains(e.target)){
-        panel.classList.remove("show");
-      }
-    });
-  });
-})();
-
-function renderHistoryMobileCards(records){
-  const box = document.getElementById("historyMobileCards");
-  if(!box) return;
-  box.innerHTML = records.slice().reverse().map(r=>{
-    const net = netAmount(r.gain, r.loss);
-    const trades = isTradingRecord(r);
-    const label = trades ? signedTradeMoney(net) : r.withdrawal ? "Retiro" : "Depósito";
-    const badge = trades ? net < 0 ? "red" : "green" : "blue";
-    const values = [];
-    if(r.deposit) values.push(["Depósito", money(r.deposit)]);
-    if(r.withdrawal) values.push(["Retiro", money(r.withdrawal)]);
-    if(trades) values.push(["Ganancia", money(r.gain)], ["Pérdida", money(r.loss)]);
-    const stats = values.map(([label, amount])=>`<div class="mobileStat"><small>${label}</small><b>${amount}</b></div>`).join("");
-    return `<div class="mobileRecordCard">
-      <div class="mobileRecordTop"><div><div class="mobileRecordDate">${escapeHTML(r.date)}</div><div class="mobileRecordNote">${escapeHTML(r.note) || "Sin nota"}</div></div><span class="badge ${badge}">${label}</span></div>
-      <div class="mobileStats">${stats}</div>
-      ${recordHistoryActions(r)}
-    </div>`;
-  }).join("") || '<div class="mobileRecordCard"><div class="mobileRecordDate">No hay registros todavía.</div></div>';
-}
 /* ===== ULTRA FORCE LOGIN VISIBLE FIX - FINAL =====
    Este parche evita que el loader, render, chart, chat o cualquier error visual bloquee el portal.
 */
@@ -1564,7 +1470,7 @@ function renderHistoryMobileCards(records){
     txt('userCodeText', 'Código: ' + (currentUser.access_code || 'OLON'));
     txt('planBadge', isAdmin ? 'ADMIN' : 'VIP');
     txt('accessStatus', isAdmin ? 'Administrador activo' : 'Membresía VIP');
-    txt('portalMode', isAdmin ? 'Administración' : 'Portal del estudiante');
+    txt('portalMode', isAdmin ? 'Administración' : 'Portal del Trader');
     renderVipPayment(currentUser);
     txt('pageTitle', isAdmin ? 'Administración' : 'Resumen');
     txt('pageSubtitle', isAdmin ? 'Gestión de miembros, solicitudes y mensajes.' : 'Control privado de rendimiento, disciplina, reportes y progreso del trader.');
@@ -1622,7 +1528,7 @@ function renderHistoryMobileCards(records){
   const subtitles = {
     dashboard:"Control privado de rendimiento, disciplina, reportes y progreso del trader.",
     registro:"Registra depósito, ganancia, pérdida y notas del día.",
-    historial:"Consulta tu historial individual.",
+    historial:"Revisa tus resultados y movimientos de capital.",
     comparacion:"Compara tu mes actual con el mes anterior.",
     publicChat:"Conversación general de la academia.",
     newsProPage:"Titulares y calendario económico.",
@@ -2039,598 +1945,6 @@ document.addEventListener("DOMContentLoaded", function(){
 
 
 
-/* =====================================================
-   OLON ENTRETENIMIENTO: RULETA + FLAPPY JS
-   ===================================================== */
-(function(){
-  const $ = (id) => document.getElementById(id);
-  let entReady = false;
-
-  window.switchEntertainmentTab = function(tab){
-    const active = tab === 'flappy' ? 'flappy' : (tab === 'basket' ? 'basket' : 'wheel');
-    $('entWheelPanel')?.classList.toggle('active', active === 'wheel');
-    $('entFlappyPanel')?.classList.toggle('active', active === 'flappy');
-    $('entBasketPanel')?.classList.toggle('active', active === 'basket');
-    $('entTabWheel')?.classList.toggle('active', active === 'wheel');
-    $('entTabFlappy')?.classList.toggle('active', active === 'flappy');
-    $('entTabBasket')?.classList.toggle('active', active === 'basket');
-    setTimeout(function(){
-      if(active === 'wheel') window.entDrawWheel?.();
-      if(active === 'flappy') window.entDrawGame?.();
-      if(active === 'basket') window.entDrawBasket?.();
-    }, 60);
-  };
-
-  function entToast(msg){
-    if(typeof window.showToast === 'function') return window.showToast(msg);
-    if(typeof window.toast === 'function') return window.toast(msg);
-    console.log(msg);
-  }
-
-  function initEntertainment(){
-    if(entReady || !$('entWheelCanvas') || !$('entGameCanvas')) return;
-    entReady = true;
-
-    const wheelCanvas = $('entWheelCanvas');
-    const wctx = wheelCanvas.getContext('2d');
-    const spinBtn = $('entSpinBtn');
-    const prizesInput = $('entPrizesInput');
-    const savePrizesBtn = $('entSavePrizesBtn');
-    const winnerText = $('entWinnerText');
-    const historyList = $('entHistoryList');
-    const clearHistoryBtn = $('entClearHistoryBtn');
-    const colors = ['#f6c453','#22d3ee','#a855f7','#22c55e','#fb7185','#60a5fa','#f97316','#14b8a6','#e879f9','#84cc16'];
-    let prizes = JSON.parse(localStorage.getItem('olon_ent_prizes') || 'null') || ['Premium 15 días','Mentoría 1 a 1','Indicador gratis 7 días','Descuento 50%','Acceso VIP','Premio sorpresa','Clase privada','Entrada al grupo'];
-    let history = JSON.parse(localStorage.getItem('olon_ent_history') || '[]');
-    let angle = 0;
-    let spinning = false;
-    prizesInput.value = prizes.join('\n');
-
-    window.entDrawWheel = function(){
-      if(!wctx || !prizes.length) return;
-      const cx = wheelCanvas.width/2, cy = wheelCanvas.height/2, radius = Math.min(cx,cy)-26;
-      const slice = Math.PI*2/prizes.length;
-      wctx.clearRect(0,0,wheelCanvas.width,wheelCanvas.height);
-      wctx.save(); wctx.translate(cx,cy); wctx.rotate(angle);
-      for(let i=0;i<prizes.length;i++){
-        const start=i*slice, end=start+slice;
-        wctx.beginPath(); wctx.moveTo(0,0); wctx.arc(0,0,radius,start,end); wctx.closePath();
-        wctx.fillStyle=colors[i%colors.length]; wctx.fill();
-        wctx.strokeStyle='rgba(2,6,23,.42)'; wctx.lineWidth=5; wctx.stroke();
-        wctx.save(); wctx.rotate(start+slice/2); wctx.textAlign='right'; wctx.textBaseline='middle';
-        wctx.fillStyle='#07111f'; wctx.font='900 24px Inter, Arial, sans-serif';
-        let label=prizes[i]; if(label.length>18) label=label.slice(0,17)+'…';
-        wctx.fillText(label, radius-30, 0); wctx.restore();
-      }
-      wctx.beginPath(); wctx.arc(0,0,radius,0,Math.PI*2); wctx.strokeStyle='rgba(255,255,255,.42)'; wctx.lineWidth=10; wctx.stroke();
-      wctx.restore();
-    };
-
-    function renderHistory(){
-      if(!historyList) return;
-      historyList.innerHTML='';
-      if(!history.length){historyList.innerHTML='<div class="entHistoryItem"><span>Sin historial</span><span>—</span></div>';return;}
-      history.forEach(function(item){
-        const row=document.createElement('div'); row.className='entHistoryItem';
-        row.innerHTML='<span>'+String(item.prize).replace(/[<>]/g,'')+'</span><span>'+String(item.time).replace(/[<>]/g,'')+'</span>';
-        historyList.appendChild(row);
-      });
-    }
-
-    function pickWinner(){
-      const normalized=((angle%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
-      const pointerAngle=(Math.PI*1.5-normalized+Math.PI*2)%(Math.PI*2);
-      const index=Math.floor(pointerAngle/(Math.PI*2/prizes.length))%prizes.length;
-      return prizes[index];
-    }
-
-    savePrizesBtn?.addEventListener('click', function(){
-      const list=prizesInput.value.split('\n').map(x=>x.trim()).filter(Boolean);
-      if(list.length<2){entToast('Pon mínimo 2 premios.');return;}
-      prizes=list; localStorage.setItem('olon_ent_prizes',JSON.stringify(prizes));
-      window.entDrawWheel(); entToast('Premios guardados.');
-    });
-
-    clearHistoryBtn?.addEventListener('click', function(){
-      history=[]; localStorage.removeItem('olon_ent_history'); renderHistory(); entToast('Historial borrado.');
-    });
-
-    spinBtn?.addEventListener('click', function(){
-      if(spinning) return;
-      spinning=true; spinBtn.disabled=true;
-      const start=angle, target=angle+(6+Math.random()*5)*Math.PI*2+Math.random()*Math.PI*2;
-      const duration=5200, startTime=performance.now();
-      function ease(t){return 1-Math.pow(1-t,3)}
-      function anim(now){
-        const t=Math.min((now-startTime)/duration,1);
-        angle=start+(target-start)*ease(t); window.entDrawWheel();
-        if(t<1) requestAnimationFrame(anim); else{
-          spinning=false; spinBtn.disabled=false; angle=angle%(Math.PI*2);
-          const winner=pickWinner(); winnerText.textContent='🏆 '+winner;
-          history.unshift({prize:winner,time:new Date().toLocaleString('es-PR',{hour:'numeric',minute:'2-digit',month:'short',day:'numeric'})});
-          history=history.slice(0,20); localStorage.setItem('olon_ent_history',JSON.stringify(history)); renderHistory(); entToast('Ganador: '+winner);
-        }
-      }
-      requestAnimationFrame(anim);
-    });
-
-    window.entDrawWheel(); renderHistory();
-
-    const gameCanvas = $('entGameCanvas');
-    const g = gameCanvas.getContext('2d');
-
-    // Logo OLON dentro del Lamborghini. Si existe ./assets/logo.png, lo dibuja encima del carro.
-    const lamboLogo = new Image();
-    lamboLogo.src = './assets/logo.png';
-    let lamboLogoReady = false;
-    lamboLogo.onload = function(){ lamboLogoReady = true; };
-    const scoreText = $('entScoreText');
-    const bestText = $('entBestText');
-    const game = {running:false,over:false,score:0,best:Number(localStorage.getItem('olon_ent_flappy_best')||0),frame:0,bird:{x:92,y:250,w:72,h:34,r:14,vy:0},pipes:[],clouds:[],groundX:0,gravity:(window.innerWidth<=700?.23:.16),jump:(window.innerWidth<=700?-5.25:-4.65),pipeSpeed:(window.innerWidth<=700?2.05:1.35),pipeGap:(window.innerWidth<=700?175:185),pipeEvery:(window.innerWidth<=700?112:138)};
-    if(bestText) bestText.textContent='$' + (game.best * 0.25).toFixed(2);
-    function roundedRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
-    function drawCloud(x,y,s){g.save();g.translate(x,y);g.scale(s,s);g.fillStyle='rgba(255,255,255,.72)';g.beginPath();g.arc(0,8,18,0,Math.PI*2);g.arc(21,0,25,0,Math.PI*2);g.arc(52,10,18,0,Math.PI*2);g.rect(-3,8,58,18);g.fill();g.restore();}
-    window.entDrawGame = function(){
-      const W=gameCanvas.width,H=gameCanvas.height;
-      const sky=g.createLinearGradient(0,0,0,H); sky.addColorStop(0,'#38bdf8'); sky.addColorStop(.64,'#0ea5e9'); sky.addColorStop(1,'#0369a1'); g.fillStyle=sky; g.fillRect(0,0,W,H);
-      game.clouds.forEach(c=>drawCloud(c.x,c.y,c.s));
-      g.fillStyle='rgba(15,23,42,.16)'; for(let i=0;i<8;i++){const bw=58,bh=60+(i%4)*22,x=i*64-(game.frame*.25%64);g.fillRect(x,H-92-bh,bw,bh)}
-      game.pipes.forEach(function(p){
-        function moneyStack(x,y,w,h){
-          const grad=g.createLinearGradient(x,0,x+w,0);
-          grad.addColorStop(0,'#16a34a'); grad.addColorStop(.5,'#22c55e'); grad.addColorStop(1,'#15803d');
-          g.fillStyle=grad; roundedRect(g,x,y,w,h,12); g.fill();
-          g.strokeStyle='rgba(255,255,255,.22)'; g.lineWidth=2;
-          for(let yy=y+10; yy<y+h-8; yy+=22){
-            roundedRect(g,x+6,yy,w-12,16,6); g.stroke();
-            g.fillStyle='rgba(250,204,21,.82)';
-            g.font='900 14px Inter, Arial'; g.textAlign='center';
-            if(yy > -10 && yy < H+10) g.fillText('$',x+w/2,yy+12);
-            g.fillStyle=grad;
-          }
-          g.fillStyle='rgba(255,255,255,.18)'; g.fillRect(x+12,y+8,7,Math.max(0,h-16));
-        }
-        moneyStack(p.x,-18,p.w,p.top+18);
-        moneyStack(p.x,p.bottom,p.w,H-p.bottom-56);
-      });
-      g.fillStyle='#0f766e';g.fillRect(0,H-56,W,56);g.fillStyle='#facc15';g.fillRect(0,H-62,W,8);g.fillStyle='rgba(2,6,23,.18)';for(let x=-40+(game.groundX%40);x<W;x+=40)g.fillRect(x,H-42,24,7);
-      const b=game.bird;
-      g.save();
-      g.translate(b.x,b.y);
-      g.rotate(Math.max(-.18,Math.min(.22,b.vy/22)));
-
-      // Lamborghini estilo arcade
-      const carW=b.w||72, carH=b.h||34;
-      const x=-carW/2, y=-carH/2;
-
-      // sombra
-      g.fillStyle='rgba(2,6,23,.28)';
-      g.beginPath(); g.ellipse(0,carH/2+9,carW*.45,7,0,0,Math.PI*2); g.fill();
-
-      // cuerpo principal
-      const lamboGrad=g.createLinearGradient(x,y,x+carW,y+carH);
-      lamboGrad.addColorStop(0,'#fef08a');
-      lamboGrad.addColorStop(.42,'#facc15');
-      lamboGrad.addColorStop(1,'#f97316');
-      g.fillStyle=lamboGrad;
-      g.beginPath();
-      g.moveTo(x+7,y+22);
-      g.lineTo(x+18,y+9);
-      g.lineTo(x+48,y+4);
-      g.lineTo(x+67,y+15);
-      g.lineTo(x+carW,y+24);
-      g.lineTo(x+63,y+31);
-      g.lineTo(x+14,y+31);
-      g.lineTo(x+7,y+22);
-      g.closePath();
-      g.fill();
-
-      // cristal
-      g.fillStyle='rgba(15,23,42,.78)';
-      g.beginPath();
-      g.moveTo(x+24,y+10);
-      g.lineTo(x+45,y+7);
-      g.lineTo(x+55,y+16);
-      g.lineTo(x+20,y+18);
-      g.closePath();
-      g.fill();
-
-      // detalles deportivos
-      g.fillStyle='rgba(255,255,255,.35)';
-      g.fillRect(x+10,y+21,18,3);
-      g.fillStyle='rgba(2,6,23,.35)';
-      g.fillRect(x+44,y+23,18,4);
-
-      // Logo en el Lamborghini
-      if(lamboLogoReady){
-        try{
-          g.save();
-          g.beginPath();
-          roundedRect(g,x+26,y+17,24,12,4);
-          g.clip();
-          g.drawImage(lamboLogo,x+26,y+17,24,12);
-          g.restore();
-        }catch(e){}
-      }else{
-        g.fillStyle='#020617';
-        g.font='900 8px Inter, Arial';
-        g.textAlign='center';
-        g.fillText('OLON',x+39,y+26);
-      }
-
-      // luces
-      g.fillStyle='#fde68a';
-      g.beginPath(); g.ellipse(x+68,y+20,5,3,0,0,Math.PI*2); g.fill();
-
-      // ruedas
-      g.fillStyle='#020617';
-      g.beginPath(); g.arc(x+21,y+31,7,0,Math.PI*2); g.fill();
-      g.beginPath(); g.arc(x+56,y+31,7,0,Math.PI*2); g.fill();
-      g.fillStyle='#94a3b8';
-      g.beginPath(); g.arc(x+21,y+31,3,0,Math.PI*2); g.fill();
-      g.beginPath(); g.arc(x+56,y+31,3,0,Math.PI*2); g.fill();
-
-      // fuego/boost atrás
-      g.fillStyle='rgba(249,115,22,.85)';
-      g.beginPath();
-      g.moveTo(x-3,y+23); g.lineTo(x-20,y+17); g.lineTo(x-14,y+26); g.lineTo(x-24,y+31); g.lineTo(x-3,y+29);
-      g.closePath(); g.fill();
-
-      g.restore();
-      if(!game.running) overlay(game.over?'GAME OVER':'LAMBO MONEY',game.over?'Toca para reiniciar':'Toca, espacio o botón para subir');
-    };
-    function overlay(title,sub){const W=gameCanvas.width;g.save();g.fillStyle='rgba(2,6,23,.52)';roundedRect(g,36,210,W-72,145,24);g.fill();g.strokeStyle='rgba(246,196,83,.32)';g.lineWidth=2;g.stroke();g.textAlign='center';g.fillStyle='#fff';g.font='900 30px Inter, Arial';g.fillText(title,W/2,265);g.fillStyle='#fde68a';g.font='800 15px Inter, Arial';g.fillText(sub,W/2,300);g.restore();}
-    function resetGame(){game.running=true;game.over=false;game.score=0;game.frame=0;game.bird={x:92,y:250,w:72,h:34,r:14,vy:0};game.pipes=[];game.clouds=[{x:40,y:90,s:1.1},{x:210,y:145,s:.85},{x:330,y:70,s:.7}];if(scoreText)scoreText.textContent='$0.00';window.entDrawGame();}
-    function jump(){if(!$('entretenimiento') || $('entretenimiento').classList.contains('hidden')) return; if(!game.running||game.over){resetGame();return;} game.bird.vy=game.jump;}
-    function spawnPipe(){const margin=80;const topH=margin+Math.random()*(gameCanvas.height-game.pipeGap-margin*2-110);game.pipes.push({x:gameCanvas.width+20,w:76,top:topH,bottom:topH+game.pipeGap,passed:false});}
-    function hitTest(){const b=game.bird;const w=b.w||72,h=b.h||34;const left=b.x-w/2+6,right=b.x+w/2-6,top=b.y-h/2+4,bottom=b.y+h/2-2;if(top<0||bottom>gameCanvas.height-56)return true;for(const p of game.pipes){const withinX=right>p.x&&left<p.x+p.w;if(withinX&&(top<p.top||bottom>p.bottom))return true;}return false;}
-    function updateGame(){if(!game.running||game.over)return;game.frame++;game.groundX-=game.pipeSpeed;game.clouds.forEach(c=>{c.x-=.22*c.s;if(c.x<-90)c.x=gameCanvas.width+70});game.bird.vy+=game.gravity;const maxFall=window.innerWidth<=700?5.15:3.65;if(game.bird.vy>maxFall)game.bird.vy=maxFall;game.bird.y+=game.bird.vy;if(game.frame%game.pipeEvery===1)spawnPipe();game.pipes.forEach(p=>{p.x-=game.pipeSpeed;if(!p.passed&&p.x+p.w<game.bird.x){p.passed=true;game.score++;const earned=(game.score*0.25).toFixed(2);if(scoreText)scoreText.textContent='$'+earned;if(game.score>game.best){game.best=game.score;localStorage.setItem('olon_ent_flappy_best',String(game.best));if(bestText)bestText.textContent='$'+(game.best*0.25).toFixed(2);}}});game.pipes=game.pipes.filter(p=>p.x+p.w>-40);if(hitTest()){game.over=true;game.running=false;}}
-    function loop(){updateGame();window.entDrawGame();requestAnimationFrame(loop)}
-    $('entStartGameBtn')?.addEventListener('click',resetGame); $('entJumpBtn')?.addEventListener('click',jump); $('entResetBestBtn')?.addEventListener('click',function(){game.best=0;localStorage.removeItem('olon_ent_flappy_best');if(bestText)bestText.textContent='$0.00';entToast('Récord borrado.');});
-    gameCanvas.addEventListener('pointerdown',function(e){e.preventDefault();jump();},{passive:false});
-    window.addEventListener('keydown',function(e){if(!$('entretenimiento')||$('entretenimiento').classList.contains('hidden'))return;if(e.code==='Space'||e.code==='ArrowUp'){e.preventDefault();jump();}});
-    window.entDrawGame(); loop();
-  }
-
-
-  // ===== BASKETBALL CHALLENGE =====
-  (function(){
-    const basketCanvas = $('entBasketCanvas');
-    if(!basketCanvas) return;
-
-    const bctx = basketCanvas.getContext('2d');
-    const basketScoreText = $('entBasketScoreText');
-    const basketBestText = $('entBasketBestText');
-    const basketStartBtn = $('entBasketStartBtn');
-    const basketShootBtn = $('entBasketShootBtn');
-    const basketResetBestBtn = $('entBasketResetBestBtn');
-    let lastTapTime = 0;
-
-    const basket = {
-      running: false,
-      score: 0,
-      best: Number(localStorage.getItem('olon_basket_best') || 0),
-      floorY: basketCanvas.height - 74,
-      ball: {x: 88, y: 510, r: 18, vx: 0, vy: 0, active: false, scored: false},
-      hoop: {x: 272, y: 172, w: 96, h: 8, dir: 1, speed: 1.45},
-      gravity: 0.34,
-      shotReady: true
-    };
-
-    function rr(ctx,x,y,w,h,r){
-      ctx.beginPath();
-      ctx.moveTo(x+r,y);
-      ctx.arcTo(x+w,y,x+w,y+h,r);
-      ctx.arcTo(x+w,y+h,x,y+h,r);
-      ctx.arcTo(x,y+h,x,y,r);
-      ctx.arcTo(x,y,x+w,y,r);
-      ctx.closePath();
-    }
-
-    function updateBasketStats(){
-      if(basketScoreText) basketScoreText.textContent = String(basket.score);
-      if(basketBestText) basketBestText.textContent = String(basket.best);
-    }
-
-    function resetBasketShot(){
-      basket.ball = {x: 88, y: 510, r: 18, vx: 0, vy: 0, active: false, scored: false};
-      basket.shotReady = true;
-    }
-
-    function resetBasketGame(){
-      basket.running = true;
-      basket.score = 0;
-      basket.hoop.x = 272;
-      basket.hoop.dir = 1;
-      resetBasketShot();
-      updateBasketStats();
-      window.entDrawBasket?.();
-    }
-
-    function getCanvasPoint(evt){
-      const rect = basketCanvas.getBoundingClientRect();
-      const clientX = evt && typeof evt.clientX === 'number' ? evt.clientX : rect.left + rect.width * 0.72;
-      const clientY = evt && typeof evt.clientY === 'number' ? evt.clientY : rect.top + rect.height * 0.32;
-      const x = (clientX - rect.left) * (basketCanvas.width / rect.width);
-      const y = (clientY - rect.top) * (basketCanvas.height / rect.height);
-      return {x, y};
-    }
-
-    function shootBasket(evt){
-      if(!basket.running) resetBasketGame();
-      if(basket.ball.active || !basket.shotReady) return;
-
-      const target = getCanvasPoint(evt);
-      const rimCenterX = basket.hoop.x + basket.hoop.w * 0.5;
-      const rimCenterY = basket.hoop.y + 8;
-      const tx = evt ? target.x : rimCenterX;
-      const ty = evt ? target.y : rimCenterY;
-
-      const dx = Math.max(130, Math.min(320, tx - basket.ball.x));
-      const arcLift = Math.max(145, Math.min(255, basket.ball.y - ty + 120));
-
-      basket.ball.active = true;
-      basket.ball.scored = false;
-      basket.shotReady = false;
-      basket.ball.vx = dx / 36;
-      basket.ball.vy = -(arcLift / 18);
-      window.entDrawBasket?.();
-    }
-
-    function basketOverlay(title, sub){
-      const W = basketCanvas.width;
-      bctx.save();
-      bctx.fillStyle = 'rgba(2,6,23,.46)';
-      rr(bctx, 26, 206, W-52, 158, 24);
-      bctx.fill();
-      bctx.strokeStyle = 'rgba(246,196,83,.34)';
-      bctx.lineWidth = 2;
-      bctx.stroke();
-      bctx.textAlign = 'center';
-      bctx.fillStyle = '#ffffff';
-      bctx.font = '900 30px Inter, Arial';
-      bctx.fillText(title, W/2, 264);
-      bctx.fillStyle = '#fde68a';
-      bctx.font = '800 15px Inter, Arial';
-      bctx.fillText(sub, W/2, 300);
-      bctx.restore();
-    }
-
-    window.entDrawBasket = function(){
-      const W = basketCanvas.width, H = basketCanvas.height;
-
-      const bgGrad = bctx.createLinearGradient(0, 0, 0, H);
-      bgGrad.addColorStop(0, '#0f172a');
-      bgGrad.addColorStop(.22, '#0ea5e9');
-      bgGrad.addColorStop(.62, '#38bdf8');
-      bgGrad.addColorStop(1, '#e0f2fe');
-      bctx.fillStyle = bgGrad;
-      bctx.fillRect(0, 0, W, H);
-
-      // lights
-      for(let i=0;i<8;i++){
-        bctx.fillStyle = 'rgba(255,255,255,.10)';
-        bctx.beginPath();
-        bctx.arc(38 + i*50, 52 + (i%2)*8, 16, 0, Math.PI*2);
-        bctx.fill();
-      }
-
-      // back crowd / arena
-      bctx.fillStyle = 'rgba(2,6,23,.20)';
-      for(let i=0;i<7;i++){
-        bctx.fillRect(10 + i*60, H-250 + (i%2)*10, 42, 96);
-      }
-
-      const floorGrad = bctx.createLinearGradient(0, H-160, 0, H);
-      floorGrad.addColorStop(0, '#fbbf24');
-      floorGrad.addColorStop(.45, '#f59e0b');
-      floorGrad.addColorStop(1, '#b45309');
-      bctx.fillStyle = floorGrad;
-      bctx.fillRect(0, H-160, W, 160);
-
-      bctx.strokeStyle = 'rgba(120,53,15,.72)';
-      bctx.lineWidth = 3;
-      bctx.beginPath();
-      bctx.moveTo(0, H-160); bctx.lineTo(W, H-160);
-      bctx.moveTo(W/2, H-160); bctx.lineTo(W/2, H);
-      bctx.arc(94, H-78, 118, -1.12, .06);
-      bctx.stroke();
-
-      // badge
-      bctx.fillStyle = 'rgba(2,6,23,.38)';
-      rr(bctx, 14, 14, 168, 54, 16);
-      bctx.fill();
-      bctx.fillStyle = '#fff';
-      bctx.font = '900 14px Inter, Arial';
-      bctx.textAlign = 'left';
-      bctx.fillText('PUNTOS: ' + basket.score, 28, 47);
-
-      // backboard
-      bctx.fillStyle = '#e5e7eb';
-      rr(bctx, basket.hoop.x + basket.hoop.w - 2, basket.hoop.y - 46, 12, 84, 4);
-      bctx.fill();
-      bctx.fillStyle = 'rgba(2,6,23,.18)';
-      bctx.fillRect(basket.hoop.x + basket.hoop.w + 1, basket.hoop.y - 16, 6, 34);
-
-      // rim
-      bctx.fillStyle = '#ea580c';
-      rr(bctx, basket.hoop.x, basket.hoop.y, basket.hoop.w, basket.hoop.h, 4);
-      bctx.fill();
-
-      // net
-      bctx.strokeStyle = 'rgba(255,255,255,.88)';
-      bctx.lineWidth = 2;
-      for(let i=0;i<6;i++){
-        const nx = basket.hoop.x + 8 + i*14;
-        bctx.beginPath();
-        bctx.moveTo(nx, basket.hoop.y + basket.hoop.h);
-        bctx.lineTo(nx - 6 + (i%2)*4, basket.hoop.y + 30);
-        bctx.stroke();
-      }
-      bctx.beginPath();
-      bctx.moveTo(basket.hoop.x + 8, basket.hoop.y + 30);
-      bctx.lineTo(basket.hoop.x + basket.hoop.w - 10, basket.hoop.y + 30);
-      bctx.stroke();
-
-      // ball shadow
-      bctx.fillStyle = 'rgba(2,6,23,.16)';
-      bctx.beginPath();
-      bctx.ellipse(basket.ball.x, basket.floorY + 10, 18, 6, 0, 0, Math.PI*2);
-      bctx.fill();
-
-      // ball
-      bctx.fillStyle = '#f97316';
-      bctx.beginPath();
-      bctx.arc(basket.ball.x, basket.ball.y, basket.ball.r, 0, Math.PI*2);
-      bctx.fill();
-
-      bctx.strokeStyle = 'rgba(120,53,15,.90)';
-      bctx.lineWidth = 2.2;
-      bctx.beginPath();
-      bctx.arc(basket.ball.x, basket.ball.y, basket.ball.r, 0, Math.PI*2);
-      bctx.moveTo(basket.ball.x - basket.ball.r, basket.ball.y);
-      bctx.lineTo(basket.ball.x + basket.ball.r, basket.ball.y);
-      bctx.moveTo(basket.ball.x, basket.ball.y - basket.ball.r);
-      bctx.lineTo(basket.ball.x, basket.ball.y + basket.ball.r);
-      bctx.moveTo(basket.ball.x - basket.ball.r*.8, basket.ball.y - basket.ball.r*.55);
-      bctx.quadraticCurveTo(basket.ball.x, basket.ball.y, basket.ball.x + basket.ball.r*.8, basket.ball.y + basket.ball.r*.55);
-      bctx.moveTo(basket.ball.x - basket.ball.r*.8, basket.ball.y + basket.ball.r*.55);
-      bctx.quadraticCurveTo(basket.ball.x, basket.ball.y, basket.ball.x + basket.ball.r*.8, basket.ball.y - basket.ball.r*.55);
-      bctx.stroke();
-
-      if(!basket.running){
-        basketOverlay('BASKETBALL PRO', 'Toca la cancha o el botón para iniciar');
-      }else if(!basket.ball.active && basket.shotReady){
-        basketOverlay('LISTO', 'Toca la pantalla para lanzar');
-      }
-    };
-
-    function updateBasket(){
-      basket.hoop.x += basket.hoop.speed * basket.hoop.dir;
-      if(basket.hoop.x < 186 || basket.hoop.x > 304) basket.hoop.dir *= -1;
-
-      if(!basket.running || !basket.ball.active) return;
-
-      basket.ball.vy += basket.gravity;
-      basket.ball.x += basket.ball.vx;
-      basket.ball.y += basket.ball.vy;
-
-      const rimLeft = basket.hoop.x + 10;
-      const rimRight = basket.hoop.x + basket.hoop.w - 10;
-      const rimTop = basket.hoop.y + 2;
-
-      if(!basket.ball.scored &&
-         basket.ball.vy > 0 &&
-         basket.ball.x > rimLeft &&
-         basket.ball.x < rimRight &&
-         basket.ball.y + basket.ball.r > rimTop &&
-         basket.ball.y + basket.ball.r < rimTop + 16){
-        basket.ball.scored = true;
-        basket.score += 1;
-        if(basket.score > basket.best){
-          basket.best = basket.score;
-          localStorage.setItem('olon_basket_best', String(basket.best));
-        }
-        updateBasketStats();
-        entToast('¡Canasto! 🏀');
-        setTimeout(function(){ resetBasketShot(); }, 260);
-      }
-
-      // backboard bounce
-      if(basket.ball.x + basket.ball.r > basket.hoop.x + basket.hoop.w &&
-         basket.ball.x - basket.ball.r < basket.hoop.x + basket.hoop.w + 12 &&
-         basket.ball.y > basket.hoop.y - 48 &&
-         basket.ball.y < basket.hoop.y + 40){
-        basket.ball.vx *= -0.58;
-        basket.ball.x = basket.hoop.x + basket.hoop.w - basket.ball.r;
-      }
-
-      // floor bounce / reset
-      if(basket.ball.y + basket.ball.r > basket.floorY){
-        basket.ball.y = basket.floorY - basket.ball.r;
-        basket.ball.vx = 0;
-        basket.ball.vy = 0;
-        basket.ball.active = false;
-        setTimeout(function(){ resetBasketShot(); }, 280);
-      }
-
-      if(basket.ball.x > basketCanvas.width + 60 || basket.ball.x < -60 || basket.ball.y < -80){
-        resetBasketShot();
-      }
-    }
-
-    function basketLoop(){
-      updateBasket();
-      window.entDrawBasket?.();
-      requestAnimationFrame(basketLoop);
-    }
-
-    function onCanvasPointer(evt){
-      evt.preventDefault();
-      evt.stopPropagation();
-      const now = Date.now();
-      if(now - lastTapTime < 120) return;
-      lastTapTime = now;
-      shootBasket(evt);
-    }
-
-    updateBasketStats();
-    window.entDrawBasket();
-
-    window.entBasketStart = resetBasketGame;
-    window.entBasketShoot = function(evt){ shootBasket(evt || null); };
-    window.entBasketResetBest = function(){
-      basket.best = 0;
-      localStorage.removeItem('olon_basket_best');
-      updateBasketStats();
-      entToast('Récord de basketball borrado.');
-    };
-
-    basketStartBtn?.addEventListener('click', function(e){ e.preventDefault(); resetBasketGame(); });
-    basketShootBtn?.addEventListener('click', function(e){ e.preventDefault(); shootBasket(); });
-    basketResetBestBtn?.addEventListener('click', function(e){
-      e.preventDefault();
-      window.entBasketResetBest();
-    });
-
-    basketCanvas.addEventListener('pointerdown', onCanvasPointer, {passive:false});
-    basketCanvas.addEventListener('touchstart', onCanvasPointer, {passive:false});
-    basketCanvas.addEventListener('mousedown', onCanvasPointer, {passive:false});
-    basketCanvas.addEventListener('click', onCanvasPointer, {passive:false});
-
-    window.addEventListener('keydown', function(e){
-      if(!$('entBasketPanel') || !$('entBasketPanel').classList.contains('active')) return;
-      if(e.code === 'KeyB' || e.code === 'Space' || e.code === 'Enter'){
-        e.preventDefault();
-        shootBasket();
-      }
-    });
-
-    basketLoop();
-  })();
-
-
-  document.addEventListener('DOMContentLoaded', function(){initEntertainment();setTimeout(function(){window.entDrawWheel?.();window.entDrawGame?.();window.entDrawBasket?.();}, 800);});
-
-  setTimeout(function(){
-    const old = window.showPage;
-    if(typeof old === 'function' && !window.__entertainmentShowPageHooked){
-      window.showPage = function(id, btn){
-        const r = old.apply(this, arguments);
-        if(id === 'entretenimiento'){
-          initEntertainment();
-          const title = $('pageTitle'), sub = $('pageSubtitle');
-          if(title) title.textContent = '🎮 Entretenimiento';
-          if(sub) sub.textContent = 'Área de juegos, retos y premios para la comunidad.';
-          setTimeout(function(){window.entDrawWheel?.();window.entDrawGame?.();window.entDrawBasket?.();}, 80);
-        }
-        return r;
-      };
-      window.__entertainmentShowPageHooked = true;
-    }
-  }, 900);
-})();
-
 /* ============================================================
    OLON SOCIETY | CONEXION SEGURA SUPABASE AUTH (2026-11-04)
    - Inicio de sesión por EMAIL + contraseña de Supabase Auth.
@@ -2671,8 +1985,9 @@ document.addEventListener("DOMContentLoaded", function(){
   function canUsePortal(profile){
     return !!profile && ["active","approved"].includes(String(profile.status||"").toLowerCase());
   }
-  async function openVerifiedProfile(profile){
+  async function openVerifiedProfile(profile,user){
     currentUser = profile;
+    window.olonAppearance?.setAccount(user);
     // Aislar la distribución del administrador de la interfaz del estudiante.
     const portalElement = document.getElementById("portal");
     if(portalElement) portalElement.classList.toggle("admin-mode", String(profile?.role||"").trim().toLowerCase()==="admin");
@@ -2713,7 +2028,7 @@ document.addEventListener("DOMContentLoaded", function(){
           : "Tu cuenta no está activa. Contacta al administrador.");
         return;
       }
-      await openVerifiedProfile(profile);
+      await openVerifiedProfile(profile,data.user);
     }catch(error){
       alert(showAuthError(error,"No se pudo iniciar sesión."));
       await supabaseClient.auth.signOut().catch(()=>{});
@@ -2773,6 +2088,7 @@ document.addEventListener("DOMContentLoaded", function(){
       currentUser=null;cachedRecords=[];cachedUsers=[];
       window.olonCommunity?.clear();
       window.olonProfile?.clear();
+      window.olonAppearance?.setAccount(null);
       window.olonAcademy?.stopClassNotifications();
       setPortalMenu(false);
       document.getElementById("portal")?.classList.add("hidden");
@@ -2798,7 +2114,7 @@ document.addEventListener("DOMContentLoaded", function(){
         await supabaseClient.auth.signOut();
         return;
       }
-      await openVerifiedProfile(profile);
+      await openVerifiedProfile(profile,data.user);
     }catch(error){
       console.warn("OLON: no se restauró la sesión Auth",error);
       currentUser=null;

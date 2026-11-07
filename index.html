@@ -6,12 +6,12 @@
 <link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon.png">
 <link rel="apple-touch-icon" sizes="180x180" href="./assets/favicon.png">
 <link rel="shortcut icon" href="./assets/favicon.png">
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#051c17">
+<link rel="manifest" href="./manifest.json?v=20261106-trader">
+<meta name="theme-color" content="#f2f5fa">
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>OLON Society Academy | Private Trading Portal</title>
+<title>Portal del Trader | OLON Society Academy</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..900&display=swap" rel="stylesheet">
@@ -21,7 +21,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 
 
-<link rel="stylesheet" href="./style.css?v=20261106-comunidad-perfil">
+<link rel="stylesheet" href="./style.css?v=20261106-trader">
+<link rel="stylesheet" href="./trader.css?v=20261106-trader">
 <noscript><style>#olonLoader{display:none}</style></noscript>
 
 <style id="olon-rescue-css">
@@ -34,39 +35,10 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 .page.hidden{display:none!important}
 .page:not(.hidden){display:block!important}
 .main{position:relative!important;z-index:10!important;pointer-events:auto!important}
-.settingsPanel:not(.show){display:none!important;pointer-events:none!important}
 
 </style>
 </head>
-<body>
-
-<!-- SETTINGS FLOATING OLON -->
-<button id="settingsFab" class="settingsFab" type="button" title="Configuración">⚙️</button>
-<div id="settingsPanel" class="settingsPanel">
-  <h3>Configuración</h3>
-  <button id="olonChangePasswordBtn" type="button" style="display:block;width:100%;padding:12px;margin:10px 0;background:#172234;color:#fff;border:1px solid #c9a968;border-radius:10px">🔐 Cambiar mi contraseña</button>
-  <p>Personaliza tu experiencia dentro del portal.</p>
-
-  <div class="settingRow">
-    <div>
-      <b>Sonidos del portal</b>
-      <small>Teclado, hover, click, loading y mensajes</small>
-    </div>
-    <button id="soundSwitch" class="switch on" type="button"><span></span></button>
-  </div>
-
-  <div class="settingRow" style="display:block">
-    <div>
-      <b>Apariencia</b>
-      <small>Modo oscuro o claro</small>
-    </div>
-    <div class="themeButtons">
-      <button id="darkThemeBtn" type="button">🌙 Dark</button>
-      <button id="lightThemeBtn" type="button">☀️ Light</button>
-    </div>
-  </div>
-</div>
-
+<body class="trader-themed">
 
 <div id="olonLoader" class="portalLoader" role="status" aria-live="polite" aria-atomic="true">
   <div class="portalLoaderPanel">
@@ -99,56 +71,55 @@ window.addEventListener("load", () => {
       <a href="#homeBenefits">Academia</a>
       <a href="#homeCommunity">Comunidad</a>
       <a href="#homeSupport">Soporte</a>
+      <button class="traderAppearanceTrigger" type="button" data-open-appearance aria-label="Apariencia" title="Apariencia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 0 0 0 18c1.6 0 2.5-1.4 1.5-2.5s-.2-2.6 1.2-2.6H17a4 4 0 0 0 4-4A9 9 0 0 0 12 3Z"/><path d="M7.5 11h.01m3-4h.01m4 1h.01m3 3h.01" stroke-width="2.6"/></svg><span>Apariencia</span></button>
       <button type="button" class="homeNavOutline" onclick="toggleAuth('signup');document.getElementById('homeAccess')?.scrollIntoView({behavior:'smooth',block:'center'})">Crear cuenta</button>
     </nav>
   </header>
   <main class="homeMain">
     <div class="authShell homeShell">
       <div class="authHero homeHero">
-        <div class="homeEyebrow">OLON Society Academy</div>
-        <h1>Portal del <em>Estudiante</em></h1>
-        <h2>Acceso profesional para estudiantes</h2>
-        <p class="homeLead">Gestiona tu aprendizaje, sigue tu rendimiento, fortalece tu disciplina y mide tu progreso con las herramientas educativas de una comunidad enfocada en el crecimiento.</p>
-        <div class="homeTraits" aria-label="Ventajas de la academia">
-          <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V8M10 20V13M16 20V4M22 20V10"/></svg> Rendimiento</span>
-          <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/> </svg> Disciplina</span>
-          <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-9M15 6h6v6"/></svg> Progreso</span>
-          <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg> Comunidad</span>
-          <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m2 10 10-7 10 7-10 7-10-7Z"/><path d="M6 13v6c4 3 8 3 12 0v-6M22 10v7"/></svg> Mentoría</span>
+        <div class="homeEyebrow">OLON SOCIETY ACADEMY</div>
+        <h1>Portal del <em>Trader</em></h1>
+        <h2>Tu formación y tus resultados en un solo lugar</h2>
+        <p class="homeLead">Lleva tu bitácora de trading, consulta las próximas clases y conversa con la comunidad privada de OLON.</p>
+        <div class="homeTraits" aria-label="Herramientas del portal">
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V8M10 20V13M16 20V4M22 20V10"/></svg> Bitácora</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m2 10 10-7 10 7-10 7-10-7Z"/><path d="M6 13v6c4 3 8 3 12 0v-6M22 10v7"/></svg> Clases</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5c0 4.7-4 8.5-9 8.5-1.4 0-2.8-.3-4-1l-4.5 1.5 1.4-4.2A8 8 0 0 1 3 11.5C3 6.8 7 3 12 3s9 3.8 9 8.5Z"/></svg> Comunidad</span>
         </div>
         <div class="homeMarketVisual" aria-hidden="true">
-          <div class="homeMarketTop"><b>OLON · EDUCATION TERMINAL</b><span><i class="homeLiveDot"></i> Seguimiento educativo</span></div>
+          <div class="homeMarketTop"><b>BITÁCORA OLON</b><span>Vista ilustrativa</span></div>
           <svg class="homeChart" viewBox="0 0 600 165" preserveAspectRatio="none" role="img" aria-label="Gráfico ilustrativo de progreso">
-            <defs><linearGradient id="homeArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#54b693" stop-opacity=".28"/><stop offset="1" stop-color="#54b693" stop-opacity="0"/></linearGradient></defs>
+            <defs><linearGradient id="homeArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="homeChartStop" stop-opacity=".28"/><stop offset="1" class="homeChartStop" stop-opacity="0"/></linearGradient></defs>
             <g stroke="#d8e9d6" stroke-opacity=".075"><path d="M0 35H600M0 70H600M0 105H600M0 140H600M60 0V165M160 0V165M260 0V165M360 0V165M460 0V165M560 0V165"/></g>
             <path d="M0 139 L45 129 L78 138 L119 103 L154 111 L190 83 L224 93 L264 71 L299 84 L337 52 L374 65 L411 48 L447 60 L487 34 L520 41 L555 19 L600 27 V165 H0 Z" fill="url(#homeArea)"/>
-            <path d="M0 139 L45 129 L78 138 L119 103 L154 111 L190 83 L224 93 L264 71 L299 84 L337 52 L374 65 L411 48 L447 60 L487 34 L520 41 L555 19 L600 27" fill="none" stroke="#69cda3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M0 139 L45 129 L78 138 L119 103 L154 111 L190 83 L224 93 L264 71 L299 84 L337 52 L374 65 L411 48 L447 60 L487 34 L520 41 L555 19 L600 27" fill="none" class="homeChartLine" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M0 149L85 137L165 131L248 104L330 100L410 78L495 61L600 46" stroke="#d7b775" stroke-opacity=".7" stroke-width="1.8" stroke-dasharray="5 6" fill="none"/>
             <circle cx="555" cy="19" r="4" fill="#d7b775"/>
           </svg>
-          <div class="homeMarketFoot"><span>Control · Consistencia · Evolución</span><strong>DISCIPLINA ANTE TODO</strong></div>
+          <div class="homeMarketFoot"><span>Seguimiento de rendimiento</span><strong>PORTAL PRIVADO</strong></div>
         </div>
       </div>
       <div class="authPanel authPanelGlass homeLoginCard" id="homeAccess">
         <div class="homeCardMark"><img src="./assets/favicon.png" alt="" width="40" height="40"><span>OLON Society <em>Academy</em></span></div>
-        <div class="authPanelIntro"><span>Acceso privado · 2026</span><h2>Iniciar sesión</h2><p>Accede a tu portal y continúa tu progreso.</p></div>
+        <div class="authPanelIntro"><span>ACCESO DE MIEMBROS</span><h2>Inicia sesión</h2><p>Entra con tu cuenta de OLON Society Academy.</p></div>
         <div class="tabs authSegmented">
           <button id="tabLogin" type="button" class="active" onclick="toggleAuth('login')">Iniciar sesión</button>
           <button id="tabSignup" type="button" onclick="toggleAuth('signup')">Crear cuenta</button>
         </div>
         <div id="loginForm" class="form active">
-          <div class="field"><label for="loginCode">Usuario o correo electrónico</label><input id="loginCode" type="text" placeholder="admin o correo@ejemplo.com" autocomplete="username" autocapitalize="none" spellcheck="false"></div>
+          <div class="field"><label for="loginCode">Usuario o correo electrónico</label><input id="loginCode" type="text" placeholder="correo@ejemplo.com" autocomplete="username" autocapitalize="none" spellcheck="false"></div>
           <div class="field"><label for="loginPass">Contraseña</label><input id="loginPass" type="password" placeholder="Tu contraseña" autocomplete="current-password"></div>
           <div class="recoveryShortcut"><a href="./recuperar.html">¿Olvidaste tu contraseña?</a></div>
-          <button id="loginSubmitBtn" class="btn full" type="button" onclick="login()">Entrar al portal →</button>
-          <div class="authHelp" id="homeSupport">¿Necesitas ayuda? <a href="mailto:infolonsocietyacademy@gmail.com?subject=Soporte%20Portal%20del%20Estudiante">Contactar soporte</a></div>
+          <button id="loginSubmitBtn" class="btn full" type="button" onclick="login()">Entrar al Portal del Trader</button>
+          <div class="authHelp" id="homeSupport">¿Necesitas ayuda? <a href="mailto:infolonsocietyacademy@gmail.com?subject=Soporte%20Portal%20del%20Trader">Contactar soporte</a></div>
           <div class="authLegal">
-            <div class="authLegalItem"><div class="authLegalIcon">🔒</div><div><b>Acceso privado</b><p>Tu cuenta está protegida mediante autenticación de Supabase.</p></div></div>
+            <div class="authLegalItem"><div class="authLegalIcon">🔒</div><div><b>Acceso privado</b><p>Tu historial y tus datos de cuenta se mantienen privados.</p></div></div>
             <div class="authLegalItem"><div class="authLegalIcon">🎓</div><div><b>Plataforma educativa</b><p>Herramientas de seguimiento y mentoría. No administramos inversiones ni dinero real.</p></div></div>
           </div>
         </div>
         <div id="signupForm" class="form">
-          <h2>Solicita tu acceso</h2><p>Solicita acceso sin correos automáticos. El administrador revisará tu solicitud y te entregará tus datos de acceso por un canal privado.</p>
+          <h2>Solicita tu acceso</h2><p>Completa el formulario. Administración revisará tu solicitud y te enviará los datos de acceso por un canal privado.</p>
           <div class="field"><label for="signupName">Nombre completo</label><input id="signupName" type="text" placeholder="Tu nombre y apellido" autocomplete="name"></div>
           <div class="field"><label for="signupEmail">Correo electrónico</label><input id="signupEmail" type="email" placeholder="correo@ejemplo.com" autocomplete="email"></div>
           <div class="field"><label for="signupEmailConfirm">Confirma tu correo</label><input id="signupEmailConfirm" type="email" placeholder="Repite tu correo" autocomplete="email"><div id="emailVerifyStatus" class="emailStatus neutral">Verifica que tu correo esté escrito correctamente.</div><button type="button" class="btn secondary full verifyBtn" onclick="verifySignupEmail()">Comprobar correo</button></div>
@@ -160,7 +131,7 @@ window.addEventListener("load", () => {
       </div>
     </div>
     <section class="homeBelow" id="homeBenefits" aria-label="Beneficios del portal">
-      <div class="homeSectionHead"><div><div class="homeSectionLabel">Tu espacio de crecimiento</div><h2>Una academia. Más herramientas.</h2></div><p>Una experiencia integrada para estudiar, registrar resultados y mantener una disciplina consistente.</p></div>
+      <div class="homeSectionHead"><div><div class="homeSectionLabel">DENTRO DEL PORTAL</div><h2>Herramientas para tu proceso de trading</h2></div><p>Consulta tus clases, registra tus resultados y revisa tu progreso.</p></div>
       <div class="homeFeatureGrid">
         <article class="homeFeature"><div class="homeFeatureIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V8M10 20V13M16 20V4M22 20V10"/></svg></div><h3>Seguimiento de rendimiento</h3><p>Registra y analiza tus resultados para comprender tu evolución.</p></article>
         <article class="homeFeature" id="homeCommunity"><div class="homeFeatureIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><h3>Comunidad VIP</h3><p>Comparte conocimientos y mantén contacto con tu comunidad educativa.</p></article>
@@ -175,8 +146,9 @@ window.addEventListener("load", () => {
           <span id="authDisciplinePercent" hidden>0%</span>
         </div>
         <div class="homeInfoPanel">
-          <div class="top3Container"><div class="top3Title">🏆 Top 3 estudiantes del mes</div><div id="top3LoginList"><div class="top3Empty">Cargando ranking desde Supabase...</div></div></div>
-          <p class="homeVerse" id="loginDailyVerse">Disciplina, enfoque y preparación para cada sesión.</p>
+          <h3>Soporte de acceso</h3>
+          <p>Recupera tu contraseña o contacta a OLON si necesitas ayuda con tu cuenta.</p>
+          <div class="homeSupportLinks"><a href="./recuperar.html">Recuperar contraseña</a><a href="mailto:infolonsocietyacademy@gmail.com?subject=Soporte%20de%20acceso">Contactar soporte</a></div>
         </div>
       </div>
       <footer class="homeFooter"><span>© 2026 OLON Society Academy. Todos los derechos reservados.</span><span>Formación • Disciplina • Comunidad</span></footer>
@@ -216,7 +188,7 @@ window.addEventListener("load", () => {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
         </button>
       </div>
-      <div class="portalSidebarEyebrow"><span class="portalLiveDot" aria-hidden="true"></span><span id="portalMode">Portal del estudiante</span></div>
+      <div class="portalSidebarEyebrow"><span class="portalLiveDot" aria-hidden="true"></span><span id="portalMode">Portal del Trader</span></div>
     </div>
     <nav class="nav portalNav" aria-label="Navegación del portal">
       <div class="portalNavGroup studentNav">TRADING</div>
@@ -229,7 +201,6 @@ window.addEventListener("load", () => {
       <button type="button" class="portalNavLink studentNav" data-page="comparacion" onclick="showPage('comparacion',this)" aria-label="Resultados"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V11M10 20V5M16 20v-8M22 20V3"/><path d="M2 20h20"/></svg></span><span class="portalNavText">Resultados</span></button>
       <div class="portalNavGroup studentNav portalNavGroupSecondary">ACADEMIA</div>
       <button type="button" class="portalNavLink studentNav" data-page="newsProPage" onclick="showPage('newsProPage',this)" aria-label="Noticias"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10M7 11h4M13 11h4M7 15h10M7 18h7"/></svg></span><span class="portalNavText">Noticias</span></button>
-      <button type="button" class="portalNavLink studentNav" data-page="entretenimiento" onclick="showPage('entretenimiento',this)" aria-label="Gira y gana"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 12h12M12 6v12"/><path d="m6 4 2 2M18 4l-2 2"/><rect x="2.5" y="3" width="19" height="18" rx="5"/></svg></span><span class="portalNavText">Gira y gana</span></button>
       <div class="portalNavGroup adminNav hidden">ADMINISTRACIÓN</div>
       <button type="button" class="portalNavLink adminNav hidden" data-page="admin" onclick="showPage('admin',this)" aria-label="Centro administrativo"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4M9 15h6M12 15v3"/></svg></span><span class="portalNavText">Centro administrativo</span></button>
       <button type="button" class="portalNavLink adminNav hidden" data-page="academyAdminClassesPage" onclick="showPage('academyAdminClassesPage',this)" aria-label="Gestionar clases"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h8"/></svg></span><span class="portalNavText">Gestionar clases</span></button>
@@ -258,6 +229,7 @@ window.addEventListener("load", () => {
         <p id="pageSubtitle">Control privado de rendimiento, disciplina, reportes y progreso del trader.</p>
       </div>
       <div class="portalTopActions">
+        <button class="traderAppearanceTrigger" type="button" data-open-appearance aria-label="Apariencia" title="Apariencia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 0 0 0 18c1.6 0 2.5-1.4 1.5-2.5s-.2-2.6 1.2-2.6H17a4 4 0 0 0 4-4A9 9 0 0 0 12 3Z"/><path d="M7.5 11h.01m3-4h.01m4 1h.01m3 3h.01" stroke-width="2.6"/></svg><span>Apariencia</span></button>
         <button type="button" class="userPill portalUserPill" data-edit-profile aria-label="Editar mi perfil" title="Editar mi perfil">
           <span class="avatar profileAvatar" aria-hidden="true"><span id="avatarText" data-profile-initials>O</span><img data-profile-photo="avatar" alt="" hidden></span>
           <span><b id="studentName">Estudiante</b><small id="userCodeText">Código OLON</small><span id="planBadge" class="planBadge">VIP</span></span>
@@ -500,18 +472,31 @@ window.addEventListener("load", () => {
       </div>
     </section>
 
-    <section id="historial" class="page hidden">
-      <div class="card">
-        <h3>Historial Individual</h3>
-        <p id="ledgerHistoryNotice" class="ledgerFeedback" role="status" hidden></p>
-        <div class="tableWrap">
-          <table>
-            <thead><tr><th>Fecha</th><th>Depósito</th><th>Retiro</th><th>Ganancia</th><th>Pérdida</th><th>Neto</th><th>Nota</th><th>Acciones</th></tr></thead>
-            <tbody id="historyBody"></tbody>
-          </table>
+    <section id="historial" class="page hidden" aria-labelledby="historyTitle">
+      <header class="card traderHistoryHero">
+        <div><span class="traderKicker">BITÁCORA PERSONAL</span><h3 id="historyTitle">Historial de trading</h3><p>Consulta tus resultados y movimientos de capital por período.</p></div>
+        <button type="button" class="btn" data-record-open="trading">Registrar resultado</button>
+      </header>
+      <dl class="historyMetrics" aria-label="Totales de los registros filtrados">
+        <div><dt>Resultado neto</dt><dd id="historyNet">—</dd></div>
+        <div><dt>Depósitos</dt><dd id="historyDeposits">—</dd></div>
+        <div><dt>Retiros</dt><dd id="historyWithdrawals">—</dd></div>
+        <div><dt>Registros</dt><dd id="historyTotal">—</dd></div>
+      </dl>
+      <section class="card historyDirectory" aria-labelledby="historyMovements">
+        <div class="historyDirectoryHead">
+          <div><h4 id="historyMovements">Movimientos</h4><p id="historyRange" role="status">Cargando historial…</p></div>
+          <div class="historyFilters">
+            <label>Período<select id="historyMonth"><option value="">Todo el historial</option></select></label>
+            <label>Tipo<select id="historyKind"><option value="">Todos los tipos</option><option value="trading">Resultados</option><option value="deposit">Depósitos</option><option value="withdrawal">Retiros</option></select></label>
+          </div>
         </div>
-        <div id="historyMobileCards" class="mobileCards"></div>
-      </div>
+        <p id="ledgerHistoryNotice" class="ledgerFeedback" role="status" hidden></p>
+        <div class="historyListHead" aria-hidden="true"><span>Fecha y tipo</span><span>Detalle</span><span>Importe</span><span>Acciones</span></div>
+        <p id="historyEmpty" class="historyEmpty" hidden></p>
+        <ul id="historyList" class="historyList" aria-label="Registros de trading y capital"></ul>
+        <button type="button" id="historyMore" class="btn secondary" hidden>Ver más registros</button>
+      </section>
     </section>
 
     <section id="academyClassesPage" class="page hidden academyPage">
@@ -701,138 +686,7 @@ window.addEventListener("load", () => {
     </section>
 
 
-    <section id="entretenimiento" class="page hidden entretenimientoPage">
-      <div class="entHero card">
-        <div>
-          <span class="entKicker">🎮 ÁREA DE ENTRETENIMIENTO</span>
-          <h2>Juegos, retos y premios para la comunidad</h2>
-          <p>Un espacio dentro del portal para que los estudiantes participen, jueguen, compitan y ganen premios de la academia.</p>
-          <div class="entTrustRow">
-            <span>🎁 Gira y Gana</span>
-            <span>🏎️ Lambo Money Challenge</span>
-            <span>🏀 Basketball Challenge</span>
-            <span>📱 Móvil / iPad / PC</span>
-            <span>👑 Comunidad VIP</span>
-          </div>
-        </div>
-        <div class="entHeroActions">
-          <button class="btn" type="button" onclick="switchEntertainmentTab('wheel')">🎁 Gira y Gana</button>
-          <button class="btn secondary" type="button" onclick="switchEntertainmentTab('flappy')">🏎️ Jugar Lambo</button>
-          <button class="btn secondary" type="button" onclick="switchEntertainmentTab('basket')">🏀 Basketball</button>
-        </div>
-      </div>
-
-      <div class="entTabs card">
-        <button id="entTabWheel" class="active" type="button" onclick="switchEntertainmentTab('wheel')">🎁 Gira y Gana</button>
-        <button id="entTabFlappy" type="button" onclick="switchEntertainmentTab('flappy')">🏎️ Lambo Money Challenge</button>
-        <button id="entTabBasket" type="button" onclick="switchEntertainmentTab('basket')">🏀 Basketball Challenge</button>
-      </div>
-
-      <div id="entWheelPanel" class="entPanel active">
-        <div class="giraGanaBanner">
-          <div>
-            <span>🎁 EVENTO DE PREMIOS</span>
-            <h3>Gira y Gana</h3>
-            <p>Selecciona los premios, guarda la lista y presiona el botón para elegir un ganador de forma animada.</p>
-          </div>
-          <button class="btn entGoldBtn" type="button" onclick="document.getElementById('entSpinBtn')?.click()">Girar ahora</button>
-        </div>
-
-        <div class="entGrid">
-          <div class="card entGameCard">
-            <div class="entSectionTitle">
-              <div>
-                <span class="entKicker">🎁 GIRA Y GANA</span>
-                <h3>Gira y Gana — Ruleta de la Comunidad</h3>
-                <p>Presiona Gira y Gana para sortear premios de la comunidad. Ideal para dinámicas, retos y giveaways.</p>
-              </div>
-            </div>
-            <div class="entWheelStage">
-              <div class="entPointer"></div>
-              <canvas id="entWheelCanvas" width="700" height="700"></canvas>
-              <div class="entWheelCenter">GIRA<br>Y GANA</div>
-            </div>
-          </div>
-
-          <div class="card entControlCard">
-            <div class="entWinnerBox">
-              <small>Ganador actual</small>
-              <h3 id="entWinnerText">Todavía no hay ganador</h3>
-            </div>
-            <button id="entSpinBtn" class="btn full entGoldBtn" type="button">🎁 GIRA Y GANA</button>
-            <label class="entLabel">Premios disponibles</label>
-            <textarea id="entPrizesInput" class="entTextarea" spellcheck="false">Premium 15 días
-Mentoría 1 a 1
-Indicador gratis 7 días
-Descuento 50%
-Acceso VIP
-Premio sorpresa
-Clase privada
-Entrada al grupo</textarea>
-            <button id="entSavePrizesBtn" class="btn secondary full" type="button">Guardar premios</button>
-            <button id="entClearHistoryBtn" class="btn danger full" type="button">Borrar historial</button>
-            <div class="entHistoryHead">Historial de ganadores</div>
-            <div id="entHistoryList" class="entHistoryList"></div>
-          </div>
-        </div>
-      </div>
-
-      <div id="entFlappyPanel" class="entPanel">
-        <div class="entGrid entFlappyGrid">
-          <div class="card entGameCard entFlappyCanvasCard">
-            <canvas id="entGameCanvas" width="430" height="620"></canvas>
-          </div>
-
-          <div class="card entControlCard">
-            <span class="entKicker">RETO</span>
-            <h3>Lambo Money Challenge</h3>
-            <p class="entMuted">Maneja el Lamborghini con el logo OLON y pasa entre dinero. Cada pase suma $0.25.</p>
-            <div class="entScoreGrid">
-              <div class="entScoreCard"><small>Ganado</small><strong id="entScoreText">$0.00</strong></div>
-              <div class="entScoreCard"><small>Mejor ganancia</small><strong id="entBestText">$0.00</strong></div>
-            </div>
-            <button id="entStartGameBtn" class="btn full entGoldBtn" type="button">Iniciar / Reiniciar</button>
-            <button id="entJumpBtn" class="btn secondary full" type="button">Subir</button>
-            <button id="entResetBestBtn" class="btn danger full" type="button">Borrar récord</button>
-            <div class="entHowBox">
-              <b>Cómo jugar:</b><br>
-              Toca la pantalla, presiona espacio o usa el botón de subir. Pasa entre el dinero sin chocar. Cada pase suma $0.25. En móvil ahora corre más rápido y el carrito baja normal, sin sentirse flotante.
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div id="entBasketPanel" class="entPanel">
-        <div class="entGrid entBasketGrid">
-          <div class="card entGameCard entBasketCanvasCard">
-            <canvas id="entBasketCanvas" width="430" height="620" onclick="window.entBasketShoot?.()"></canvas>
-          </div>
-
-          <div class="card entControlCard">
-            <span class="entKicker">🏀 RETO</span>
-            <h3>Basketball Challenge</h3>
-            <p class="entMuted">Basketball moderno y responsive. Toca la cancha en móvil, iPad o PC para lanzar. También puedes usar el botón de lanzar.</p>
-
-            <div class="entScoreGrid">
-              <div class="entScoreCard"><small>Puntos</small><strong id="entBasketScoreText">0</strong></div>
-              <div class="entScoreCard"><small>Récord</small><strong id="entBasketBestText">0</strong></div>
-            </div>
-
-            <button id="entBasketStartBtn" class="btn full entGoldBtn" type="button" onclick="window.entBasketStart?.()">🏀 Iniciar / Reiniciar</button>
-            <button id="entBasketShootBtn" class="btn secondary full" type="button" onclick="window.entBasketShoot?.()">🎯 Lanzar</button>
-            <button id="entBasketResetBestBtn" class="btn danger full" type="button" onclick="window.entBasketResetBest?.()">Borrar récord</button>
-
-            <div class="entHowBox basketHowBox">
-              <b>Cómo jugar:</b><br>
-              Toca la cancha para lanzar directo. En móvil, iPad y PC web puedes tocar la pantalla. También puedes usar el botón <b>Lanzar</b>. Cada canasto suma 1 punto.
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </section>
-
-<section id="admin" class="page hidden adminProPage" aria-label="Centro de administración de OLON">
+    <section id="admin" class="page hidden adminProPage" aria-label="Centro de administración de OLON">
       <header class="adminWorkspaceHero profileHero">
         <img class="profileHeroCover" data-profile-photo="cover" alt="" hidden>
         <div class="adminWorkspaceIdentity"><span class="adminLiveDot"></span> OLON SOCIETY ACADEMY <span class="adminIdentityDivider">/</span> ADMINISTRACIÓN</div>
@@ -915,7 +769,7 @@ Entrada al grupo</textarea>
           </div>
           <div class="adminTools adminGodTools">
             <label class="adminSearchWrap"><span>Buscar estudiante</span><input id="adminSearch" class="adminSearch" placeholder="Nombre, correo o código OLON…" autocomplete="off" oninput="olonAdmin.render()"></label>
-            <label><span>Estado</span><select id="adminStatusFilter" class="adminSelect" onchange="olonAdmin.render()"><option value="all">Todos los estados</option><option value="pending">Pendientes</option><option value="active">Activos</option><option value="suspended">Suspendidos</option><option value="expired">Expirados</option></select></label>
+            <label><span>Estado</span><select id="adminStatusFilter" class="adminSelect" onchange="olonAdmin.render()"><option value="all">Todos los estados</option><option value="pending">Pendientes</option><option value="active">Activos</option><option value="suspended">Suspendidos</option><option value="expired">Expirados</option><option value="deleting">Eliminación pendiente</option></select></label>
           </div>
         </div>
         <div id="adminActionFeedback" class="adminActionFeedback" role="status" aria-live="polite" hidden></div>
@@ -1028,15 +882,73 @@ Entrada al grupo</textarea>
   </form>
 </dialog>
 
-<script src="./script.js?v=20261106-comunidad-perfil" defer></script>
+<dialog id="appearanceDialog" class="profileDialog traderDialog" aria-labelledby="appearanceTitle">
+  <header class="profileDialogHead">
+    <div><h2 id="appearanceTitle">Apariencia</h2><p>Personaliza el Portal del Trader a tu gusto.</p></div>
+    <button type="button" class="profileCloseButton" data-close-appearance aria-label="Cerrar">×</button>
+  </header>
+  <form id="appearanceForm">
+    <fieldset class="appearanceModes">
+      <legend>Modo</legend>
+      <label><input type="radio" name="mode" value="light" checked><span>Claro · Light</span></label>
+      <label><input type="radio" name="mode" value="dark"><span>Oscuro · Dark</span></label>
+    </fieldset>
+    <div class="appearanceFields">
+      <label class="field">Color principal<span class="appearanceColor"><input type="color" name="accent" value="#335fa8"><output id="appearanceAccentHex">#335FA8</output></span></label>
+      <div class="field appearanceTextField"><label for="appearanceTextColor">Color del texto</label><div class="appearanceColor"><input type="color" name="text" id="appearanceTextColor" value="#17263a"><button type="button" class="profileRemovePhoto" id="appearanceTextAuto">Automático</button></div></div>
+      <label class="field appearanceFont">Tipo de letra<select name="font"><option value="inter">Inter</option><option value="system">Del sistema</option><option value="rounded">Trebuchet</option><option value="serif">Georgia</option><option value="mono">Monoespaciada</option></select></label>
+    </div>
+    <div class="appearancePreview">
+      <strong>Vista previa</strong><span>Bitácora de trading · OLON Society Academy</span><span class="appearanceSample">Color principal</span>
+    </div>
+    <p id="appearanceContrast" class="appearanceContrast" hidden>El texto se ajusta para mantener el contraste con el fondo.</p>
+    <p id="appearanceFeedback" class="profileFeedback" role="status" hidden></p>
+    <div class="profileDialogActions">
+      <button type="button" class="btn secondary" id="appearanceReset">Restaurar estilo</button>
+      <button type="submit" class="btn" id="appearanceSave">Guardar apariencia</button>
+    </div>
+  </form>
+  <div class="appearanceExtras">
+    <label class="appearanceSound"><input type="checkbox" id="soundSwitch"> Sonidos del portal</label>
+    <button type="button" class="btn secondary" id="olonChangePasswordBtn" hidden>Cambiar mi contraseña</button>
+  </div>
+</dialog>
+
+<dialog id="adminAccountDialog" class="profileDialog traderDialog" aria-labelledby="adminAccountTitle">
+  <header class="profileDialogHead">
+    <div><h2 id="adminAccountTitle">Administrar cuenta</h2><p id="adminAccountIdentity"></p></div>
+    <button type="button" class="profileCloseButton" data-close-admin-account aria-label="Cerrar">×</button>
+  </header>
+  <form id="adminResetForm" hidden>
+    <label class="field">Nueva contraseña<input name="password" type="password" autocomplete="new-password" minlength="12" maxlength="72" required></label>
+    <p class="accountHint">Usa al menos 12 caracteres. El estudiante podrá cambiarla desde su cuenta.</p>
+    <div class="profileDialogActions">
+      <button type="button" class="btn secondary" data-close-admin-account>Cancelar</button>
+      <button type="submit" class="btn">Asignar contraseña</button>
+    </div>
+  </form>
+  <form id="adminDeleteForm" hidden>
+    <p class="accountDeleteWarning">La eliminación es permanente. Se borrarán el acceso, el historial, los mensajes y los archivos asociados a esta cuenta.</p>
+    <label class="field"><span id="adminDeleteConfirmationLabel">Escribe el correo del estudiante para confirmar</span><input name="confirmation" type="text" required autocomplete="off" autocapitalize="none" spellcheck="false"></label>
+    <div class="profileDialogActions">
+      <button type="button" class="btn secondary" data-close-admin-account>Cancelar</button>
+      <button type="submit" class="btn danger" disabled>Eliminar estudiante</button>
+    </div>
+  </form>
+  <p id="adminAccountFeedback" class="profileFeedback" role="status" hidden></p>
+</dialog>
+
+<script src="./script.js?v=20261106-trader" defer></script>
+<script src="./appearance.js?v=20261106-trader" defer></script>
+<script src="./trade-history.js?v=20261106-trader" defer></script>
 <script src="./community-chat.js?v=20261106-comunidad-perfil" defer></script>
 <script src="./profile-settings.js?v=20261106-comunidad-perfil" defer></script>
 <script src="./student-records.js?v=20261106-registros-pdf" defer></script>
 <script src="./premium-report.js?v=20261106-registros-pdf" defer></script>
 <script src="./academy-tools.js?v=20261106-comunidad-perfil" defer></script>
-<script src="./admin-workspace.js?v=20261106-academia" defer></script>
-<script src="./admin-registration.js?v=20261106-menu-vip" defer></script>
-<script src="./password-settings.js?v=20261106-password3" defer></script>
+<script src="./admin-workspace.js?v=20261106-trader" defer></script>
+<script src="./admin-registration.js?v=20261106-trader" defer></script>
+<script src="./password-settings.js?v=20261106-trader" defer></script>
 
 <script>
 /* FIX FUERTE: La pantalla de código NO se muestra al cargar.
