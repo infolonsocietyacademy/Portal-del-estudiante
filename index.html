@@ -844,8 +844,10 @@ window.addEventListener("load", () => {
           </div>
         </div>
         <label class="olonRankingConsent"><input type="checkbox" id="olonRankConsent"> Confirmo que todos los estudiantes seleccionados autorizaron mostrar su nombre y porcentaje de rendimiento en el portal.</label>
-        <label class="olonRankingConsent"><input type="checkbox" id="olonRankPhotoConsent"> Confirmo que los estudiantes seleccionados también autorizaron mostrar su foto de perfil en el TOP 3. Si no marcas esta opción, se mostrarán sus iniciales.</label>
+        <label class="olonRankingConsent"><input type="checkbox" id="olonRankPhotoConsent"> Confirmo que cada estudiante seleccionado autorizó mostrar también su foto de perfil en el TOP 3.</label>
+        <p id="olonRankPhotoStatus" class="olonRankingFeedback" role="status">Foto del TOP 3: consultando permisos...</p>
         <div class="olonRankingActions">
+          <button class="btn secondary" id="olonRankSavePhotos" type="button">Guardar permiso de fotos</button>
           <button class="btn" id="olonRankSave" type="button">Publicar TOP 3</button>
           <button class="btn secondary" id="olonRankClear" type="button">Retirar ranking</button>
         </div>
@@ -1070,7 +1072,7 @@ window.addEventListener("load", () => {
 <script src="./premium-report.js?v=20261106-registros-pdf" defer></script>
 <script src="./academy-tools.js?v=20261106-comunidad-perfil" defer></script>
 <script src="./admin-workspace.js?v=20261106-trader" defer></script>
-<script src="./leaderboard.js?v=20261107-ranking-avatar-4" defer></script>
+<script src="./leaderboard.js?v=20261107-ranking-avatar-permission-5" defer></script>
 <script src="./admin-registration.js?v=20261106-trader" defer></script>
 <script src="./password-settings.js?v=20261106-trader" defer></script>
 
