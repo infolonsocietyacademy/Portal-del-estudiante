@@ -9,201 +9,183 @@ document.addEventListener("DOMContentLoaded", function(){
   }
 });
 
-// ===== OLON AUDIO ENGINE FIXED MULTI USER =====
-  // Sonido original enviado por el propietario: pulsacion breve del teclado mecanico.
-  // Se incrusta como MP3 de ~0.24s para evitar cargar la grabacion completa de 15.6s en cada toque.
-  const keyboardClickMp3 = "data:audio/mpeg;base64,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";
-  const keyboardClickPool = [];
-  let keyboardClickIndex = 0;
-  function playKeyboardSample(volume = 0.27){
-    if(!soundEnabled()) return;
-    try{
-      // Pool pequeño: permite clics consecutivos sin detener la reproduccion anterior.
-      if(!keyboardClickPool.length){
-        for(let i = 0; i < 4; i++){
-          const sample = new Audio(keyboardClickMp3);
-          sample.preload = "auto";
-          keyboardClickPool.push(sample);
-        }
-      }
-      const sample = keyboardClickPool[keyboardClickIndex++ % keyboardClickPool.length];
-      sample.pause();
-      sample.currentTime = 0;
-      sample.volume = Math.min(1, Math.max(0, volume));
-      sample.playbackRate = 0.96 + Math.random() * 0.08;
-      const task = sample.play();
-      if(task && typeof task.catch === "function") task.catch(() => {});
-    }catch(error){ /* No bloquear la navegacion si el navegador restringe el audio. */ }
-  }
-
+// ===== OLON AUDIO ENGINE — REAL KEYBOARD SAMPLE (November 2026) =====
 (function(){
-  let ctx = null;
-  let unlocked = false;
-  let lastKey = 0;
-  let lastHover = 0;
+  "use strict";
+  const KEYBOARD_URL = "./assets/keyboard-click.mp3?v=20261107-keyboard-fix-2";
+  let audioContext = null;
   let lastClick = 0;
-  let lastMsg = 0;
+  let lastKey = 0;
+  let lastMessage = 0;
+  let keyIndex = 0;
+  const keyboardPool = [];
 
   function soundEnabled(){
-    return localStorage.getItem("olon_sound_enabled") !== "false";
+    try { return localStorage.getItem("olon_sound_enabled") !== "false"; }
+    catch { return true; }
   }
 
   function getCtx(){
-    if(!ctx){
-      ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if(!audioContext){
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if(!AudioContextClass) return null;
+      audioContext = new AudioContextClass();
     }
-    return ctx;
+    return audioContext;
   }
 
-  async function unlockAudio(){
-    try{
-      const audio = getCtx();
-      if(audio.state === "suspended") await audio.resume();
-
-      // silent tap to unlock audio on iPhone/iPad/Safari/Chrome
-      const gain = audio.createGain();
-      const osc = audio.createOscillator();
-      gain.gain.value = 0.00001;
-      osc.connect(gain);
-      gain.connect(audio.destination);
-      osc.start();
-      osc.stop(audio.currentTime + 0.01);
-
-      unlocked = true;
-    }catch(e){
-      console.warn("Audio unlock error", e);
-    }
+  function unlockAudio(){
+    try {
+      const context = getCtx();
+      if(context && context.state === "suspended"){
+        context.resume().catch(() => {});
+      }
+    } catch(error){ /* Audio cannot prevent interaction. */ }
   }
 
-  function tone(freq = 520, duration = 0.04, volume = 0.02, type = "sine", delay = 0){
+  function tone(freq=520,duration=.05,volume=.025,type="sine",delay=0){
     if(!soundEnabled()) return;
     try{
-      const audio = getCtx();
-      if(audio.state === "suspended") audio.resume();
+      const ctx = getCtx();
+      if(!ctx) return;
+      if(ctx.state === "suspended") ctx.resume().catch(() => {});
+      const when = ctx.currentTime + delay;
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+      oscillator.type=type;
+      oscillator.frequency.setValueAtTime(freq,when);
+      gain.gain.setValueAtTime(.0001,when);
+      gain.gain.exponentialRampToValueAtTime(volume,when+.005);
+      gain.gain.exponentialRampToValueAtTime(.0001,when+Math.max(.016,duration));
+      oscillator.connect(gain);
+      gain.connect(ctx.destination);
+      oscillator.start(when);
+      oscillator.stop(when+duration+.025);
+    }catch(error){ /* Unsupported audio device. */ }
+  }
 
-      const start = audio.currentTime + delay;
-      const osc = audio.createOscillator();
-      const gain = audio.createGain();
+  function createKeyboardSamples(){
+    if(keyboardPool.length) return;
+    if(typeof window.Audio !== "function") return;
+    for(let i=0;i<5;i++){
+      const audio = new Audio(KEYBOARD_URL);
+      audio.preload="auto";
+      keyboardPool.push(audio);
+    }
+    // Preload early so the first real user gesture can play immediately.
+    keyboardPool[0].load();
+  }
 
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, start);
-
-      gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.exponentialRampToValueAtTime(volume, start + 0.006);
-      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
-
-      osc.connect(gain);
-      gain.connect(audio.destination);
-
-      osc.start(start);
-      osc.stop(start + duration + 0.02);
-    }catch(e){
-      console.warn("Audio tone error", e);
+  function playKeyboardSample(volume=.80){
+    if(!soundEnabled()) return false;
+    try{
+      createKeyboardSamples();
+      if(!keyboardPool.length){
+        tone(960,.035,.055,"triangle");
+        return true;
+      }
+      const audio = keyboardPool[keyIndex++ % keyboardPool.length];
+      audio.pause();
+      try { audio.currentTime=0; } catch(error) {}
+      audio.playbackRate=1;
+      audio.volume=Math.max(0,Math.min(1,volume));
+      // play() is called synchronously during click/keydown, before any await,
+      // as required by iOS Safari and other gesture-restricted browsers.
+      const promise = audio.play();
+      if(promise && typeof promise.catch === "function"){
+        promise.catch(() => tone(960,.035,.06,"triangle"));
+      }
+      return true;
+    }catch(error){
+      tone(960,.035,.06,"triangle");
+      return true;
     }
   }
 
   function playMechanicalKeySound(){
-    const now = Date.now();
-    if(now - lastKey < 45) return;
-    lastKey = now;
-    playKeyboardSample(0.18);
+    const now=Date.now();
+    if(now-lastKey<38) return;
+    lastKey=now;
+    playKeyboardSample(.48);
   }
 
-  function playBackspaceSound(){
-    const now = Date.now();
-    if(now - lastKey < 34) return;
-    lastKey = now;
-
-    tone(210, 0.048, 0.024, "triangle");
-    tone(145, 0.035, 0.014, "sine", 0.018);
-  }
-
-  function playPasteSound(){
-    tone(520, 0.045, 0.020, "sine");
-    tone(760, 0.050, 0.016, "triangle", 0.045);
-    tone(980, 0.040, 0.012, "sine", 0.090);
-  }
-
-  function playHoverSound(){
-    // Sin pitidos al pasar el raton; suena solamente al interactuar.
-  }
+  function playBackspaceSound(){ playKeyboardSample(.50); }
+  function playPasteSound(){ playKeyboardSample(.65); }
+  function playHoverSound(){ /* Hover intentionally silent. */ }
 
   function playClickSound(){
-    const now = Date.now();
-    if(now - lastClick < 85) return;
-    lastClick = now;
-    playKeyboardSample(0.27);
+    const now=Date.now();
+    if(now-lastClick<75) return;
+    lastClick=now;
+    playKeyboardSample(.85);
   }
 
   function playPortalLoadingSound(){
-    tone(180, 0.12, 0.020, "sine");
-    tone(360, 0.12, 0.018, "triangle", 0.150);
-    tone(620, 0.16, 0.016, "sine", 0.330);
-    tone(880, 0.18, 0.014, "sine", 0.560);
+    tone(250,.075,.016,"sine");
+    tone(500,.075,.014,"triangle",.09);
   }
 
   function playNewMessageSound(){
-    const now = Date.now();
-    if(now - lastMsg < 1200) return;
-    lastMsg = now;
-    tone(720, 0.08, 0.024, "sine");
-    tone(980, 0.10, 0.020, "triangle", 0.095);
-    tone(1240, 0.08, 0.016, "sine", 0.190);
+    const now=Date.now();
+    if(now-lastMessage<1200) return;
+    lastMessage=now;
+    tone(720,.075,.024,"sine");
+    tone(980,.085,.021,"triangle",.09);
+  }
+
+  function testKeyboardSound(){
+    if(!soundEnabled()) return false;
+    // Explicit button interaction, no extra throttling.
+    return playKeyboardSample(.95);
   }
 
   function setupAudioEvents(){
-    // Browser audio must be unlocked by a real user gesture on EACH device/browser.
-    ["pointerdown","touchstart","mousedown","keydown","click"].forEach(evt=>{
-      document.addEventListener(evt, unlockAudio, {once:false, passive:true});
-    });
+    createKeyboardSamples();
+    // Only unlock once; no async unlock operation before the actual click sound.
+    document.addEventListener("pointerdown",unlockAudio,{once:true,passive:true});
+    document.addEventListener("touchstart",unlockAudio,{once:true,passive:true});
 
-    document.addEventListener("keydown", function(e){
-      const tag = (e.target?.tagName || "").toLowerCase();
-      const isTyping = tag === "input" || tag === "textarea" || e.target?.isContentEditable;
-      if(!isTyping) return;
-
-      if(e.key.length === 1) playMechanicalKeySound();
-      else if(e.key === "Backspace" || e.key === "Delete") playBackspaceSound();
-      else if(e.key === "Enter") playClickSound();
-    });
-
-    document.addEventListener("paste", function(e){
-      const tag = (e.target?.tagName || "").toLowerCase();
-      const isTyping = tag === "input" || tag === "textarea" || e.target?.isContentEditable;
-      if(isTyping) playPasteSound();
-    });
-
-    document.addEventListener("mouseover", function(e){
-      const target = e.target.closest("button,.card,.nav button,.userPill,.sideBox,.calDay:not(.empty),.reportRow,.aiItem,.v3Card,.adminChatUser");
-      if(target) playHoverSound();
-    });
-
-    document.addEventListener("click", function(e){
-      unlockAudio();
-      if(e.target.closest("button,a,[role=button],.nav button,.calDay:not(.empty),.adminChatUser")){
+    document.addEventListener("click",function(e){
+      if(e.target?.closest?.("#soundTestBtn")) return;
+      if(e.target?.closest?.("button,a,[role='button'],.nav button,.calDay:not(.empty),.adminChatUser")){
         playClickSound();
       }
-    }, true);
+    },true);
+
+    document.addEventListener("keydown",function(e){
+      if(e.ctrlKey||e.metaKey||e.altKey||e.repeat) return;
+      const target=e.target;
+      const typing=target && (target.matches?.("input,textarea,[contenteditable='true']") || target.isContentEditable);
+      if(typing){
+        if(e.key.length===1) playMechanicalKeySound();
+        else if(e.key==="Backspace"||e.key==="Delete") playBackspaceSound();
+        else if(e.key==="Enter") playClickSound();
+      } else if((e.key==="Enter"||e.key===" ") && target?.closest?.("button,a,[role='button']")){
+        playClickSound();
+      }
+    });
+
+    document.addEventListener("paste",function(e){
+      const target=e.target;
+      if(target?.matches?.("input,textarea,[contenteditable='true']")||target?.isContentEditable) playPasteSound();
+    });
   }
 
-  // Expose globally for existing portal functions
-  window.getOlonAudio = getCtx;
-  window.unlockOlonAudio = unlockAudio;
-  window.isSoundEnabled = soundEnabled;
-  window.playOlonTone = tone;
-  window.playMechanicalKeySound = playMechanicalKeySound;
-  window.playBackspaceSound = playBackspaceSound;
-  window.playPasteSound = playPasteSound;
-  window.playHoverSound = playHoverSound;
-  window.playClickSound = playClickSound;
-  window.playPortalLoadingSound = playPortalLoadingSound;
-  window.playNewMessageSound = playNewMessageSound;
+  window.getOlonAudio=getCtx;
+  window.unlockOlonAudio=unlockAudio;
+  window.isSoundEnabled=soundEnabled;
+  window.playOlonTone=tone;
+  window.playMechanicalKeySound=playMechanicalKeySound;
+  window.playBackspaceSound=playBackspaceSound;
+  window.playPasteSound=playPasteSound;
+  window.playHoverSound=playHoverSound;
+  window.playClickSound=playClickSound;
+  window.playPortalLoadingSound=playPortalLoadingSound;
+  window.playNewMessageSound=playNewMessageSound;
+  window.testOlonKeyboardSound=testKeyboardSound;
 
-  if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", setupAudioEvents);
-  }else{
-    setupAudioEvents();
-  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",setupAudioEvents,{once:true});
+  else setupAudioEvents();
 })();
 
 const SUPABASE_URL = "https://xanhhfashgkyrvphprts.supabase.co";
