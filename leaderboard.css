@@ -61,6 +61,21 @@
   background:linear-gradient(145deg,var(--cyber-ui-panel-2),var(--cyber-ui-panel));
   font-size:15px;font-weight:900;color:var(--cyber-ui-ink);
 }
+#portal.app .olonPodiumEntry .olonTopAvatar{
+  position:relative;
+  overflow:hidden;
+}
+#portal.app .olonPodiumEntry .olonTopAvatar img[data-top-avatar]{
+  width:100%;height:100%;
+  position:absolute;inset:0;
+  display:block;
+  object-fit:cover;
+  border-radius:inherit;
+}
+#portal.app .olonPodiumEntry .olonTopAvatar img[data-top-avatar][hidden],
+#portal.app .olonPodiumEntry .olonTopAvatar [data-top-initials][hidden]{
+  display:none!important;
+}
 #portal.app .olonPodiumEntry[data-leaderboard-rank="1"] .olonTopAvatar{
   width:58px;height:58px;border-color:#e3b968;box-shadow:0 0 20px #bd923622;
 }
