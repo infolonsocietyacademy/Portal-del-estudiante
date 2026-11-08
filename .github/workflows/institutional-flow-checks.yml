@@ -1,0 +1,25 @@
+name: Institutional Flow checks
+on:
+  pull_request:
+    paths:
+      - 'institutional-flow/**'
+      - 'scripts/sync-institutional-flow.py'
+      - 'tests/**'
+      - 'index.html'
+      - 'script.js'
+      - '.github/workflows/institutional-flow-*.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/*.test.cjs tests/*.test.mjs
+      - run: python3 -m unittest discover -s tests -p '*_test.py'
+      - run: node --check script.js && node --check institutional-flow/entry.mjs

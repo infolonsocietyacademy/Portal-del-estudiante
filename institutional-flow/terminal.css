@@ -1,0 +1,87 @@
+/* Scoped terminal: downloaded only when Institutional Flow opens. */
+#institutionalFlowPage { --if-bg:#07090c; --if-panel:#0c1015; --if-line:#202730; --if-muted:#939eae; --if-text:#edf2f7; --if-accent:#81d9e7; color:var(--if-text); color-scheme:dark; font-size:var(--trader-font-size,13px); }
+#institutionalFlowPage, #institutionalFlowPage :where(h2,h3,p,small,button,span,strong,b,a,td,th,summary,caption) { font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Consolas,monospace!important; }
+#institutionalFlowPage *, #institutionalFlowPage *::before, #institutionalFlowPage *::after { box-sizing:border-box; }
+#institutionalFlowPage [hidden] { display:none!important; }
+#institutionalFlowPage .if-terminal { background:var(--if-bg); border:1px solid var(--if-line); border-radius:16px; padding:clamp(14px,2.3vw,30px); min-width:0; }
+#institutionalFlowPage h2, #institutionalFlowPage h3, #institutionalFlowPage p { margin:0; }
+#institutionalFlowPage button { min-height:44px; border:1px solid var(--if-line); border-radius:7px; background:#121820; color:var(--if-text); padding:9px 12px; cursor:pointer; line-height:1.5; font-size:.85em; box-shadow:none; transition:border-color .15s ease; text-transform:none; letter-spacing:0; }
+#institutionalFlowPage button:hover:not(:disabled) { border-color:var(--if-accent); background:#17212a; }
+#institutionalFlowPage button:disabled { opacity:.42; cursor:default; }
+#institutionalFlowPage :is(button,summary,a):focus-visible { outline:2px solid var(--if-accent); outline-offset:4px; }
+#institutionalFlowPage .if-header { display:flex; justify-content:space-between; gap:20px; margin-bottom:26px; }
+#institutionalFlowPage .if-eyebrow { color:var(--if-muted); font-size:.66em; letter-spacing:.15em; margin-bottom:12px; }
+#institutionalFlowPage h2 { font-size:clamp(19px,2.3vw,29px); font-weight:600; line-height:1.3; letter-spacing:-.04em; color:var(--if-text); }
+#institutionalFlowPage h2 span { color:var(--if-accent); }
+#institutionalFlowPage .if-intro { color:var(--if-muted); margin-top:12px; font-size:.8em; }
+#institutionalFlowPage .if-session { display:flex; align-items:flex-end; flex-direction:column; gap:9px; flex-shrink:0; }
+#institutionalFlowPage .if-session small { font-size:.64em; color:var(--if-muted); max-width:200px; text-align:right; }
+#institutionalFlowPage .if-status { display:inline-flex; align-items:center; gap:6px; font-size:.63em; letter-spacing:.08em; padding:5px 7px; background:#151a22; border:1px solid #2b3440; border-radius:4px; color:#9ca6b5; white-space:nowrap; line-height:1.3; }
+#institutionalFlowPage .if-status::before { content:''; display:block; width:5px; height:5px; border-radius:50%; background:currentColor; }
+#institutionalFlowPage .if-status[data-state="HISTORICAL"] { color:#e4c484; background:#211d14; border-color:#4a3d23; }
+#institutionalFlowPage .if-status[data-state="LIVE"] { color:#87d7ac; }
+#institutionalFlowPage .if-status[data-state="DELAYED"] { color:#d9ab7c; }
+#institutionalFlowPage .if-market-switch { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+#institutionalFlowPage .if-market-switch button { text-align:left; padding:14px 16px; background:#0b1016; }
+#institutionalFlowPage .if-market-switch button[aria-pressed="true"] { background:#112027; border-color:#466d76; box-shadow:inset 3px 0 var(--if-accent); }
+#institutionalFlowPage .if-market-switch button>span:last-child { display:block; margin-top:7px; color:var(--if-muted); font-size:.7em; }
+#institutionalFlowPage .if-market-symbol { font-size:1.15em; font-weight:600; display:flex; gap:9px; align-items:center; }
+#institutionalFlowPage .if-market-symbol small { font-size:.65em; color:var(--if-accent); padding:2px 5px; border:1px solid #34464d; border-radius:3px; }
+#institutionalFlowPage .if-context { font-size:.72em; color:var(--if-muted); line-height:1.7; margin:11px 0 22px; }
+#institutionalFlowPage .if-toolbar { display:flex; gap:12px; align-items:center; justify-content:space-between; margin-bottom:12px; }
+#institutionalFlowPage .if-toolbar>span { font-size:.7em; letter-spacing:.05em; color:var(--if-muted); }
+#institutionalFlowPage .if-feedback { background:#171d24; border-left:2px solid #8c9db5; color:#c2cedb; padding:12px; font-size:.8em; line-height:1.7; margin-bottom:14px; }
+#institutionalFlowPage .if-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-bottom:16px; }
+#institutionalFlowPage .if-metric { border:1px solid var(--if-line); border-radius:9px; background:var(--if-panel); padding:16px; min-width:0; }
+#institutionalFlowPage .if-metric h3 { font-size:.7em; font-weight:500; color:#bdc8d7; min-height:34px; line-height:1.6; }
+#institutionalFlowPage .if-metric>strong { display:block; font-size:clamp(20px,2vw,30px); font-weight:500; letter-spacing:-.05em; margin:8px 0; }
+#institutionalFlowPage .if-metric small { display:block; font-size:.64em; line-height:1.6; }
+#institutionalFlowPage .if-metric p { font-size:.66em; color:var(--if-muted); line-height:1.6; margin-top:7px; }
+#institutionalFlowPage .if-oi-metric { border-color:#31545b; background:#0e191e; }
+#institutionalFlowPage .if-oi-metric>strong { color:var(--if-accent); }
+#institutionalFlowPage .if-oi-metric small { color:#b2d3d8; }
+#institutionalFlowPage .if-unavailable { color:#a0aab7; font-size:.62em; letter-spacing:.03em; }
+#institutionalFlowPage .if-analysis { display:grid; grid-template-columns:minmax(0,2.5fr) minmax(220px,1fr); gap:16px; margin-bottom:16px; align-items:start; }
+#institutionalFlowPage .if-panel { min-width:0; background:var(--if-panel); border:1px solid var(--if-line); border-radius:9px; overflow:hidden; }
+#institutionalFlowPage .if-panel-head { padding:14px 16px; border-bottom:1px solid var(--if-line); display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+#institutionalFlowPage .if-panel h3 { font-size:.78em; font-weight:500; color:var(--if-text); }
+#institutionalFlowPage .if-panel h3 span { font-size:.7em; color:var(--if-muted); }
+#institutionalFlowPage .if-panel-head>small { font-size:.59em; color:var(--if-muted); }
+#institutionalFlowPage .if-panel p { font-size:.72em; line-height:1.8; color:var(--if-muted); padding:12px 16px; }
+#institutionalFlowPage .if-chart { min-height:180px; padding:12px 16px 0; display:grid; align-items:center; }
+#institutionalFlowPage .if-chart svg { display:block; width:100%; height:auto; min-width:0; }
+#institutionalFlowPage .if-chart .if-grid-line { stroke:#242e38; stroke-dasharray:3 5; }
+#institutionalFlowPage .if-chart .if-axis { fill:#929fae; font-size:12px; }
+#institutionalFlowPage .if-chart .if-chart-line { stroke:var(--if-accent); stroke-width:2.5; fill:none; stroke-linejoin:round; }
+#institutionalFlowPage .if-chart .if-chart-dot { fill:var(--if-accent); }
+#institutionalFlowPage .if-pagination { display:flex; justify-content:space-between; gap:8px; align-items:center; padding:12px 16px; }
+#institutionalFlowPage .if-pagination span { color:var(--if-muted); font-size:.65em; }
+#institutionalFlowPage .if-pagination button { font-size:.68em; }
+#institutionalFlowPage details { border-top:1px solid var(--if-line); }
+#institutionalFlowPage summary { padding:15px 16px; cursor:pointer; font-size:.72em; color:#bdc8d7; line-height:1.7; }
+#institutionalFlowPage .if-table-scroll { overflow-x:auto; }
+#institutionalFlowPage table { width:100%; border-collapse:collapse; font-size:.7em; color:#c6d1dc; margin:0; }
+#institutionalFlowPage :is(td,th) { text-align:right; padding:10px 12px; border-bottom:1px solid #202730; background:none; white-space:nowrap; }
+#institutionalFlowPage th { font-weight:500; }
+#institutionalFlowPage :is(td,th):first-child { text-align:left; }
+#institutionalFlowPage caption { font-size:.9em; color:var(--if-muted); padding:8px 12px; text-align:left; }
+#institutionalFlowPage .if-source { padding:14px 16px; border-bottom:1px solid var(--if-line); }
+#institutionalFlowPage .if-source>div { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+#institutionalFlowPage .if-source b { font-size:.73em; font-weight:500; }
+#institutionalFlowPage .if-source p { padding:9px 0 0; font-size:.68em; }
+#institutionalFlowPage .if-source>small { display:block; color:#a9b6c6; font-size:.62em; margin-top:8px; }
+#institutionalFlowPage .if-source-foot { font-size:.65em!important; }
+#institutionalFlowPage .if-capabilities { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+#institutionalFlowPage .if-levels { display:flex; justify-content:space-around; padding:18px 10px 10px; gap:10px; }
+#institutionalFlowPage .if-levels div { display:grid; gap:8px; text-align:center; font-size:.72em; color:var(--if-muted); }
+#institutionalFlowPage .if-levels strong { font-size:22px; font-weight:400; color:#c3d2de; }
+#institutionalFlowPage .if-zone-list { margin:6px 16px; padding:0; list-style:none; font-size:.72em; color:#b0becc; }
+#institutionalFlowPage .if-zone-list li { display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid #1d252e; }
+#institutionalFlowPage .if-empty-alert { min-height:84px; display:flex; align-items:center; }
+#institutionalFlowPage .if-method { margin-top:20px; }
+#institutionalFlowPage .if-method p { font-size:.74em; line-height:1.9; color:var(--if-muted); margin:0 16px 12px; }
+#institutionalFlowPage a { color:var(--if-accent); text-decoration:underline; text-underline-offset:3px; }
+#institutionalFlowPage .if-footer { display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:25px; font-size:.58em; color:#8b99ab; letter-spacing:.06em; }
+@media(max-width:1200px) { #institutionalFlowPage .if-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } #institutionalFlowPage .if-capabilities { grid-template-columns:1fr; } }
+@media(max-width:760px) { #institutionalFlowPage .if-analysis { grid-template-columns:1fr; } #institutionalFlowPage .if-header { flex-direction:column; gap:14px; } #institutionalFlowPage .if-session { flex-direction:row; align-items:center; } #institutionalFlowPage .if-session small { text-align:left; } #institutionalFlowPage .if-metric { padding:12px; } #institutionalFlowPage .if-market-switch button { padding:12px; } #institutionalFlowPage .if-market-symbol { font-size:1em; } #institutionalFlowPage .if-pagination { padding:10px; } #institutionalFlowPage .if-pagination button { padding:8px; font-size:.63em; } #institutionalFlowPage .if-panel h3 span { display:block; margin-top:6px; } }
+@media(prefers-reduced-motion:reduce) { #institutionalFlowPage * { transition:none!important; } }
