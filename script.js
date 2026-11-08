@@ -1523,6 +1523,7 @@ function showWelcome(user){
 
   const subtitles = {
     dashboard:"Control privado de rendimiento, disciplina, reportes y progreso del trader.",
+    institutionalFlowPage:"OLFX Institutional Contract Flow · GC y NQ · Fuentes verificables.",
     registro:"Registra depósito, ganancia, pérdida y notas del día.",
     historial:"Revisa tus resultados y movimientos de capital.",
     comparacion:"Compara tu mes actual con el mes anterior.",
@@ -2083,6 +2084,7 @@ document.addEventListener("DOMContentLoaded", function(){
       await window.olonPush?.beforeLogout();
       const {error}=await supabaseClient.auth.signOut({scope:"local"});
       if(error)throw error;
+      window.olonInstitutionalFlow?.stop();
       localStorage.removeItem("olon_current_user");
       currentUser=null;cachedRecords=[];cachedUsers=[];
       window.olonCommunity?.clear();
@@ -2182,6 +2184,7 @@ function installPortalNavigation(){
     closeMenu();
     if(portalMenuBreakpoint.matches && previous !== id) window.scrollTo({top: 0, behavior: "instant"});
     window.olonAcademy?.openPage(id);
+    window.dispatchEvent(new CustomEvent("olon:pagechange", {detail:{id, previous}}));
     return result;
   };
 }
@@ -2192,3 +2195,53 @@ else installPortalNavigation();
 document.addEventListener("visibilitychange", () => {
   if(!document.hidden) renderVipPayment(currentUser);
 });
+
+/* Institutional Flow bootstrap: no module, styles, data, timers or feed at startup. */
+(function(){
+  const pageId = 'institutionalFlowPage';
+  let modulePromise = null, mounted = null, opening = false, epoch = 0, preparing = null;
+  const root = () => document.getElementById(pageId);
+  const visible = () => root() && !root().classList.contains('hidden') &&
+    !document.getElementById('portal')?.classList.contains('hidden') && !document.hidden;
+  function stop(){
+    epoch++; opening = false;
+    preparing?.abort(); preparing = null;
+    mounted?.destroy(); mounted = null;
+    root()?.replaceChildren(); root()?.removeAttribute('aria-busy');
+  }
+  async function open(){
+    if(!visible() || mounted || opening) return;
+    opening = true;
+    preparing = new AbortController();
+    const signal = preparing.signal;
+    const version = ++epoch, target = root();
+    const status = document.createElement('p');
+    status.setAttribute('role','status'); status.textContent = 'Cargando Institutional Flow…';
+    target.replaceChildren(status); target.setAttribute('aria-busy','true');
+    try{
+      modulePromise ||= import('./institutional-flow/entry.mjs?v=1').catch(error => {modulePromise = null; throw error;});
+      const module = await modulePromise;
+      if(version !== epoch || !visible()) return;
+      await module.prepare(signal);
+      if(version !== epoch || !visible()) return;
+      mounted = module.mount(target);
+    }catch(error){
+      if(version !== epoch || !visible()) return;
+      status.textContent = 'No se pudo cargar Institutional Flow. Comprueba tu conexión.';
+      const retry = document.createElement('button'); retry.type = 'button'; retry.textContent = 'Reintentar';
+      retry.addEventListener('click', () => {opening = false; void open();}, {once:true});
+      target.replaceChildren(status, retry); target.removeAttribute('aria-busy');
+    }finally{ if(version === epoch) opening = false; }
+  }
+  window.olonInstitutionalFlow = Object.freeze({stop});
+  window.addEventListener('olon:pagechange', event => {
+    if(event.detail.id === pageId) void open();
+    else if(mounted || opening) stop();
+  });
+  document.addEventListener('visibilitychange', () => {
+    if(document.hidden) { if(mounted || opening) stop(); }
+    else if(visible()) void open();
+  });
+  window.addEventListener('pagehide', stop);
+  window.addEventListener('pageshow', event => {if(event.persisted && visible()) void open();});
+})();

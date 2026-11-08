@@ -1,0 +1,38 @@
+name: Refresh public Institutional Flow history
+on:
+  workflow_dispatch:
+  schedule:
+    # Once for the entire academy, after the usual COT publication time.
+    - cron: '17 22 * * 1-5'
+permissions:
+  contents: write
+  pages: write
+concurrency:
+  group: institutional-flow-public-history
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Validate and refresh shared public snapshots
+        run: python3 scripts/sync-institutional-flow.py
+      - name: Commit only CFTC snapshots
+        id: commit
+        shell: bash
+        run: |
+          git add institutional-flow/data
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Refresh verified public CFTC open interest history'
+          git push origin HEAD:main
+          echo 'changed=true' >> "$GITHUB_OUTPUT"
+      - name: Rebuild branch-based GitHub Pages
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/$GITHUB_REPOSITORY/pages/builds" --silent
