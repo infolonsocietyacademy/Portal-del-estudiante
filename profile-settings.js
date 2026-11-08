@@ -49,6 +49,10 @@
     byId("portalWelcomeText").textContent = "Hola, " + name;
     byId("adminProfileName").textContent = name;
     document.querySelectorAll("[data-profile-initials]").forEach(label => { label.textContent = initial(name); });
+    if(state.renderedName !== name){
+      state.renderedName = name;
+      window.dispatchEvent(new CustomEvent("olon:profile-name-changed",{detail:{name}}));
+    }
     document.querySelectorAll("[data-profile-photo]").forEach(image => showImage(image,state.urls[image.dataset.profilePhoto]));
   }
 
@@ -59,7 +63,10 @@
   }
 
   async function showSaved(state,row){
+    if(state !== account) return;
     state.row = row;
+    // El apodo se muestra en cuanto se confirma, sin esperar a las fotos.
+    render(state);
     const urls = await Promise.all(photos.map(async photo => {
       const path = row?.[photo.column];
       if(!path) return [photo.key,null];
@@ -84,7 +91,11 @@
   }
 
   function start(){
-    if(!currentUser || currentUser.id === account?.owner) return;
+    if(!currentUser) return;
+    if(currentUser.id === account?.owner){
+      render(account);
+      return;
+    }
     clear();
     const state = {
       owner:currentUser.id, originalName:currentUser.full_name?.trim() || (isAdminUser(currentUser) ? "Admin" : "Estudiante"),
@@ -306,3 +317,4 @@
 
   window.olonProfile = {start, clear};
 })();
+

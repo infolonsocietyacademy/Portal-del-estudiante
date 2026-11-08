@@ -11,13 +11,14 @@
     const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
     let started = false;
     let pending = [];
-    let originalGreeting = "";
+    let greetingVersion = 0;
 
     function schedule(fn,ms){
       const id = window.setTimeout(fn,ms);
       pending.push(id);
     }
     function stop(){
+      greetingVersion++;
       pending.forEach(id => window.clearTimeout(id));
       pending = [];
       word.textContent = "TRADER";
@@ -27,9 +28,11 @@
     }
     function write(target,fullText,step,delay){
       let index = 0;
+      const version = greetingVersion;
       target.classList.add("cyberTypingActive");
       target.textContent = "";
       function tick(){
+        if(target === greeting && version !== greetingVersion) return;
         if(portal.classList.contains("hidden")){
           target.textContent = fullText;
           target.classList.remove("cyberTypingActive");
@@ -57,7 +60,6 @@
       schedule(() => {
         if(portal.classList.contains("hidden")) return;
         const greetingText = (greeting.textContent || "Hola, Estudiante").trim();
-        originalGreeting = greetingText;
         greeting.setAttribute("aria-label",greetingText);
         greeting.setAttribute("aria-live","off");
         write(word,"TRADER",105,80);
@@ -66,6 +68,13 @@
     }
     const observer = new MutationObserver(onPortalVisibility);
     observer.observe(portal,{attributes:true,attributeFilter:["class"]});
+    window.addEventListener("olon:profile-name-changed",event => {
+      greetingVersion++;
+      const text = "Hola, " + event.detail.name;
+      greeting.textContent = text;
+      greeting.setAttribute("aria-label",text);
+      greeting.classList.remove("cyberTypingActive");
+    });
     onPortalVisibility();
     window.addEventListener("pagehide",() => {pending.forEach(id=>window.clearTimeout(id));pending=[];},{once:true});
   }
