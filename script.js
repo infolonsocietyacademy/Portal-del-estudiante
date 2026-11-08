@@ -1533,6 +1533,7 @@ function showWelcome(user){
     academyVipPage:"Comprobantes y próxima fecha de pago.",
     academyChecklistPage:"Tus reglas y la revisión de cada día.",
     academyJournalPage:"Captura y notas privadas de tu operación.",
+    notificationsPage:"Avisos de clases y renovación VIP en tus dispositivos.",
     academyAdminClassesPage:"Agenda, acceso y grabaciones de la academia.",
     academyAdminVipPage:"Revisión de comprobantes de membresía.",
     admin:"Panel administrativo profesional.",
@@ -2079,6 +2080,7 @@ document.addEventListener("DOMContentLoaded", function(){
     const buttons=document.querySelectorAll("[data-olon-logout]");
     buttons.forEach(button=>{button.disabled=true;button.setAttribute("aria-busy","true");});
     try{
+      await window.olonPush?.beforeLogout();
       const {error}=await supabaseClient.auth.signOut({scope:"local"});
       if(error)throw error;
       localStorage.removeItem("olon_current_user");

@@ -4,10 +4,13 @@
 
 <link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon.png">
 <link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon.png">
-<link rel="apple-touch-icon" sizes="180x180" href="./assets/favicon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./assets/icon-180.png">
 <link rel="shortcut icon" href="./assets/favicon.png">
-<link rel="manifest" href="./manifest.json?v=20261106-trader">
+<link rel="manifest" href="./manifest.json?v=20261108-push-1">
 <meta name="theme-color" content="#f2f5fa">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="OLON Trader">
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -43,7 +46,8 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 
 </style>
 <link rel="stylesheet" href="./trading-terminal-pro.css?v=20261108">
-<link rel="stylesheet" href="./trader-analytics.css?v=20261108-performance-1"></head>
+<link rel="stylesheet" href="./trader-analytics.css?v=20261108-markets-2">
+<link rel="stylesheet" href="./mobile-notifications.css?v=20261108-push-1"></head>
 <body class="trader-themed">
 
 <div id="olonLoader" class="portalLoader" role="status" aria-live="polite" aria-atomic="true">
@@ -216,6 +220,7 @@ window.addEventListener("load", () => {
       <button type="button" class="portalNavLink studentNav" data-page="comparacion" onclick="showPage('comparacion',this)" aria-label="Resultados"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V11M10 20V5M16 20v-8M22 20V3"/><path d="M2 20h20"/></svg></span><span class="portalNavText">Resultados</span></button>
       <div class="portalNavGroup studentNav portalNavGroupSecondary">ACADEMIA</div>
       <button type="button" class="portalNavLink studentNav" data-page="newsProPage" onclick="showPage('newsProPage',this)" aria-label="Noticias"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10M7 11h4M13 11h4M7 15h10M7 18h7"/></svg></span><span class="portalNavText">Noticias</span></button>
+      <button type="button" class="portalNavLink" data-page="notificationsPage" onclick="showPage('notificationsPage',this)" aria-label="Notificaciones"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></span><span class="portalNavText">Notificaciones</span></button>
       <div class="portalNavGroup adminNav hidden">ADMINISTRACIÓN</div>
       <button type="button" class="portalNavLink adminNav hidden" data-page="admin" onclick="showPage('admin',this)" aria-label="Centro administrativo"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4M9 15h6M12 15v3"/></svg></span><span class="portalNavText">Centro administrativo</span></button>
       <button type="button" class="portalNavLink adminNav hidden" data-page="academyAdminClassesPage" onclick="showPage('academyAdminClassesPage',this)" aria-label="Gestionar clases"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h8"/></svg></span><span class="portalNavText">Gestionar clases</span></button>
@@ -246,6 +251,7 @@ window.addEventListener("load", () => {
         <p id="pageSubtitle">Control privado de rendimiento, disciplina, reportes y progreso del trader.</p>
       </div>
       <div class="portalTopActions">
+        <button type="button" class="pushBellButton" data-open-notifications aria-label="Abrir notificaciones" title="Notificaciones"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span data-push-active-dot hidden></span></button>
         <button class="traderAppearanceTrigger" type="button" data-open-appearance aria-label="Apariencia" title="Apariencia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 0 0 0 18c1.6 0 2.5-1.4 1.5-2.5s-.2-2.6 1.2-2.6H17a4 4 0 0 0 4-4A9 9 0 0 0 12 3Z"/><path d="M7.5 11h.01m3-4h.01m4 1h.01m3 3h.01" stroke-width="2.6"/></svg><span>Apariencia</span></button>
         <button type="button" class="userPill portalUserPill cyberProfileCard" data-edit-profile aria-label="Editar mi perfil">
           <span class="avatar profileAvatar cyberProfileAvatar" aria-hidden="true"><span id="avatarText" data-profile-initials>O</span><img data-profile-photo="avatar" alt="" hidden></span>
@@ -264,11 +270,12 @@ window.addEventListener("load", () => {
 
     <section id="dashboard" class="page">
       <section id="olonMarketTape" class="marketTape" aria-labelledby="marketTapeTitle">
-        <div class="marketTapeHead"><span id="marketTapeTitle">MERCADOS / BTC · US30 · XAUUSD · EURUSD</span><a href="https://www.tradingview.com/symbols/CME_MINI-NQ1!/" target="_blank" rel="noopener noreferrer">NQ · Cotización de futuros ↗</a></div>
+        <div class="marketTapeHead"><div class="marketTapeBrand"><span class="marketTapeEmblem" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 8 12l4 3 9-10M15 5h6v6"/></svg></span><div><span class="marketTapeEyebrow">OLON / MARKET STREAM</span><h3 id="marketTapeTitle">Pulso del mercado</h3></div></div><span class="marketTapeSource"><i aria-hidden="true"></i> SPOT &amp; CFD</span></div>
         <div id="marketTapeMount" class="marketTapeMount"></div>
         <p id="marketTapeStatus" class="marketTapeStatus" role="status">Cargando cotizaciones…</p>
-        <p class="marketTapeNote">US30: CFD. NQ abre su cotización en TradingView; ese contrato no está disponible en widgets externos. Precios según proveedor y horario del mercado.</p>
+        <div class="marketTapeFooter"><div class="marketTapeAssets" aria-label="Activos del billboard"><span>BTC</span><span>US30</span><span>XAUUSD</span><span>EURUSD</span></div><p class="marketTapeNote">US30: CFD · Cotizaciones según proveedor y horario del mercado.</p></div>
       </section>
+      <div class="pushQuickCard"><div class="pushQuickCopy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><strong data-push-quick-status>Lleva los avisos de OLON a tu celular</strong></div><button type="button" class="btn secondary" data-open-notifications>Configurar avisos</button></div>
       <div id="portalWelcomeCard" class="card welcomeHeroCard profileHero">
         <div class="cyberWelcomeIdentity" aria-hidden="true"><img src="./assets/favicon.png" alt=""><strong>OLON SOCIETY<span>ACADEMY</span></strong></div>
         <img class="profileHeroCover" data-profile-photo="cover" alt="" hidden>
@@ -644,6 +651,16 @@ window.addEventListener("load", () => {
         <ul id="historyList" class="historyList" aria-label="Registros de trading y capital"></ul>
         <button type="button" id="historyMore" class="btn secondary" hidden>Ver más registros</button>
       </section>
+    </section>
+
+    <section id="notificationsPage" class="page hidden" aria-labelledby="pushPageTitle">
+      <header class="pushPageHeader"><div><span class="pushEyebrow">OLON / SIEMPRE CONECTADO</span><h3 id="pushPageTitle">Notificaciones del celular</h3><p>Clases y renovación VIP, a tiempo y en tus manos.</p></div><div class="pushHeaderIcon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></div></header>
+      <div class="pushLayout"><div class="pushStack">
+        <section class="pushPanel pushStatusPanel" aria-labelledby="pushStatusTitle"><div class="pushStatusTop"><span>TU DISPOSITIVO</span><span id="pushStatusBadge" class="pushBadge">SIN ACTIVAR</span></div><h4 id="pushStatusTitle">Listo para conectar</h4><p id="pushStatusDetail">Activa los avisos cuando estés preparado.</p><div class="pushActions"><button type="button" id="pushViewInstall" class="btn" hidden>Ver pasos para activar en iPhone</button><button type="button" id="pushActivate" class="btn" disabled>Activar en este dispositivo</button><button type="button" id="pushTest" class="btn secondary" disabled>Enviar prueba a mi celular</button><button type="button" id="pushDisable" class="btn secondary" hidden>Desactivar este dispositivo</button><button type="button" id="pushRetry" class="btn secondary" hidden>Reintentar conexión</button></div><p id="pushFeedback" class="pushFeedback" role="status" hidden></p></section>
+        <section class="pushPanel" aria-labelledby="pushPreferencesTitle"><h4 id="pushPreferencesTitle">Elige qué quieres recibir</h4><label class="pushCategory" for="pushClasses"><span><strong>Clases de la academia</strong><small>Nuevas sesiones y un aviso antes de que comiencen.</small></span><input id="pushClasses" type="checkbox" checked></label><label class="pushCategory" for="pushVip"><span><strong>Renovación de membresía VIP</strong><small>Recordatorios 3 días antes, 1 día antes y el día del vencimiento, durante el día en Puerto Rico.</small></span><input id="pushVip" type="checkbox" checked></label><div class="pushActions"><button type="button" id="pushSavePreferences" class="btn" hidden>Guardar mis preferencias</button></div><p class="pushPrivacy">La activación es voluntaria y se guarda por dispositivo. Los avisos no muestran balances, contraseñas ni importes en la pantalla de bloqueo.</p></section>
+        <details id="pushInstallHelp" class="pushPanel pushInstallHelp"><summary>Cómo activarlo en iPhone</summary><ol class="pushInstallSteps"><li><span>Abre el portal en <strong>Safari</strong> y toca el botón <strong>Compartir</strong>.</span></li><li><span>Selecciona <strong>Añadir a pantalla de inicio</strong> y confirma <strong>Añadir</strong>.</span></li><li><span>Abre el portal desde su nuevo icono, inicia sesión y entra a <strong>Notificaciones</strong>.</span></li><li><span>Toca <strong>Activar en este dispositivo</strong> y después <strong>Permitir</strong>.</span></li></ol><p class="pushPrivacy">Si ya bloqueaste el permiso, revísalo en los ajustes de notificaciones del dispositivo.</p><button type="button" id="pushInstallBrowser" class="btn secondary" hidden>Instalar portal</button></details>
+        <section class="pushPanel" aria-labelledby="pushDevicesTitle"><h4 id="pushDevicesTitle">Mis dispositivos conectados</h4><p>Controla hasta cinco dispositivos de tu cuenta.</p><ul id="pushDeviceList" class="pushDevices"></ul></section>
+      </div><aside class="pushPanel pushPreview" aria-label="Ejemplo de una notificación"><span class="pushEyebrow">ASÍ TE ACOMPAÑA OLON</span><div class="pushPhone" aria-hidden="true"><div class="pushPhoneSlot"></div><div class="pushPhoneTime">9:00</div><span class="pushPhoneCaption">Tus próximos pasos, a tiempo.</span><div class="pushSample"><div class="pushSampleBrand"><img src="./assets/favicon.png" alt=""> OLON SOCIETY ACADEMY</div><strong>Tu clase comienza pronto</strong><span>Consulta los detalles y entra a la sesión desde tu portal.</span></div><div class="pushSample"><div class="pushSampleBrand"><img src="./assets/favicon.png" alt=""> PORTAL DEL TRADER</div><strong>Recordatorio de membresía VIP</strong><span>Revisa tu próxima renovación en el portal.</span></div></div><div class="pushPreviewFoot">Vista ilustrativa · El aspecto del aviso depende de tu celular.</div></aside></div>
     </section>
 
     <section id="academyClassesPage" class="page hidden academyPage">
@@ -1172,7 +1189,7 @@ window.addEventListener("load", () => {
 </dialog>
 
 <script src="./analytics-core.js?v=20261108-performance-1" defer></script>
-<script src="./script.js?v=20261108-performance-1" defer></script>
+<script src="./script.js?v=20261108-push-1" defer></script>
 <script src="./interior-typewriter.js?v=20261107-profile-nickname-fix" defer></script>
 <script src="./appearance.js?v=20261107-fontsize-mobile" defer></script>
 <script src="./trade-history.js?v=20261108-performance-1" defer></script>
@@ -1181,7 +1198,8 @@ window.addEventListener("load", () => {
 <script src="./profile-settings.js?v=20261107-profile-nickname-fix" defer></script>
 <script src="./student-records.js?v=20261108-performance-1" defer></script>
 <script src="./trader-analytics.js?v=20261108-performance-1" defer></script>
-<script src="./market-tape.js?v=20261108-tape-1" defer></script>
+<script src="./market-tape.js?v=20261108-markets-2" defer></script>
+<script src="./mobile-notifications.js?v=20261108-push-1" defer></script>
 <script src="./premium-report.js?v=20261108-performance-1" defer></script>
 <script src="./academy-tools.js?v=20261107-class-countdown" defer></script>
 <script src="./admin-workspace.js?v=20261107-rebates" defer></script>

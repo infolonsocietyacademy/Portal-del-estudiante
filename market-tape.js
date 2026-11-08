@@ -4,12 +4,13 @@
   const root=document.getElementById("olonMarketTape"),mount=document.getElementById("marketTapeMount");
   if(!root || !mount) return;
   const status=document.getElementById("marketTapeStatus");
-  let theme="",timer=null;
+  let theme="",timer=null,generation=0;
   function render(){
     if(document.getElementById("portal")?.classList.contains("hidden") || document.getElementById("dashboard")?.classList.contains("hidden")) return;
     const next=document.body.classList.contains("atlas-dark")?"dark":"light";
     if(next===theme) return;
     theme=next;
+    const current=++generation;
     clearTimeout(timer);
     mount.replaceChildren();
     status.textContent="Cargando cotizaciones…";status.hidden=false;
@@ -26,17 +27,17 @@
       {proName:"OANDA:XAUUSD",title:"XAUUSD"},
       {proName:"OANDA:EURUSD",title:"EURUSD"}
     ],showSymbolLogo:true,isTransparent:true,displayMode:"regular",colorTheme:theme,locale:"es"});
-    script.onerror=()=>{status.hidden=false;status.textContent="No se pudieron cargar las cotizaciones. Puedes consultar los gráficos en TradingView.";};
+    script.onerror=()=>{if(current!==generation)return;observer.disconnect();status.hidden=false;status.textContent="No se pudieron cargar las cotizaciones. Puedes consultar los gráficos en TradingView.";};
     const observer=new MutationObserver(()=>{
       const frame=container.querySelector("iframe");
       if(!frame) return;
       frame.title="Precios de BTC, US30, XAUUSD y EURUSD · TradingView";
-      frame.addEventListener("load",()=>{clearTimeout(timer);status.hidden=true;},{once:true});
+      frame.addEventListener("load",()=>{if(current!==generation)return;clearTimeout(timer);status.hidden=true;},{once:true});
       observer.disconnect();
     });
     observer.observe(container,{childList:true,subtree:true});
     container.append(widget,attribution,script);mount.append(container);
-    timer=setTimeout(()=>{if(!container.querySelector("iframe")){status.textContent="Cotizaciones no disponibles en este momento. Consulta los gráficos en TradingView.";}},15000);
+    timer=setTimeout(()=>{if(current===generation&&!container.querySelector("iframe")){observer.disconnect();status.textContent="Cotizaciones no disponibles en este momento. Consulta los gráficos en TradingView.";}},15000);
   }
   new MutationObserver(render).observe(document.body,{attributes:true,attributeFilter:["class"]});
   for(const id of ["portal","dashboard"]){const element=document.getElementById(id);if(element)new MutationObserver(render).observe(element,{attributes:true,attributeFilter:["class"]});}

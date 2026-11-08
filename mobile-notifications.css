@@ -1,0 +1,70 @@
+/* Native OLON typography and each member's appearance are inherited. */
+#portal.app #notificationsPage{--push-panel:var(--cyber-ui-panel,var(--panel));--push-soft:var(--cyber-ui-panel-2,var(--panel2));--push-line:var(--cyber-ui-border,var(--line));--push-ink:var(--cyber-ui-ink,var(--text));--push-muted:var(--cyber-ui-muted,var(--muted));color:var(--push-ink)}
+#portal.app .pushPageHeader{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:9px 0 23px;border-bottom:1px solid var(--push-line);margin-bottom:20px}
+#portal.app .pushEyebrow{color:var(--trader-accent-ink);font-size:calc(.64rem * var(--trader-font-scale,1));font-weight:800;letter-spacing:.14em}
+#portal.app .pushPageHeader h3{font-size:calc(clamp(1.4rem,2.6vw,2rem) * var(--trader-font-scale,1))!important;letter-spacing:-.05em;color:var(--push-ink);margin:8px 0}
+#portal.app #notificationsPage p{font-size:calc(.76rem * var(--trader-font-scale,1))!important;line-height:1.8;color:var(--push-muted);margin:8px 0}
+#portal.app .pushHeaderIcon{display:grid;place-items:center;width:65px;height:65px;flex:none;border-radius:18px;border:1px solid var(--push-line);background:color-mix(in srgb,var(--trader-accent) 10%,var(--push-panel));color:var(--trader-accent-ink)}
+#portal.app .pushHeaderIcon svg{width:28px;height:28px}
+#portal.app .pushLayout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,1fr);gap:16px;align-items:start}
+#portal.app .pushStack{display:grid;gap:16px;min-width:0}
+#portal.app .pushPanel{border:1px solid var(--push-line);background:var(--push-panel);border-radius:15px;padding:23px;min-width:0}
+#portal.app .pushStatusPanel{position:relative;overflow:hidden;background:radial-gradient(ellipse at 100% 0%,color-mix(in srgb,var(--trader-accent) 12%,transparent),transparent 60%),var(--push-panel)}
+#portal.app .pushStatusTop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+#portal.app .pushStatusTop>span:first-child{font-size:calc(.63rem * var(--trader-font-scale,1));font-weight:800;letter-spacing:.1em;color:var(--push-muted)}
+#portal.app .pushBadge{font-size:calc(.58rem * var(--trader-font-scale,1));border:1px solid var(--push-line);border-radius:20px;padding:7px 10px;font-weight:750;color:var(--push-muted);background:var(--push-soft)}
+#portal.app #notificationsPage[data-state="active"] .pushBadge{color:var(--cyber-profit,var(--green));border-color:color-mix(in srgb,var(--cyber-profit,var(--green)) 50%,var(--push-line))}
+#portal.app .pushStatusPanel h4{font-size:calc(1.22rem * var(--trader-font-scale,1));line-height:1.45;letter-spacing:-.035em;margin:0;color:var(--push-ink)}
+#portal.app #notificationsPage .pushPanel h4:not(#pushStatusTitle){font-size:calc(.88rem * var(--trader-font-scale,1));margin:0 0 15px;font-weight:800;color:var(--push-ink)}
+#portal.app .pushActions{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}
+#portal.app #notificationsPage button{font-size:calc(.73rem * var(--trader-font-scale,1))!important;min-height:44px;cursor:pointer}
+#portal.app #notificationsPage button:disabled{opacity:.5;cursor:default}
+#portal.app #notificationsPage [hidden]{display:none!important}
+#portal.app .pushCategory{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:17px 0;border-bottom:1px solid var(--push-line);font-size:calc(.78rem * var(--trader-font-scale,1))!important;cursor:pointer}
+#portal.app .pushCategory strong{display:block;font-size:calc(.79rem * var(--trader-font-scale,1));line-height:1.6;font-weight:750;color:var(--push-ink)}
+#portal.app .pushCategory small{display:block;font-size:calc(.67rem * var(--trader-font-scale,1))!important;line-height:1.8;color:var(--push-muted);margin-top:3px}
+#portal.app .pushCategory input{width:20px;height:20px;flex:none;accent-color:var(--trader-accent);cursor:pointer}
+#portal.app #notificationsPage .pushPrivacy{font-size:calc(.65rem * var(--trader-font-scale,1))!important;margin-top:15px}
+#portal.app .pushFeedback{padding:13px 15px;border:1px solid var(--push-line);border-radius:10px;background:var(--push-soft)}
+#portal.app #notificationsPage .pushFeedback[data-tone="error"]{color:var(--cyber-loss,var(--red))}
+#portal.app #notificationsPage .pushFeedback[data-tone="success"]{color:var(--cyber-profit,var(--green))}
+#portal.app .pushInstallHelp summary{font-size:calc(.8rem * var(--trader-font-scale,1));font-weight:750;color:var(--push-ink);cursor:pointer;min-height:35px}
+#portal.app .pushInstallSteps{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:14px;counter-reset:install}
+#portal.app #notificationsPage .pushInstallSteps li{display:flex;align-items:flex-start;gap:13px;font-size:calc(.72rem * var(--trader-font-scale,1))!important;color:var(--push-muted);line-height:1.8;counter-increment:install}
+#portal.app .pushInstallSteps li::before{content:counter(install,decimal-leading-zero);display:grid;place-items:center;width:29px;height:29px;flex:none;border:1px solid var(--push-line);border-radius:8px;background:var(--push-soft);color:var(--trader-accent-ink);font-size:.62rem;font-weight:800}
+#portal.app .pushInstallSteps strong{color:var(--push-ink)}
+#portal.app .pushPreview{background:linear-gradient(150deg,var(--push-soft),var(--push-panel));position:relative;overflow:hidden}
+#portal.app .pushPhone{max-width:265px;margin:18px auto 7px;border:1px solid color-mix(in srgb,var(--trader-accent) 40%,var(--push-line));border-radius:28px;background:var(--cyber-ui-bg,var(--bg));padding:22px 13px 26px;box-shadow:0 18px 45px #00000014}
+#portal.app .pushPhoneSlot{height:5px;width:48px;border-radius:9px;background:var(--push-line);margin:0 auto 25px}
+#portal.app .pushPhoneTime{text-align:center;font-size:2.5rem;letter-spacing:-.09em;line-height:1.2;color:var(--push-ink);font-weight:750;margin-bottom:5px}
+#portal.app .pushPhoneCaption{display:block;text-align:center;color:var(--push-muted);font-size:.6rem;margin-bottom:23px}
+#portal.app .pushSample{border:1px solid var(--push-line);border-radius:12px;padding:13px 12px;background:var(--push-panel);margin-top:9px}
+#portal.app .pushSampleBrand{display:flex;align-items:center;gap:6px;color:var(--push-muted);font-size:.53rem;margin-bottom:8px;font-weight:700}
+#portal.app .pushSampleBrand img{width:18px;height:18px;object-fit:contain}
+#portal.app .pushSample strong{display:block;color:var(--push-ink);font-size:.66rem;line-height:1.65;font-weight:750}
+#portal.app .pushSample>span{display:block;color:var(--push-muted);font-size:.6rem;line-height:1.7;margin-top:4px}
+#portal.app .pushPreviewFoot{text-align:center;font-size:calc(.6rem * var(--trader-font-scale,1));color:var(--push-muted);margin-top:15px;line-height:1.8}
+#portal.app .pushDevices{padding:0;margin:0;list-style:none;display:grid;gap:10px}
+#portal.app #notificationsPage .pushDevices li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--push-line);font-size:calc(.72rem * var(--trader-font-scale,1))!important}
+#portal.app .pushDevices strong{display:block;color:var(--push-ink);font-size:.73rem;line-height:1.6}
+#portal.app .pushDevices small{display:block;margin-top:4px;font-size:calc(.62rem * var(--trader-font-scale,1))!important;color:var(--push-muted);line-height:1.7}
+#portal.app #notificationsPage .pushDevices button{font-size:calc(.61rem * var(--trader-font-scale,1))!important;padding:8px 10px}
+#portal.app .pushBellButton{display:inline-grid;place-items:center;width:42px;height:42px;flex:none;border-radius:10px;border:1px solid var(--cyber-ui-border,var(--line));background:var(--cyber-ui-panel,var(--panel));color:var(--cyber-ui-ink,var(--text));cursor:pointer;position:relative}
+#portal.app .pushBellButton svg{width:19px;height:19px}
+#portal.app [data-push-active-dot]{width:6px;height:6px;border-radius:50%;background:var(--cyber-profit,var(--green));position:absolute;right:8px;top:8px}
+#portal.app .pushQuickCard{display:flex;justify-content:space-between;align-items:center;gap:17px;border:1px solid var(--cyber-ui-border,var(--line));border-radius:12px;background:var(--cyber-ui-panel,var(--panel));padding:13px 17px;margin:0 0 17px}
+#portal.app .pushQuickCopy{display:flex;gap:12px;align-items:center;min-width:0}
+#portal.app .pushQuickCopy svg{width:20px;height:20px;color:var(--trader-accent-ink);flex:none}
+#portal.app .pushQuickCopy strong{font-size:calc(.73rem * var(--trader-font-scale,1));color:var(--cyber-ui-ink,var(--text));line-height:1.6}
+#portal.app .pushQuickCard button{font-size:calc(.65rem * var(--trader-font-scale,1))!important;min-height:42px;flex:none}
+#portal.app #notificationsPage :is(button,input,summary):focus-visible{outline:2px solid var(--trader-accent);outline-offset:3px}
+@media(max-width:850px){#portal.app .pushLayout{grid-template-columns:minmax(0,1fr)}#portal.app .pushPreview{display:none}}
+@media(max-width:520px){
+  #portal.app .pushBellButton{display:none}
+  #portal.app .pushPanel{padding:18px 15px}#portal.app .pushHeaderIcon{width:48px;height:48px;border-radius:13px}
+  #portal.app .pushActions>.btn{flex:1 1 100%}#portal.app .pushQuickCard{flex-wrap:wrap;padding:14px}
+  #portal.app .pushQuickCard>button{width:100%}#portal.app #notificationsPage .pushDevices li{flex-wrap:wrap}
+  #portal.app .pushDevices button{width:100%}
+}
+/* Leave room for the notification control and account actions on medium screens. */
+@media(max-width:1700px){#portal.app .cyberPortalWordmark{display:none}}
