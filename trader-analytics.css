@@ -1,0 +1,156 @@
+/* Extends the existing OLON terminal. Typography and appearance preferences are inherited. */
+#portal.app .marketTape{border:1px solid var(--cyber-ui-border,var(--line));border-radius:12px;background:var(--cyber-ui-panel,var(--panel));overflow:hidden;margin-bottom:18px;color:var(--cyber-ui-ink,var(--text));min-width:0}
+#portal.app .marketTapeHead{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--cyber-ui-border,var(--line));font-size:calc(.58rem * var(--trader-font-scale,1)) !important;font-weight:750;letter-spacing:.08em}
+#portal.app .marketTapeHead>span:first-child{color:var(--trader-accent-ink)}
+#portal.app .marketTapeHead>span+span{color:var(--cyber-ui-muted,var(--muted));font-weight:500}
+#portal.app .marketTapeHead>a{color:var(--trader-accent-ink);text-decoration:none;min-height:32px;display:inline-flex;align-items:center}
+#portal.app .marketTapeHead>a:focus-visible{outline:2px solid var(--trader-accent);outline-offset:3px}
+#portal.app .marketTapeMount{min-height:66px;overflow:hidden;width:100%}
+#portal.app .marketTapeMount iframe{display:block;max-width:100%;border:0}
+#portal.app .marketTapeAttribution{font-size:calc(.58rem * var(--trader-font-scale,1)) !important;text-align:right;padding:0 14px 3px}
+#portal.app .marketTapeAttribution a{color:var(--trader-accent-ink);text-decoration:none}
+#portal.app :is(.marketTapeStatus,.marketTapeNote){font-size:calc(.58rem * var(--trader-font-scale,1)) !important;line-height:1.7;color:var(--cyber-ui-muted,var(--muted));padding:0 14px;margin:5px 0 8px}
+#portal.app .marketTapeStatus[hidden]{display:none!important}
+#portal.app .traderAnalytics{
+  --an-panel:var(--cyber-ui-panel,var(--panel));--an-soft:var(--cyber-ui-panel-2,var(--panel2));
+  --an-line:var(--cyber-ui-border,var(--line));--an-text:var(--cyber-ui-ink,var(--text));
+  --an-muted:var(--cyber-ui-muted,var(--muted));--an-up:var(--cyber-profit,var(--green));--an-down:var(--cyber-loss,var(--red));
+  margin:20px 0 24px;color:var(--an-text);min-width:0;
+}
+#portal.app .traderAnalytics *{box-sizing:border-box;min-width:0}
+#portal.app .traderAnalytics .analyticsHeader{display:flex;justify-content:space-between;align-items:center;gap:20px;margin:0 0 18px}
+#portal.app .traderAnalytics .analyticsEyebrow{color:var(--trader-accent-ink);font-size:calc(.65rem * var(--trader-font-scale,1)) !important;font-weight:800;letter-spacing:.16em}
+#portal.app .traderAnalytics .analyticsHeader h3{font-size:calc(clamp(1.2rem,2.3vw,1.65rem) * var(--trader-font-scale,1)) !important;line-height:1.25;letter-spacing:-.045em;margin:7px 0;color:var(--an-text)}
+#portal.app .traderAnalytics .analyticsHeader p{font-size:calc(.73rem * var(--trader-font-scale,1)) !important;color:var(--an-muted);margin:0;line-height:1.7}
+#portal.app .traderAnalytics .analyticsHeader .btn{min-height:44px;flex:none;font-size:calc(.72rem * var(--trader-font-scale,1)) !important}
+#portal.app .traderAnalytics .analyticsFilters{border:1px solid var(--an-line);background:var(--an-panel);border-radius:14px;padding:16px;margin-bottom:14px}
+#portal.app .traderAnalytics .analyticsFilterTop{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+#portal.app .traderAnalytics .analyticsPeriods,#portal.app .traderAnalytics .analyticsDimensions{display:flex;flex-wrap:wrap;gap:4px}
+#portal.app .traderAnalytics button{cursor:pointer}
+#portal.app .traderAnalytics .analyticsPeriods button,#portal.app .traderAnalytics .analyticsDimensions button{
+  border:1px solid transparent;background:transparent;color:var(--an-muted);padding:10px 13px;border-radius:8px;
+  font-size:calc(.69rem * var(--trader-font-scale,1)) !important;font-weight:700;min-height:42px;line-height:1.4;
+}
+#portal.app .traderAnalytics .analyticsPeriods button[aria-pressed="true"],#portal.app .traderAnalytics .analyticsDimensions button[aria-pressed="true"]{
+  background:color-mix(in srgb,var(--trader-accent) 12%,var(--an-panel));border-color:color-mix(in srgb,var(--trader-accent) 55%,var(--an-line));color:var(--trader-accent-ink);
+}
+#portal.app .traderAnalytics .analyticsRangeLabel{font-size:calc(.66rem * var(--trader-font-scale,1)) !important;color:var(--an-muted);margin:0}
+#portal.app .traderAnalytics .analyticsSelects{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid var(--an-line)}
+#portal.app .traderAnalytics .analyticsSelects label,#portal.app .traderAnalytics .analyticsCustom label{display:grid;gap:6px;font-size:calc(.62rem * var(--trader-font-scale,1)) !important;font-weight:700;color:var(--an-muted)}
+#portal.app .traderAnalytics .analyticsSelects select,#portal.app .traderAnalytics .analyticsCustom input{
+  width:100%;min-height:44px;border-radius:8px;border:1px solid var(--an-line);background:var(--an-soft);color:var(--an-text);padding:9px 11px;font-size:calc(.75rem * var(--trader-font-scale,1)) !important;
+}
+#portal.app .traderAnalytics .analyticsCustom{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px;max-width:500px}
+#portal.app .traderAnalytics .analyticsCustom[hidden],#portal.app .traderAnalytics [hidden]{display:none!important}
+#portal.app .traderAnalytics .analyticsStatus{font-size:calc(.72rem * var(--trader-font-scale,1)) !important;color:var(--an-muted);padding:12px 14px;border:1px solid var(--an-line);border-radius:10px;background:var(--an-soft);margin:0 0 14px;line-height:1.7}
+#portal.app .traderAnalytics .analyticsStatus[data-tone="error"]{color:var(--an-down)}
+#portal.app .traderAnalytics .analyticsHeroGrid{display:grid;grid-template-columns:minmax(270px,1.45fr) repeat(3,minmax(0,1fr));gap:12px}
+#portal.app .traderAnalytics .analyticsMetric{position:relative;border:1px solid var(--an-line);border-radius:14px;background:var(--an-panel);padding:21px;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;gap:20px}
+#portal.app .traderAnalytics .analyticsMetric::before{content:"";position:absolute;inset:0 20px auto;height:1px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--trader-accent) 45%,transparent),transparent);pointer-events:none}
+#portal.app .traderAnalytics .analyticsMetricLabel{font-size:calc(.63rem * var(--trader-font-scale,1)) !important;text-transform:uppercase;letter-spacing:.08em;font-weight:750;color:var(--an-muted);margin:0;line-height:1.65}
+#portal.app .traderAnalytics .analyticsMetric strong{font-size:calc(clamp(1.35rem,2.1vw,2rem) * var(--trader-font-scale,1)) !important;line-height:1.22;font-weight:800;letter-spacing:-.055em;color:var(--an-text);overflow-wrap:anywhere}
+#portal.app .traderAnalytics .analyticsMetric small{display:block;font-size:calc(.64rem * var(--trader-font-scale,1)) !important;line-height:1.65;color:var(--an-muted);margin-top:7px}
+#portal.app .traderAnalytics .analyticsMetric [data-tone="positive"],#portal.app .traderAnalytics [data-tone="positive"]{color:var(--an-up)}
+#portal.app .traderAnalytics .analyticsMetric [data-tone="negative"],#portal.app .traderAnalytics [data-tone="negative"]{color:var(--an-down)}
+#portal.app .traderAnalytics .analyticsWinCard{background:radial-gradient(ellipse at 100% 0%,color-mix(in srgb,var(--trader-accent) 12%,transparent),transparent 65%),var(--an-panel);border-color:color-mix(in srgb,var(--trader-accent) 45%,var(--an-line));gap:15px}
+#portal.app .traderAnalytics .analyticsWinTop{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#portal.app .traderAnalytics .analyticsWinCard .analyticsBigValue{font-size:calc(clamp(2.4rem,4vw,3.4rem) * var(--trader-font-scale,1)) !important;letter-spacing:-.08em;display:block;margin-top:7px;color:var(--an-text)}
+#portal.app .traderAnalytics .analyticsRing{width:77px;height:77px;flex:0 0 77px;transform:rotate(-90deg)}
+#portal.app .traderAnalytics .analyticsRing circle{fill:none;stroke:var(--an-line);stroke-width:5}
+#portal.app .traderAnalytics .analyticsRing circle+circle{stroke:var(--trader-accent);stroke-linecap:round;stroke-dasharray:213.63;stroke-dashoffset:213.63;transition:stroke-dashoffset .35s ease}
+#portal.app .traderAnalytics .analyticsOutcomes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;border-top:1px solid var(--an-line);padding-top:12px;margin:0}
+#portal.app .traderAnalytics .analyticsOutcomes dt{font-size:calc(.58rem * var(--trader-font-scale,1)) !important;color:var(--an-muted);margin-top:4px}
+#portal.app .traderAnalytics .analyticsOutcomes dd{font-size:calc(1rem * var(--trader-font-scale,1)) !important;font-weight:800;margin:0}
+#portal.app .traderAnalytics .analyticsOutcomes>div{display:flex;flex-direction:column}
+#portal.app .traderAnalytics .analyticsOutcomes dt{order:2}
+#portal.app .traderAnalytics .analyticsOutcomes dd{order:1}
+#portal.app .traderAnalytics .analyticsSample{display:flex;gap:7px;align-items:center;color:var(--an-muted);font-size:calc(.61rem * var(--trader-font-scale,1)) !important;line-height:1.6}
+#portal.app .traderAnalytics .analyticsSample::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--trader-accent);flex:none}
+#portal.app .traderAnalytics .analyticsSecondaryGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:12px}
+#portal.app .traderAnalytics .analyticsSecondaryGrid .analyticsMetric{min-height:150px;gap:15px;padding:19px 21px}
+#portal.app .traderAnalytics .analyticsDual{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+#portal.app .traderAnalytics .analyticsDual strong{font-size:calc(clamp(1.05rem,1.6vw,1.4rem) * var(--trader-font-scale,1)) !important}
+#portal.app .traderAnalytics .analyticsDetailGrid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(250px,1fr);gap:12px;margin-top:12px}
+#portal.app .traderAnalytics .analyticsPanel{border:1px solid var(--an-line);border-radius:14px;background:var(--an-panel);padding:20px;overflow:hidden}
+#portal.app .traderAnalytics .analyticsPanelHead{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:15px}
+#portal.app .traderAnalytics .analyticsPanel h4{font-size:calc(.84rem * var(--trader-font-scale,1)) !important;color:var(--an-text);margin:0;font-weight:800;letter-spacing:-.02em}
+#portal.app .traderAnalytics .analyticsPanelHead>span{font-size:calc(.6rem * var(--trader-font-scale,1)) !important;color:var(--an-muted)}
+#portal.app .traderAnalytics .analyticsDimensions{margin-bottom:10px}
+#portal.app .traderAnalytics .analyticsDimensions button{font-size:calc(.63rem * var(--trader-font-scale,1)) !important;padding:7px 10px;min-height:38px}
+#portal.app .traderAnalytics .analyticsTableWrap{width:100%;overflow:auto;scrollbar-width:thin;border-top:1px solid var(--an-line)}
+#portal.app .traderAnalytics .analyticsTable{width:100%;border-collapse:collapse;min-width:440px;font-size:calc(.68rem * var(--trader-font-scale,1)) !important;text-align:left}
+#portal.app .traderAnalytics .analyticsTable :is(th,td){padding:14px 9px;border-bottom:1px solid var(--an-line);background:transparent;vertical-align:middle}
+#portal.app .traderAnalytics .analyticsTable th{color:var(--an-muted);font-size:calc(.57rem * var(--trader-font-scale,1)) !important;font-weight:700;letter-spacing:.045em;text-transform:uppercase;white-space:nowrap}
+#portal.app .traderAnalytics .analyticsTable td{color:var(--an-text);font-weight:650}
+#portal.app .traderAnalytics .analyticsTable th:not(:first-child),#portal.app .traderAnalytics .analyticsTable td:not(:first-child){text-align:right;white-space:nowrap}
+#portal.app .traderAnalytics .analyticsTable td:first-child{overflow-wrap:anywhere;max-width:180px}
+#portal.app .traderAnalytics .analyticsTable caption{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+#portal.app .traderAnalytics .analyticsEmpty{padding:24px 12px!important;text-align:center!important;color:var(--an-muted)!important;line-height:1.9;font-weight:400!important}
+#portal.app .traderAnalytics .analyticsShowMore{background:transparent;border:0;color:var(--trader-accent-ink);font-size:calc(.65rem * var(--trader-font-scale,1)) !important;min-height:44px;margin-top:4px;padding:8px}
+#portal.app .traderAnalytics .analyticsDayRate{display:flex;align-items:baseline;gap:10px;margin:18px 0 14px}
+#portal.app .traderAnalytics .analyticsDayRate strong{font-size:calc(2rem * var(--trader-font-scale,1)) !important;line-height:1.2;letter-spacing:-.06em;color:var(--an-text)}
+#portal.app .traderAnalytics .analyticsDayRate span{font-size:calc(.65rem * var(--trader-font-scale,1)) !important;color:var(--an-muted)}
+#portal.app .traderAnalytics .analyticsDayTrack{display:flex;width:100%;height:5px;border-radius:10px;overflow:hidden;background:var(--an-line);margin:13px 0 17px}
+#portal.app .traderAnalytics .analyticsDayTrack span{width:0;min-width:0;background:var(--an-up)}
+#portal.app .traderAnalytics .analyticsDayTrack span+span{background:var(--an-down)}
+#portal.app .traderAnalytics .analyticsDayRows{display:grid;margin:0;gap:0}
+#portal.app .traderAnalytics .analyticsDayRows>div{display:flex;justify-content:space-between;gap:13px;padding:10px 0;border-bottom:1px solid var(--an-line);font-size:calc(.67rem * var(--trader-font-scale,1)) !important}
+#portal.app .traderAnalytics .analyticsDayRows dt{color:var(--an-muted)}
+#portal.app .traderAnalytics .analyticsDayRows dd{margin:0;color:var(--an-text);text-align:right;font-weight:700}
+#portal.app .traderAnalytics .analyticsDailyNote{font-size:calc(.63rem * var(--trader-font-scale,1)) !important;color:var(--an-muted);line-height:1.8;margin:13px 0 0}
+#portal.app .traderAnalytics .analyticsMethod{padding:13px 3px;color:var(--an-muted);font-size:calc(.64rem * var(--trader-font-scale,1)) !important;line-height:1.8}
+#portal.app .traderAnalytics .analyticsMethod summary{cursor:pointer;min-height:35px;padding:7px 0;color:var(--an-muted);font-weight:700}
+#portal.app .traderAnalytics .analyticsMethod p{margin:8px 0;max-width:100ch}
+#portal.app .traderAnalytics .analyticsCoverage{display:flex;gap:12px;flex-wrap:wrap;margin:13px 2px 0;color:var(--an-muted);font-size:calc(.6rem * var(--trader-font-scale,1)) !important;line-height:1.7}
+#portal.app .traderAnalytics .analyticsCoverage span+span{border-left:1px solid var(--an-line);padding-left:12px}
+#portal.app .traderAnalytics :is(button,select,input):focus-visible{outline:2px solid var(--trader-accent);outline-offset:3px}
+#portal.app .analyticsEntryScope{padding:13px;border:1px solid var(--cyber-ui-border,var(--line));background:var(--cyber-ui-panel-2,var(--panel2));border-radius:10px;margin:0}
+#portal.app .analyticsEntryScope p{font-size:calc(.69rem * var(--trader-font-scale,1)) !important;line-height:1.7;color:var(--cyber-ui-muted,var(--muted));margin:7px 0 0}
+#portal.app #tradeOperationFields[hidden]{display:none!important}
+#portal.app #tradeOperationFields{border:0;margin:0;padding:0;min-width:0}
+#portal.app .tradeNetHint{font-size:calc(.67rem * var(--trader-font-scale,1)) !important;color:var(--cyber-ui-muted,var(--muted));line-height:1.7;margin:0}
+@media(max-width:1250px){
+  #portal.app .traderAnalytics .analyticsHeroGrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #portal.app .traderAnalytics .analyticsWinCard{grid-column:span 3;display:grid;grid-template-columns:1.2fr 1fr;align-items:center;gap:10px 25px}
+  #portal.app .traderAnalytics .analyticsWinCard .analyticsSample{grid-column:1/-1}
+  #portal.app .traderAnalytics .analyticsWinCard .analyticsOutcomes{border-top:0;border-left:1px solid var(--an-line);padding:4px 0 4px 25px}
+  #portal.app .traderAnalytics .analyticsSecondaryGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:800px){
+  #portal.app .traderAnalytics .analyticsHeader{align-items:flex-start;gap:12px}
+  #portal.app .traderAnalytics .analyticsHeader .btn{font-size:calc(.64rem * var(--trader-font-scale,1)) !important;padding:10px}
+  #portal.app .traderAnalytics .analyticsSelects{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #portal.app .traderAnalytics .analyticsDetailGrid{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:520px){
+  #portal.app .traderAnalytics{margin-top:16px}
+  #portal.app .traderAnalytics .analyticsHeader{flex-wrap:wrap}
+  #portal.app .traderAnalytics .analyticsHeader .btn{width:100%}
+  #portal.app .traderAnalytics .analyticsFilters,#portal.app .traderAnalytics .analyticsPanel{padding:14px}
+  #portal.app .traderAnalytics .analyticsPeriods{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+  #portal.app .traderAnalytics .analyticsPeriods button{padding:9px 4px;font-size:calc(.64rem * var(--trader-font-scale,1)) !important}
+  #portal.app .traderAnalytics .analyticsRangeLabel{font-size:calc(.6rem * var(--trader-font-scale,1)) !important}
+  #portal.app .traderAnalytics .analyticsHeroGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  #portal.app .traderAnalytics .analyticsWinCard{grid-column:1/-1;grid-template-columns:1fr;gap:15px}
+  #portal.app .traderAnalytics .analyticsWinCard .analyticsOutcomes{border-left:0;border-top:1px solid var(--an-line);padding:12px 0 0}
+  #portal.app .traderAnalytics .analyticsHeroGrid>.analyticsMetric:last-child{grid-column:1/-1}
+  #portal.app .traderAnalytics .analyticsMetric{padding:17px;gap:17px}
+  #portal.app .traderAnalytics .analyticsSecondaryGrid{gap:9px}
+  #portal.app .traderAnalytics .analyticsSecondaryGrid .analyticsMetric{padding:16px 13px;min-height:143px}
+  #portal.app .traderAnalytics .analyticsMetricLabel{font-size:calc(.59rem * var(--trader-font-scale,1)) !important;letter-spacing:.045em}
+  #portal.app .traderAnalytics .analyticsMetric strong{font-size:calc(clamp(1.05rem,4.2vw,1.3rem) * var(--trader-font-scale,1)) !important}
+  #portal.app .traderAnalytics .analyticsSelects select,#portal.app .traderAnalytics .analyticsCustom input{font-size:calc(1rem * var(--trader-font-scale,1)) !important}
+  #portal.app .traderAnalytics .analyticsDual{display:grid;gap:5px}
+  #portal.app .traderAnalytics .analyticsDual strong{font-size:calc(1.05rem * var(--trader-font-scale,1)) !important}
+  #portal.app .traderAnalytics .analyticsCoverage{display:block}
+  #portal.app .traderAnalytics .analyticsCoverage span{display:block}
+  #portal.app .traderAnalytics .analyticsCoverage span+span{border:0;padding:3px 0 0}
+}
+@media(max-width:360px){
+  #portal.app .traderAnalytics .analyticsHeroGrid,#portal.app .traderAnalytics .analyticsSecondaryGrid{grid-template-columns:minmax(0,1fr)}
+  #portal.app .traderAnalytics .analyticsHeroGrid>.analyticsMetric{grid-column:auto}
+  #portal.app .traderAnalytics .analyticsPeriods{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #portal.app .traderAnalytics .analyticsPeriods button:last-child{grid-column:1/-1}
+  #portal.app .traderAnalytics .analyticsWinCard .analyticsBigValue{font-size:calc(clamp(1.85rem,9vw,2.4rem) * var(--trader-font-scale,1)) !important}
+}
+@media(prefers-reduced-motion:reduce){#portal.app .traderAnalytics .analyticsRing circle+circle{transition:none}}

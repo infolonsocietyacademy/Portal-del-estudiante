@@ -149,7 +149,7 @@
     ]);
     section(margin+column+gap, 350, "Desempeño de trading", [
       ["Días operados", period.days],
-      ["Winrate", pct(rate.winrate)],
+      ["Win Rate por operación", rate.winrate === null ? "Sin operaciones" : pct(rate.winrate)],
       ["Ganadores / perdedores", rate.wins + " / " + rate.losses],
       ["Mejor día", result(extremes.best)],
       ["Peor día", result(extremes.worst)]

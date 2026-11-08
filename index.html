@@ -42,7 +42,8 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 .main{position:relative!important;z-index:10!important;pointer-events:auto!important}
 
 </style>
-<link rel="stylesheet" href="./trading-terminal-pro.css?v=20261108"></head>
+<link rel="stylesheet" href="./trading-terminal-pro.css?v=20261108">
+<link rel="stylesheet" href="./trader-analytics.css?v=20261108-performance-1"></head>
 <body class="trader-themed">
 
 <div id="olonLoader" class="portalLoader" role="status" aria-live="polite" aria-atomic="true">
@@ -262,6 +263,12 @@ window.addEventListener("load", () => {
     </div>
 
     <section id="dashboard" class="page">
+      <section id="olonMarketTape" class="marketTape" aria-labelledby="marketTapeTitle">
+        <div class="marketTapeHead"><span id="marketTapeTitle">MERCADOS / BTC · US30 · XAUUSD · EURUSD</span><a href="https://www.tradingview.com/symbols/CME_MINI-NQ1!/" target="_blank" rel="noopener noreferrer">NQ · Cotización de futuros ↗</a></div>
+        <div id="marketTapeMount" class="marketTapeMount"></div>
+        <p id="marketTapeStatus" class="marketTapeStatus" role="status">Cargando cotizaciones…</p>
+        <p class="marketTapeNote">US30: CFD. NQ abre su cotización en TradingView; ese contrato no está disponible en widgets externos. Precios según proveedor y horario del mercado.</p>
+      </section>
       <div id="portalWelcomeCard" class="card welcomeHeroCard profileHero">
         <div class="cyberWelcomeIdentity" aria-hidden="true"><img src="./assets/favicon.png" alt=""><strong>OLON SOCIETY<span>ACADEMY</span></strong></div>
         <img class="profileHeroCover" data-profile-photo="cover" alt="" hidden>
@@ -343,6 +350,60 @@ window.addEventListener("load", () => {
 
       <div class="proQuote" id="dailyQuote">👑 Control, disciplina y progreso: la diferencia entre operar y construir consistencia.</div>
 
+      <section id="traderAnalytics" class="traderAnalytics studentOnly" aria-labelledby="analyticsTitle">
+        <header class="analyticsHeader">
+          <div><span class="analyticsEyebrow">OLON / PERFORMANCE ANALYTICS</span><h3 id="analyticsTitle">Estadísticas de trading</h3><p>Una visión precisa de tus aciertos, tu riesgo y tus resultados.</p></div>
+          <button type="button" class="btn" data-record-open="trading">+ Registrar operación</button>
+        </header>
+        <div class="analyticsFilters" aria-label="Filtros de estadísticas">
+          <div class="analyticsFilterTop">
+            <div class="analyticsPeriods" role="group" aria-label="Período de estadísticas">
+              <button type="button" data-analytics-period="week" aria-pressed="false">Semana</button><button type="button" data-analytics-period="month" aria-pressed="true">Mes</button><button type="button" data-analytics-period="year" aria-pressed="false">Año</button><button type="button" data-analytics-period="all" aria-pressed="false">Histórico</button><button type="button" data-analytics-period="custom" aria-pressed="false">Personalizado</button>
+            </div><p id="analyticsPeriodLabel" class="analyticsRangeLabel"></p>
+          </div>
+          <div id="analyticsCustomDates" class="analyticsCustom" hidden><label for="analyticsFrom">Desde<input id="analyticsFrom" type="date"></label><label for="analyticsTo">Hasta<input id="analyticsTo" type="date"></label></div>
+          <div class="analyticsSelects">
+            <label for="analyticsInstrument">ACTIVO<select id="analyticsInstrument"><option value="">Todos</option></select></label>
+            <label for="analyticsStrategy">ESTRATEGIA<select id="analyticsStrategy"><option value="">Todas</option></select></label>
+            <label for="analyticsSide">DIRECCIÓN<select id="analyticsSide"><option value="">Todas</option><option value="buy">Compras / Buy</option><option value="sell">Ventas / Sell</option></select></label>
+            <label for="analyticsSession">SESIÓN<select id="analyticsSession"><option value="">Todas</option><option value="asia">Asia</option><option value="london">Londres</option><option value="ny_am">Nueva York AM</option><option value="ny_pm">Nueva York PM</option><option value="other">Otra sesión</option></select></label>
+          </div>
+        </div>
+        <p id="analyticsStatus" class="analyticsStatus" role="status" hidden></p>
+        <div class="analyticsHeroGrid" aria-live="polite" aria-atomic="false">
+          <article class="analyticsMetric analyticsWinCard" aria-label="Win Rate por operación">
+            <div class="analyticsWinTop"><div><p class="analyticsMetricLabel">Win Rate por operación</p><strong id="analyticsWinrate" class="analyticsBigValue">—</strong></div><svg class="analyticsRing" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="34"/><circle id="analyticsWinArc" cx="40" cy="40" r="34"/></svg></div>
+            <dl class="analyticsOutcomes"><div><dt>Ganadas</dt><dd id="analyticsWins" data-tone="positive">0</dd></div><div><dt>Perdidas</dt><dd id="analyticsLosses" data-tone="negative">0</dd></div><div><dt>Break even</dt><dd id="analyticsFlat">0</dd></div></dl><span id="analyticsSample" class="analyticsSample">0 operaciones cerradas · BE fuera del porcentaje</span>
+          </article>
+          <article class="analyticsMetric"><p class="analyticsMetricLabel">Resultado neto</p><div><strong id="analyticsNet">—</strong><small id="analyticsNetNote">Operaciones seleccionadas</small></div></article>
+          <article class="analyticsMetric"><p class="analyticsMetricLabel">Profit Factor</p><div><strong id="analyticsProfitFactor">—</strong><small id="analyticsFactorNote">Ganancias ÷ pérdidas</small></div></article>
+          <article class="analyticsMetric"><p class="analyticsMetricLabel">Expectativa / operación</p><div><strong id="analyticsExpectancy">—</strong><small>Resultado neto promedio · incluye BE</small></div></article>
+        </div>
+        <div class="analyticsSecondaryGrid">
+          <article class="analyticsMetric"><p class="analyticsMetricLabel">RR real promedio</p><div><strong id="analyticsAverageR">—</strong><small id="analyticsRiskCoverage">0 operaciones con riesgo inicial</small></div></article>
+          <article class="analyticsMetric"><p class="analyticsMetricLabel">Ganancia / pérdida promedio</p><div><div class="analyticsDual"><strong id="analyticsAvgWin" data-tone="positive">—</strong><strong id="analyticsAvgLoss" data-tone="negative">—</strong></div><small>Por operación ganadora / perdedora</small></div></article>
+          <article class="analyticsMetric"><p class="analyticsMetricLabel">Drawdown máximo</p><div><strong id="analyticsDrawdown">—</strong><small id="analyticsDrawdownNote">Pico a valle · operaciones cerradas</small></div></article>
+          <article class="analyticsMetric"><p class="analyticsMetricLabel">Mejores rachas · ganadas / perdidas</p><div><div class="analyticsDual"><strong id="analyticsStreakWin" data-tone="positive">0 G</strong><strong id="analyticsStreakLoss" data-tone="negative">0 P</strong></div><small id="analyticsStreakNote">Secuencias de operaciones consecutivas</small></div></article>
+        </div>
+        <div class="analyticsDetailGrid">
+          <section class="analyticsPanel" aria-labelledby="analyticsBreakdownTitle">
+            <div class="analyticsPanelHead"><h4 id="analyticsBreakdownTitle">Dónde rindes mejor</h4><span id="analyticsGroupCount">Sin operaciones</span></div>
+            <div class="analyticsDimensions" role="group" aria-label="Agrupar operaciones"><button type="button" data-analytics-dimension="instrument" aria-pressed="true">Activo</button><button type="button" data-analytics-dimension="strategy" aria-pressed="false">Estrategia</button><button type="button" data-analytics-dimension="session" aria-pressed="false">Sesión</button><button type="button" data-analytics-dimension="hour" aria-pressed="false">Hora PR</button></div>
+            <div class="analyticsTableWrap" tabindex="0" role="region" aria-label="Desglose de operaciones"><table class="analyticsTable"><caption>Resultados agrupados por activo, estrategia, sesión u hora; ordenados por resultado neto.</caption><thead><tr><th scope="col" id="analyticsGroupHeading">Activo</th><th scope="col">Trades</th><th scope="col">Win Rate</th><th scope="col">Neto</th><th scope="col">R medio</th></tr></thead><tbody id="analyticsBreakdownBody"></tbody></table></div>
+            <button type="button" id="analyticsMoreGroups" class="analyticsShowMore" hidden>Ver todos los grupos</button>
+          </section>
+          <section class="analyticsPanel" aria-labelledby="analyticsDaysTitle">
+            <div class="analyticsPanelHead"><h4 id="analyticsDaysTitle">Resultados diarios</h4><span id="analyticsDayCount">0 días registrados</span></div>
+            <div class="analyticsDayRate"><strong id="analyticsDayRate">—</strong><span>de días positivos<br>BE excluidos</span></div>
+            <div class="analyticsDayTrack" aria-hidden="true"><span id="analyticsDayPositiveBar"></span><span id="analyticsDayNegativeBar"></span></div>
+            <dl class="analyticsDayRows"><div><dt>Días positivos / negativos / BE</dt><dd><span id="analyticsDaysPositive">0</span> / <span id="analyticsDaysNegative">0</span> / <span id="analyticsDaysFlat">0</span></dd></div><div><dt>Mejor día</dt><dd id="analyticsBestDay">—</dd></div><div><dt>Peor día</dt><dd id="analyticsWorstDay">—</dd></div><div><dt>Resultado neto del período</dt><dd id="analyticsDailyNet">—</dd></div><div><dt>Drawdown de cuenta</dt><dd id="analyticsAccountDD">—</dd></div></dl>
+            <p id="analyticsAccountDDLabel" class="analyticsDailyNote">Saldo cerrado ajustado por capital</p><p id="analyticsDailyNote" class="analyticsDailyNote">Resultados agrupados por fecha.</p>
+          </section>
+        </div>
+        <div class="analyticsCoverage"><span id="analyticsTimeCoverage">0 operaciones con hora PR</span><span id="analyticsLegacyCoverage">0 resúmenes diarios conservados</span><span>Resultados registrados · USD</span></div>
+        <details class="analyticsMethod"><summary>Cómo se calculan tus estadísticas</summary><p>Win Rate = operaciones ganadoras ÷ (ganadoras + perdedoras). Los break even se muestran por separado. Profit Factor = suma de ganancias netas de operaciones ÷ valor absoluto de sus pérdidas netas; ∞ indica ganancias sin pérdidas y — indica que faltan datos. Expectativa = resultado neto ÷ todas las operaciones, incluidos los BE.</p><p>RR real promedio = promedio del resultado neto dividido entre el riesgo inicial de cada operación que tenga ese dato. Un valor de 1 R equivale a una unidad del riesgo inicial. El tamaño de la muestra siempre se muestra. Registra ganancias o pérdidas después de comisiones y otros costos.</p><p>El drawdown en dólares mide la caída desde un máximo de resultados de las operaciones seleccionadas. El porcentaje de cuenta usa el saldo cerrado registrado, ajusta depósitos y retiros y requiere una base de capital positiva; se muestra sin filtros de activo, estrategia, dirección o sesión. No mide pérdidas flotantes. Las rachas siguen fecha y hora PR; sin hora se usa el orden de registro. Un BE interrumpe la racha.</p><p>Los resúmenes diarios anteriores conservan su clasificación: no se convierten en operaciones. Usa una operación por registro o un resumen diario para cada fecha y evita duplicar los mismos resultados. Las sesiones son las que selecciones al registrar; los horarios se agrupan en hora de Puerto Rico. La semana comienza el lunes.</p></details>
+      </section>
+
       <div class="v3Grid">
         <div class="card v3Card">
           <small>Ranking Estudiantil</small>
@@ -355,14 +416,14 @@ window.addEventListener("load", () => {
           <span>Ganancia neta ÷ total depositado</span>
         </div>
         <div class="card v3Card">
-          <small>Drawdown</small>
+          <small>Caída de resultados · histórico</small>
           <h3 id="maxDrawdown">$0</h3>
           <span id="drawdownPct">0% del depósito</span>
         </div>
         <div class="card v3Card">
-          <small>YTD Winrate</small>
+          <small>Días positivos · año</small>
           <h3 id="ytdWinrate">0%</h3>
-          <span id="ytdStats">0 wins / 0 losses</span>
+          <span id="ytdStats">0 días positivos / 0 negativos</span>
         </div>
       </div>
 
@@ -524,9 +585,19 @@ window.addEventListener("load", () => {
           <div class="field" id="ledgerDepositField" hidden><label for="deposit">Monto del depósito</label><input id="deposit" type="number" inputmode="decimal" min="0" step="any" placeholder="Ej. 500"></div>
           <div class="field" id="ledgerWithdrawalField" hidden><label for="withdrawal">Monto del retiro</label><input id="withdrawal" type="number" inputmode="decimal" min="0" step="any" placeholder="Ej. 100"></div>
           <div class="field"><label for="date">Fecha</label><input id="date" type="date" required></div>
+          <div id="tradeScopeField" class="field full analyticsEntryScope"><label for="tradeEntryScope">Tipo de resultado</label><select id="tradeEntryScope"><option value="trade">Una operación cerrada</option><option value="daily">Resumen de todo el día</option></select><p id="tradeScopeHint">Registra cada operación para calcular tu Win Rate, Profit Factor y RR real. Incluye los cierres parciales en el resultado final de la misma operación.</p></div>
           <fieldset class="formGrid full ledgerFields" id="ledgerTradingFields" aria-label="Resultado de trading">
-            <div class="field"><label for="gain">Ganancia del día</label><input id="gain" type="number" inputmode="decimal" min="0" step="any" placeholder="Ej. 80"></div>
-            <div class="field"><label for="loss">Pérdida del día</label><input id="loss" type="number" inputmode="decimal" min="0" step="any" placeholder="Ej. 20"></div>
+            <div class="field"><label id="tradeGainLabel" for="gain">Ganancia neta</label><input id="gain" type="number" inputmode="decimal" min="0" step="0.01" placeholder="Ej. 80"></div>
+            <div class="field"><label id="tradeLossLabel" for="loss">Pérdida neta</label><input id="loss" type="number" inputmode="decimal" min="0" step="0.01" placeholder="Ej. 20"></div>
+            <p class="full tradeNetHint">Importes después de comisiones y costos. Para un break even, escribe 0. Evita duplicar un resumen diario con sus operaciones.</p>
+          </fieldset>
+          <fieldset id="tradeOperationFields" class="formGrid full" aria-label="Datos de la operación">
+            <div class="field"><label for="tradeInstrument">Activo *</label><input id="tradeInstrument" maxlength="32" placeholder="Ej. XAUUSD, NAS100, MNQ" autocomplete="off" required></div>
+            <div class="field"><label for="tradeStrategy">Estrategia / setup</label><input id="tradeStrategy" maxlength="60" placeholder="Ej. CRT, ORB, SMT" list="tradeStrategyChoices" autocomplete="off"><datalist id="tradeStrategyChoices"><option value="CRT"><option value="ORB"><option value="SMT"><option value="SMC"></datalist></div>
+            <div class="field"><label for="tradeSide">Dirección</label><select id="tradeSide"><option value="">Sin especificar</option><option value="buy">Compra / Buy</option><option value="sell">Venta / Sell</option></select></div>
+            <div class="field"><label for="tradeRisk">Riesgo inicial (USD)</label><input id="tradeRisk" type="number" inputmode="decimal" min="0.01" max="1000000000000" step="0.01" placeholder="Ej. 100 para calcular R"></div>
+            <div class="field"><label for="tradeTime">Hora de entrada · Puerto Rico</label><input id="tradeTime" type="time"></div>
+            <div class="field"><label for="tradeSession">Sesión operada</label><select id="tradeSession"><option value="">Sin especificar</option><option value="asia">Asia</option><option value="london">Londres</option><option value="ny_am">Nueva York AM</option><option value="ny_pm">Nueva York PM</option><option value="other">Otra sesión</option></select></div>
           </fieldset>
           <details class="full ledgerDetails" id="ledgerTradingDetails">
             <summary>Detalles del trade (opcional)</summary>
@@ -1100,15 +1171,18 @@ window.addEventListener("load", () => {
   <p id="adminAccountFeedback" class="profileFeedback" role="status" hidden></p>
 </dialog>
 
-<script src="./script.js?v=20261107-keyboard-audio-fixed-2" defer></script>
+<script src="./analytics-core.js?v=20261108-performance-1" defer></script>
+<script src="./script.js?v=20261108-performance-1" defer></script>
 <script src="./interior-typewriter.js?v=20261107-profile-nickname-fix" defer></script>
 <script src="./appearance.js?v=20261107-fontsize-mobile" defer></script>
-<script src="./trade-history.js?v=20261106-trader" defer></script>
+<script src="./trade-history.js?v=20261108-performance-1" defer></script>
 
 
 <script src="./profile-settings.js?v=20261107-profile-nickname-fix" defer></script>
-<script src="./student-records.js?v=20261106-registros-pdf" defer></script>
-<script src="./premium-report.js?v=20261106-registros-pdf" defer></script>
+<script src="./student-records.js?v=20261108-performance-1" defer></script>
+<script src="./trader-analytics.js?v=20261108-performance-1" defer></script>
+<script src="./market-tape.js?v=20261108-tape-1" defer></script>
+<script src="./premium-report.js?v=20261108-performance-1" defer></script>
 <script src="./academy-tools.js?v=20261107-class-countdown" defer></script>
 <script src="./admin-workspace.js?v=20261107-rebates" defer></script>
 <script src="./admin-billing.js?v=20261107-integrated" defer></script>

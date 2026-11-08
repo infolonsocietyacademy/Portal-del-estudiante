@@ -5,19 +5,20 @@
   const form = byId("ledgerForm");
   const storageKey = "olon_registros_pendientes_v1";
   const kinds = {
-    trading: { title:"Registrar resultado", save:"Guardar resultado", hint:"Anota el resultado de tu día de trading." },
+    trading: { title:"Registrar resultado de trading", save:"Guardar resultado", hint:"Registra una operación cerrada o el resumen de un día." },
     deposit: { title:"Registrar depósito", save:"Guardar depósito", hint:"Añade al registro el capital que depositaste." },
     withdrawal: { title:"Registrar retiro", save:"Guardar retiro", hint:"Anota cuánto capital retiraste." }
   };
   let mode = "trading", editing = null, busy = false;
+  const core = window.olonAnalyticsCore;
+  const tradeFields = {tradeInstrument:"trade_instrument",tradeStrategy:"trade_strategy",tradeSide:"trade_side",tradeRisk:"trade_risk",tradeTime:"trade_time",tradeSession:"trade_session"};
 
   function studentId(){
     return currentUser && !isAdminUser(currentUser) ? currentUser.id : null;
   }
 
   function today(){
-    const now = new Date();
-    return [now.getFullYear(), String(now.getMonth()+1).padStart(2,"0"), String(now.getDate()).padStart(2,"0")].join("-");
+    return core.today();
   }
 
   function notice(id, message, tone = ""){
@@ -43,7 +44,9 @@
     byId("ledgerDepositField").hidden = kind !== "deposit" && !(kind === "legacy" && record?.deposit);
     byId("ledgerWithdrawalField").hidden = kind !== "withdrawal";
     byId("ledgerTradingFields").hidden = kind !== "trading" && !(kind === "legacy" && isTradingRecord(record));
-    byId("ledgerTradingDetails").hidden = Boolean(record) || kind !== "trading";
+    byId("tradeEntryScope").value = record?.entry_scope || "trade";
+    if(record && !record.entry_scope) byId("tradeEntryScope").value = "daily";
+    syncScope();
     byId("ledgerCancelEdit").hidden = !record;
     for(const button of document.querySelectorAll("[data-record-kind]")){
       button.setAttribute("aria-pressed", String(button.dataset.recordKind === kind));
@@ -52,9 +55,24 @@
     syncButton();
   }
 
+  function syncScope(){
+    const trading = !byId("ledgerTradingFields").hidden;
+    const operation = trading && byId("tradeEntryScope").value === "trade";
+    byId("tradeScopeField").hidden = !trading;
+    byId("tradeOperationFields").hidden = !operation;
+    byId("tradeOperationFields").disabled = !operation;
+    byId("ledgerTradingDetails").hidden = !trading || operation || Boolean(editing);
+    byId("tradeGainLabel").textContent = operation ? "Ganancia neta de la operación" : "Ganancias netas del día";
+    byId("tradeLossLabel").textContent = operation ? "Pérdida neta de la operación" : "Pérdidas netas del día";
+    byId("tradeScopeHint").textContent = operation
+      ? "Una operación cerrada por registro. Incluye los cierres parciales en su resultado final. El riesgo inicial permite calcular R."
+      : "El resumen conserva tus resultados diarios. No se incluye como una operación en el Win Rate ni debe duplicarse con los trades de esa fecha.";
+  }
+
   function reset(kind = "trading"){
     form.reset();
     byId("date").value = today();
+    byId("date").max = today();
     byId("ledgerTradingDetails").open = false;
     setMode(kind);
   }
@@ -62,7 +80,7 @@
   function amount(id, label){
     const input = byId(id);
     const value = Number(input.value || 0);
-    if(input.validity.badInput || !Number.isFinite(value) || value < 0){
+    if(input.validity.badInput || input.validity.rangeOverflow || input.validity.stepMismatch || !Number.isFinite(value) || value < 0){
       throw new Error("Escribe un importe válido en " + label + ".");
     }
     return value;
@@ -70,19 +88,44 @@
 
   function fieldsForRecord(){
     const date = byId("date");
-    if(!date.value || !date.validity.valid) throw new Error("Selecciona una fecha válida.");
+    if(!date.value || !date.validity.valid || !core.validDate(date.value) || date.value > today()) throw new Error("Selecciona una fecha válida hasta el día de hoy.");
     const deposit = byId("ledgerDepositField").hidden ? 0 : amount("deposit", "Depósito");
     const withdrawal = mode === "withdrawal" ? amount("withdrawal", "Retiro") : 0;
     const trades = !byId("ledgerTradingFields").hidden;
     const gain = trades ? amount("gain", "Ganancia") : 0;
     const loss = trades ? amount("loss", "Pérdida") : 0;
-    const note = mode === "trading" && !editing ? buildJournalNote() : byId("note").value.trim();
+    const entry_scope = trades ? byId("tradeEntryScope").value : "daily";
+    const operation = trades && entry_scope === "trade";
+    const note = mode === "trading" && !editing && !operation ? buildJournalNote() : byId("note").value.trim();
     if((mode === "deposit" || (mode === "legacy" && !trades)) && deposit <= 0) throw new Error("El depósito debe ser mayor que $0.");
     if(mode === "withdrawal" && withdrawal <= 0) throw new Error("El retiro debe ser mayor que $0.");
-    if(!editing && trades && !byId("gain").value && !byId("loss").value && !note){
-      throw new Error("Anota la ganancia, la pérdida o escribe 0 para un día en break even.");
+    if(trades && !byId("gain").value && !byId("loss").value){
+      throw new Error("Anota la ganancia, la pérdida o escribe 0 para un break even.");
     }
-    return {record_date:date.value, deposit, withdrawal, gain, loss, note};
+    if(note.length > 8000) throw new Error("La nota no puede exceder 8,000 caracteres.");
+    if(operation && gain>0 && loss>0) throw new Error("Para una operación, escribe una ganancia o una pérdida neta; usa el resultado final después de sus cierres parciales y costos.");
+    if(operation && deposit>0) throw new Error("Este registro combina capital con un resultado antiguo. Conserva el resumen diario y registra el capital por separado antes de convertirlo en una operación.");
+    const metadata = Object.fromEntries(Object.values(tradeFields).map(key=>[key,null]));
+    if(operation){
+      metadata.trade_instrument = core.key(byId("tradeInstrument").value);
+      if(!metadata.trade_instrument || metadata.trade_instrument.length>32) throw new Error("Indica el activo de esta operación (hasta 32 caracteres).");
+      metadata.trade_strategy = core.key(byId("tradeStrategy").value) || null;
+      if(metadata.trade_strategy?.length>60) throw new Error("La estrategia no puede exceder 60 caracteres.");
+      metadata.trade_side = byId("tradeSide").value || null;
+      metadata.trade_session = byId("tradeSession").value || null;
+      metadata.trade_time = byId("tradeTime").value || null;
+      if(metadata.trade_time && !/^([01]\d|2[0-3]):[0-5]\d$/.test(metadata.trade_time)) throw new Error("Indica una hora de entrada válida en Puerto Rico.");
+      if(byId("tradeRisk").value){
+        metadata.trade_risk = amount("tradeRisk","Riesgo inicial");
+        if(metadata.trade_risk<=0) throw new Error("El riesgo inicial debe ser mayor que 0. Puedes dejarlo vacío si no lo conoces.");
+      }
+    }
+    if(trades && cachedRecords.some(r=>r.id!==editing?.id && r.date===date.value && isTradingRecord(r) && (r.entry_scope || "daily")!==entry_scope)){
+      throw new Error("Esta fecha ya tiene "+(operation ? "un resumen diario" : "operaciones individuales")+". Edita esos registros antes de cambiar el tipo para evitar contar resultados dos veces.");
+    }
+    const storedNote=core.encodeNote(note,{entry_scope,...metadata});
+    if(storedNote.length>8000) throw new Error("Acorta la nota para guardar los detalles de la operación (máximo 8,000 caracteres en total).");
+    return {record_date:date.value, deposit, withdrawal, gain, loss, note:storedNote};
   }
 
   function readQueue(){
@@ -151,7 +194,10 @@
     const {error} = await supabaseClient.from("student_records").insert(record);
     if(!error) return;
     // An earlier attempt may have reached the server even if its response was lost.
-    if(error.code === "23505" && await findRecord(record.id, record.student_id)) return;
+    if(error.code === "23505"){
+      const remote = await findRecord(record.id, record.student_id);
+      if(remote && sameRecord(remote,record)) return;
+    }
     throw error;
   }
 
@@ -208,7 +254,11 @@
       window.showPageById(target);
     }catch(error){
       console.warn("Registro sin confirmación", error.code || error.name);
-      if(previous){
+      if(["23514","23502","22001","22003","22P02","42501"].includes(error.code)){
+        notice("olonRecordStatus",error.message?.includes("OLON_MIXED_SCOPES")
+          ? "Esta fecha ya tiene otro tipo de resultado. Usa operaciones individuales o un resumen diario para evitar duplicados."
+          : "No se guardó el registro. Revisa sus datos y tu acceso al portal antes de volver a intentar.","error");
+      }else if(previous){
         notice("olonRecordStatus", "No se pudo confirmar la edición. Verifica tu conexión y vuelve a guardar.", "error");
       }else{
         const queue = readQueue();
@@ -262,6 +312,7 @@
   }
 
   form.addEventListener("submit", save);
+  byId("tradeEntryScope").addEventListener("change",syncScope);
   byId("ledgerModes").addEventListener("click", event => {
     const kind = event.target.closest("[data-record-kind]")?.dataset.recordKind;
     if(!busy && kinds[kind]) setMode(kind);
@@ -289,6 +340,7 @@
       for(const key of ["deposit", "withdrawal", "gain", "loss", "note"]){
         byId(key).value = record[key];
       }
+      for(const [id,key] of Object.entries(tradeFields)) byId(id).value = key === "trade_time" ? String(record[key] || "").slice(0,5) : record[key] ?? "";
       notice("ledgerHistoryNotice", "");
       window.showPageById("registro");
       renderQueue();

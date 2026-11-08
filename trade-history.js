@@ -13,6 +13,7 @@
   let owner = null;
   let rows = [];
   let shown = pageSize;
+  let individualDates = new Set();
 
   function parseDate(date){
     return new Date(date + "T00:00:00Z");
@@ -42,10 +43,18 @@
   function makeRow(row){
     const trades = isTradingRecord(row);
     const net = netAmount(row.gain,row.loss);
-    const type = trades ? "Resultado" : row.withdrawal ? "Retiro" : "Depósito";
+    const type = trades ? row.entry_scope === "trade" ? "Operación" : "Resumen diario" : row.withdrawal ? "Retiro" : "Depósito";
     const style = trades ? net > 0 ? "good" : net < 0 ? "bad" : "" : "";
     const date = parseDate(row.date);
     const parts = [];
+    if(trades && row.entry_scope !== "trade" && individualDates.has(row.date)) parts.push("Resumen excluido del saldo: hay operaciones para esta fecha");
+    if(trades && row.entry_scope === "trade"){
+      if(row.trade_instrument) parts.push(escapeHTML(row.trade_instrument));
+      if(row.trade_strategy) parts.push(escapeHTML(row.trade_strategy));
+      if(row.trade_side) parts.push(row.trade_side === "buy" ? "Compra" : "Venta");
+      if(row.trade_time) parts.push(escapeHTML(row.trade_time.slice(0,5))+" PR");
+      if(row.trade_risk) parts.push("Riesgo "+money(row.trade_risk), (net/row.trade_risk).toFixed(2)+" R");
+    }
     if(trades) parts.push("Ganancia " + money(row.gain),"Pérdida " + money(row.loss));
     if(row.deposit && (trades || row.withdrawal)) parts.push("Depósito " + money(row.deposit));
     if(row.withdrawal && trades) parts.push("Retiro " + money(row.withdrawal));
@@ -82,6 +91,7 @@
       shown = pageSize;
     }
     rows = records.slice().reverse();
+    individualDates = new Set(records.filter(window.olonAnalyticsCore.trade).map(row=>row.date));
     setMonths();
     update();
   }

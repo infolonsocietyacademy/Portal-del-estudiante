@@ -836,7 +836,8 @@ async function fetchRecords(){
   cachedRecords = records.map(r => ({
     id:r.id, date:r.record_date, kind:r.record_kind, revision:r.revision,
     deposit:Number(r.deposit||0), withdrawal:Number(r.withdrawal||0),
-    gain:Number(r.gain||0), loss:Number(r.loss||0), note:r.note||""
+    gain:Number(r.gain||0), loss:Number(r.loss||0), created_at:r.created_at,
+    ...window.olonAnalyticsCore.decodeNote(r.note || "")
   }));
   recordsLoadedFor = studentId;
   return cachedRecords;
@@ -865,7 +866,7 @@ function netAmount(gain, loss){
 
 function summarizeTradingDays(records){
   const days = new Map();
-  for(const record of records){
+  for(const record of window.olonAnalyticsCore.accountingRows(records)){
     const day = days.get(record.date) || {deposit:0, withdrawal:0, gain:0, loss:0, tradeCount:0};
     day.deposit += record.deposit;
     day.withdrawal += record.withdrawal;
@@ -1003,22 +1004,14 @@ function weekRecords(){
 }
 
 function winRateFromRecords(records){
-  let wins = 0, losses = 0, flat = 0;
-  records.filter(isTradingRecord).forEach(r=>{
-    const net = netAmount(r.gain, r.loss);
-    if(net > 0) wins++;
-    else if(net < 0) losses++;
-    else flat++;
-  });
-  const total = wins + losses;
-  return { wins, losses, flat, winrate: total ? (wins / total) * 100 : 0 };
+  return window.olonAnalyticsCore.stats(records);
 }
 
 function maxDrawdownFromRecords(records){
   let equity = 0;
   let peak = 0;
   let maxDD = 0;
-  records.forEach(r=>{
+  window.olonAnalyticsCore.accountingRows(records).forEach(r=>{
     equity += netAmount(r.gain, r.loss);
     peak = Math.max(peak, equity);
     maxDD = Math.max(maxDD, peak - equity);
@@ -1046,8 +1039,8 @@ function reportHTML(records, label){
     <div class="reportRow"><span>Neto ${label}</span><b class="${t.net >= 0 ? 'good':'bad'}">${signedTradeMoney(t.net)}</b></div>
     <div class="reportRow"><span>Depósitos del período</span><b>${money(t.deposit)}</b></div>
     <div class="reportRow"><span>Retiros del período</span><b>${money(t.withdrawal)}</b></div>
-    <div class="reportRow"><span>Winrate</span><b>${pct(wr.winrate)}</b></div>
-    <div class="reportRow"><span>Wins / Losses</span><b>${wr.wins} / ${wr.losses}</b></div>
+    <div class="reportRow"><span>Win Rate por operación</span><b>${wr.winrate === null ? '—' : pct(wr.winrate)}</b></div>
+    <div class="reportRow"><span>Operaciones ganadas / perdidas / BE</span><b>${wr.wins} / ${wr.losses} / ${wr.flat}</b></div>
     <div class="reportRow"><span>Mejor día</span><b>${signedTradeMoney(bw.best)}</b></div>
     <div class="reportRow"><span>Peor día</span><b>${signedTradeMoney(bw.worst)}</b></div>
     <div class="reportRow"><span>Días de trading</span><b>${t.days}</b></div>
@@ -1135,11 +1128,11 @@ function renderV3Performance(){
   if(drawdownPct) drawdownPct.innerText = pct(ddPct) + " del depósito";
 
   const ytd = yearRecords();
-  const ywr = winRateFromRecords(ytd);
+  const ywr = window.olonAnalyticsCore.days(ytd);
   const ytdWinrate = document.getElementById("ytdWinrate");
-  if(ytdWinrate) ytdWinrate.innerText = pct(ywr.winrate);
+  if(ytdWinrate) ytdWinrate.innerText = ywr.winrate === null ? "—" : pct(ywr.winrate);
   const ytdStats = document.getElementById("ytdStats");
-  if(ytdStats) ytdStats.innerText = ywr.wins + " wins / " + ywr.losses + " losses";
+  if(ytdStats) ytdStats.innerText = ywr.wins + " días positivos / " + ywr.losses + " negativos";
 
   renderSelectedReport();
 }
@@ -1317,6 +1310,7 @@ async function render(){
   document.getElementById("mLoss").innerText = money(t.loss);
   document.getElementById("mGrowth").innerText = pct(t.growth);
   window.olonHistory?.render(records);
+  window.olonAnalytics?.render(records, studentId);
   renderCompare(); renderChart(); renderProDashboard();
 }
 
@@ -1345,7 +1339,7 @@ function renderChart(){
   const ctx = document.getElementById("balanceChart");
   if(!ctx || !window.Chart) return;
   let running = 0;
-  const sorted = cachedRecords.slice().sort((a,b)=>a.date.localeCompare(b.date));
+  const sorted = window.olonAnalyticsCore.accountingRows(cachedRecords).sort((a,b)=>a.date.localeCompare(b.date));
   const labels = sorted.map(r=>r.date);
   const data = sorted.map(r=>{ running += r.deposit - r.withdrawal + r.gain - r.loss; return running; });
   if(chart) chart.destroy();
