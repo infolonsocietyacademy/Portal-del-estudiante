@@ -160,7 +160,7 @@ body.trader-themed #portal.app .portalTopbar{
 #portal.app #dashboard > *{margin-top:0;margin-bottom:17px}
 #portal.app #dashboard > .welcomeHeroCard{
   position:relative;display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1fr);
-  align-items:center;min-height:218px;padding:24px 28px!important;overflow:hidden;
+  align-items:center;gap:24px;min-height:136px;padding:20px 24px!important;overflow:hidden;
   background:
     repeating-linear-gradient(90deg,transparent 0 47px,rgba(255,255,255,.029) 48px 49px,transparent 50px 70px),
     radial-gradient(circle at 93% 80%,color-mix(in srgb,var(--trader-accent) 28%,transparent),transparent 35%),
@@ -174,15 +174,15 @@ body.trader-themed #portal.app .portalTopbar{
   box-shadow:0 0 0 45px rgba(255,255,255,.016),0 0 0 90px rgba(255,255,255,.012);
   pointer-events:none;
 }
-#portal.app #dashboard .cyberWelcomeIdentity{display:flex;align-items:center;gap:19px;position:relative;z-index:2;min-width:0}
-#portal.app #dashboard .cyberWelcomeIdentity img{width:77px;height:77px;object-fit:contain;filter:drop-shadow(0 0 10px rgba(243,187,67,.24))}
-#portal.app #dashboard .cyberWelcomeIdentity strong{font-size:clamp(20px,2.9vw,36px);line-height:1.2;letter-spacing:-.08em;color:#f4f6fc}
-#portal.app #dashboard .cyberWelcomeIdentity strong span{display:block;color:var(--trader-accent-ink);letter-spacing:.28em;font-size:.55em;margin-top:4px}
-#portal.app #dashboard .welcomeHeroContent{position:relative;z-index:2;padding-left:clamp(12px,3vw,45px);border-left:1px solid rgba(220,229,242,.17)}
-#portal.app #dashboard .welcomeHeroContent .profileHeroAvatar{width:41px;height:41px;margin-bottom:9px;border:1px solid var(--trader-accent);background:#1b222c}
-#portal.app #dashboard .welcomeTitle{font-size:clamp(21px,2.5vw,34px);margin:0 0 7px!important;color:#f2f5fa!important;letter-spacing:-.05em}
-#portal.app #dashboard .welcomeSub{font-size:12px;color:#aab9cb!important;line-height:1.6}
-#portal.app #dashboard .profileEditButton{background:#18212ceb!important;color:#f2f5fa!important;border:1px solid #415063!important;border-radius:7px}
+#portal.app #dashboard .cyberWelcomeIdentity{display:flex;align-items:center;gap:13px;position:relative;z-index:2;min-width:0}
+#portal.app #dashboard .cyberWelcomeIdentity img{width:48px;height:48px;flex:none;object-fit:contain;filter:drop-shadow(0 0 10px rgba(243,187,67,.24))}
+#portal.app #dashboard .cyberWelcomeIdentity strong{font-size:calc(clamp(17px,1.6vw,23px) * var(--trader-font-scale,1));line-height:1.25;letter-spacing:-.045em;color:#f4f6fc}
+#portal.app #dashboard .cyberWelcomeIdentity strong span{display:block;color:var(--trader-accent-ink);letter-spacing:.25em;font-size:.52em;margin-top:5px}
+#portal.app #dashboard .welcomeHeroContent{position:relative;z-index:2;display:grid;grid-template-columns:34px minmax(0,1fr);column-gap:12px;row-gap:4px;width:100%;max-width:none;margin:0;padding-left:24px;border-left:1px solid rgba(220,229,242,.17)}
+#portal.app #dashboard .welcomeHeroContent .profileHeroAvatar{grid-column:1;grid-row:1 / 3;align-self:center;width:34px;height:34px;margin:0;font-size:14px;border:1px solid var(--trader-accent);background:#1b222c}
+#portal.app #dashboard .welcomeTitle{font-size:calc(clamp(18px,1.7vw,24px) * var(--trader-font-scale,1))!important;line-height:1.25!important;margin:0!important;color:#f2f5fa!important;letter-spacing:-.04em!important}
+#portal.app #dashboard .welcomeSub{grid-column:2;margin:0!important;font-size:calc(.67rem * var(--trader-font-scale,1))!important;color:#aab9cb!important;line-height:1.6}
+#portal.app #dashboard .profileEditButton{grid-column:2;justify-self:start;margin-top:4px;padding:6px 10px;font-size:calc(.63rem * var(--trader-font-scale,1))!important;line-height:1.4;background:#18212ceb!important;color:#f2f5fa!important;border:1px solid #415063!important;border-radius:7px}
 #portal.app #dashboard .profileHeroCover:not([hidden]){opacity:.17}
 #portal.app #dashboard .vipPayment{
   background:var(--cyber-ui-panel)!important;border:1px solid var(--cyber-ui-border)!important;
@@ -298,10 +298,10 @@ body.trader-themed #portal.app .portalTopbar{
  #portal.app #dashboard .cyberDashboardSpotlight canvas#balanceChart{height:280px!important;min-height:210px!important}
 }
 @media(max-width:760px){
- #portal.app #dashboard > .welcomeHeroCard{grid-template-columns:minmax(0,1fr);gap:16px;min-height:0;padding:22px!important}
- #portal.app #dashboard .welcomeHeroContent{padding-left:0;border-left:0;border-top:1px solid rgba(220,229,242,.15);padding-top:13px}
- #portal.app #dashboard .cyberWelcomeIdentity img{width:53px;height:53px}
- #portal.app #dashboard .cyberWelcomeIdentity strong{font-size:clamp(20px,5.4vw,29px)}
+ #portal.app #dashboard > .welcomeHeroCard{grid-template-columns:minmax(0,1fr);gap:12px;min-height:0;padding:16px!important}
+ #portal.app #dashboard .welcomeHeroContent{padding-left:0;border-left:0;border-top:1px solid rgba(220,229,242,.15);padding-top:12px}
+ #portal.app #dashboard .cyberWelcomeIdentity img{width:38px;height:38px}
+ #portal.app #dashboard .cyberWelcomeIdentity strong{font-size:calc(clamp(16px,4.2vw,20px) * var(--trader-font-scale,1))}
  #portal.app #dashboard > .v3Grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  #portal.app #dashboard .cyberDashboardRail{grid-template-columns:minmax(0,1fr)}
  #portal.app #dashboard .cyberDashboardRail .calendarCard{grid-row:auto}
@@ -323,7 +323,7 @@ body.trader-themed #portal.app .portalTopbar{
  #portal.app #dashboard .calDay{min-height:43px}
  #portal.app #dashboard .cyberDashboardSpotlight .chartBox{padding:13px!important}
  #portal.app #dashboard .cyberWelcomeIdentity{gap:10px}
- #portal.app #dashboard .cyberWelcomeIdentity img{width:44px;height:44px}
+ #portal.app #dashboard .cyberWelcomeIdentity img{width:36px;height:36px}
 }
 @media(prefers-reduced-motion:reduce){
  #portal.app .portalNavLink,#portal.app .cyberSidebarProfile,#portal.app .page .btn{transition:none!important}
@@ -369,13 +369,13 @@ body.trader-themed #portal.app .portalTopbar{
 }
 #portal.app #dashboard .cyberWelcomeTypeRow{
   display:flex;align-items:baseline;gap:2px 6px;
-  flex-wrap:wrap;min-width:0;margin:0 0 7px;
+  flex-wrap:wrap;grid-column:2;min-width:0;margin:0;
 }
 #portal.app #dashboard .cyberWelcomeTypeRow #portalWelcomeText{
   flex:0 1 auto;margin:0!important;min-width:0;
 }
 #portal.app #dashboard .cyberWelcomeTypeRow .cyberWelcomeCaret{
-  font-size:clamp(21px,2.5vw,34px);
+  font-size:calc(clamp(18px,1.7vw,24px) * var(--trader-font-scale,1));
 }
 #portal.app .portalTopBreadcrumb .cyberBreadcrumbCaret{
   margin-left:5px;color:var(--trader-accent-ink)!important;

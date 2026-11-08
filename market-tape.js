@@ -7,7 +7,8 @@
   let theme="",timer=null,generation=0;
   function render(){
     if(document.getElementById("portal")?.classList.contains("hidden") || document.getElementById("dashboard")?.classList.contains("hidden")) return;
-    const next=document.body.classList.contains("atlas-dark")?"dark":"light";
+    // Quotes stay on the requested black surface in every portal theme.
+    const next="dark";
     if(next===theme) return;
     theme=next;
     const current=++generation;
