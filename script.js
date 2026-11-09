@@ -2130,22 +2130,50 @@ document.addEventListener("DOMContentLoaded", function(){
 })();
 
 const portalMenuBreakpoint = window.matchMedia("(max-width: 980px)");
+let portalMenuReturnFocus = null;
+let portalMenuFocusFrame = null;
 
 function setPortalMenu(open, restoreFocus = false){
+  const portal = $("portal");
   const sidebar = $("sidebar");
-  const toggle = $("mobileMenuToggle");
+  const dock = $("portalDock");
   const wasOpen = sidebar.classList.contains("open");
-  const isMobile = portalMenuBreakpoint.matches;
-  const expanded = isMobile && open;
+  const expanded = Boolean(open && !portal.classList.contains("hidden"));
 
+  if(portalMenuFocusFrame !== null){
+    window.cancelAnimationFrame(portalMenuFocusFrame);
+    portalMenuFocusFrame = null;
+  }
+  if(expanded && !wasOpen) portalMenuReturnFocus = document.activeElement;
   sidebar.classList.toggle("open", expanded);
-  sidebar.inert = isMobile && !expanded;
-  toggle.closest("main").inert = expanded;
-  toggle.setAttribute("aria-expanded", String(expanded));
+  sidebar.inert = !expanded;
+  sidebar.setAttribute("aria-hidden", String(!expanded));
+  if(expanded) sidebar.setAttribute("aria-modal", "true");
+  else sidebar.removeAttribute("aria-modal");
+  portal.querySelector("main.main").inert = expanded;
+  dock.inert = expanded;
+  [$("mobileMenuToggle"), $("portalMoreToggle")].forEach(toggle => {
+    toggle?.setAttribute("aria-expanded", String(expanded));
+  });
   $("portalMenuBackdrop").hidden = !expanded;
+  portal.classList.toggle("portalMenuOpen", expanded);
 
-  if(expanded && !wasOpen) $("portalMenuClose").focus({preventScroll: true});
-  if(!expanded && wasOpen && restoreFocus && isMobile) toggle.focus({preventScroll: true});
+  if(expanded && !wasOpen){
+    // Let the panel leave its hidden state before moving keyboard focus into it.
+    portalMenuFocusFrame = window.requestAnimationFrame(() => {
+      portalMenuFocusFrame = null;
+      if(sidebar.classList.contains("open") && !portal.classList.contains("hidden")){
+        $("portalMenuClose").focus({preventScroll: true});
+      }
+    });
+  }
+  if(!expanded && wasOpen && restoreFocus && !portal.classList.contains("hidden")){
+    const previous = portalMenuReturnFocus;
+    const target = previous?.isConnected && previous.getClientRects().length && !previous.closest("[inert]")
+      ? previous : $("portalMoreToggle");
+    target.focus({preventScroll: true});
+  }
+  if(!expanded) portalMenuReturnFocus = null;
 }
 
 function syncPortalNavigation(pageId){
@@ -2155,19 +2183,58 @@ function syncPortalNavigation(pageId){
     if(active) link.setAttribute("aria-current", "page");
     else link.removeAttribute("aria-current");
   });
+  let primaryPage = false;
+  document.querySelectorAll("#portalDock [data-dock-page]").forEach(link => {
+    const pages = (link.dataset.dockPages || link.dataset.dockPage).split(" ");
+    const active = !link.classList.contains("hidden") && pages.includes(pageId);
+    link.classList.toggle("active", active);
+    if(active){
+      primaryPage = true;
+      link.setAttribute("aria-current", "page");
+    }else link.removeAttribute("aria-current");
+  });
+  const more = $("portalMoreToggle");
+  more.classList.toggle("active", Boolean(pageId && !primaryPage));
+  if(pageId && !primaryPage) more.setAttribute("aria-current", "page");
+  else more.removeAttribute("aria-current");
 }
 
 function installPortalNavigation(){
-  const toggle = $("mobileMenuToggle");
+  const portal = $("portal");
+  const sidebar = $("sidebar");
+  const dock = $("portalDock");
+  const more = $("portalMoreToggle");
   const closeMenu = () => setPortalMenu(false, true);
-  toggle.addEventListener("click", () => setPortalMenu(true));
+  $("mobileMenuToggle").addEventListener("click", () => setPortalMenu(true));
+  more.addEventListener("click", () => setPortalMenu(!sidebar.classList.contains("open"), true));
   $("portalMenuClose").addEventListener("click", closeMenu);
   $("portalMenuBackdrop").addEventListener("click", closeMenu);
-  portalMenuBreakpoint.addEventListener("change", () => setPortalMenu(false));
+  dock.addEventListener("click", event => {
+    const button = event.target.closest("[data-dock-page]");
+    if(!button || button.classList.contains("hidden")) return;
+    const id = button.dataset.dockPage;
+    const canonical = [...sidebar.querySelectorAll(".portalNavLink")].find(link => link.dataset.page === id);
+    window.showPage(id, canonical || button);
+  });
+  // Profile editing opens its own dialog; release this panel first.
+  sidebar.addEventListener("click", event => {
+    if(event.target.closest("[data-edit-profile]")) setPortalMenu(false);
+  }, true);
   document.addEventListener("keydown", event => {
-    if(event.key === "Escape" && toggle.getAttribute("aria-expanded") === "true"){
+    if(!sidebar.classList.contains("open")) return;
+    if(event.key === "Escape"){
       event.preventDefault();
       closeMenu();
+    }else if(event.key === "Tab"){
+      const focusable = [...sidebar.querySelectorAll('button, a[href], input, select, textarea, [tabindex]')]
+        .filter(element => !element.disabled && element.tabIndex >= 0 && !element.closest("[inert]") && element.getClientRects().length);
+      const first = focusable[0] || sidebar;
+      const last = focusable[focusable.length - 1] || sidebar;
+      if(event.shiftKey && (document.activeElement === first || !sidebar.contains(document.activeElement))){
+        event.preventDefault(); last.focus();
+      }else if(!event.shiftKey && (document.activeElement === last || !sidebar.contains(document.activeElement))){
+        event.preventDefault(); first.focus();
+      }
     }
   });
   setPortalMenu(false);
@@ -2187,6 +2254,34 @@ function installPortalNavigation(){
     window.dispatchEvent(new CustomEvent("olon:pagechange", {detail:{id, previous}}));
     return result;
   };
+
+  function syncDockBadges(){
+    [["classUnreadBadge", "classes"], ["adminChatBadge", "messages"]].forEach(([sourceId, kind]) => {
+      const source = $(sourceId);
+      const badge = dock.querySelector(`[data-dock-badge="${kind}"]`);
+      if(!source || !badge) return;
+      const count = source.textContent.trim();
+      const visible = !source.hidden && source.style.display !== "none" && Boolean(count && count !== "0");
+      badge.textContent = count;
+      badge.hidden = !visible;
+      const button = badge.closest("button");
+      const label = button.querySelector(".portalDockLabel").textContent;
+      button.setAttribute("aria-label", visible ? `${label}: ${count} sin leer` : label);
+    });
+  }
+  const badgeObserver = new MutationObserver(syncDockBadges);
+  [$("classUnreadBadge"), $("adminChatBadge")].forEach(source => {
+    if(source) badgeObserver.observe(source, {attributes:true, childList:true, characterData:true, subtree:true});
+  });
+  syncDockBadges();
+  let previousRole = portal.classList.contains("admin-mode");
+  new MutationObserver(() => {
+    const admin = portal.classList.contains("admin-mode");
+    if(portal.classList.contains("hidden") || previousRole !== admin) setPortalMenu(false);
+    previousRole = admin;
+    syncPortalNavigation(portal.querySelector(".page:not(.hidden)")?.id);
+  }).observe(portal, {attributes:true, attributeFilter:["class"]});
+  syncPortalNavigation(portal.querySelector(".page:not(.hidden)")?.id);
 }
 
 if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", installPortalNavigation);

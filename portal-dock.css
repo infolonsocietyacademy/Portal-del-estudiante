@@ -1,0 +1,277 @@
+/* Floating navigation. Uses the portal's existing appearance preferences. */
+#portal.app {
+  --dock-height: 82px;
+  --dock-bottom: max(18px, env(safe-area-inset-bottom, 0px));
+  --dock-space: calc(var(--dock-height) + var(--dock-bottom) + 30px);
+}
+#portal.app:not(.hidden),
+#portal.app.admin-mode:not(.hidden) {
+  display: block !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  min-height: 100dvh;
+}
+#portal.app:not(.hidden) > main.main,
+#portal.app.admin-mode:not(.hidden) > main.main {
+  display: block !important;
+  grid-column: 1 !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  padding-bottom: var(--dock-space) !important;
+}
+#portal.app > main.main > .page:not(.hidden) {
+  margin-inline: auto;
+}
+#portal.app #mobileMenuToggle { display: none !important; }
+
+#portal.app > .portalDock {
+  position: fixed;
+  z-index: 80;
+  left: 50%;
+  bottom: var(--dock-bottom);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: stretch;
+  gap: 5px;
+  width: min(680px, calc(100% - 40px));
+  min-height: var(--dock-height);
+  padding: 7px;
+  border: 1px solid var(--cyber-ui-border);
+  border-radius: 25px;
+  background: var(--cyber-ui-panel);
+  background: color-mix(in srgb, var(--cyber-ui-panel) 92%, transparent);
+  color: var(--cyber-ui-ink);
+  box-shadow: 0 16px 55px #0003, inset 0 1px 0 #ffffff12;
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+#portal.app .portalDockLink {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 66px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+  padding: 7px 3px 10px;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  background: transparent;
+  color: var(--cyber-ui-muted);
+  font: 650 12px/1.2 var(--font-ui, sans-serif);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background .18s ease, color .18s ease, border-color .18s ease;
+}
+#portal.app .portalDockLink .portalNavIcon {
+  width: 27px;
+  height: 27px;
+  color: inherit;
+}
+#portal.app .portalDockLink .portalNavIcon svg { width: 26px; height: 26px; }
+#portal.app .portalDockLabel {
+  font-size: calc(11px * var(--trader-font-scale, 1));
+  white-space: nowrap;
+}
+#portal.app .portalDockLink:hover {
+  background: var(--cyber-ui-panel-2);
+  color: var(--cyber-ui-ink);
+}
+#portal.app .portalDockLink.active,
+#portal.app .portalDockLink[aria-expanded="true"] {
+  background: color-mix(in srgb, var(--trader-accent) 15%, var(--cyber-ui-panel));
+  border-color: color-mix(in srgb, var(--trader-accent) 28%, var(--cyber-ui-border));
+  color: var(--trader-accent-ink);
+}
+#portal.app .portalDockLink.active::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+#portal.app .portalDockLink:focus-visible,
+#portal.app #sidebar button:focus-visible {
+  outline: 2px solid var(--trader-accent-ink);
+  outline-offset: 2px;
+}
+#portal.app .portalDockBadge {
+  position: absolute;
+  top: 5px;
+  left: calc(50% + 10px);
+  min-width: 8px;
+  min-height: 8px;
+  padding: 1px 3px;
+  border: 2px solid var(--cyber-ui-panel);
+  border-radius: 20px;
+  background: var(--trader-accent);
+  color: var(--trader-accent-on);
+  font-size: 9px;
+  line-height: 1.1;
+}
+#portal.app .portalDockBadge[hidden] { display: none !important; }
+
+/* The existing complete menu becomes a modal tool launcher above the dock. */
+#portal.app > #sidebar.sidebar.portalSidebar {
+  display: flex !important;
+  position: fixed !important;
+  inset: auto auto calc(var(--dock-space) - 16px) 50% !important;
+  z-index: 110 !important;
+  flex: none !important;
+  width: min(620px, calc(100% - 32px)) !important;
+  min-width: 0 !important;
+  max-width: 620px !important;
+  height: auto !important;
+  max-height: calc(100dvh - var(--dock-space) - 12px) !important;
+  padding: 20px !important;
+  margin: 0 !important;
+  gap: 12px;
+  border: 1px solid var(--cyber-ui-border) !important;
+  border-radius: 22px;
+  background: var(--cyber-ui-panel) !important;
+  box-shadow: 0 24px 90px #0005 !important;
+  overflow: auto !important;
+  overscroll-behavior: contain;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 10px) !important;
+  transition: opacity .18s ease, transform .18s ease, visibility .18s;
+}
+#portal.app > #sidebar.sidebar.portalSidebar.open {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0) !important;
+}
+#portal.app #sidebar .portalSidebarTop { flex: none; }
+#portal.app #sidebar .portalBrand {
+  grid-template-columns: 42px minmax(0, 1fr) 44px;
+  margin: 0;
+  padding: 0 0 12px;
+}
+#portal.app #sidebar .portalBrandMark img { width: 38px; height: 38px; }
+#portal.app #sidebar .portalSidebarEyebrow { margin-top: 10px; }
+#portal.app #sidebar .portalSidebarClose {
+  display: grid;
+  place-items: center;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  margin-left: auto;
+  padding: 0;
+  border: 1px solid var(--cyber-ui-border);
+  border-radius: 12px;
+  color: var(--cyber-ui-ink);
+  background: var(--cyber-ui-panel-2);
+  cursor: pointer;
+}
+#portal.app #sidebar .cyberSidebarProfile {
+  width: 100%;
+  min-height: 54px;
+  margin: 0;
+  padding: 9px 12px;
+  flex: none;
+}
+#portal.app #sidebar .portalNav {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+  overflow: visible;
+  flex: none;
+  padding: 0;
+}
+#portal.app #sidebar .portalNavGroup {
+  grid-column: 1 / -1;
+  padding: 7px 6px 3px;
+}
+#portal.app #sidebar .portalNavLink {
+  min-width: 0;
+  min-height: 48px !important;
+  margin: 0;
+  padding: 8px 10px !important;
+  border: 1px solid var(--cyber-ui-border) !important;
+  background: var(--cyber-ui-panel-2) !important;
+  box-shadow: none !important;
+}
+#portal.app #sidebar .portalNavLink.active {
+  background: color-mix(in srgb, var(--trader-accent) 12%, var(--cyber-ui-panel)) !important;
+  border-color: var(--trader-accent) !important;
+}
+#portal.app #sidebar .portalNavText {
+  font-size: calc(11px * var(--trader-font-scale, 1)) !important;
+  overflow-wrap: anywhere;
+}
+#portal.app #sidebar .portalSidebarBottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 3px 0 0;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--cyber-ui-border);
+}
+#portal.app #sidebar .portalAccessCard { flex: 1 1 230px; margin: 0; }
+#portal.app #sidebar .cyberAccessHint { margin-top: 4px; }
+#portal.app #sidebar .portalExitBtn { width: auto; flex: 1 1 160px; }
+#portal.app .portalMenuBackdrop:not([hidden]) {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  padding: 0;
+  border: 0;
+  background: #050b16a3;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  touch-action: none;
+}
+#portal.app .portalMenuBackdrop[hidden] { display: none !important; }
+
+/* Keep support and the last content row clear of the navigation. */
+.chatFab { bottom: calc(110px + env(safe-area-inset-bottom, 0px)) !important; }
+.studentChatPanel {
+  bottom: calc(168px + env(safe-area-inset-bottom, 0px)) !important;
+  max-height: calc(100dvh - 190px) !important;
+}
+@media (max-width: 600px) {
+  #portal.app {
+    --dock-height: 72px;
+    --dock-bottom: max(10px, env(safe-area-inset-bottom, 0px));
+  }
+  #portal.app > .portalDock {
+    width: calc(100% - 20px);
+    gap: 2px;
+    padding: 5px;
+    border-radius: 22px;
+  }
+  #portal.app .portalDockLink {
+    min-height: 60px;
+    gap: 4px;
+    padding-inline: 0;
+    border-radius: 16px;
+  }
+  #portal.app .portalDockLink .portalNavIcon,
+  #portal.app .portalDockLink .portalNavIcon svg { width: 23px; height: 23px; }
+  #portal.app .portalDockLabel { font-size: calc(9px * var(--trader-font-scale, 1)); }
+  #portal.app > #sidebar.sidebar.portalSidebar {
+    width: calc(100% - 20px) !important;
+    padding: 14px !important;
+    border-radius: 19px;
+  }
+  #portal.app #sidebar .portalNavLink { gap: 6px; padding: 7px !important; }
+  #portal.app #sidebar .portalNavLink .portalNavIcon { width: 25px; height: 25px; }
+  #portal.app #sidebar .portalNavText { font-size: calc(10px * var(--trader-font-scale, 1)) !important; }
+  #portal.app #sidebar .portalAccessCard { flex-basis: 100%; }
+}
+@media (max-width: 360px) {
+  #portal.app .portalDockLabel { font-size: calc(8px * var(--trader-font-scale, 1)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #portal.app .portalDockLink,
+  #portal.app > #sidebar.sidebar.portalSidebar { transition: none !important; }
+}
