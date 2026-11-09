@@ -1,0 +1,138 @@
+/* OLON Mobile Premium — compact, legible, responsive trader dashboard.
+   Mobile-only, no extra JavaScript or external assets. */
+@media(max-width:760px){
+  #portal.app #dashboard{min-width:0}
+  #portal.app #dashboard > #portalWelcomeCard{
+    position:relative;display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+    gap:0!important;min-width:0;min-height:0!important;overflow:hidden;
+    padding:17px!important;border:1px solid var(--cyber-ui-border)!important;
+    border-radius:14px!important;background:var(--cyber-ui-panel)!important;
+    box-shadow:0 12px 32px rgba(0,0,0,.10)!important;
+  }
+  #portal.app #dashboard #portalWelcomeCard::before,
+  #portal.app #dashboard #portalWelcomeCard::after{display:none!important}
+  #portal.app #dashboard #portalWelcomeCard .profileHeroCover{
+    position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+    object-fit:cover!important;opacity:.095!important;pointer-events:none!important;
+    filter:saturate(.7) contrast(.85);
+  }
+  #portal.app #dashboard #portalWelcomeCard .cyberWelcomeIdentity{
+    position:relative!important;z-index:2!important;inset:auto!important;
+    display:flex!important;align-items:center!important;gap:8px!important;
+    width:100%;min-width:0;padding:0 0 12px!important;margin:0!important;
+    border-bottom:1px solid var(--cyber-ui-border)!important;
+  }
+  #portal.app #dashboard #portalWelcomeCard .cyberWelcomeIdentity img{
+    width:25px!important;height:25px!important;object-fit:contain;
+  }
+  #portal.app #dashboard #portalWelcomeCard .cyberWelcomeIdentity strong{
+    font:750 calc(11px * var(--trader-font-scale,1))/1.25 var(--font-mono)!important;
+    letter-spacing:.12em!important;overflow-wrap:anywhere;
+  }
+  #portal.app #dashboard #portalWelcomeCard .cyberWelcomeIdentity strong span{
+    display:block;font-size:8px!important;letter-spacing:.15em!important;
+  }
+  #portal.app #dashboard #portalWelcomeCard .welcomeHeroContent{
+    position:relative!important;z-index:2!important;display:grid!important;
+    grid-template-columns:44px minmax(0,1fr)!important;
+    align-items:center!important;column-gap:11px!important;row-gap:3px!important;
+    width:100%!important;max-width:100%!important;min-width:0!important;
+    margin:0!important;padding:15px 0!important;
+    border:0!important;border-bottom:1px solid var(--cyber-ui-border)!important;
+    background:transparent!important;
+  }
+  #portal.app #dashboard #portalWelcomeCard .profileHeroAvatar{
+    grid-column:1;grid-row:1 / span 2;position:relative!important;
+    width:44px!important;height:44px!important;min-width:44px!important;
+    margin:0!important;border-radius:12px!important;overflow:hidden!important;
+    border:1px solid var(--cyber-ui-border)!important;box-shadow:none!important;
+  }
+  #portal.app #dashboard #portalWelcomeCard .profileHeroAvatar img{
+    width:100%!important;height:100%!important;object-fit:cover!important;
+  }
+  #portal.app #dashboard #portalWelcomeCard .cyberWelcomeTypeRow{
+    grid-column:2;grid-row:1;min-width:0!important;margin:0!important;
+  }
+  #portal.app #dashboard #portalWelcomeCard #portalWelcomeText{
+    margin:0!important;font:800 clamp(16px,4.6vw,20px)/1.22 var(--font-mono)!important;
+    letter-spacing:-.035em!important;overflow-wrap:anywhere!important;
+  }
+  #portal.app #dashboard #portalWelcomeCard .cyberWelcomeCaret{display:none!important}
+  #portal.app #dashboard #portalWelcomeCard .welcomeSub{
+    grid-column:2;grid-row:2;margin:0!important;
+    font:500 calc(10px * var(--trader-font-scale,1))/1.5 var(--font-mono)!important;
+    color:var(--cyber-ui-muted)!important;
+  }
+  #portal.app #dashboard #portalWelcomeCard .terminalWelcomeVip{
+    position:relative!important;z-index:2!important;display:grid!important;
+    gap:12px!important;margin:0!important;padding:15px 0 0!important;
+    border:0!important;background:transparent!important;box-shadow:none!important;
+  }
+  #portal.app #dashboard #portalWelcomeCard .vipPaymentHeader{
+    display:flex!important;align-items:center!important;gap:9px!important;min-width:0;
+  }
+  #portal.app #dashboard #portalWelcomeCard .vipPaymentIcon{
+    flex:0 0 32px!important;width:32px!important;height:32px!important;
+    border-radius:8px!important;
+  }
+  #portal.app #dashboard #portalWelcomeCard .vipPaymentHeader h3{
+    margin:2px 0 0!important;font-size:calc(13px * var(--trader-font-scale,1))!important;
+  }
+  #portal.app #dashboard #portalWelcomeCard .vipPaymentBadge{
+    margin-left:auto!important;padding:5px 7px!important;font-size:9px!important;
+    white-space:nowrap;
+  }
+  #portal.app #dashboard #portalWelcomeCard .vipPaymentDetails{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:0!important;margin:0!important;padding:0!important;
+    border:1px solid var(--cyber-ui-border)!important;border-radius:9px!important;
+    background:var(--cyber-ui-panel-2)!important;overflow:hidden!important;
+  }
+  #portal.app #dashboard #portalWelcomeCard .vipPaymentDetails>div{
+    min-width:0!important;padding:12px 10px!important;border:0!important;
+  }
+  #portal.app #dashboard #portalWelcomeCard .vipPaymentDetails>div+div{
+    border-left:1px solid var(--cyber-ui-border)!important;
+  }
+  #portal.app #dashboard #portalWelcomeCard .vipPaymentDetails dt{
+    margin:0 0 6px!important;font-size:calc(9px * var(--trader-font-scale,1))!important;
+    line-height:1.35!important;
+  }
+  #portal.app #dashboard #portalWelcomeCard .vipPaymentDetails dd{
+    margin:0!important;font-size:clamp(11px,3.2vw,14px)!important;
+    line-height:1.4!important;font-weight:800!important;overflow-wrap:anywhere!important;
+  }
+  #portal.app #dashboard #portalWelcomeCard .vipRenewalAction{margin:0!important;padding:0!important}
+  #portal.app #dashboard #portalWelcomeCard .vipRenewalAction .btn{
+    display:inline-flex!important;align-items:center!important;justify-content:center!important;
+    width:auto!important;max-width:100%!important;min-height:40px!important;
+    padding:10px 13px!important;border-radius:8px!important;
+    font-size:calc(10px * var(--trader-font-scale,1))!important;
+  }
+  #portal.app #dashboard .terminalFluidHeading{letter-spacing:.1em!important}
+  #portal.app #dashboard > .terminalAccountStrip,
+  #portal.app #dashboard > .terminalSummaryMetrics{min-width:0!important}
+  #portal.app #dashboard > .terminalAccountStrip .metric,
+  #portal.app #dashboard > .terminalSummaryMetrics .v3Card{
+    min-width:0!important;overflow-wrap:anywhere!important;
+  }
+  #portal.app #dashboard > .terminalAccountStrip .metric :is(h3,strong),
+  #portal.app #dashboard > .terminalSummaryMetrics .v3Card h3{
+    font-variant-numeric:tabular-nums!important;overflow-wrap:anywhere!important;
+  }
+  #portal.app #dashboard .terminalLeaderboardWidget .olonPodiumEntry{
+    min-width:0!important;gap:9px!important;
+  }
+  #portal.app #dashboard .terminalLeaderboardWidget .olonTopName{
+    overflow-wrap:anywhere!important;
+  }
+}
+@media(max-width:380px){
+  #portal.app #dashboard > #portalWelcomeCard{padding:13px!important}
+  #portal.app #dashboard #portalWelcomeCard .welcomeHeroContent{column-gap:8px!important}
+  #portal.app #dashboard #portalWelcomeCard .profileHeroAvatar{width:40px!important;height:40px!important;min-width:40px!important}
+  #portal.app #dashboard #portalWelcomeCard .vipPaymentDetails>div{padding:10px 7px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #portal.app #dashboard #portalWelcomeCard *{scroll-behavior:auto!important}
+}
