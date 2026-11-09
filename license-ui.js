@@ -38,6 +38,9 @@ async function generate(e){e?.preventDefault();const btn=$("olonLicenseGenerate"
 async function revoke(id){if(!confirm("¿Revocar esta licencia sin utilizar?"))return;try{await call("revoke",{id});await adminRefresh();note("olonLicenseAdminFeedback","Licencia revocada.");}catch(e){note("olonLicenseAdminFeedback",e.message,true);}}
 function init(){
  $("olonLicenseRedeem")?.addEventListener("click",redeem);
+ $("olonLicenseLockRedeem")?.addEventListener("click",async()=>{const source=$("olonLicenseLockCode");const target=$("olonLicenseCode");if(target)target.value=source?.value||"";await redeem();const feedback=$("olonLicenseLockFeedback");if(feedback)feedback.textContent=$("olonLicenseStudentFeedback")?.textContent||"";if(source&&current?.phase==="active")source.value="";});
+ $("olonLicenseLockCode")?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("olonLicenseLockRedeem")?.click();}});
+ $("olonLicenseLockLogout")?.addEventListener("click",()=>window.logout?.());
  $("olonLicenseCode")?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();void redeem();}});
  $("olonLicenseGenerate")?.addEventListener("click",generate);
  $("olonLicenseRefresh")?.addEventListener("click",adminRefresh);
