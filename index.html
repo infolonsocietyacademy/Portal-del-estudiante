@@ -28,7 +28,7 @@
 <link rel="stylesheet" href="./trader.css?v=20261107-calendar-link-restored">
 <link rel="stylesheet" href="./landing-cyber.css?v=20261106-cyber-console-1">
 <link rel="stylesheet" href="./interior-cyber.css?v=20261108-compact-welcome-1">
-<link rel="stylesheet" href="./leaderboard.css?v=20261108-ranking-trades-live-1">
+<link rel="stylesheet" href="./leaderboard.css?v=20261108-auto-ranking-2">
 <link rel="stylesheet" href="./admin-billing.css?v=20261107-integrated">
 <link rel="stylesheet" href="./admin-rebates.css?v=20261107-rebates">
 <link rel="stylesheet" href="./admin-performance.css?v=20261108-student-perf-1">
@@ -358,7 +358,7 @@ window.addEventListener("load", () => {
         </div>
         <div class="olonLeaderboardMeta">
           <span id="olonLeaderboardPeriod">Período actual</span>
-          <span class="olonLeaderboardPrivacy">Solo estudiantes autorizados por Administración</span>
+          <span class="olonLeaderboardPrivacy">Clasificación automática · Datos registrados por estudiantes</span>
         </div>
         <div class="olonPodium" aria-live="polite" aria-atomic="true">
           <div class="olonPodiumEntry isEmpty" data-leaderboard-rank="2" style="--olon-rank:#bbc5d4">
@@ -381,8 +381,13 @@ window.addEventListener("load", () => {
           </div>
         </div>
         <p id="olonLeaderboardLoading" class="olonLeaderboardNotice" role="status">Cargando ranking...</p>
-        <p id="olonLeaderboardEmpty" class="olonLeaderboardNotice" hidden>Aún no hay TOP 3 publicado para este período.</p>
+        <p id="olonLeaderboardEmpty" class="olonLeaderboardNotice" hidden>No hay suficientes trades registrados con depósito para este período.</p>
         <p id="olonLeaderboardError" class="olonLeaderboardNotice" role="status" hidden></p>
+        <label id="olonRankingNamePreference" class="olonRankingNamePreference">
+          <input id="olonRankingShowName" type="checkbox">
+          Mostrar mi nombre en el TOP 3 si clasifico (opcional). Si no, aparezco como Trader OLON.
+        </label>
+        <p id="olonRankingNameFeedback" class="olonRankingNameFeedback" role="status" hidden></p>
       </section>
 
       <section class="card ledgerQuickActions" aria-labelledby="ledgerQuickTitle">
@@ -979,23 +984,11 @@ window.addEventListener("load", () => {
           <button type="button" class="adminSmallButton" onclick="olonRequests.refresh()">↻ Actualizar</button>
         </div>
         <div class="adminRequestNotice">Al aprobar, se crea una cuenta real con contraseña temporal. <strong>Confirma primero que el correo pertenece al estudiante.</strong> Comparte la contraseña por privado y pídele que la cambie. Las solicitudes no envían correos automáticamente.</div>
-        <div id="adminRequestsFeedback" class="adminActionFeedback" role="status" aria-live="polite" hidden></div>
-        <div id="adminRequestsList" class="adminRequestsList"><p class="adminRequestEmpty">Cargando solicitudes…</p></div>
-        <div class="adminDirectoryFooter">Al crear una cuenta, busca al estudiante en el directorio para asignar su próxima fecha de pago.</div>
-      </section>
-
-
-      <section id="olonRankingAdmin" class="adminWorkspaceCard olonRankingAdmin" aria-labelledby="olonRankingAdminTitle">
-        <span class="adminSectionEyebrow">RECONOCIMIENTO / OLON SOCIETY</span>
-        <h4 id="olonRankingAdminTitle">🏆 Administrar TOP 3</h4>
-        <p>Selecciona estudiantes activos y registra el porcentaje obtenido. Puedes publicar rankings semanales, mensuales y anuales; el podio del Inicio muestra el período actual.</p>
-        <p class="olonRankingExplain">Los resultados calculados están guardados como <strong>borradores</strong>. Aquí podrás verlos antes de publicarlos. Confirma que cada estudiante autoriza mostrar su nombre y rendimiento; los datos no se mostrarán a otros estudiantes hasta que publiques.</p>
-        <div class="olonRankPreview" aria-live="polite" aria-label="Vista previa de ranking">
-          <div class="olonRankPreviewHead"><strong>VISTA PREVIA / TOP 3</strong><span id="olonRankPreviewStatus">Consultando...</span></div>
-          <div class="olonRankPreviewRows" id="olonRankPreviewRows">
-            <div class="olonRankPreviewItem">Selecciona un período para consultar el ranking.</div>
-          </div>
-        </div>
+        <di      <section id="olonRankingAdmin" class="adminWorkspaceCard olonRankingAdmin" aria-labelledby="olonRankingAdminTitle">
+        <span class="adminSectionEyebrow">RECONOCIMIENTO AUTOMÁTICO / OLON SOCIETY</span>
+        <h4 id="olonRankingAdminTitle">🏆 TOP 3 automático</h4>
+        <p>Los resultados se calculan desde los trades que registra cada estudiante. No tienes que asignar, aprobar ni publicar puestos.</p>
+        <p class="olonRankingExplain">El rendimiento se calcula como ganancia neta del período ÷ depósitos totales registrados × 100. Se requiere al menos una operación y un depósito. Los nombres de estudiantes se muestran solo cuando ellos lo autorizan; de lo contrario aparece un alias.</p>
         <div class="olonRankingAdminControls">
           <label>Tipo de ranking
             <select id="olonRankPeriod">
@@ -1007,41 +1000,16 @@ window.addEventListener("load", () => {
           <label>Período
             <input id="olonRankKey" type="week" aria-label="Semana del ranking" required>
           </label>
-          <button class="btn secondary" id="olonRankReload" type="button">↻ Consultar período</button>
+          <button class="btn secondary" id="olonRankReload" type="button">↻ Actualizar resultados</button>
         </div>
-        <section class="olonRankCandidates" aria-labelledby="olonRankCandidatesTitle">
-          <div class="olonRankCandidatesHead">
-            <div><span>DATOS DE BITÁCORA / EN VIVO</span><h5 id="olonRankCandidatesTitle">Estudiantes con resultados registrados</h5>
-              <p>Porcentaje calculado del período. Elige «Agregar al TOP 3» para preparar el puesto, sin publicarlo.</p>
-            </div>
-            <span id="olonRankCandidatesCount" class="olonRankCandidatesCount">Consultando...</span>
-          </div>
-          <div id="olonRankCandidatesList" class="olonRankCandidatesList" aria-live="polite">
-            <p class="olonRankCandidatesEmpty">Cargando los trades registrados...</p>
-          </div>
-        </section>
-        <div class="olonRankEditor">
-          <div class="olonRankSlot">
-            <strong>🥇 #1 — Primer lugar</strong>
-            <label>Estudiante<select id="olonRankStudent1"><option value="">Sin asignar</option></select></label>
-            <label>Rendimiento (%)<input id="olonRankPct1" type="number" min="-100" max="100000" step="0.01" inputmode="decimal" placeholder="Ej.: 25.50"></label>
-          </div>
-          <div class="olonRankSlot">
-            <strong>🥈 #2 — Segundo lugar</strong>
-            <label>Estudiante<select id="olonRankStudent2"><option value="">Sin asignar</option></select></label>
-            <label>Rendimiento (%)<input id="olonRankPct2" type="number" min="-100" max="100000" step="0.01" inputmode="decimal" placeholder="Ej.: 14.20"></label>
-          </div>
-          <div class="olonRankSlot">
-            <strong>🥉 #3 — Tercer lugar</strong>
-            <label>Estudiante<select id="olonRankStudent3"><option value="">Sin asignar</option></select></label>
-            <label>Rendimiento (%)<input id="olonRankPct3" type="number" min="-100" max="100000" step="0.01" inputmode="decimal" placeholder="Ej.: 8.75"></label>
-          </div>
+        <div class="olonRankPreview" aria-live="polite">
+          <div class="olonRankPreviewHead"><strong>CLASIFICACIÓN ACTUAL / TOP 3</strong><span id="olonRankPreviewStatus">Calculando…</span></div>
+          <div class="olonRankPreviewRows" id="olonRankPreviewRows"><div class="olonRankPreviewItem">Consultando registros de trading…</div></div>
         </div>
-        <label class="olonRankingConsent"><input type="checkbox" id="olonRankConsent"> Confirmo que todos los estudiantes seleccionados autorizaron mostrar su nombre y porcentaje de rendimiento en el portal.</label>
-        <label class="olonRankingConsent"><input type="checkbox" id="olonRankPhotoConsent"> Confirmo que cada estudiante seleccionado autorizó mostrar también su foto de perfil en el TOP 3.</label>
-        <p id="olonRankPhotoStatus" class="olonRankingFeedback" role="status">Foto del TOP 3: consultando permisos...</p>
-        <div class="olonRankingActions">
-          <button class="btn secondary" id="olonRankSavePhotos" type="button">Guardar permiso de fotos</button>
+        <p id="olonRankFeedback" class="olonRankingFeedback" role="status" aria-live="polite">El ranking se actualiza automáticamente con los resultados registrados.</p>
+      </section>
+
+olonRankSavePhotos" type="button">Guardar permiso de fotos</button>
           <button class="btn" id="olonRankSave" type="button">Publicar TOP 3</button>
           <button class="btn secondary" id="olonRankClear" type="button">Retirar ranking</button>
         </div>
@@ -1294,7 +1262,7 @@ window.addEventListener("load", () => {
 <script src="./admin-workspace.js?v=20261108-performance-linked-1" defer></script>
 <script src="./admin-billing.js?v=20261107-integrated" defer></script>
 <script src="./admin-rebates.js?v=20261107-rebates" defer></script>
-<script src="./leaderboard.js?v=20261108-ranking-trades-live-1" defer></script>
+<script src="./leaderboard.js?v=20261108-auto-ranking-2" defer></script>
 <script src="./admin-performance.js?v=20261108-student-perf-1" defer></script>
 <script src="./admin-registration.js?v=20261106-trader" defer></script>
 <script src="./password-settings.js?v=20261107-security-hardening" defer></script>
