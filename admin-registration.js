@@ -5,6 +5,7 @@
 const $=id=>document.getElementById(id);
 const API=SUPABASE_URL+"/functions/v1/registration-gateway";
 let busy=false;
+let loading=false;
 let last=[];
 const safe=t=>String(t==null?"":t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function isAdmin(){
@@ -179,12 +180,14 @@ accountDialog.addEventListener("close",()=>{
  accountNote();
 });
 async function refresh(){
- if(!isAdmin()||busy)return;
+ if(!isAdmin()||busy||loading)return;
+ loading=true;
  try{
   const result=await call("list");
   last=Array.isArray(result.requests)?result.requests:[];
   render();
  }catch(e){status("No fue posible consultar las solicitudes: "+String(e.message||e),true);}
+ finally{loading=false;}
 }
 async function approve(id){
  if(!isAdmin()||busy)return;
@@ -222,6 +225,8 @@ function install(){
  observer.observe(section,{attributes:true,attributeFilter:["class"]});
  if(!section.classList.contains("hidden"))void refresh();
  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!section.classList.contains("hidden"))void refresh();});
+ // Keep new access requests visible without requiring an admin page reload.
+ setInterval(()=>{if(!document.hidden&&!section.classList.contains("hidden")&&isAdmin())void refresh();},6000);
 }
 window.olonRequests={refresh,go,manageAccount};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install);else install();
