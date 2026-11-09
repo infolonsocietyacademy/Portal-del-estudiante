@@ -1,0 +1,103 @@
+/* OLON student trading performance / private admin dashboard. */
+#portal.app #olonPerformanceBlock{
+  --perf-line:var(--cyber-ui-border,var(--line));
+  margin:20px 0 22px;
+  padding:24px!important;
+  border:1px solid var(--perf-line);
+  border-radius:10px;
+  background:var(--cyber-ui-panel,var(--panel));
+  color:var(--cyber-ui-ink,var(--text));
+}
+#portal.app .olonPerformanceHeader{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:18px;flex-wrap:wrap;padding:0 0 17px;border-bottom:1px solid var(--perf-line);
+}
+#portal.app .olonPerformanceHeader h4{
+  font:750 calc(18px * var(--trader-font-scale,1))/1.4 var(--font-mono);
+  letter-spacing:-.025em;margin:6px 0;color:var(--cyber-ui-ink,var(--text));
+}
+#portal.app .olonPerformanceHeader p{
+  margin:0;color:var(--cyber-ui-muted,var(--muted));
+  font:500 calc(11px * var(--trader-font-scale,1))/1.7 var(--font-mono);
+  max-width:88ch;
+}
+#portal.app .olonPerformanceFilters{
+  display:flex;align-items:flex-end;flex-wrap:wrap;
+  padding:17px 0;gap:12px 24px;
+}
+#portal.app .olonPerformanceFilters label{
+  display:grid;gap:6px;
+  color:var(--cyber-ui-muted,var(--muted));
+  font:650 11px var(--font-mono);
+}
+#portal.app .olonPerformanceFilters select{
+  min-height:42px;min-width:185px;padding:8px 12px;
+  border:1px solid var(--perf-line);border-radius:5px;
+  background:var(--cyber-ui-panel-2,var(--panel2));
+  color:var(--cyber-ui-ink,var(--text));
+  font:600 11px var(--font-mono);
+}
+#portal.app #olonPerformancePeriodNote{
+  flex:1;min-width:185px;
+  color:var(--cyber-ui-muted,var(--muted));
+  font:500 10px/1.6 var(--font-mono);
+}
+#portal.app #olonPerformanceStatus{
+  padding:0 0 10px;min-height:24px;
+  color:var(--cyber-ui-muted,var(--muted));
+  font:500 10px/1.5 var(--font-mono);
+}
+#portal.app .olonPerformanceTableWrap{
+  width:100%;min-width:0;overflow:auto;
+  border-top:1px solid var(--perf-line);
+  scrollbar-width:thin;
+}
+#portal.app .olonPerformanceTable{
+  width:100%;min-width:740px;border-collapse:collapse;
+  background:transparent;
+  font-family:var(--font-mono);
+}
+#portal.app .olonPerformanceTable th{
+  padding:14px 11px;text-align:left;white-space:nowrap;
+  border-bottom:1px solid var(--perf-line);
+  color:var(--cyber-ui-muted,var(--muted));
+  background:transparent;
+  font:750 10px var(--font-mono);
+  letter-spacing:.06em;text-transform:uppercase;
+}
+#portal.app .olonPerformanceTable td{
+  padding:15px 11px;border-bottom:1px solid var(--perf-line);
+  color:var(--cyber-ui-ink,var(--text));
+  font:600 12px var(--font-mono);
+  white-space:nowrap;
+}
+#portal.app .olonPerformanceTable td:first-child{white-space:normal;min-width:165px}
+#portal.app .olonPerformanceTable td:first-child strong{display:block;font-size:12px}
+#portal.app .olonPerformanceTable td:first-child small{
+  display:block;margin-top:5px;color:var(--cyber-ui-muted,var(--muted));font-size:10px;
+}
+#portal.app .olonPerformanceTable td.profit,
+#portal.app .adminPerfCell .positive{color:var(--cyber-profit,#2be39c)!important}
+#portal.app .olonPerformanceTable td.loss,
+#portal.app .adminPerfCell .negative{color:var(--cyber-loss,#ff6e80)!important}
+#portal.app .olonPerformanceTable td.none,
+#portal.app .adminPerfEmpty{color:var(--cyber-ui-muted,var(--muted))!important}
+#portal.app .olonPerformanceStage{min-height:37px;white-space:nowrap;font:700 10px var(--font-mono)}
+#portal.app .olonPerformanceStage:disabled{opacity:.4;cursor:not-allowed}
+#portal.app .adminPerfCell{display:grid;gap:4px;min-width:80px;white-space:nowrap}
+#portal.app .adminPerfCell strong{font:750 13px/1.2 var(--font-mono)}
+#portal.app .adminPerfCell small{font:500 9px/1.2 var(--font-mono);color:var(--cyber-ui-muted,var(--muted))}
+#portal.app .adminPerfEmpty{font-size:10px}
+#portal.app .adminStudentMobilePerformance{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:10px;padding:12px 0;border-top:1px solid var(--perf-line);
+  color:var(--cyber-ui-muted,var(--muted));font:650 11px var(--font-mono);
+}
+#portal.app .adminStudentMobilePerformance .adminPerfCell{text-align:right}
+@media(max-width:700px){
+  #portal.app #olonPerformanceBlock{padding:14px!important}
+  #portal.app .olonPerformanceHeader{align-items:flex-start}
+  #portal.app .olonPerformanceHeader h4{font-size:16px}
+  #portal.app .olonPerformanceTable{min-width:690px}
+  #portal.app .olonPerformanceTable th,#portal.app .olonPerformanceTable td{padding-inline:9px}
+}
