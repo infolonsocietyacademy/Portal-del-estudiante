@@ -2001,7 +2001,7 @@ document.addEventListener("DOMContentLoaded", function(){
     $auth("homeAccess")?.scrollIntoView({behavior:"smooth",block:"center"});
   }
   function canUsePortal(profile){
-    return !!profile && ["active","approved"].includes(String(profile.status||"").toLowerCase()) && !membershipExpired(profile);
+    return !!profile && ["active","approved"].includes(String(profile.status||"").toLowerCase()); // VIP expiry is handled by OLFX License Manager while data are retained.
   }
   async function openVerifiedProfile(profile,user){
     currentUser = profile;
