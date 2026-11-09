@@ -2010,7 +2010,9 @@ document.addEventListener("DOMContentLoaded", function(){
     const portalElement = document.getElementById("portal");
     if(portalElement) portalElement.classList.toggle("admin-mode", String(profile?.role||"").trim().toLowerCase()==="admin");
     localStorage.setItem("olon_current_user", JSON.stringify(profile));
-    // Renewal is now displayed inside the student's dashboard profile card.
+    // Keep private VIP content gated during license verification, without a loading overlay.
+    if(String(profile.role).toLowerCase()!=="admin")document.body.classList.add("olonLicenseChecking");
+    else document.body.classList.remove("olonLicenseChecking","olonLicenseRenewalRequired");
     showPortalLoader("Preparando tu espacio…");
     await window.enterPortal();
   }
