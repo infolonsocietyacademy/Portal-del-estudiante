@@ -203,6 +203,19 @@
         },"No se pudo actualizar la visibilidad.");
       });
       actions.append(visibility);
+      const remove=button("Eliminar clase",()=>{
+        if(!admin())return;
+        if(!window.confirm("¿Eliminar definitivamente la clase \""+item.title+"\"? La clase desaparecerá del portal de todos los estudiantes. Esta acción no se puede deshacer."))return;
+        void action(remove,"academyClassFeedback",async()=>{
+          const deleted=unwrap(await table("olon_classes").delete().eq("id",item.id).select("id").maybeSingle());
+          if(!deleted)throw safeError("La clase ya no existe o no tienes permiso para eliminarla.");
+          if(classDraft?.id===item.id)editClass();
+          await loadClasses(true);
+          feedback("academyClassFeedback","Clase eliminada definitivamente.","success");
+        },"No se pudo eliminar la clase. Comprueba los permisos de administración.");
+      });
+      remove.classList.add("academyClassDelete");
+      actions.append(remove);
     }else{
       for(const [text,url] of [["Entrar a la clase",upcoming && item.join_url],
         ["Ver grabación",item.replay_url],["Material de repaso",item.material_url]]){
