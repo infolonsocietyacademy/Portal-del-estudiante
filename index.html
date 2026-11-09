@@ -712,6 +712,14 @@ window.addEventListener("load", () => {
 
     <section id="academyVipPage" class="page hidden academyPage">
       <header class="card academyHero"><span>MEMBRESÍA OLON</span><h3>Renovación VIP</h3><p>Envía el comprobante de tu pago y consulta la respuesta de Administración.</p><p id="academyVipDate" class="academyPaymentDate"></p></header>
+      <section id="olonLicenseStudentCard" class="card academyCard olonLicensePanel">
+        <h3>OLFX / MI LICENCIA VIP</h3>
+        <p>Renueva con tu código de 15 o 30 días, sin perder tus operaciones ni configuraciones.</p>
+        <p>Estado: <b id="olonLicenseMyStatus">Consultando…</b></p>
+        <p>Caducidad: <b id="olonLicenseMyDate">—</b></p><p id="olonLicenseMyGrace"></p>
+        <div class="olonLicenseForm"><label>Código de licencia<input type="text" id="olonLicenseCode" autocomplete="off" autocapitalize="characters" placeholder="OLFX-15D-XXXXX-XXXXX-XXXXX-XXXXX"></label><button type="button" class="btn" id="olonLicenseRedeem">Activar licencia</button></div>
+        <p id="olonLicenseStudentFeedback" class="olonLicenseFeedback" role="status" hidden></p>
+      </section>
       <section class="card academyCard">
         <h4>Enviar comprobante</h4>
         <p id="academyVipPending" class="academyNote" hidden>Tu comprobante está pendiente de revisión.</p>
