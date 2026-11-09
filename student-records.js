@@ -247,6 +247,8 @@
       if(studentId() !== owner) return;
       await refresh();
       if(studentId() !== owner) return;
+      // Refresh TOP 3 immediately after a confirmed trade/deposit update.
+      window.olonLeaderboardRefresh?.();
       const target = previous ? "historial" : "dashboard";
       const message = previous ? "Cambios guardados." : kinds[mode].save.replace("Guardar ", "") + " guardado.";
       reset();
