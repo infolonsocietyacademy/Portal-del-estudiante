@@ -84,8 +84,8 @@ async function adminRefresh(){if(adminBusy||typeof currentUser==="undefined"||cu
  if($("olonLicenseAvailable"))$("olonLicenseAvailable").textContent=r.licenses.filter(l=>l.status==="available").length;
  if($("olonLicenseGrace"))$("olonLicenseGrace").textContent=r.students.filter(s=>["grace","eligible"].includes(s.phase)).length;
  }catch(e){note("olonLicenseAdminFeedback",e.message,true);}finally{adminBusy=false;}}
-async function generate(e){e?.preventDefault();const btn=$("olonLicenseGenerate");const d=String($("olonLicenseDays")?.value||"").trim(),days=Number(d);if(!/^\\d{1,3}$/.test(d)||!Number.isInteger(days)||days<1||days>365){note("olonLicenseAdminFeedback","Escribe una duración de 1 a 365 días.",true);return;}if(btn)btn.disabled=true;try{const r=await call("generate",{days,quantity:Number($("olonLicenseQuantity")?.value||1),issued_to:String($("olonLicenseAssign")?.value||"")});generated=r.licenses||[];const out=$("olonGeneratedCodes");if(out){out.hidden=false;out.textContent=generated.map(c=>c.code).join("\n");}note("olonLicenseAdminFeedback","Códigos creados. Cópialos ahora: no volverán a mostrarse completos.");await adminRefresh();}catch(e){note("olonLicenseAdminFeedback",e.message,true);}finally{if(btn)btn.disabled=false;}}
-async function editDays(id,previous){
+async function generate(e){e?.preventDefault();const btn=$("olonLicenseGenerate");const d=String($("olonLicenseDays")?.value||"").trim(),days=Number(d);if(!/^\d{1,3}$/.test(d)||!Number.isInteger(days)||days<1||days>365){note("olonLicenseAdminFeedback","Escribe una duración de 1 a 365 días.",true);return;}if(btn)btn.disabled=true;try{const r=await call("generate",{days,quantity:Number($("olonLicenseQuantity")?.value||1),issued_to:String($("olonLicenseAssign")?.value||"")});generated=r.licenses||[];const out=$("olonGeneratedCodes");if(out){out.hidden=false;out.textContent=generated.map(c=>c.code).join("\n");}note("olonLicenseAdminFeedback","Códigos creados. Cópialos ahora: no volverán a mostrarse completos.");await adminRefresh();}catch(e){note("olonLicenseAdminFeedback",e.message,true);}finally{if(btn)btn.disabled=false;}}
+async function editDays(id,previous,creating=false){
  // Editor visual: el calendario calcula días a partir de hoy en Puerto Rico.
  // La fecha indicada es ilustrativa si el código se activa hoy sin saldo previo.
  const inPR=new Intl.DateTimeFormat("en-US",{timeZone:"America/Puerto_Rico",year:"numeric",month:"2-digit",day:"2-digit"});
@@ -99,17 +99,17 @@ async function editDays(id,previous){
  let month=selected.slice(0,7);
  const dialog=document.createElement("dialog");
  dialog.className="olonLicenseCalendarDialog";
- dialog.setAttribute("aria-label","Editar días de licencia con calendario");
+ dialog.setAttribute("aria-label",creating?"Elegir días de acceso con calendario":"Editar días de licencia con calendario");
  dialog.innerHTML='<div class="olonLicenseCalendarInner">'+
-  '<div class="olonLicenseCalendarHead"><div><small>OLFX / LICENSE MANAGER</small><h3>Editar días de licencia</h3></div><button type="button" class="olonLicenseCalendarClose" data-cal-close aria-label="Cerrar calendario">×</button></div>'+
+  '<div class="olonLicenseCalendarHead"><div><small>OLFX / LICENSE MANAGER</small><h3>'+(creating?"Elegir días de acceso":"Editar días de licencia") +'</h3></div><button type="button" class="olonLicenseCalendarClose" data-cal-close aria-label="Cerrar calendario">×</button></div>'+
   '<p class="olonLicenseCalendarIntro">Selecciona una fecha en el calendario. Se calcularán automáticamente los días de acceso a partir de hoy (hora de Puerto Rico).</p>'+
   '<div class="olonLicenseCalendarNav"><button type="button" data-cal-prev aria-label="Mes anterior">‹</button><strong id="olonLicenseCalendarMonth"></strong><button type="button" data-cal-next aria-label="Mes siguiente">›</button></div>'+
   '<div class="olonLicenseCalendarWeek" aria-hidden="true"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>'+
   '<div class="olonLicenseCalendarGrid" role="grid" aria-label="Días disponibles para la licencia"></div>'+
   '<div class="olonLicenseCalendarSummary"><span>Fecha elegida <b id="olonLicenseCalendarDate"></b></span><span>Duración nueva <b id="olonLicenseCalendarDays"></b></span></div>'+
-  '<p class="olonLicenseCalendarHelp">La fecha muestra cuándo vencería si se activa hoy sin días restantes. Si el estudiante aún tiene días pagados, se acumularán. Al editar, el código anterior será reemplazado por uno nuevo.</p>'+
+  '<p class="olonLicenseCalendarHelp">'+(creating?"Esta fecha determina cuántos días durará cada licencia nueva, contando desde hoy en Puerto Rico. El vencimiento real dependerá de cuándo se active y de los días acumulados.":"La fecha muestra cuándo vencería si se activa hoy sin días restantes. Si el estudiante aún tiene días pagados, se acumularán. Al editar, el código anterior será reemplazado por uno nuevo.")+'</p>'+
   '<p class="olonLicenseCalendarError" role="alert" hidden></p>'+
-  '<div class="olonLicenseCalendarActions"><button type="button" class="adminSmallButton" data-cal-close>Cancelar</button><button type="button" class="btn" data-cal-save>Guardar y generar nuevo código</button></div>'+
+  '<div class="olonLicenseCalendarActions"><button type="button" class="adminSmallButton" data-cal-close>Cancelar</button><button type="button" class="btn" data-cal-save>'+(creating?"Confirmar días":"Guardar y generar nuevo código")+'</button></div>'+
   '</div>';
  document.body.append(dialog);
  const q=selector=>dialog.querySelector(selector);
@@ -140,7 +140,7 @@ async function editDays(id,previous){
   q("#olonLicenseCalendarDays").textContent=diff(selected)+" días";
   q("[data-cal-prev]").disabled=month<=today.slice(0,7);
   q("[data-cal-next]").disabled=month>=max.slice(0,7);
-  q("[data-cal-save]").disabled=diff(selected)===Number(previous);
+  q("[data-cal-save]").disabled=!creating&&diff(selected)===Number(previous);
  }
  q("[data-cal-prev]").addEventListener("click",()=>{month=addDays(month+"-01",-1).slice(0,7);renderCalendar();});
  q("[data-cal-next]").addEventListener("click",()=>{const [y,m]=month.split("-").map(Number);month=new Date(Date.UTC(y,m,1)).toISOString().slice(0,7);renderCalendar();});
@@ -153,9 +153,15 @@ async function editDays(id,previous){
  q("[data-cal-save]").addEventListener("click",async()=>{
   const days=diff(selected),save=q("[data-cal-save]");
   if(!Number.isInteger(days)||days<1||days>365){showError("Selecciona una fecha entre mañana y los próximos 365 días.");return;}
-  if(days===Number(previous)){showError("Selecciona una fecha diferente para modificar la licencia.");return;}
+  if(!creating&&days===Number(previous)){showError("Selecciona una fecha diferente para modificar la licencia.");return;}
   save.disabled=true;showError("");
   try{
+   if(creating){
+    $("olonLicenseDays").value=String(days);
+    $("olonLicenseSelectedDays").textContent=days+" día"+(days===1?"":"s");
+    $("olonLicenseSelectedDate").textContent=dayFmt.format(parseISO(selected));
+    dialog.close();return;
+   }
    const result=await call("edit_days",{id,days});
    generated=[{id,code:result.code,days}];
    const out=$("olonGeneratedCodes");
@@ -171,9 +177,15 @@ async function editDays(id,previous){
 }
 async function revoke(id){if(!confirm("¿Revocar esta licencia sin utilizar?"))return;try{await call("revoke",{id});await adminRefresh();note("olonLicenseAdminFeedback","Licencia revocada.");}catch(e){note("olonLicenseAdminFeedback",e.message,true);}}
 function init(){
+ const durationValue=Number($("olonLicenseDays")?.value)||15;
+ const pickerDate=new Date(Date.now()+durationValue*86400000);
+ const formatter=new Intl.DateTimeFormat("es-PR",{day:"numeric",month:"long",year:"numeric",timeZone:"America/Puerto_Rico"});
+ if($("olonLicenseSelectedDate"))$("olonLicenseSelectedDate").textContent=formatter.format(pickerDate);
+ if($("olonLicenseSelectedDays"))$("olonLicenseSelectedDays").textContent=durationValue+" días";
  $("olonLicenseRedeem")?.addEventListener("click",redeem);
  $("olonLicenseRefreshStudent")?.addEventListener("click",()=>void status());
  $("olonLicenseCode")?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();void redeem();}});
+ $("olonLicenseDatePicker")?.addEventListener("click",()=>void editDays(null,Number($("olonLicenseDays")?.value)||15,true));
  $("olonLicenseGenerate")?.addEventListener("click",generate);
  $("olonLicenseRefresh")?.addEventListener("click",adminRefresh);
  $("olonLicenseCopy")?.addEventListener("click",async()=>{if(!generated.length)return;try{await navigator.clipboard.writeText(generated.map(x=>x.code).join("\n"));note("olonLicenseAdminFeedback","Códigos copiados.");}catch{note("olonLicenseAdminFeedback","Selecciona y copia los códigos manualmente.",true);}});
