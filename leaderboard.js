@@ -56,14 +56,63 @@
       const r=lookup.get(rank);
       card.classList.toggle("isEmpty",!r);
       card.querySelector("[data-top-name]").textContent=r?.display_name||"Sin clasificar";
-      card.querySelector("[data-top-percent]").textContent=r?percent(r.return_pct):"—";
+      const score=card.querySelector("[data-top-percent]");
+      score.textContent=r?percent(r.return_pct):"—";
+      score.classList.toggle("isNegative",Boolean(r)&&Number(r.return_pct)<0);
+      score.classList.toggle("isPositive",Boolean(r)&&Number(r.return_pct)>=0);
       const img=card.querySelector("[data-top-avatar]");
       const fallback=card.querySelector("[data-top-initials]");
+      card.dataset.avatarStudent=r?.student_id||"";
       if(img){img.hidden=true;img.removeAttribute("src");}
       if(fallback){fallback.hidden=false;fallback.textContent=r?initials(r.display_name):"—";}
     }
     $("olonLeaderboardPeriod").textContent=label(period,key);
     $("olonLeaderboardEmpty").hidden=records.length>0;
+  }
+  async function loadPodiumPhotos(records,request){
+    // Fetch only uploaded photos belonging to real-name, currently ranked students.
+    // Storage remains private; signed URLs are scoped and short-lived.
+    const ids=[...new Set(records.filter(row=>row.student_id&&row.display_name&&
+      !/^Trader OLON #/.test(row.display_name)).map(row=>row.student_id))];
+    if(!ids.length)return;
+    try{
+      const {data,error}=await supabaseClient.from("olon_profile_media")
+        .select("student_id,avatar_path").in("student_id",ids);
+      if(error)throw error;
+      if(request!==state.publicRequest||!visible())return;
+      const byUser=new Map((data||[]).map(row=>[row.student_id,row.avatar_path]));
+      await Promise.all(records.map(async row=>{
+        if(!row.student_id||!ids.includes(row.student_id))return;
+        const path=byUser.get(row.student_id);
+        if(!path||!path.startsWith(row.student_id+"/avatar/"))return;
+        try{
+          const {data:asset,error:assetError}=await supabaseClient.storage
+            .from("olon-profile-media").createSignedUrl(path,600);
+          if(assetError||!asset?.signedUrl||request!==state.publicRequest||!visible())return;
+          const card=$("olonLeaderboard")?.querySelector(
+            '[data-leaderboard-rank="'+Number(row.rank)+'"]');
+          if(!card||card.dataset.avatarStudent!==row.student_id)return;
+          const img=card.querySelector("[data-top-avatar]");
+          const fallback=card.querySelector("[data-top-initials]");
+          if(!img||!fallback)return;
+          const probe=new Image();
+          probe.onload=()=>{
+            if(request!==state.publicRequest||!visible()||
+              card.dataset.avatarStudent!==row.student_id)return;
+            img.src=asset.signedUrl;
+            img.hidden=false;
+            fallback.hidden=true;
+          };
+          probe.onerror=()=>{
+            if(request!==state.publicRequest||card.dataset.avatarStudent!==row.student_id)return;
+            img.hidden=true;fallback.hidden=false;img.removeAttribute("src");
+          };
+          probe.src=asset.signedUrl;
+        }catch(e){console.warn("[OLON TOP 3] Foto no disponible",e?.message);}
+      }));
+    }catch(e){
+      console.warn("[OLON TOP 3] Fotos no disponibles",e?.message);
+    }
   }
   async function publicRanking(period=state.publicPeriod){
     if(!visible()||!periods.includes(period))return;
@@ -82,6 +131,7 @@
       const rows=await getTop(period,key);
       if(request!==state.publicRequest||!visible())return;
       renderPodium(rows,period,key);
+      void loadPodiumPhotos(rows,request);
     }catch(error){
       if(request!==state.publicRequest)return;
       $("olonLeaderboardError").textContent="No se pudo actualizar el TOP 3. Intenta de nuevo.";
@@ -120,6 +170,8 @@
       detail.append(name,note);
       const score=document.createElement("strong");score.className="olonRankPreviewPercent";
       score.textContent=item?percent(item.return_pct):"—";
+      score.classList.toggle("isNegative",Boolean(item)&&Number(item.return_pct)<0);
+      score.classList.toggle("isPositive",Boolean(item)&&Number(item.return_pct)>=0);
       row.append(medal,detail,score);
       holder.append(row);
     }
