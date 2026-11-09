@@ -1,0 +1,340 @@
+/* OLON SOCIETY ACADEMY · FLUID TRADER TERMINAL
+   A visual layer only: preserves registered data, permissions and handlers.
+   Scoped to #dashboard; non-dashboard screens keep their original controls. */
+#portal.app #dashboard{
+  --fluid-rule:color-mix(in srgb,var(--cyber-ui-ink) 17%,transparent);
+  --fluid-soft-rule:color-mix(in srgb,var(--cyber-ui-ink) 10%,transparent);
+  --fluid-glow:color-mix(in srgb,var(--trader-accent) 13%,transparent);
+  min-width:0;
+  position:relative;
+  isolation:isolate;
+  padding-bottom:32px;
+  font-family:"JetBrains Mono",var(--font-mono),monospace!important;
+}
+#portal.app #dashboard::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:0 0 auto;
+  height:min(940px,85vh);
+  background:radial-gradient(ellipse at 84% 15%,var(--fluid-glow),transparent 44%);
+  pointer-events:none;
+}
+#portal.app #dashboard .terminalFluidHeading{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  margin:24px 0 10px;
+  color:var(--cyber-ui-ink);
+  font:700 calc(11px * var(--trader-font-scale,1))/1.6 "JetBrains Mono",var(--font-mono),monospace;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+#portal.app #dashboard .terminalFluidHeading::after{
+  content:"";
+  height:1px;
+  min-width:20px;
+  flex:1;
+  background:linear-gradient(90deg,var(--fluid-rule),transparent);
+}
+#portal.app #dashboard > #portalWelcomeCard{
+  min-height:0!important;
+  padding:16px 4px 21px!important;
+  margin:0 0 14px!important;
+  border:0!important;
+  border-bottom:1px solid var(--fluid-rule)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#portal.app #dashboard > #portalWelcomeCard::before,
+#portal.app #dashboard > #portalWelcomeCard::after{display:none!important}
+#portal.app #dashboard > #portalWelcomeCard .cyberWelcomeIdentity strong{
+  font-size:calc(12px * var(--trader-font-scale,1))!important;
+  letter-spacing:.08em!important;
+}
+#portal.app #dashboard > #portalWelcomeCard .welcomeTitle{
+  font-size:calc(clamp(18px,2vw,23px) * var(--trader-font-scale,1))!important;
+}
+#portal.app #dashboard > #portalWelcomeCard .welcomeSub{font-size:calc(11px * var(--trader-font-scale,1))!important}
+#portal.app #dashboard > .terminalAccountStrip{
+  display:grid!important;
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+  gap:0!important;
+  margin:0 0 29px!important;
+  border-bottom:1px solid var(--fluid-rule);
+}
+#portal.app #dashboard > .terminalAccountStrip > .metric{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  min-width:0;
+  min-height:105px!important;
+  padding:15px 18px!important;
+  border:0!important;
+  border-right:1px solid var(--fluid-rule)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#portal.app #dashboard > .terminalAccountStrip > .metric:last-child{border-right:0!important}
+#portal.app #dashboard > .terminalAccountStrip > .metric small{
+  color:var(--cyber-ui-muted)!important;
+  font:500 calc(10px * var(--trader-font-scale,1))/1.55 var(--font-mono)!important;
+  letter-spacing:0;
+}
+#portal.app #dashboard > .terminalAccountStrip > .metric h3{
+  margin:8px 0 5px!important;
+  color:var(--cyber-ui-ink)!important;
+  font:700 calc(clamp(17px,2vw,28px) * var(--trader-font-scale,1))/1.18 var(--font-mono)!important;
+  letter-spacing:-.05em;
+  overflow-wrap:anywhere;
+}
+#portal.app #dashboard > .terminalAccountStrip > .metric span{
+  font-size:calc(9px * var(--trader-font-scale,1))!important;
+  line-height:1.6;
+  color:var(--cyber-ui-muted);
+}
+#portal.app #dashboard > .terminalOverview{
+  display:grid!important;
+  grid-template-columns:minmax(0,1.9fr) minmax(300px,.85fr)!important;
+  gap:32px!important;
+  align-items:start;
+  margin:0 0 15px!important;
+}
+#portal.app #dashboard > .terminalOverview > .terminalEquityPanel{
+  min-width:0;
+  min-height:405px!important;
+  height:auto!important;
+  padding:2px 12px 6px 0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#portal.app #dashboard .terminalEquityPanel .cyberChartHead{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:10px;
+  padding:0 0 18px;
+  margin:0 0 8px;
+  border-bottom:1px solid var(--fluid-soft-rule);
+}
+#portal.app #dashboard .terminalEquityPanel .cyberChartHead h3{
+  font:700 calc(12px * var(--trader-font-scale,1))/1.5 var(--font-mono)!important;
+  text-transform:uppercase!important;
+  letter-spacing:.065em!important;
+  color:var(--cyber-ui-ink)!important;
+}
+#portal.app #dashboard .terminalEquityPanel .cyberChartHint{
+  margin-left:auto;
+  color:var(--cyber-ui-muted);
+  font-size:calc(9px * var(--trader-font-scale,1))!important;
+}
+#portal.app #dashboard .terminalEquityPanel canvas#balanceChart{
+  display:block;
+  width:100%!important;
+  height:322px!important;
+  min-height:225px!important;
+}
+#portal.app #dashboard .terminalOverviewRail{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:0!important;
+  min-width:0;
+  padding:0 0 0 24px;
+  border-left:1px solid var(--fluid-rule);
+}
+#portal.app #dashboard .terminalOverviewRail .terminalRailHeading{
+  margin:0 0 8px!important;
+  padding-bottom:16px;
+  border-bottom:1px solid var(--fluid-soft-rule);
+}
+#portal.app #dashboard .terminalOverviewRail > :is(.cyberRailCard,.terminalCalendarWidget,.terminalLeaderboardWidget){
+  width:100%;
+  min-width:0;
+  margin:0!important;
+  padding:18px 0!important;
+  border:0!important;
+  border-bottom:1px solid var(--fluid-soft-rule)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#portal.app #dashboard .terminalOverviewRail .cyberRailCard h3{
+  margin:0 0 8px!important;
+  font:700 calc(12px * var(--trader-font-scale,1))/1.5 var(--font-mono)!important;
+  letter-spacing:0!important;
+}
+#portal.app #dashboard .terminalOverviewRail .cyberRailCard p{
+  line-height:1.65;
+  font-size:calc(10px * var(--trader-font-scale,1))!important;
+}
+#portal.app #dashboard .terminalOverviewRail .terminalCalendarWidget{padding-top:18px!important}
+#portal.app #dashboard .terminalOverviewRail .portalCalendarHeader h3{font-size:calc(14px * var(--trader-font-scale,1))!important}
+#portal.app #dashboard .terminalOverviewRail .portalCalendarTotal{background:transparent!important;border-radius:0!important}
+#portal.app #dashboard > .terminalSummaryMetrics{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:0!important;
+  margin:0 0 25px!important;
+  padding:5px 0 18px;
+  border-bottom:1px solid var(--fluid-rule);
+}
+#portal.app #dashboard > .terminalSummaryMetrics .v3Card{
+  min-width:0;
+  min-height:96px!important;
+  padding:12px 24px 12px 18px!important;
+  margin:0!important;
+  border:0!important;
+  border-right:1px solid var(--fluid-rule)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#portal.app #dashboard > .terminalSummaryMetrics .v3Card:last-child{border-right:0!important}
+#portal.app #dashboard > .terminalSummaryMetrics .v3Card::before,
+#portal.app #dashboard > .terminalAccountStrip .metric::before{display:none!important}
+#portal.app #dashboard > .terminalSummaryMetrics .v3Card small{
+  font:500 calc(10px * var(--trader-font-scale,1))/1.5 var(--font-mono)!important;
+  color:var(--cyber-ui-muted)!important;
+}
+#portal.app #dashboard > .terminalSummaryMetrics .v3Card h3{
+  color:var(--cyber-ui-ink)!important;
+  font:700 calc(clamp(19px,2.2vw,27px) * var(--trader-font-scale,1))/1.2 var(--font-mono)!important;
+  margin:9px 0 4px!important;
+}
+#portal.app #dashboard > .terminalSummaryMetrics .v3Card span{
+  font-size:calc(9px * var(--trader-font-scale,1))!important;
+  color:var(--cyber-ui-muted)!important;
+}
+/* Remove excess nested cards and replace them with editorial sections. */
+#portal.app #dashboard > :is(.ledgerQuickActions,.selectedReportCard,.proQuote),
+#portal.app #dashboard > .proGrid > .card,
+#portal.app #dashboard > .layout > .card{
+  background:transparent!important;
+  box-shadow:none!important;
+  border:0!important;
+  border-top:1px solid var(--fluid-rule)!important;
+  border-radius:0!important;
+  padding:22px 4px!important;
+  margin-top:10px;
+}
+#portal.app #dashboard > .proGrid{
+  gap:0!important;
+  border-bottom:1px solid var(--fluid-rule);
+}
+#portal.app #dashboard > .proGrid > .card{
+  margin:0;
+  padding-inline:20px!important;
+  border-top:0!important;
+  border-right:1px solid var(--fluid-rule)!important;
+}
+#portal.app #dashboard > .proGrid > .card:last-child{border-right:0!important}
+#portal.app #dashboard > .ledgerQuickActions{
+  display:flex!important;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:15px;
+}
+#portal.app #dashboard > .ledgerQuickActions .ledgerButtons{display:flex;flex-wrap:wrap;gap:8px}
+#portal.app #dashboard > .proQuote{
+  color:var(--cyber-ui-muted)!important;
+  font-size:calc(11px * var(--trader-font-scale,1))!important;
+  border:0!important;
+  padding-block:14px!important;
+}
+#portal.app #dashboard > .traderAnalytics{
+  margin:0 0 25px!important;
+  padding-top:24px;
+  border-top:1px solid var(--fluid-rule);
+}
+#portal.app #dashboard .traderAnalytics .analyticsHeader{padding:0 0 18px;border-bottom:1px solid var(--fluid-soft-rule)}
+#portal.app #dashboard .traderAnalytics .analyticsFilters{
+  background:transparent!important;
+  border:0!important;
+  border-bottom:1px solid var(--fluid-rule)!important;
+  border-radius:0!important;
+  padding:12px 2px 20px!important;
+  margin-bottom:18px;
+}
+#portal.app #dashboard .traderAnalytics :is(.analyticsHeroGrid,.analyticsSecondaryGrid){gap:0!important}
+#portal.app #dashboard .traderAnalytics .analyticsMetric{
+  padding:20px 18px!important;
+  margin:0;
+  min-width:0;
+  border:0!important;
+  border-right:1px solid var(--fluid-rule)!important;
+  border-bottom:1px solid var(--fluid-soft-rule)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#portal.app #dashboard .traderAnalytics .analyticsMetric::before{display:none!important}
+#portal.app #dashboard .traderAnalytics :is(.analyticsHeroGrid,.analyticsSecondaryGrid) .analyticsMetric:last-child{border-right:0!important}
+#portal.app #dashboard .traderAnalytics .analyticsWinCard{background:transparent!important}
+#portal.app #dashboard .traderAnalytics .analyticsDetailGrid{gap:25px!important;margin-top:22px}
+#portal.app #dashboard .traderAnalytics .analyticsPanel{
+  min-width:0;
+  padding:12px 0 18px!important;
+  border:0!important;
+  border-top:1px solid var(--fluid-rule)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#portal.app #dashboard .traderAnalytics .analyticsPanel .analyticsTableWrap{border-color:var(--fluid-soft-rule)}
+#portal.app #dashboard > .selectedReportCard .reportRows{
+  background:transparent!important;
+  border-radius:0!important;
+}
+#portal.app #dashboard .btn{box-shadow:none!important}
+/* Responsive, especially at phone widths. */
+@media(max-width:1200px){
+  #portal.app #dashboard > .terminalAccountStrip{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  #portal.app #dashboard > .terminalAccountStrip > .metric:nth-child(3n){border-right:0!important}
+  #portal.app #dashboard > .terminalAccountStrip > .metric:nth-child(-n+3){border-bottom:1px solid var(--fluid-soft-rule)!important}
+  #portal.app #dashboard > .terminalOverview{gap:22px!important;grid-template-columns:minmax(0,1.4fr) minmax(270px,.8fr)!important}
+}
+@media(max-width:900px){
+  #portal.app #dashboard > .terminalOverview{grid-template-columns:minmax(0,1fr)!important}
+  #portal.app #dashboard .terminalOverviewRail{border-left:0;border-top:1px solid var(--fluid-rule);padding:20px 0 0}
+  #portal.app #dashboard > .terminalSummaryMetrics{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #portal.app #dashboard > .terminalSummaryMetrics .v3Card:nth-child(2){border-right:0!important}
+  #portal.app #dashboard > .terminalSummaryMetrics .v3Card:nth-child(-n+2){border-bottom:1px solid var(--fluid-soft-rule)!important}
+  #portal.app #dashboard .terminalOverviewRail{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:0 24px!important}
+  #portal.app #dashboard .terminalOverviewRail .terminalRailHeading{grid-column:1/-1}
+  #portal.app #dashboard .terminalOverviewRail .terminalCalendarWidget{grid-column:1/-1}
+  #portal.app #dashboard .traderAnalytics .analyticsHeroGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #portal.app #dashboard .traderAnalytics .analyticsHeroGrid .analyticsWinCard{grid-column:1/-1!important}
+  #portal.app #dashboard .traderAnalytics .analyticsHeroGrid .analyticsMetric:nth-child(3){border-right:0!important}
+}
+@media(max-width:590px){
+  #portal.app #dashboard .terminalFluidHeading{font-size:calc(10px * var(--trader-font-scale,1));margin:19px 0 8px}
+  #portal.app #dashboard > .terminalAccountStrip{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #portal.app #dashboard > .terminalAccountStrip > .metric{
+    min-height:95px!important;padding:12px 10px!important;
+    border-right:1px solid var(--fluid-soft-rule)!important;
+    border-bottom:1px solid var(--fluid-soft-rule)!important;
+  }
+  #portal.app #dashboard > .terminalAccountStrip > .metric:nth-child(even){border-right:0!important}
+  #portal.app #dashboard > .terminalSummaryMetrics .v3Card{padding:12px 10px!important;min-height:94px!important}
+  #portal.app #dashboard .terminalOverviewRail{display:flex!important;flex-direction:column!important}
+  #portal.app #dashboard > .terminalOverview > .terminalEquityPanel{min-height:320px!important;padding-right:0!important}
+  #portal.app #dashboard .terminalEquityPanel canvas#balanceChart{height:245px!important;min-height:220px!important}
+  #portal.app #dashboard .terminalEquityPanel .cyberChartHint{margin-left:0}
+  #portal.app #dashboard .traderAnalytics .analyticsHeroGrid,
+  #portal.app #dashboard .traderAnalytics .analyticsSecondaryGrid{grid-template-columns:minmax(0,1fr)!important}
+  #portal.app #dashboard .traderAnalytics .analyticsHeroGrid .analyticsWinCard{grid-column:auto!important;display:flex!important}
+  #portal.app #dashboard .traderAnalytics .analyticsHeroGrid .analyticsWinCard .analyticsOutcomes{
+    padding:12px 0 0!important;border-left:0!important;border-top:1px solid var(--fluid-soft-rule)!important;
+  }
+  #portal.app #dashboard .traderAnalytics .analyticsMetric{border-right:0!important;padding:17px 4px!important}
+  #portal.app #dashboard .traderAnalytics .analyticsDetailGrid{grid-template-columns:minmax(0,1fr)!important;gap:10px!important}
+  #portal.app #dashboard > .proGrid{grid-template-columns:minmax(0,1fr)!important}
+  #portal.app #dashboard > .proGrid > .card{padding-inline:4px!important;border-right:0!important;border-bottom:1px solid var(--fluid-soft-rule)!important}
+  #portal.app #dashboard > .ledgerQuickActions{align-items:flex-start}
+  #portal.app #dashboard > .ledgerQuickActions .ledgerButtons{width:100%}
+}
