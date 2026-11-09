@@ -160,10 +160,10 @@
     const pending=count("pending");
     setText("adminTotalUsers",users.length);
     setText("adminActiveUsers",count("active")+count("approved"));
-    setText("adminPendingUsers",pending);
+    setText("adminPendingUsers",Number(window.olonAccessPendingCount ?? pending));
     setText("adminSuspendedUsers",count("suspended"));
     setText("adminUpcomingPayments",users.filter(u=>["active","approved"].includes(norm(u.status))&&paymentRisk(u).kind==="warn").length);
-    setText("adminPendingCountInline",pending);
+    setText("adminPendingCountInline",Number(window.olonAccessPendingCount ?? pending));
     setText("adminApproveAllBtn",pending?"✓ Aprobar "+pending+" pendiente"+(pending===1?"":"s"):"✓ Sin solicitudes");
     const approve=$("adminApproveAllBtn");if(approve)approve.disabled=pending===0||busy;
   }
@@ -175,7 +175,9 @@
     const unpaid=users.filter(u=>paymentRisk(u).kind==="bad"&&norm(u.status)==="active").length;
     const soon=users.filter(u=>paymentRisk(u).kind==="warn"&&norm(u.status)==="active").length;
     const alerts=[];
-    if(pending)alerts.push('<div class="adminAlertItem warn"><span><b>◷ '+pending+'</b> solicitud(es) por aprobar</span><button type="button" class="adminSmallButton" onclick="olonAdmin.filter(\'pending\')">Revisar</button></div>');
+    const accessPending=Number(window.olonAccessPendingCount ?? 0);
+    if(accessPending)alerts.push('<div class="adminAlertItem warn"><span><b>◷ '+accessPending+'</b> nueva(s) solicitud(es) de acceso</span><button type="button" class="adminSmallButton" onclick="olonRequests.go()">Revisar solicitudes</button></div>');
+    if(pending)alerts.push('<div class="adminAlertItem warn"><span><b>◷ '+pending+'</b> perfil(es) pendiente(s)</span><button type="button" class="adminSmallButton" onclick="olonAdmin.filter(\'pending\')">Ver perfiles</button></div>');
     if(unpaid)alerts.push('<div class="adminAlertItem bad"><span><b>! '+unpaid+'</b> fecha(s) de pago vencidas</span><button type="button" class="adminSmallButton" onclick="olonAdmin.filter(\'active\')">Estudiantes</button></div>');
     if(soon)alerts.push('<div class="adminAlertItem warn"><span><b>↗ '+soon+'</b> pago(s) próximos</span><button type="button" class="adminSmallButton" onclick="olonAdmin.filter(\'active\')">Consultar</button></div>');
     if(suspended)alerts.push('<div class="adminAlertItem"><span><b>⊘ '+suspended+'</b> estudiante(s) suspendidos</span><button type="button" class="adminSmallButton" onclick="olonAdmin.filter(\'suspended\')">Consultar</button></div>');
