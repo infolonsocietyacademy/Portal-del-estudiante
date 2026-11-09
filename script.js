@@ -684,7 +684,7 @@ function updatePortalWelcome(){
   // Topbar principal: evita duplicar el saludo.
   const pageTitle = document.getElementById("pageTitle");
   if(pageTitle){
-    pageTitle.innerText = adminView ? "Administración" : "Resumen";
+    pageTitle.innerText = adminView ? "Administración" : "Resumen de rendimiento";
   }
 
   const pageSubtitle = document.getElementById("pageSubtitle");
@@ -1345,13 +1345,16 @@ function renderChart(){
   if(chart) chart.destroy();
   const theme = getComputedStyle(document.body);
   const accent = theme.getPropertyValue("--trader-accent").trim() || "#335fa8";
+  const portalTheme = getComputedStyle(document.getElementById("portal") || document.body);
+  const profit = portalTheme.getPropertyValue("--cyber-profit").trim();
+  const lineColor = /^#[0-9a-f]{6}$/i.test(profit) ? profit : accent;
   const ticks = {color:theme.getPropertyValue("--muted").trim()};
   const grid = {color:theme.getPropertyValue("--line").trim()};
   chart = new Chart(ctx,{
     type:"line",
     data:{labels:labels.length ? labels : ["Inicio"],datasets:[{
       label:"Balance",data:data.length ? data : [0],tension:.4,fill:true,
-      borderColor:accent,backgroundColor:accent + "25"
+      borderColor:lineColor,backgroundColor:lineColor + "25"
     }]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:ticks.color}}},
       scales:{x:{ticks,grid},y:{ticks,grid}}}
@@ -1468,7 +1471,7 @@ function showWelcome(user){
     txt('accessStatus', isAdmin ? 'Administrador activo' : 'Membresía VIP');
     txt('portalMode', isAdmin ? 'Administración' : 'Portal del Trader');
     renderVipPayment(currentUser);
-    txt('pageTitle', isAdmin ? 'Administración' : 'Resumen');
+    txt('pageTitle', isAdmin ? 'Administración' : 'Resumen de rendimiento');
     txt('pageSubtitle', isAdmin ? 'Gestión de miembros, solicitudes y mensajes.' : 'Control privado de rendimiento, disciplina, reportes y progreso del trader.');
     txt('portalWelcomeText', 'Hola, ' + (currentUser.full_name || 'Estudiante'));
 
@@ -1522,7 +1525,7 @@ function showWelcome(user){
   function clean(t){ return String(t||"").replace(/[^\wÁÉÍÓÚáéíóúñÑ# ]/g,"").replace(/\s+/g," ").trim(); }
 
   const subtitles = {
-    dashboard:"Control privado de rendimiento, disciplina, reportes y progreso del trader.",
+    dashboard:"Tu actividad y progreso en la academia.",
     institutionalFlowPage:"OLFX Institutional Contract Flow · GC y NQ · Fuentes verificables.",
     registro:"Registra depósito, ganancia, pérdida y notas del día.",
     historial:"Revisa tus resultados y movimientos de capital.",
@@ -1556,7 +1559,7 @@ function showWelcome(user){
       if(btn) btn.classList.add("active");
 
       const title = $("pageTitle");
-      if(title) title.innerText = btn ? clean(btn.querySelector(".portalNavText")?.textContent || btn.textContent) : id === "academyJournalPage" ? "Diario visual" : clean(id);
+      if(title) title.innerText = id === "dashboard" ? "Resumen de rendimiento" : btn ? clean(btn.querySelector(".portalNavText")?.textContent || btn.textContent) : id === "academyJournalPage" ? "Diario visual" : clean(id);
 
       const sub = $("pageSubtitle");
       if(sub && subtitles[id]) sub.innerText = subtitles[id];
@@ -2133,6 +2136,20 @@ const portalMenuBreakpoint = window.matchMedia("(max-width: 980px)");
 let portalMenuReturnFocus = null;
 let portalMenuFocusFrame = null;
 
+function positionPortalTools(){
+  const portal = $("portal");
+  const nav = $("portalDock");
+  const toggle = $("portalMoreToggle");
+  if(!portal || !nav || !toggle) return;
+  const edge = nav.getBoundingClientRect();
+  const trigger = toggle.getBoundingClientRect();
+  const top = Math.max(8, Math.min(window.innerHeight - 120, edge.bottom + 8));
+  const menuWidth = Math.min(460, window.innerWidth - 28);
+  const left = Math.max(14, Math.min(trigger.left, window.innerWidth - menuWidth - 14));
+  portal.style.setProperty("--terminal-menu-top", `${Math.round(top)}px`);
+  portal.style.setProperty("--terminal-menu-right", `${Math.round(window.innerWidth - left - menuWidth)}px`);
+}
+
 function setPortalMenu(open, restoreFocus = false){
   const portal = $("portal");
   const sidebar = $("sidebar");
@@ -2145,6 +2162,7 @@ function setPortalMenu(open, restoreFocus = false){
     portalMenuFocusFrame = null;
   }
   if(expanded && !wasOpen) portalMenuReturnFocus = document.activeElement;
+  if(expanded) positionPortalTools();
   sidebar.classList.toggle("open", expanded);
   sidebar.inert = !expanded;
   sidebar.setAttribute("aria-hidden", String(!expanded));
@@ -2159,13 +2177,17 @@ function setPortalMenu(open, restoreFocus = false){
   portal.classList.toggle("portalMenuOpen", expanded);
 
   if(expanded && !wasOpen){
-    // Let the panel leave its hidden state before moving keyboard focus into it.
-    portalMenuFocusFrame = window.requestAnimationFrame(() => {
+    // Visibility can remain hidden during its CSS transition. Wait for the
+    // actual visible state rather than assuming a single frame is sufficient.
+    const focusWhenVisible = () => {
       portalMenuFocusFrame = null;
-      if(sidebar.classList.contains("open") && !portal.classList.contains("hidden")){
-        $("portalMenuClose").focus({preventScroll: true});
-      }
-    });
+      if(!sidebar.classList.contains("open") || portal.classList.contains("hidden")) return;
+      const close = $("portalMenuClose");
+      if(close.getClientRects().length && getComputedStyle(close).visibility === "visible"){
+        close.focus({preventScroll: true});
+      }else portalMenuFocusFrame = window.requestAnimationFrame(focusWhenVisible);
+    };
+    portalMenuFocusFrame = window.requestAnimationFrame(focusWhenVisible);
   }
   if(!expanded && wasOpen && restoreFocus && !portal.classList.contains("hidden")){
     const previous = portalMenuReturnFocus;
@@ -2209,6 +2231,11 @@ function installPortalNavigation(){
   more.addEventListener("click", () => setPortalMenu(!sidebar.classList.contains("open"), true));
   $("portalMenuClose").addEventListener("click", closeMenu);
   $("portalMenuBackdrop").addEventListener("click", closeMenu);
+  const repositionTools = () => {
+    if(sidebar.classList.contains("open")) positionPortalTools();
+  };
+  window.addEventListener("resize", repositionTools, {passive:true});
+  window.addEventListener("scroll", repositionTools, {passive:true});
   dock.addEventListener("click", event => {
     const button = event.target.closest("[data-dock-page]");
     if(!button || button.classList.contains("hidden")) return;

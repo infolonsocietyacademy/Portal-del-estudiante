@@ -7,7 +7,7 @@
   const password = document.getElementById("olonChangePasswordBtn");
   const sounds = document.getElementById("soundSwitch");
   const guestKey = "olon_trader_guest_appearance";
-  const defaultStyle = {mode:"dark",accent:"#e72a3e",text:null,font:"mono",fontSize:100};
+  const defaultStyle = {mode:"dark",accent:"#6aa7ef",text:null,font:"inter",fontSize:100};
   const fonts = {
     inter:'Inter,system-ui,-apple-system,"Segoe UI",sans-serif',
     system:'system-ui,-apple-system,"Segoe UI",sans-serif',
@@ -41,7 +41,7 @@
 
   function readGuest(){
     try{
-      return normalize(JSON.parse(localStorage.getItem(guestKey)) || {mode:localStorage.getItem("olon_theme_mode") || defaultStyle.mode,accent:defaultStyle.accent,font:"mono"});
+      return normalize(JSON.parse(localStorage.getItem(guestKey)) || {mode:localStorage.getItem("olon_theme_mode") || defaultStyle.mode,accent:defaultStyle.accent,font:defaultStyle.font});
     }catch{ return {...defaultStyle}; }
   }
 

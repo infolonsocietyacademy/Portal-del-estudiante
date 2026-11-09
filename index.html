@@ -48,7 +48,7 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 <link rel="stylesheet" href="./trading-terminal-pro.css?v=20261108">
 <link rel="stylesheet" href="./trader-analytics.css?v=20261108-black-tape-1">
 <link rel="stylesheet" href="./mobile-notifications.css?v=20261108-push-1">
-<link rel="stylesheet" href="./portal-dock.css?v=20261109-dock-1">
+<link rel="stylesheet" href="./terminal-workspace.css?v=20261109-terminal-1">
 </head>
 <body class="trader-themed">
 
@@ -194,16 +194,10 @@ window.addEventListener("load", () => {
 <section id="portal" class="app hidden">
 
   <button id="portalMenuBackdrop" type="button" class="portalMenuBackdrop" aria-label="Cerrar menú" tabindex="-1" hidden></button>
-  <aside id="sidebar" class="sidebar portalSidebar" role="dialog" aria-label="Todas las herramientas" aria-hidden="true" tabindex="-1" inert>
+  <aside id="sidebar" class="sidebar portalSidebar" role="dialog" aria-labelledby="terminalToolsTitle" aria-hidden="true" tabindex="-1" inert>
     <div class="portalSidebarTop">
       <div class="brand portalBrand">
-        <span class="portalBrandMark" aria-hidden="true">
-          <img src="./assets/favicon.png" alt="" width="46" height="46">
-        </span>
-        <div class="portalBrandText">
-          <h1 aria-label="OLON Society Academy">OLON <span>Society</span></h1>
-          <small aria-hidden="true">Academy</small>
-        </div>
+        <h2 id="terminalToolsTitle" class="terminalToolsTitle">Tus herramientas</h2>
         <button id="portalMenuClose" type="button" class="portalSidebarClose" aria-label="Cerrar menú">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
         </button>
@@ -213,22 +207,22 @@ window.addEventListener("load", () => {
     <button type="button" class="cyberSidebarProfile studentOnly" data-edit-profile aria-label="Editar mi perfil"><span class="profileAvatar" aria-hidden="true"><span data-profile-initials>O</span><img data-profile-photo="avatar" alt="" hidden></span><span><strong>MI PERFIL</strong><small>Personalizar cuenta</small></span></button>
     <nav class="nav portalNav" aria-label="Navegación del portal">
       <div class="portalNavGroup studentNav">TRADING</div>
-      <button type="button" class="portalNavLink studentNav active" data-page="dashboard" onclick="showPage('dashboard',this)" aria-label="Inicio"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></span><span class="portalNavText">Inicio</span></button>
-      <button type="button" class="portalNavLink studentNav" data-page="academyClassesPage" onclick="showPage('academyClassesPage',this)" aria-label="Clases"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h8"/></svg></span><span class="portalNavText">Clases</span><span id="classUnreadBadge" class="classUnreadBadge" aria-hidden="true" hidden></span></button>
+      <button type="button" class="portalNavLink terminalPrimaryLink studentNav active" data-page="dashboard" onclick="showPage('dashboard',this)" aria-label="Resumen de rendimiento"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></span><span class="portalNavText">Resumen</span></button>
+      <button type="button" class="portalNavLink terminalPrimaryLink studentNav" data-page="academyClassesPage" onclick="showPage('academyClassesPage',this)" aria-label="Clases"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h8"/></svg></span><span class="portalNavText">Clases</span><span id="classUnreadBadge" class="classUnreadBadge" aria-hidden="true" hidden></span></button>
       <button type="button" class="portalNavLink studentNav" data-page="academyVipPage" onclick="showPage('academyVipPage',this)" aria-label="Renovación VIP"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg></span><span class="portalNavText">Renovación VIP</span></button>
-      <button type="button" class="portalNavLink studentNav" data-page="registro" onclick="showPage('registro',this)" aria-label="Registrar día"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/><rect x="2.5" y="2.5" width="19" height="19" rx="4"/></svg></span><span class="portalNavText">Registrar día</span></button>
+      <button type="button" class="portalNavLink terminalPrimaryLink studentNav" data-page="registro" onclick="showPage('registro',this)" aria-label="Registrar día"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/><rect x="2.5" y="2.5" width="19" height="19" rx="4"/></svg></span><span class="portalNavText">Registrar día</span></button>
       <button type="button" class="portalNavLink studentNav" data-page="historial" onclick="showPage('historial',this)" aria-label="Historial"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 14h3M8 17h7"/></svg></span><span class="portalNavText">Historial</span></button>
       <button type="button" class="portalNavLink studentNav" data-page="academyChecklistPage" onclick="showPage('academyChecklistPage',this)" aria-label="Checklist"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="m7 9 1 1 2-2m2 2h4m-9 6 1 1 2-2m2 2h4"/></svg></span><span class="portalNavText">Checklist</span></button>
-      <button type="button" class="portalNavLink studentNav" data-page="comparacion" onclick="showPage('comparacion',this)" aria-label="Resultados"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V11M10 20V5M16 20v-8M22 20V3"/><path d="M2 20h20"/></svg></span><span class="portalNavText">Resultados</span></button>
+      <button type="button" class="portalNavLink terminalPrimaryLink studentNav" data-page="comparacion" onclick="showPage('comparacion',this)" aria-label="Resultados"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V11M10 20V5M16 20v-8M22 20V3"/><path d="M2 20h20"/></svg></span><span class="portalNavText">Resultados</span></button>
       <button type="button" class="portalNavLink" data-page="institutionalFlowPage" onclick="showPage('institutionalFlowPage',this)" aria-label="Institutional Flow"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M9 20V4M14 20v-8M19 20V7M2 20h20"/></svg></span><span class="portalNavText">INSTITUTIONAL FLOW</span></button>
       <div class="portalNavGroup studentNav portalNavGroupSecondary">ACADEMIA</div>
       <button type="button" class="portalNavLink studentNav" data-page="newsProPage" onclick="showPage('newsProPage',this)" aria-label="Noticias"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10M7 11h4M13 11h4M7 15h10M7 18h7"/></svg></span><span class="portalNavText">Noticias</span></button>
       <button type="button" class="portalNavLink" data-page="notificationsPage" onclick="showPage('notificationsPage',this)" aria-label="Notificaciones"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></span><span class="portalNavText">Notificaciones</span></button>
       <div class="portalNavGroup adminNav hidden">ADMINISTRACIÓN</div>
-      <button type="button" class="portalNavLink adminNav hidden" data-page="admin" onclick="showPage('admin',this)" aria-label="Centro administrativo"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4M9 15h6M12 15v3"/></svg></span><span class="portalNavText">Centro administrativo</span></button>
-      <button type="button" class="portalNavLink adminNav hidden" data-page="academyAdminClassesPage" onclick="showPage('academyAdminClassesPage',this)" aria-label="Gestionar clases"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h8"/></svg></span><span class="portalNavText">Gestionar clases</span></button>
-      <button type="button" class="portalNavLink adminNav hidden" data-page="academyAdminVipPage" onclick="showPage('academyAdminVipPage',this)" aria-label="Comprobantes VIP"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg></span><span class="portalNavText">Comprobantes VIP</span></button>
-      <button type="button" class="portalNavLink adminNav hidden" data-page="adminChat" onclick="showPage('adminChat',this)" aria-label="Mensajes"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-5-1.5L3 21l1.5-4A9 9 0 1 1 21 12Z"/><path d="M8 12h8M8 15h5"/></svg></span><span class="portalNavText">Mensajes</span><span id="adminChatBadge" class="adminUnread portalNavUnread" style="display:none">0</span></button>
+      <button type="button" class="portalNavLink terminalPrimaryLink adminNav hidden" data-page="admin" onclick="showPage('admin',this)" aria-label="Centro administrativo"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4M9 15h6M12 15v3"/></svg></span><span class="portalNavText">Centro administrativo</span></button>
+      <button type="button" class="portalNavLink terminalPrimaryLink adminNav hidden" data-page="academyAdminClassesPage" onclick="showPage('academyAdminClassesPage',this)" aria-label="Gestionar clases"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h8"/></svg></span><span class="portalNavText">Gestionar clases</span></button>
+      <button type="button" class="portalNavLink terminalPrimaryLink adminNav hidden" data-page="academyAdminVipPage" onclick="showPage('academyAdminVipPage',this)" aria-label="Comprobantes VIP"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg></span><span class="portalNavText">Comprobantes VIP</span></button>
+      <button type="button" class="portalNavLink terminalPrimaryLink adminNav hidden" data-page="adminChat" onclick="showPage('adminChat',this)" aria-label="Mensajes"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-5-1.5L3 21l1.5-4A9 9 0 1 1 21 12Z"/><path d="M8 12h8M8 15h5"/></svg></span><span class="portalNavText">Mensajes</span><span id="adminChatBadge" class="adminUnread portalNavUnread" style="display:none">0</span></button>
 
 
     </nav>
@@ -243,16 +237,16 @@ window.addEventListener("load", () => {
 
   <main class="main">
     <div class="topbar portalTopbar">
+      <div class="terminalBrand" aria-label="OLON Society Academy">
+        <img src="./assets/favicon.png" alt="" width="36" height="36">
+        <span><strong>OLON SOCIETY</strong><small>ACADEMY</small></span>
+      </div>
       <button id="mobileMenuToggle" class="mobileMenuToggle" type="button" aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
         <span id="classUnreadMenuDot" class="classUnreadMenuDot" aria-hidden="true" hidden></span>
       </button>
-      <div class="cyberPortalWordmark" aria-hidden="true">PORTAL DEL <em id="cyberInteriorTypedTrader">TRADER</em><span class="cyberBlinkCaret cyberHeaderCaret" aria-hidden="true">_</span></div>
-      <div class="portalPageInfo">
-        <div class="portalTopBreadcrumb">PORTAL PRIVADO<span class="cyberBlinkCaret cyberBreadcrumbCaret" aria-hidden="true">_</span></div>
-        <h2 id="pageTitle">Resumen</h2>
-        <p id="pageSubtitle">Control privado de rendimiento, disciplina, reportes y progreso del trader.</p>
-      </div>
+      <div class="cyberPortalWordmark" aria-hidden="true">TERMINAL DEL <em id="cyberInteriorTypedTrader">TRADER</em><span class="cyberBlinkCaret cyberHeaderCaret" aria-hidden="true">_</span></div>
+
       <div class="portalTopActions">
         <button type="button" class="pushBellButton" data-open-notifications aria-label="Abrir notificaciones" title="Notificaciones"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span data-push-active-dot hidden></span></button>
         <button class="traderAppearanceTrigger" type="button" data-open-appearance aria-label="Apariencia" title="Apariencia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 0 0 0 18c1.6 0 2.5-1.4 1.5-2.5s-.2-2.6 1.2-2.6H17a4 4 0 0 0 4-4A9 9 0 0 0 12 3Z"/><path d="M7.5 11h.01m3-4h.01m4 1h.01m3 3h.01" stroke-width="2.6"/></svg><span>Apariencia</span></button>
@@ -270,6 +264,29 @@ window.addEventListener("load", () => {
         <button id="portalLogoutTop" type="button" class="portalTopLogout" data-olon-logout onclick="logout()" aria-label="Salir del portal" title="Cerrar sesión"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5M17 16l4-4-4-4M21 12H9"/></svg><span>Salir</span></button>
       </div>
     </div>
+
+    <nav id="portalDock" class="portalDock terminalNav" aria-label="Accesos principales del portal">
+      <button type="button" class="portalDockLink studentNav" data-dock-page="dashboard"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg></span><span class="portalDockLabel">Resumen</span></button>
+      <button type="button" class="portalDockLink studentNav" data-dock-page="registro" data-dock-pages="registro historial academyChecklistPage academyJournalPage"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M9 10h6M9 14h6M9 18h3"/></svg></span><span class="portalDockLabel">Bitácora</span></button>
+      <button type="button" class="portalDockLink studentNav" data-dock-page="academyClassesPage"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="3"/><path d="m10 9 5 3-5 3z"/></svg></span><span class="portalDockLabel">Clases</span><span class="portalDockBadge" data-dock-badge="classes" aria-hidden="true" hidden></span></button>
+      <button type="button" class="portalDockLink studentNav" data-dock-page="comparacion"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20v-6h4v6M10 20V9h4v11M16 20V4h4v16"/></svg></span><span class="portalDockLabel">Resultados</span></button>
+      <button type="button" class="portalDockLink adminNav hidden" data-dock-page="admin"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span><span class="portalDockLabel">Centro</span></button>
+      <button type="button" class="portalDockLink adminNav hidden" data-dock-page="academyAdminClassesPage"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="3"/><path d="m10 9 5 3-5 3z"/></svg></span><span class="portalDockLabel">Clases</span></button>
+      <button type="button" class="portalDockLink adminNav hidden" data-dock-page="academyAdminVipPage"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg></span><span class="portalDockLabel">VIP</span></button>
+      <button type="button" class="portalDockLink adminNav hidden" data-dock-page="adminChat"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-5-1.5L3 21l1.5-4A9 9 0 1 1 21 12Z"/><path d="M8 10h8M8 14h5"/></svg></span><span class="portalDockLabel">Mensajes</span><span class="portalDockBadge" data-dock-badge="messages" aria-hidden="true" hidden></span></button>
+      <button id="portalMoreToggle" type="button" class="portalDockLink" aria-label="Herramientas" aria-controls="sidebar" aria-haspopup="dialog" aria-expanded="false"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span><span class="portalDockLabel">Herramientas</span><svg class="terminalToolsChevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></button>
+      <div class="terminalNavActions">
+        <span class="terminalSpaceLabel studentNav">Espacio personal</span>
+        <span class="terminalSpaceLabel adminNav hidden">Espacio administrativo</span>
+        <button type="button" class="terminalRegisterButton studentNav" onclick="showPageById('registro')"><span aria-hidden="true">+</span> Registrar día</button>
+      </div>
+    </nav>
+
+      <div class="portalPageInfo terminalPageHeading">
+        <div class="portalTopBreadcrumb">PORTAL PRIVADO<span class="cyberBlinkCaret cyberBreadcrumbCaret" aria-hidden="true">_</span></div>
+        <h2 id="pageTitle">Resumen de rendimiento</h2>
+        <p id="pageSubtitle">Tu actividad y progreso en la academia.</p>
+      </div>
 
     <section id="institutionalFlowPage" class="page hidden" aria-label="OLFX Institutional Contract Flow"></section>
 
@@ -1100,17 +1117,7 @@ window.addEventListener("load", () => {
 
   </main>
 
-    <nav id="portalDock" class="portalDock" aria-label="Accesos principales del portal">
-      <button type="button" class="portalDockLink studentNav" data-dock-page="dashboard"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg></span><span class="portalDockLabel">Inicio</span></button>
-      <button type="button" class="portalDockLink studentNav" data-dock-page="registro" data-dock-pages="registro historial academyChecklistPage academyJournalPage"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M9 10h6M9 14h6M9 18h3"/></svg></span><span class="portalDockLabel">Bitácora</span></button>
-      <button type="button" class="portalDockLink studentNav" data-dock-page="academyClassesPage"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="3"/><path d="m10 9 5 3-5 3z"/></svg></span><span class="portalDockLabel">Clases</span><span class="portalDockBadge" data-dock-badge="classes" aria-hidden="true" hidden></span></button>
-      <button type="button" class="portalDockLink studentNav" data-dock-page="comparacion"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20v-6h4v6M10 20V9h4v11M16 20V4h4v16"/></svg></span><span class="portalDockLabel">Resultados</span></button>
-      <button type="button" class="portalDockLink adminNav hidden" data-dock-page="admin"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span><span class="portalDockLabel">Centro</span></button>
-      <button type="button" class="portalDockLink adminNav hidden" data-dock-page="academyAdminClassesPage"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="3"/><path d="m10 9 5 3-5 3z"/></svg></span><span class="portalDockLabel">Clases</span></button>
-      <button type="button" class="portalDockLink adminNav hidden" data-dock-page="academyAdminVipPage"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg></span><span class="portalDockLabel">VIP</span></button>
-      <button type="button" class="portalDockLink adminNav hidden" data-dock-page="adminChat"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-5-1.5L3 21l1.5-4A9 9 0 1 1 21 12Z"/><path d="M8 10h8M8 14h5"/></svg></span><span class="portalDockLabel">Mensajes</span><span class="portalDockBadge" data-dock-badge="messages" aria-hidden="true" hidden></span></button>
-      <button id="portalMoreToggle" type="button" class="portalDockLink" aria-label="Más herramientas" aria-controls="sidebar" aria-haspopup="dialog" aria-expanded="false"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></span><span class="portalDockLabel">Más</span></button>
-    </nav>
+
 </section>
 
 
@@ -1206,9 +1213,9 @@ window.addEventListener("load", () => {
 </dialog>
 
 <script src="./analytics-core.js?v=20261108-performance-1" defer></script>
-<script src="./script.js?v=20261109-dock-1" defer></script>
+<script src="./script.js?v=20261109-terminal-1" defer></script>
 <script src="./interior-typewriter.js?v=20261107-profile-nickname-fix" defer></script>
-<script src="./appearance.js?v=20261107-fontsize-mobile" defer></script>
+<script src="./appearance.js?v=20261109-terminal-1" defer></script>
 <script src="./trade-history.js?v=20261108-performance-1" defer></script>
 
 
@@ -1352,6 +1359,7 @@ window.addEventListener("load", () => {
   }
 })();
 </script>
-<script src="./trading-terminal-pro.js?v=20261108" defer></script></body>
+<script src="./trading-terminal-pro.js?v=20261108" defer></script>
+<script src="./terminal-workspace.js?v=20261109-terminal-1" defer></script></body>
 </html>
 

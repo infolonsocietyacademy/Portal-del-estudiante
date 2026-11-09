@@ -1,0 +1,366 @@
+/* OLON terminal workspace: top navigation and the existing personal data. */
+body.trader-themed #portal.app {
+  --cyber-ui-bg: #f1f5fa;
+  --cyber-ui-panel: #fff;
+  --cyber-ui-panel-2: #e8eef6;
+  --cyber-ui-rail: #f7f9fc;
+  --cyber-ui-border: #ccd7e5;
+  --cyber-ui-ink: #182b42;
+  --cyber-ui-muted: #536a83;
+  --cyber-corner: 8px;
+  --terminal-gutter: 30px;
+  font-family: var(--trader-font, Inter, sans-serif) !important;
+}
+body.trader-themed.atlas-dark #portal.app {
+  --cyber-ui-bg: #0b1016;
+  --cyber-ui-panel: #121b26;
+  --cyber-ui-panel-2: #172230;
+  --cyber-ui-rail: #0e151e;
+  --cyber-ui-border: #2c3a49;
+  --cyber-ui-ink: #e6edf5;
+  --cyber-ui-muted: #91a0b3;
+  --cyber-profit: #49c49b;
+}
+body.trader-themed #portal.app :is(button, input, select, textarea) {
+  font-family: var(--trader-font, Inter, sans-serif) !important;
+}
+#portal.app:not(.hidden), #portal.app.admin-mode:not(.hidden) {
+  display: block !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  min-height: 100dvh;
+}
+body.trader-themed #portal.app:not(.hidden) > main.main,
+body.trader-themed #portal.app.admin-mode:not(.hidden) > main.main {
+  display: block !important;
+  grid-column: 1 !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  padding: 0 var(--terminal-gutter) 44px !important;
+  background: var(--cyber-ui-bg) !important;
+}
+#portal.app > main > .page:not(.hidden),
+#portal.app .terminalPageHeading { max-width: 1550px; margin-inline: auto; }
+#portal.app #mobileMenuToggle { display: none !important; }
+body.trader-themed #portal.app > main.main > .portalTopbar,
+body.trader-themed #portal.app.admin-mode > main.main > .portalTopbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  position: relative;
+  align-items: center;
+  min-height: 74px;
+  margin: 0 calc(-1 * var(--terminal-gutter)) !important;
+  padding: 12px var(--terminal-gutter) !important;
+  gap: 18px;
+  border-bottom: 1px solid var(--cyber-ui-border) !important;
+  background: var(--cyber-ui-bg) !important;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+#portal.app .terminalBrand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+#portal.app .terminalBrand img { width: 35px; height: 35px; object-fit: contain; flex: none; }
+#portal.app .terminalBrand strong { display: block; font-size: 17px; letter-spacing: .015em; color: var(--cyber-ui-ink); }
+#portal.app .terminalBrand small { display: block; margin-top: 4px; font-size: 9px; letter-spacing: .36em; color: var(--cyber-ui-muted); }
+#portal.app .cyberPortalWordmark {
+  display: block;
+  position: static;
+  transform: none;
+  color: var(--cyber-ui-ink);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: .12em;
+}
+#portal.app .cyberPortalWordmark em { color: inherit; }
+#portal.app .cyberPortalWordmark::before,
+#portal.app .cyberPortalWordmark::after,
+#portal.app .cyberBlinkCaret { display: none !important; }
+#portal.app .portalTopActions { justify-self: end; gap: 8px; }
+#portal.app .portalTopActions :is(.traderAppearanceTrigger, .portalTopLogout, .pushBellButton) {
+  display: grid;
+  place-items: center;
+  min-width: 38px;
+  width: 38px;
+  min-height: 38px;
+  height: 38px;
+  padding: 8px;
+  border-radius: 6px;
+  background: transparent !important;
+  border-color: transparent !important;
+  color: var(--cyber-ui-muted) !important;
+}
+#portal.app .portalTopActions :is(.traderAppearanceTrigger, .portalTopLogout) > span { display: none; }
+#portal.app .portalTopActions :is(.traderAppearanceTrigger, .portalTopLogout, .pushBellButton):hover { background: var(--cyber-ui-panel-2) !important; }
+#portal.app .portalUserPill.cyberProfileCard {
+  min-width: 0;
+  min-height: 40px !important;
+  padding: 4px 8px !important;
+  border-color: transparent !important;
+  background: transparent !important;
+  border-radius: 6px;
+  box-shadow: none;
+}
+#portal.app .portalTopActions .cyberProfileCard :is(.cyberProfileEdit, .cyberProfileCode) { display: none !important; }
+#portal.app .portalTopActions .cyberProfileCard .cyberProfileAvatar { width: 33px !important; height: 33px !important; border-radius: 50%; }
+#portal.app .portalUserPill .cyberProfileInfo { min-width: 0; }
+#portal.app .portalUserPill .cyberProfileTop { gap: 8px; }
+#portal.app .portalUserPill #studentName { max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Desktop-style tabs remain at the top when the document is scrolled. */
+#portal.app .terminalNav {
+  display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  align-items: stretch;
+  gap: 2px;
+  min-height: 60px;
+  margin: 0 calc(-1 * var(--terminal-gutter));
+  padding: 0 var(--terminal-gutter);
+  border-bottom: 1px solid var(--cyber-ui-border);
+  background: var(--cyber-ui-bg);
+  box-shadow: 0 5px 15px #0000000a;
+}
+#portal.app .terminalNav .portalDockLink {
+  display: flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  flex: 0 1 auto;
+  gap: 9px;
+  min-width: 0;
+  min-height: 58px;
+  padding: 12px 20px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  border-radius: 5px 5px 0 0;
+  background: transparent;
+  color: var(--cyber-ui-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: color .15s, background .15s;
+}
+#portal.app .terminalNav .portalDockLink .portalNavIcon,
+#portal.app .terminalNav .portalDockLink .portalNavIcon svg { width: 20px; height: 20px; }
+#portal.app .terminalNav .portalDockLabel { font-size: calc(13px * var(--trader-font-scale, 1)); white-space: nowrap; }
+#portal.app .terminalNav .portalDockLink:hover { background: var(--cyber-ui-panel-2); color: var(--cyber-ui-ink); }
+#portal.app .terminalNav .portalDockLink.active,
+#portal.app .terminalNav .portalDockLink[aria-expanded="true"] {
+  background: color-mix(in srgb, var(--trader-accent) 16%, var(--cyber-ui-bg));
+  border-bottom-color: var(--trader-accent-ink);
+  color: var(--trader-accent-ink);
+}
+#portal.app .terminalNav .terminalToolsChevron { width: 13px; height: 13px; margin-left: 4px; }
+#portal.app .terminalNavActions { display: flex; align-items: center; gap: 20px; margin-left: auto; padding-left: 16px; }
+#portal.app .terminalNavActions > span { color: var(--cyber-ui-muted); font-size: 11px; white-space: nowrap; }
+#portal.app .terminalNavActions .terminalRegisterButton {
+  min-height: 36px;
+  padding: 8px 14px;
+  border: 1px solid var(--trader-accent);
+  border-radius: 5px;
+  background: var(--trader-accent);
+  color: var(--trader-accent-on);
+  font-size: 12px;
+  font-weight: 650;
+  white-space: nowrap;
+  cursor: pointer;
+}
+#portal.app .portalDockBadge {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  min-width: 14px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background: var(--trader-accent);
+  color: var(--trader-accent-on);
+  font: 700 9px/1.1 var(--font-mono);
+}
+#portal.app .portalDockBadge[hidden] { display: none !important; }
+#portal.app .terminalNav button:focus-visible,
+#portal.app #sidebar button:focus-visible { outline: 2px solid var(--trader-accent-ink); outline-offset: -3px; }
+#portal.app .terminalPageHeading { padding: 26px 0 22px; }
+#portal.app .terminalPageHeading .portalTopBreadcrumb { display: none; }
+#portal.app .terminalPageHeading #pageTitle { font-size: clamp(22px, 2.2vw, 30px); margin: 0 0 8px; letter-spacing: -.025em; }
+#portal.app .terminalPageHeading #pageSubtitle { margin: 0; color: var(--cyber-ui-muted); font-size: 13px; line-height: 1.6; }
+
+/* The canonical page buttons are retained for the existing routing hooks. */
+#portal.app > #sidebar.sidebar.portalSidebar {
+  display: flex !important;
+  position: fixed !important;
+  inset: var(--terminal-menu-top, 140px) var(--terminal-menu-right, 30px) auto auto !important;
+  z-index: 110 !important;
+  flex: none !important;
+  width: min(460px, calc(100% - 28px)) !important;
+  min-width: 0 !important;
+  max-width: 460px !important;
+  height: auto !important;
+  max-height: calc(100dvh - var(--terminal-menu-top, 140px) - 16px) !important;
+  margin: 0 !important;
+  padding: 16px !important;
+  gap: 14px;
+  border: 1px solid var(--cyber-ui-border) !important;
+  border-radius: 8px;
+  background: var(--cyber-ui-panel) !important;
+  box-shadow: 0 15px 45px #0005 !important;
+  overflow: auto !important;
+  overscroll-behavior: contain;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-5px) !important;
+  transition: opacity .15s, transform .15s, visibility .15s;
+}
+#portal.app > #sidebar.sidebar.portalSidebar.open { visibility: visible; opacity: 1; pointer-events: auto; transform: none !important; }
+#portal.app #sidebar .portalBrand { display: flex; align-items: center; gap: 10px; padding: 0; margin: 0; border: 0; }
+#portal.app #sidebar .terminalToolsTitle { color: var(--cyber-ui-ink); font-size: 18px; font-weight: 650; margin: 0; }
+#portal.app #sidebar .portalSidebarClose {
+  display: grid;
+  place-items: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  margin-left: auto;
+  padding: 6px;
+  color: var(--cyber-ui-muted);
+  border: 1px solid var(--cyber-ui-border);
+  border-radius: 5px;
+  background: var(--cyber-ui-panel-2);
+  cursor: pointer;
+}
+#portal.app #sidebar :is(.terminalPrimaryLink, .cyberSidebarProfile, .portalSidebarEyebrow, .portalSidebarBottom, .portalNavGroup) { display: none !important; }
+#portal.app #sidebar .portalNav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; flex: none; padding: 0; overflow: visible; }
+#portal.app #sidebar .portalNavLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  min-height: 70px !important;
+  margin: 0;
+  padding: 12px !important;
+  border: 1px solid var(--cyber-ui-border) !important;
+  border-radius: 5px !important;
+  background: var(--cyber-ui-panel-2) !important;
+  box-shadow: none !important;
+}
+#portal.app #sidebar .portalNavLink.active { border-color: var(--trader-accent) !important; }
+#portal.app #sidebar .portalNavLink:hover { border-color: var(--trader-accent-ink) !important; }
+#portal.app #sidebar .portalNavLink .portalNavIcon { width: 27px; height: 27px; border-radius: 0; background: none; color: var(--trader-accent-ink) !important; }
+#portal.app #sidebar .portalNavLink .portalNavIcon svg { width: 25px; height: 25px; }
+#portal.app #sidebar .portalNavText { font-size: calc(12px * var(--trader-font-scale, 1)) !important; font-weight: 550; overflow-wrap: anywhere; }
+#portal.app .portalMenuBackdrop:not([hidden]) { display: block; position: fixed; inset: 0; z-index: 100; border: 0; padding: 0; background: transparent; touch-action: none; }
+#portal.app .portalMenuBackdrop[hidden] { display: none !important; }
+
+/* A tighter dashboard puts the metrics and equity curve at the start. */
+#portal.app .page :is(.card, .v3Card, .adminWorkspaceCard, .adminMetric) { border-radius: 8px !important; box-shadow: none !important; }
+#portal.app .page .btn { border-radius: 5px; }
+#portal.app #dashboard > .terminalSummaryMetrics { gap: 14px; margin-bottom: 18px; }
+#portal.app #dashboard > .terminalSummaryMetrics .v3Card { min-height: 114px !important; padding: 17px 20px !important; }
+#portal.app #dashboard > .terminalSummaryMetrics .v3Card::before { display: none; }
+#portal.app #dashboard > .terminalSummaryMetrics .v3Card small { text-transform: none; font-size: calc(12px * var(--trader-font-scale, 1)) !important; letter-spacing: 0; font-weight: 500; }
+#portal.app #dashboard > .terminalSummaryMetrics .v3Card h3 { margin: 12px 0 6px !important; font: 650 28px/1.15 var(--font-mono); font-size: calc(clamp(22px, 2.4vw, 32px) * var(--trader-font-scale, 1)) !important; letter-spacing: -.035em; }
+#portal.app #dashboard > .terminalSummaryMetrics .v3Card > span { font-size: calc(10px * var(--trader-font-scale, 1)) !important; line-height: 1.5; }
+#portal.app #dashboard > .terminalOverview { grid-template-columns: minmax(0, 1fr) minmax(300px, .4fr); gap: 18px; align-items: start; }
+#portal.app #dashboard .terminalEquityPanel { height: 440px !important; min-height: 440px !important; padding: 20px !important; background: var(--cyber-ui-panel) !important; }
+#portal.app #dashboard .terminalEquityPanel .cyberChartHead h3 { font-size: calc(17px * var(--trader-font-scale, 1)) !important; text-transform: none; letter-spacing: 0; }
+#portal.app #dashboard .terminalEquityPanel .cyberChartHint { font: 9px/1.5 var(--font-mono); letter-spacing: .02em; }
+#portal.app #dashboard .terminalEquityPanel canvas#balanceChart { height: 340px !important; min-height: 260px !important; max-height: 420px !important; }
+#portal.app #dashboard .terminalOverviewRail { display: flex; flex-direction: column; gap: 14px; }
+#portal.app #dashboard .terminalOverviewRail .cyberRailCard { padding: 16px !important; }
+#portal.app #dashboard .terminalOverviewRail .cyberRailCard h3 { font-size: calc(14px * var(--trader-font-scale, 1)) !important; text-transform: none; }
+#portal.app #dashboard .terminalOverviewRail .cyberRailCard p { font-size: calc(12px * var(--trader-font-scale, 1)) !important; }
+#portal.app #dashboard .terminalCalendarWidget { order: 4; }
+#portal.app #dashboard .terminalOverviewRail .cyberRailCard:nth-of-type(3) { order: 3; }
+#portal.app #dashboard .terminalLeaderboardWidget.olonLeaderboard { padding: 17px !important; margin: 0; border-radius: 8px !important; background: var(--cyber-ui-panel) !important; }
+#portal.app #dashboard .terminalLeaderboardWidget .olonLeaderboardTop { margin-bottom: 10px; }
+#portal.app #dashboard .terminalLeaderboardWidget .olonLeaderboardTop h3 { font-size: 16px !important; letter-spacing: -.02em; }
+#portal.app #dashboard .terminalLeaderboardWidget :is(.olonLeaderboardKicker, .olonLeaderboardMark, .olonLeaderboardPrivacy, .olonTopPlatform) { display: none; }
+#portal.app #dashboard .terminalLeaderboardWidget .olonLeaderboardTop p { font-size: calc(10px * var(--trader-font-scale, 1)) !important; }
+#portal.app #dashboard .terminalLeaderboardWidget :is(.olonLeaderboardNotice, .olonLeaderboardMeta span) { font-size: calc(10px * var(--trader-font-scale, 1)) !important; }
+#portal.app #dashboard .terminalLeaderboardWidget .olonLeaderboardTabs { width: 100%; gap: 2px; padding: 3px; border-radius: 5px; }
+#portal.app #dashboard .terminalLeaderboardWidget .olonLeaderboardTabs button { flex: 1; min-height: 32px; padding: 6px; font-size: 10px !important; }
+#portal.app #dashboard .terminalLeaderboardWidget .olonLeaderboardMeta { margin: 8px 0 0; }
+#portal.app #dashboard .terminalLeaderboardWidget .olonPodium { display: flex; flex-direction: column; align-items: stretch; gap: 0; margin-top: 6px; }
+#portal.app #dashboard .terminalLeaderboardWidget .olonPodiumEntry { display: grid; grid-template-columns: 29px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--cyber-ui-border); text-align: left; }
+#portal.app #dashboard .terminalLeaderboardWidget .olonPodiumEntry[data-leaderboard-rank="1"] { order: -1; }
+#portal.app #dashboard .terminalLeaderboardWidget .olonTopAvatar { width: 28px; height: 28px; box-shadow: none; font-size: 10px; }
+#portal.app #dashboard .terminalLeaderboardWidget .olonTopName { min-height: 0; font-size: 12px; font-weight: 500; }
+#portal.app #dashboard .terminalLeaderboardWidget .olonTopPercent { font: 650 12px var(--font-mono); }
+#portal.app #dashboard > .welcomeHeroCard { min-height: 100px; border-radius: 8px !important; background: var(--cyber-ui-panel) !important; }
+#portal.app #dashboard > .welcomeHeroCard::after { display: none; }
+#portal.app #dashboard .welcomeHeroCard :is(.welcomeTitle, .cyberWelcomeIdentity strong) { color: var(--cyber-ui-ink) !important; }
+#portal.app #dashboard .welcomeHeroCard .welcomeSub { color: var(--cyber-ui-muted) !important; }
+#portal.app #dashboard :is(.olonTerminalIntro, .olonRiskCard) { border-radius: 8px; border-color: var(--cyber-ui-border); background: var(--cyber-ui-panel); color: var(--cyber-ui-ink); }
+#portal.app #dashboard .olonRiskCard :is(h3, label) { color: var(--cyber-ui-ink); }
+#portal.app #dashboard .olonRiskCard :is(p, small) { color: var(--cyber-ui-muted); }
+#portal.app #dashboard .olonRiskResult strong { color: var(--trader-accent-ink); }
+#portal.app #dashboard .olonRiskResult div { border-color: var(--cyber-ui-border); background: var(--cyber-ui-panel-2); }
+#portal.app #dashboard .olonRiskGrid :is(input, select) { background: var(--cyber-ui-bg); color: var(--cyber-ui-ink); border-color: var(--cyber-ui-border); }
+#portal.app #dashboard .olonTerminalIntro { padding: 16px 20px; }
+#portal.app #dashboard .olonTerminalIntro h2 { font-size: 17px; }
+#portal.app #dashboard .olonTerminalBadge { border-radius: 4px; font-size: 9px; }
+#portal.app .chatFab { bottom: max(20px, env(safe-area-inset-bottom, 0px)) !important; border-radius: 6px; font-size: 12px; }
+#portal.app .studentChatPanel { bottom: calc(78px + env(safe-area-inset-bottom, 0px)) !important; }
+@media (max-width: 1250px) {
+  #portal.app .cyberPortalWordmark { font-size: 13px; letter-spacing: .05em; }
+  #portal.app .terminalNav .portalDockLink { padding-inline: 14px; }
+  #portal.app .terminalNavActions > span { display: none !important; }
+  #portal.app .portalUserPill #studentName { max-width: 75px; }
+}
+@media (max-width: 1000px) {
+  #portal.app .cyberPortalWordmark { display: none; }
+  body.trader-themed #portal.app > main.main > .portalTopbar,
+  body.trader-themed #portal.app.admin-mode > main.main > .portalTopbar { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+  #portal.app .terminalNavActions { display: none; }
+  #portal.app .terminalNav .portalDockLink { flex: 1 1 0; }
+  #portal.app #dashboard > .terminalOverview { grid-template-columns: minmax(0, 1fr) minmax(280px, .65fr); }
+}
+@media (max-width: 760px) {
+  body.trader-themed #portal.app { --terminal-gutter: 16px; }
+  #portal.app .terminalBrand strong { font-size: 14px; }
+  #portal.app .terminalBrand small { font-size: 8px; }
+  #portal.app .portalUserPill :is(.cyberProfileInfo, .cyberProfileEdit) { display: none; }
+  #portal.app #dashboard > .terminalOverview { grid-template-columns: minmax(0, 1fr); }
+  #portal.app #dashboard .terminalOverviewRail { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+  #portal.app #dashboard .terminalCalendarWidget { grid-column: 1 / -1; }
+  #portal.app .terminalNav .portalDockLink { padding-inline: 9px; gap: 6px; }
+  #portal.app .terminalNav .portalDockLabel { font-size: calc(11px * var(--trader-font-scale, 1)); }
+}
+@media (max-width: 520px) {
+  body.trader-themed #portal.app { --terminal-gutter: 13px; }
+  #portal.app .terminalBrand { gap: 6px; }
+  #portal.app .terminalBrand img { width: 27px; height: 27px; }
+  #portal.app .terminalBrand strong { font-size: 11px; }
+  #portal.app .terminalBrand small { font-size: 7px; letter-spacing: .27em; }
+  body.trader-themed #portal.app > main.main > .portalTopbar,
+  body.trader-themed #portal.app.admin-mode > main.main > .portalTopbar { min-height: 64px; padding-block: 10px !important; }
+  #portal.app .portalTopActions { gap: 1px; flex-wrap: nowrap; }
+  #portal.app .portalTopActions :is(.traderAppearanceTrigger, .portalTopLogout, .pushBellButton) { min-width: 32px; width: 32px; padding: 6px; }
+  #portal.app .portalUserPill.cyberProfileCard { padding: 2px !important; }
+  #portal.app .portalTopActions .cyberProfileCard .cyberProfileAvatar { width: 29px !important; height: 29px !important; }
+  #portal.app .terminalNav { padding-inline: 4px; gap: 0; min-height: 60px; }
+  #portal.app .terminalNav .portalDockLink { flex-direction: column; gap: 4px; min-height: 60px; padding: 8px 2px 6px; }
+  #portal.app .terminalNav .portalDockLabel { font-size: calc(clamp(8px, 2.3vw, 10px) * var(--trader-font-scale, 1)); }
+  #portal.app .terminalNav .portalDockLink .portalNavIcon,
+  #portal.app .terminalNav .portalDockLink .portalNavIcon svg { width: 19px; height: 19px; }
+  #portal.app #portalMoreToggle .portalDockLabel { font-size: 0; }
+  #portal.app #portalMoreToggle .portalDockLabel::after { content: "Menú"; font-size: calc(9px * var(--trader-font-scale, 1)); }
+  #portal.app .terminalToolsChevron { display: none; }
+  #portal.app .terminalPageHeading { padding: 22px 0 18px; }
+  #portal.app .terminalPageHeading #pageTitle { font-size: 23px; }
+  #portal.app .terminalPageHeading #pageSubtitle { font-size: 12px; }
+  #portal.app > #sidebar.sidebar.portalSidebar { width: calc(100% - 28px) !important; padding: 13px !important; }
+  #portal.app .portalMenuBackdrop:not([hidden]) { background: #04090f66; }
+  #portal.app #sidebar .portalNavLink { padding: 9px !important; gap: 7px; min-height: 65px !important; }
+  #portal.app #sidebar .portalNavText { font-size: calc(10px * var(--trader-font-scale, 1)) !important; }
+  #portal.app #dashboard > .terminalSummaryMetrics { gap: 10px; }
+  #portal.app #dashboard > .terminalSummaryMetrics .v3Card { padding: 14px !important; min-height: 108px !important; }
+  #portal.app #dashboard .terminalEquityPanel { height: 340px !important; min-height: 340px !important; padding: 15px !important; }
+  #portal.app #dashboard .terminalEquityPanel canvas#balanceChart { height: 260px !important; min-height: 210px !important; }
+  #portal.app #dashboard .terminalOverviewRail { display: flex; flex-direction: column; }
+  #portal.app #dashboard .terminalOverviewRail > * { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #portal.app .portalDockLink, #portal.app > #sidebar.sidebar.portalSidebar { transition: none !important; }
+}
