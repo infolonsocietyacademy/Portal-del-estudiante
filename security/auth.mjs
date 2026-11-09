@@ -166,4 +166,3 @@ export async function freshAdminTotp(client) {
     method.method === 'totp' && Date.now() / 1000 - method.timestamp < 270)) return true;
   return verifyTotp(client);
 }
-
