@@ -752,7 +752,6 @@ async function enterPortal(){
   document.getElementById("portal")?.classList.toggle("admin-mode",admin);
   currentUser.role = admin ? "admin" : "student";
   currentUser.status = admin ? "active" : normalizeStatus(currentUser.status);
-  localStorage.setItem("olon_current_user", JSON.stringify(currentUser));
 
   setTextSafe("studentName", currentUser.full_name || "Estudiante");
   setTextSafe("avatarText", currentUser.full_name?.[0]?.toUpperCase() || "O");
@@ -1460,7 +1459,6 @@ function showWelcome(user){
     const role = roleOf(user);
     currentUser.role = role;
     if(role === 'admin') currentUser.status = 'active';
-    localStorage.setItem('olon_current_user', JSON.stringify(currentUser));
 
     const isAdmin = role === 'admin';
     el('portal')?.classList.toggle('admin-mode', isAdmin);
@@ -1538,6 +1536,8 @@ function showWelcome(user){
     academyChecklistPage:"Tus reglas y la revisión de cada día.",
     academyJournalPage:"Captura y notas privadas de tu operación.",
     notificationsPage:"Avisos de clases y renovación VIP en tus dispositivos.",
+    securityCenterPage:"Actividad, sesiones y protección de cuentas.",
+    securityAccountPage:"Autenticador, contraseña y sesiones de tu cuenta.",
     academyAdminClassesPage:"Agenda, acceso y grabaciones de la academia.",
     academyAdminVipPage:"Revisión de comprobantes de membresía.",
     admin:"Panel administrativo profesional.",
@@ -2004,12 +2004,20 @@ document.addEventListener("DOMContentLoaded", function(){
     return !!profile && ["active","approved"].includes(String(profile.status||"").toLowerCase()) && !membershipExpired(profile);
   }
   async function openVerifiedProfile(profile,user){
+    const admin = isAdminUser(profile);
+    if (admin || user.factors?.some(factor => factor.status === "verified")) {
+      hidePortalLoader();
+      const { completePortalMfa } = await import("./security/auth.mjs?v=1");
+      if (!await completePortalMfa(supabaseClient, user, admin)) {
+        await supabaseClient.auth.signOut({scope:"local"});
+        return;
+      }
+    }
     currentUser = profile;
     window.olonAppearance?.setAccount(user);
     // Aislar la distribución del administrador de la interfaz del estudiante.
     const portalElement = document.getElementById("portal");
     if(portalElement) portalElement.classList.toggle("admin-mode", String(profile?.role||"").trim().toLowerCase()==="admin");
-    localStorage.setItem("olon_current_user", JSON.stringify(profile));
     showPortalLoader("Preparando tu espacio…");
     await window.enterPortal();
   }
@@ -2021,14 +2029,11 @@ document.addEventListener("DOMContentLoaded", function(){
   }
   window.olonSecureLogin = async function(){
     if(authBusy) return;
-    const identifier = String($auth("loginCode")?.value||"").trim().toLowerCase();
-    // Alias de comodidad, no es un privilegio ni evita la autenticación real.
-    // Supabase Auth sigue verificando la contraseña y el perfil del servidor.
-    const email = identifier === "admin" ? "erickinventus@gmail.com" : identifier;
+    const email = String($auth("loginCode")?.value||"").trim().toLowerCase();
     const password = String($auth("loginPass")?.value||"");
-    if(!identifier || !password){ alert("Escribe tu usuario o correo y contraseña."); return; }
+    if(!email || !password){ alert("Escribe tu correo electrónico y contraseña."); return; }
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-      alert("Usa tu correo electrónico o el usuario admin. El acceso se verifica con Supabase Auth.");
+      alert("Usa el correo electrónico asociado a tu cuenta.");
       return;
     }
     setBusy(true);
@@ -2037,6 +2042,7 @@ document.addEventListener("DOMContentLoaded", function(){
     try{
       const {data,error} = await supabaseClient.auth.signInWithPassword({email,password});
       if(error) throw error;
+      $auth("loginPass").value = "";
       const profile = await profileForAuthenticatedUser(data.user);
       const expiredNotice=$auth("membershipExpiredNotice");
       if(expiredNotice)expiredNotice.hidden=true;
@@ -2073,8 +2079,7 @@ document.addEventListener("DOMContentLoaded", function(){
     if(email!==confirm){alert("Los correos electrónicos no coinciden.");return;}
     setBusy(true);
     try{
-      // Una solicitud no es una cuenta de acceso. El administrador verificará
-      // la petición y generará credenciales temporales por un canal privado.
+      // Una solicitud pendiente todavía no otorga acceso.
       const response=await fetch(SUPABASE_URL+"/functions/v1/registration-gateway",{
         method:"POST",
         headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY},
@@ -2089,7 +2094,7 @@ document.addEventListener("DOMContentLoaded", function(){
       }
       const send=$auth("signupSubmitBtn");
       if(send)send.textContent="✓ Solicitud recibida";
-      alert("Solicitud enviada a OLON Society Academy. El administrador la revisará y te comunicará los datos de acceso. Este proceso NO requiere un correo automático.");
+      alert("Solicitud enviada a OLON Society Academy. El administrador la revisará y recibirás una invitación por correo si aprueba la solicitud.");
     }catch(error){
       alert(showAuthError(error,"No se pudo enviar la solicitud."));
     }finally{
@@ -2152,13 +2157,18 @@ document.addEventListener("DOMContentLoaded", function(){
   }
   let lastMembershipCheck=0;
   async function recheckMembership(){
-    if(!currentUser || String(currentUser.role||"").toLowerCase()==="admin" ||
+    if(!currentUser ||
       document.getElementById("portal")?.classList.contains("hidden"))return;
     if(Date.now()-lastMembershipCheck<30000)return;
     lastMembershipCheck=Date.now();
     const {data,error}=await supabaseClient.auth.getUser();
-    if(error||!data?.user)return;
-    const profile=await profileForAuthenticatedUser(data.user);
+    if (error && ![401, 403].includes(error.status)) return;
+    if (!data?.user) { await window.logout(); return; }
+    const profile = await profileForAuthenticatedUser(data.user).catch(error => {
+      if (/falta su perfil/i.test(error.message)) return null;
+      throw error;
+    });
+    if (!profile || profile.role !== currentUser.role) { await window.logout(); return; }
     if(canUsePortal(profile)){currentUser.next_payment_date=profile.next_payment_date;renderVipPayment(currentUser);return;}
     await supabaseClient.auth.signOut().catch(()=>{});
     localStorage.removeItem("olon_current_user");
@@ -2312,6 +2322,8 @@ function installPortalNavigation(){
   const showPage = window.showPage;
   window.showPage = function(id, button){
     if(window.olonAcademy?.allows(id) === false) return;
+    if (id === "securityCenterPage" && !isAdminUser(currentUser)) return;
+    if (id === "securityAccountPage" && !currentUser) return;
     const previous = document.querySelector("#portal .page:not(.hidden)")?.id;
     const result = showPage.call(this, id, button);
     const current = document.querySelector("#portal .page:not(.hidden)")?.id;
@@ -2359,6 +2371,26 @@ else installPortalNavigation();
 
 document.addEventListener("visibilitychange", () => {
   if(!document.hidden) renderVipPayment(currentUser);
+});
+
+// The security dashboard, styles and RPCs load only when a security page opens.
+window.addEventListener("olon:pagechange", async ({detail:{id, previous}}) => {
+  if (previous !== id && /^security(?:Center|Account)Page$/.test(previous || "")) {
+    document.getElementById(previous)?.replaceChildren();
+  }
+  if (!/^security(?:Center|Account)Page$/.test(id)) return;
+  const root = document.getElementById(id);
+  const user = currentUser;
+  root.textContent = "Cargando seguridad…";
+  try {
+    const { mountSecurity } = await import("./security/center.mjs?v=1");
+    if (currentUser === user && !root.classList.contains("hidden")) {
+      await mountSecurity(root, supabaseClient, user, id === "securityCenterPage");
+    }
+  } catch {
+    if (currentUser === user && !root.classList.contains("hidden")) root.textContent =
+      "No se pudo abrir Seguridad. Regresa al menú e inténtalo nuevamente.";
+  }
 });
 
 /* Institutional Flow bootstrap: no module, styles, data, timers or feed at startup. */

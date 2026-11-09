@@ -76,8 +76,11 @@
       !/^Trader OLON #/.test(row.display_name)).map(row=>row.student_id))];
     if(!ids.length)return;
     try{
-      const {data,error}=await supabaseClient.from("olon_profile_media")
-        .select("student_id,avatar_path").in("student_id",ids);
+      let {data,error}=await supabaseClient.rpc("olon_top3_avatar_paths",{p_students:ids});
+      // Deploy the frontend before the SQL migration so older and newer clients can overlap.
+      if(error?.code==="PGRST202"){
+        ({data,error}=await supabaseClient.from("olon_profile_media").select("student_id,avatar_path").in("student_id",ids));
+      }
       if(error)throw error;
       if(request!==state.publicRequest||!visible())return;
       const byUser=new Map((data||[]).map(row=>[row.student_id,row.avatar_path]));

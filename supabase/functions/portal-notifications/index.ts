@@ -33,6 +33,10 @@ async function config(){
 async function activeUser(req){
   const authorization=req.headers.get('Authorization')||'';
   if(!authorization.startsWith('Bearer '))throw fail(401,'Inicia sesión para gestionar tus notificaciones.');
+  const gate=await fetch(projectUrl+'/rest/v1/rpc/olon_security_can_use_account',{
+    method:'POST',headers:{apikey:gatewayKey,Authorization:authorization,'Content-Type':'application/json'},
+    body:'{}',signal:AbortSignal.timeout(10000)});
+  if(!gate.ok||await gate.json()!==true)throw fail(403,'Tu sesión no tiene acceso a las notificaciones.');
   const check=await fetch(projectUrl+'/auth/v1/user',{headers:{apikey:gatewayKey,Authorization:authorization},signal:AbortSignal.timeout(10000)});
   if(!check.ok)throw fail(401,'Tu sesión venció. Vuelve a iniciar sesión.');
   const user=await check.json();
