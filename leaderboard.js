@@ -174,11 +174,10 @@
       const select=$("olonRankStudent"+rank);
       if(!select)continue;
       const selected=select.value;
-      select.replaceChildren();
-      select.add(new Option("Sin asignar",""));
+      select.replaceChildren(new Option("Sin asignar",""));
       users.forEach(user=>{
         const detail=user.access_code?" · "+user.access_code:"";
-        select.add(new Option(user.full_name+detail,user.id));
+        select.add(new Option((user.full_name||"Estudiante")+detail,user.id));
       });
       if(users.some(user=>user.id===selected))select.value=selected;
     }
@@ -186,15 +185,108 @@
   async function loadAdminUsers(){
     if(!activeAdmin())return;
     try{
+      // Rank choices are ALL students with current active membership, not just
+      // those previously published on the leaderboard. Keep last good options
+      // if an intermittent query fails.
       const {data,error}=await supabaseClient.from("profiles")
-        .select("id,full_name,access_code").eq("role","student")
-        .eq("status","active").order("full_name",{ascending:true}).limit(1000);
+        .select("id,full_name,access_code,status,role").eq("role","student")
+        .in("status",["active","approved"]).order("full_name",{ascending:true}).limit(1000);
       if(error)throw error;
       state.users=data||[];
       renderStudentOptions();
+      return true;
     }catch(err){
-      showStatus("olonRankFeedback","No pude consultar los estudiantes activos. Revisa tu sesión.",true);
+      showStatus("olonRankFeedback","No pude cargar la lista de estudiantes. Usa Consultar período para reintentar: "+String(err?.message||"Error de conexión."),true);
       console.warn("[OLON TOP 3] Estudiantes",err);
+      return false;
+    }
+  }
+  const rankMoney=value=>Number(value||0).toLocaleString("en-US",{style:"currency",currency:"USD"});
+  const rankPct=value=>value==null?"Sin capital":(Number(value)>0?"+":"")+
+    Number(value).toLocaleString("es-PR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";
+  async function loadRankCandidates(){
+    if(!activeAdmin())return;
+    const holder=$("olonRankCandidatesList"),counter=$("olonRankCandidatesCount");
+    if(!holder||!counter)return;
+    const period=$("olonRankPeriod")?.value,key=selectedAdminKey();
+    if(!validPeriodKey(period,key)){
+      holder.textContent="Selecciona una fecha válida para consultar los trades.";
+      return;
+    }
+    const seq=(state.candidateSeq||0)+1;
+    state.candidateSeq=seq;
+    holder.textContent="Consultando operaciones registradas…";
+    counter.textContent="Actualizando";
+    try{
+      const {data,error}=await supabaseClient.rpc("olon_admin_student_performance",{
+        p_period_type:period,p_period_key:key
+      });
+      if(error)throw error;
+      if(seq!==state.candidateSeq||!activeAdmin()||
+        period!==$("olonRankPeriod")?.value||key!==selectedAdminKey())return;
+      const perf=(data||[]).filter(item=>Number(item.trade_count)>0)
+        .sort((left,right)=>{
+          const a=left.return_pct==null?-Infinity:Number(left.return_pct);
+          const b=right.return_pct==null?-Infinity:Number(right.return_pct);
+          return b-a;
+        });
+      counter.textContent=perf.length+" estudiante"+(perf.length===1?"":"s")+" con trades";
+      holder.replaceChildren();
+      if(!perf.length){
+        const p=document.createElement("p");
+        p.className="olonRankCandidatesEmpty";
+        p.textContent="No se registraron operaciones en este período. Prueba mensual o anual para ver resultados anteriores.";
+        holder.append(p);
+        return;
+      }
+      for(const item of perf){
+        const user=state.users.find(user=>user.id===item.student_id);
+        const panel=document.createElement("article");
+        panel.className="olonRankCandidate";
+        const detail=document.createElement("div");
+        detail.className="olonRankCandidateInfo";
+        const name=document.createElement("strong");
+        name.textContent=user?.full_name||"Estudiante registrado";
+        const meta=document.createElement("small");
+        meta.textContent=item.trade_count+" trade(s) · Neto "+rankMoney(item.net)+
+          " · Capital "+rankMoney(item.deposited);
+        detail.append(name,meta);
+        const value=document.createElement("strong");
+        value.className="olonRankCandidatePct";
+        value.textContent=rankPct(item.return_pct);
+        if(item.return_pct!=null&&Number(item.return_pct)<0)value.dataset.loss="true";
+        const select=document.createElement("button");
+        select.type="button";select.className="btn secondary olonRankCandidateAdd";
+        select.textContent="Agregar al TOP 3";
+        const number=Number(item.return_pct);
+        const eligible=Boolean(user)&&item.return_pct!=null&&
+          Number(item.deposited)>0&&Number.isFinite(number)&&
+          number>=-100&&number<=100000;
+        select.disabled=!eligible;
+        select.title=!user?"Actualiza la lista de estudiantes para poder asignar":
+          item.return_pct==null||Number(item.deposited)<=0?"El estudiante debe tener un depósito registrado":
+          !eligible?"El rendimiento no está dentro del rango admitido por el ranking":"Preparar este estudiante sin publicarlo";
+        select.addEventListener("click",async()=>{
+          if(select.disabled)return;
+          select.disabled=true;
+          try{await stageCandidate(item.student_id,number,period,key);}
+          finally{select.disabled=false;}
+        });
+        panel.append(detail,value,select);
+        if(!eligible){
+          const note=document.createElement("small");
+          note.className="olonRankCandidateReason";
+          note.textContent=select.title;
+          panel.append(note);
+        }
+        holder.append(panel);
+      }
+    }catch(error){
+      if(seq!==state.candidateSeq)return;
+      counter.textContent="No disponible";
+      holder.textContent="No se pudieron cargar los trades: "+String(error?.message||"Error de conexión.")+
+        ". Reintenta desde «Consultar período».";
+      console.warn("[OLON TOP 3] Resultados privados",error);
     }
   }
   function showAdminPreview(entries, period, key){
@@ -243,6 +335,9 @@
         .select("rank,student_id,return_pct,consent_confirmed,published,photo_consent_confirmed")
         .eq("period_type",period).eq("period_key",key).order("rank",{ascending:true});
       if(error)throw error;
+      // Refresh selectors before applying saved ranks; otherwise .value can
+      // silently stay empty when options have not loaded on a slow connection.
+      if(!state.users.length)await loadAdminUsers();
       for(let rank=1;rank<=3;rank++){
         const entry=(data||[]).find(row=>Number(row.rank)===rank);
         $("olonRankStudent"+rank).value=entry?.student_id||"";
@@ -261,6 +356,7 @@
       showAdminPreview(data||[],period,key);
       const drafts=(data||[]).filter(entry=>!entry.published);
       const published=(data||[]).filter(entry=>entry.published);
+      void loadRankCandidates();
       showStatus("olonRankFeedback",drafts.length
         ? "Borrador calculado: "+drafts.length+" puesto(s) para "+periodLabel(period,key)+". No visible a los estudiantes hasta confirmar su autorización y pulsar Publicar TOP 3."
         : published.length
@@ -430,8 +526,8 @@
         board.querySelector('[data-leaderboard-period="'+next+'"]')?.focus();
       });
     });
-    $("olonRankPeriod").addEventListener("change",()=>{adminPeriodFields();loadAdmin();});
-    $("olonRankKey").addEventListener("change",loadAdmin);
+    $("olonRankPeriod").addEventListener("change",()=>{adminPeriodFields();void loadAdmin();});
+    $("olonRankKey").addEventListener("change",()=>void loadAdmin());
     $("olonRankReload").addEventListener("click",async()=>{await loadAdminUsers();await loadAdmin();});
     $("olonRankSave").addEventListener("click",()=>saveAdmin(false));
     $("olonRankSavePhotos").addEventListener("click",savePhotos);
@@ -455,7 +551,7 @@
       previousVisibility=!!visible;
       if(visible&&activeAdmin()&&!loadedAdmin){
         loadedAdmin=true;
-        loadAdminUsers().then(loadAdmin);
+        loadAdminUsers().then(()=>loadAdmin());
       }
     };
     const portal=$("portal");
