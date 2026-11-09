@@ -980,7 +980,12 @@ window.addEventListener("load", () => {
           <button type="button" class="adminSmallButton" onclick="olonRequests.refresh()">↻ Actualizar</button>
         </div>
         <div class="adminRequestNotice">Al aprobar, se crea una cuenta real con contraseña temporal. <strong>Confirma primero que el correo pertenece al estudiante.</strong> Comparte la contraseña por privado y pídele que la cambie. Las solicitudes no envían correos automáticamente.</div>
-        <di      <section id="olonRankingAdmin" class="adminWorkspaceCard olonRankingAdmin" aria-labelledby="olonRankingAdminTitle">
+        <div id="adminRequestsList" class="adminRequestsList" aria-live="polite" aria-relevant="additions text">
+          <p class="adminRequestEmpty">Consultando solicitudes de inscripción…</p>
+        </div>
+        <p id="adminRequestsFeedback" class="adminActionFeedback" role="status" aria-live="polite" hidden></p>
+      </section>
+      <section id="olonRankingAdmin" class="adminWorkspaceCard olonRankingAdmin" aria-labelledby="olonRankingAdminTitle">
         <span class="adminSectionEyebrow">RECONOCIMIENTO AUTOMÁTICO / OLON SOCIETY</span>
         <h4 id="olonRankingAdminTitle">🏆 TOP 3 automático</h4>
         <p>Los resultados se calculan desde los trades que registra cada estudiante. No tienes que asignar, aprobar ni publicar puestos.</p>
@@ -1253,7 +1258,7 @@ window.addEventListener("load", () => {
 <script src="./admin-rebates.js?v=20261107-rebates" defer></script>
 <script src="./leaderboard.js?v=20261108-top3-avatar-colors-4" defer></script>
 <script src="./admin-performance.js?v=20261108-auto-ranking-2" defer></script>
-<script src="./admin-registration.js?v=20261106-trader" defer></script>
+<script src="./admin-registration.js?v=20261109-requests-fast-2" defer></script>
 <script src="./password-settings.js?v=20261107-security-hardening" defer></script>
 
 <script>
