@@ -50,6 +50,10 @@ function render(){
  const old=last.filter(r=>r.status==="processed").slice(0,10);
  $("adminRequestCount") && ($("adminRequestCount").textContent=String(pending.length));
  $("adminRequestsNavCount") && ($("adminRequestsNavCount").textContent=String(pending.length));
+ $("adminPendingUsers") && ($("adminPendingUsers").textContent=String(pending.length));
+ $("adminPendingCountInline") && ($("adminPendingCountInline").textContent=String(pending.length));
+ window.olonAccessPendingCount=pending.length;
+ if(typeof window.renderAdminAlerts==="function")window.renderAdminAlerts();
  list.innerHTML=pending.length||old.length?pending.map(requestCard).join("")+old.map(requestCard).join(""):
   '<p class="adminRequestEmpty">No hay solicitudes registradas. Cuando alguien complete “Solicita tu acceso”, aparecerá aquí sin necesidad de enviar un correo.</p>';
  list.querySelectorAll("[data-approve]").forEach(btn=>btn.addEventListener("click",()=>approve(btn.dataset.approve)));
