@@ -14,6 +14,7 @@
   let loadPromise = null;
   let autoTimer = null;
   let lastUsers = [];
+  let performanceById = new Map();
 
   function authorized() {
     return typeof currentUser !== "undefined" && !!currentUser &&
@@ -93,6 +94,16 @@
       '<button type="button" class="adminSmallButton" data-manage-account="reset" data-student-id="'+id+'">Cambiar contraseña</button>'+remove+
       '</div>';
   }
+  function performanceCell(u){
+    const perf=performanceById.get(u.id);
+    if(!perf)return '<span class="adminPerfEmpty">Sin resultados</span>';
+    if(perf.return_pct==null)return '<span class="adminPerfEmpty">Sin depósito</span>';
+    const pct=Number(perf.return_pct);
+    const sign=pct>0?'+':'';
+    const value=sign+pct.toLocaleString("es-PR",{minimumFractionDigits:2,maximumFractionDigits:2})+'%';
+    const tone=pct>=0?'positive':'negative';
+    return '<div class="adminPerfCell"><strong class="'+tone+'">'+esc(value)+'</strong><small>'+esc(perf.trade_count)+' trades</small></div>';
+  }
   function row(u) {
     const risk=paymentRisk(u);
     const name=esc(u.full_name||"Sin nombre"), email=esc(u.email||"Sin email");
@@ -107,7 +118,7 @@
     return '<tr><td><div class="adminStudent"><span class="adminAvatar">'+avatar+'</span><div><b>'+name+'</b><small>'+email+'</small></div></div></td>'+
       '<td><span class="adminCode">'+esc(u.access_code||"—")+'</span></td>'+
       '<td>'+membership+'</td><td>'+state+'</td><td>'+pay+'</td>'+
-      '<td><span class="adminRisk '+risk.kind+'">'+esc(risk.text)+'</span></td><td>'+actionButtons(u)+'</td></tr>';
+      '<td><span class="adminRisk '+risk.kind+'">'+esc(risk.text)+'</span></td><td>'+performanceCell(u)+'</td><td>'+actionButtons(u)+'</td></tr>';
   }
   function mobile(u) {
     const id=String(u.id),root=norm(u.role)==="admin",deleting=norm(u.status)==="deleting",risk=paymentRisk(u);
@@ -117,6 +128,7 @@
       '<div class="adminStudentMobileData"><span>Código<strong>'+esc(u.access_code||"—")+'</strong></span><span>Membresía<strong>'+(root?"Administrador":"VIP")+'</strong></span></div>'+
       (deleting?'<div class="adminRoleProtected">Acceso bloqueado</div>':!root?'<div class="adminStudentMobileFields"><label>Acceso'+selector(id,norm(u.status)==="approved"?"active":norm(u.status),states,"status","Acceso")+'</label></div>'+
       '<div class="adminStudentMobilePayment"><label>Próximo pago<input type="date" class="adminDateInput" value="'+esc(u.next_payment_date||"")+'"></label><button type="button" class="adminSmallButton" onclick="olonAdmin.payment(\''+id+'\',this)">Guardar fecha</button></div>':'<div class="adminRoleProtected">Cuenta administradora protegida</div>')+
+      '<div class="adminStudentMobilePerformance">Rendimiento histórico '+performanceCell(u)+'</div>'+
       '<div class="adminStudentMobileActions">'+actionButtons(u)+'</div></article>';
   }
   function visibleUsers() {
@@ -133,7 +145,7 @@
     if(!body)return;
     const users=visibleUsers();
     setText("adminCountPill",users.length+" resultado"+(users.length===1?"":"s"));
-    body.innerHTML=users.length?users.map(row).join(""):'<tr><td colspan="7" class="adminEmptyTable">No hay estudiantes que coincidan con estos filtros.</td></tr>';
+    body.innerHTML=users.length?users.map(row).join(""):'<tr><td colspan="8" class="adminEmptyTable">No hay estudiantes que coincidan con estos filtros.</td></tr>';
     if(mobileBox)mobileBox.innerHTML=users.length?users.map(mobile).join(""):'<div class="adminEmptyTable">No hay estudiantes para mostrar.</div>';
     const currentFilter=$("adminStatusFilter")?.value||"all";
     document.querySelectorAll("[data-admin-filter]").forEach(btn=>{
@@ -193,6 +205,7 @@
         window.cachedUsers=lastUsers;
         if(typeof cachedUsers!=="undefined")cachedUsers=lastUsers;
         updateStats();renderTable();renderAlerts();
+        window.olonAdminPerformance?.refresh();
         window.olonBilling?.setStudents(lastUsers);
         window.olonRebates?.onAdminReady();
         setText("adminLastSync","Actualizado "+new Date().toLocaleTimeString("es-PR",{hour:"numeric",minute:"2-digit"}));
@@ -307,6 +320,8 @@
 
   window.olonAdmin={
     refresh,render:renderTable,filter,go,openChat,notify,
+    setPerformance(rows){performanceById=new Map((rows||[]).map(row=>[row.student_id,row]));renderTable();},
+    students:()=>students().slice(),
     status:setStatus,approveAll,
     payment:setPayment
   };
