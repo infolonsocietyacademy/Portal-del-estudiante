@@ -712,6 +712,23 @@ window.addEventListener("load", () => {
 
     <section id="academyVipPage" class="page hidden academyPage">
       <header class="card academyHero"><span>MEMBRESÍA OLON</span><h3>Renovación VIP</h3><p>Envía el comprobante de tu pago y consulta la respuesta de Administración.</p><p id="academyVipDate" class="academyPaymentDate"></p></header>
+      <section class="card academyCard" aria-labelledby="olfxAthTitle" style="border:1px solid var(--border,#344055);font-family:'JetBrains Mono',monospace">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div><small style="letter-spacing:.13em;opacity:.75">OLFX PAYMENTS // MÉTODO DE PAGO</small><h4 id="olfxAthTitle" style="margin:8px 0">ATH Móvil · Pago manual</h4></div>
+          <span style="font-size:11px;opacity:.8">VERIFICACIÓN ADMINISTRATIVA</span>
+        </div>
+        <p>Selecciona tu renovación VIP y envía el pago desde ATH Móvil al número autorizado de OLON SOCIETY ACADEMY.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin:15px 0">
+          <span class="btn secondary" style="pointer-events:none">$60 / cada 15 días</span>
+          <span class="btn secondary" style="pointer-events:none">$120 / mensual</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0">
+          <strong style="font-size:clamp(20px,4vw,28px);letter-spacing:.025em">787-904-8668</strong>
+          <button type="button" class="btn secondary" id="olfxAthCopy">Copiar número</button>
+        </div>
+        <p style="font-size:12px;opacity:.85">Abre tu aplicación ATH Móvil, envía el importe correspondiente y conserva la confirmación. Luego adjunta abajo una captura o PDF del comprobante. <strong>Enviar un comprobante no confirma el pago ni activa automáticamente tu membresía.</strong> Administración verificará el dinero recibido antes de aprobarlo.</p>
+        <p id="olfxAthCopyFeedback" role="status" aria-live="polite" style="font-size:12px" hidden></p>
+      </section>
       <section class="card academyCard">
         <h4>Enviar comprobante</h4>
         <p id="academyVipPending" class="academyNote" hidden>Tu comprobante está pendiente de revisión.</p>
@@ -1383,6 +1400,20 @@ window.addEventListener("load", () => {
 })();
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
-<script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
+<script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script><script>
+document.addEventListener('DOMContentLoaded', () => {
+  const button = document.getElementById('olfxAthCopy');
+  const feedback = document.getElementById('olfxAthCopyFeedback');
+  button?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText('7879048668');
+      feedback.textContent = 'Número copiado. Verifica el destinatario antes de enviar dinero.';
+    } catch {
+      feedback.textContent = 'Copia el número manualmente: 787-904-8668';
+    }
+    feedback.hidden = false;
+  });
+});
+</script></body>
 </html>
 
