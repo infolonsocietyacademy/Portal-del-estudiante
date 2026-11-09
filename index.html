@@ -46,7 +46,8 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 
 </style>
 <link rel="stylesheet" href="./trading-terminal-pro.css?v=20261108">
-<link rel="stylesheet" href="./trader-analytics.css?v=20261108-nav-billboard-1">
+<link rel="stylesheet" href="./trader-analytics.css?v=20261108-public-tape-1">
+<link rel="stylesheet" href="./portal-reminders.css?v=20261108-reminders-1">
 <link rel="stylesheet" href="./mobile-notifications.css?v=20261108-push-1">
 <link rel="stylesheet" href="./terminal-workspace.css?v=20261109-clean-summary-1">
 <link rel="stylesheet" href="./terminal-fluid.css?v=20261108-fluid-terminal-1">
@@ -92,6 +93,10 @@ window.addEventListener("load", () => {
       <button type="button" class="homeNavOutline" onclick="toggleAuth('signup');document.getElementById('homeAccess')?.scrollIntoView({behavior:'smooth',block:'center'})">Crear cuenta</button>
     </nav>
   </header>
+  <section id="homeMarketTape" class="homeMarketTape" aria-label="Cotizaciones reales del mercado">
+    <div id="homeMarketTapeMount" class="marketTapeMount"></div>
+    <p id="homeMarketTapeStatus" class="marketTapeStatus" role="status">Cargando cotizaciones…</p>
+  </section>
   <main class="homeMain">
     <div class="authShell homeShell">
       <div class="authHero homeHero">
@@ -130,6 +135,11 @@ window.addEventListener("load", () => {
           <div class="field"><label for="loginPass">Contraseña</label><div class="cyberPasswordField"><input id="loginPass" type="password" placeholder="Tu contraseña" autocomplete="current-password"><button class="togglePassword" id="toggleLoginPassword" type="button" aria-label="Mostrar contraseña" aria-pressed="false" onclick="var p=document.getElementById('loginPass');var visible=p.type==='password';p.type=visible?'text':'password';this.setAttribute('aria-pressed',String(visible));this.setAttribute('aria-label',visible?'Ocultar contraseña':'Mostrar contraseña')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
           <div class="recoveryShortcut"><a href="./recuperar.html">¿Olvidaste tu contraseña?</a></div>
           <button id="loginSubmitBtn" class="btn full" type="button" onclick="login()">Entrar al Portal del Trader</button>
+          <div id="membershipExpiredNotice" class="membershipExpiredNotice" role="alert" hidden>
+            <strong>Tu membresía expiró</strong>
+            <p>Tu acceso al Portal del Trader ha expirado. Para volver a entrar, debes renovar tu membresía VIP.</p>
+            <a href="mailto:infolonsocietyacademy@gmail.com?subject=Renovaci%C3%B3n%20VIP">Solicitar renovación</a>
+          </div>
           <div class="authHelp" id="homeSupport">¿Necesitas ayuda? <a href="mailto:infolonsocietyacademy@gmail.com?subject=Soporte%20Portal%20del%20Trader">Contactar soporte</a></div>
           <div class="authLegal">
             <div class="authLegalItem"><div class="authLegalIcon">🔒</div><div><b>Acceso privado</b><p>Tu historial y tus datos de cuenta se mantienen privados.</p></div></div>
@@ -289,6 +299,11 @@ window.addEventListener("load", () => {
     <section id="olonMarketTape" class="marketTape" aria-label="Cotizaciones del mercado en tiempo real">
       <div id="marketTapeMount" class="marketTapeMount"></div>
       <p id="marketTapeStatus" class="marketTapeStatus" role="status">Cargando cotizaciones…</p>
+    </section>
+
+    <section id="olonStudentReminders" class="olonStudentReminders studentOnly" aria-label="Recordatorios de la academia" hidden>
+      <div class="olonRemindersHeading"><span>AVISOS / OLON SOCIETY ACADEMY</span><strong>Recordatorios importantes</strong></div>
+      <div id="olonStudentReminderList" aria-live="polite"></div>
     </section>
 
       <div class="portalPageInfo terminalPageHeading">
@@ -875,6 +890,7 @@ window.addEventListener("load", () => {
           <button type="button" onclick="olonAdmin.go('adminBillingBlock')" class="adminCommandAction"><span>▤</span><strong>Facturación</strong><small>Facturas y cuentas por cobrar</small></button>
           <button type="button" onclick="olonAdmin.go('adminRebatesBlock')" class="adminCommandAction"><span>⇧</span><strong>Rebates</strong><small>Subir Excel y acumular</small></button>
           <button type="button" onclick="olonAdmin.openChat()" class="adminCommandAction"><span>✉</span><strong>Mensajes</strong><small>Atender estudiantes</small></button>
+          <button type="button" onclick="document.getElementById('adminReminderBlock')?.scrollIntoView({behavior:'smooth',block:'start'})" class="adminCommandAction"><span>◉</span><strong>Recordatorios</strong><small>Enviar avisos al portal</small></button>
         </div>
       </div>
       <nav class="adminWorkspaceNav" aria-label="Secciones de administración">
@@ -887,7 +903,24 @@ window.addEventListener("load", () => {
         <button type="button" onclick="olonAdmin.go('adminBillingBlock')">Facturación</button>
         <button type="button" onclick="olonAdmin.go('adminRebatesBlock')">Rebates / Excel</button>
         <button type="button" onclick="olonAdmin.openChat()">Mensajes <span id="adminNavUnread">0</span></button>
+        <button type="button" onclick="document.getElementById('adminReminderBlock')?.scrollIntoView({behavior:'smooth',block:'start'})">Recordatorios</button>
       </nav>
+      <section class="adminWorkspaceCard olonRemindersAdmin" id="adminReminderBlock" aria-labelledby="olonReminderAdminTitle">
+        <header class="olonReminderAdminHeader">
+          <div><span>OLON / COMUNICACIONES</span><h4 id="olonReminderAdminTitle">Recordatorios para estudiantes</h4><p>Escribe un aviso y aparecerá en el portal de los estudiantes con membresía activa.</p></div>
+        </header>
+        <form id="olonReminderForm" class="olonReminderForm">
+          <label>Título del recordatorio<input name="title" maxlength="120" required placeholder="Ej. Clase especial de trading"></label>
+          <label>Mensaje para los estudiantes<textarea name="message" rows="3" maxlength="1500" required placeholder="Escribe aquí lo que deseas recordarles..."></textarea></label>
+          <label class="olonReminderExpiry">Mostrar hasta (opcional)<input name="expires_on" type="date"></label>
+          <div class="olonReminderAdminActions">
+            <button type="submit" class="btn" id="olonReminderPublish">Publicar recordatorio</button>
+            <button type="button" class="btn secondary" id="olonReminderCancel" hidden>Cancelar edición</button>
+          </div>
+        </form>
+        <p id="olonReminderAdminFeedback" class="academyFeedback" role="status" hidden></p>
+        <div id="olonReminderAdminList" class="olonReminderAdminList" aria-live="polite"></div>
+      </section>
       <section class="adminWorkspaceCard adminBillingBlock" id="adminBillingBlock" aria-labelledby="adminBillingHeading">
         <header class="billingHeading">
           <div><span class="billingEyebrow">OLON SOCIETY / FINANZAS</span><h4 id="adminBillingHeading">Centro de facturación</h4><p>De la primera factura al último pago. Gestiona tus clientes y documentos desde un solo lugar.</p></div>
@@ -1216,7 +1249,7 @@ window.addEventListener("load", () => {
 </dialog>
 
 <script src="./analytics-core.js?v=20261108-performance-1" defer></script>
-<script src="./script.js?v=20261109-terminal-1" defer></script>
+<script src="./script.js?v=20261108-vip-expiry-1" defer></script>
 <script src="./interior-typewriter.js?v=20261107-profile-nickname-fix" defer></script>
 <script src="./appearance.js?v=20261109-terminal-1" defer></script>
 <script src="./trade-history.js?v=20261108-performance-1" defer></script>
@@ -1225,10 +1258,10 @@ window.addEventListener("load", () => {
 <script src="./profile-settings.js?v=20261109-billboard-cover-1" defer></script>
 <script src="./student-records.js?v=20261108-performance-1" defer></script>
 <script src="./trader-analytics.js?v=20261108-performance-1" defer></script>
-<script src="./market-tape.js?v=20261108-nas100-1" defer></script>
+<script src="./market-tape.js?v=20261108-public-tape-1" defer></script>
 <script src="./mobile-notifications.js?v=20261108-push-1" defer></script>
 <script src="./premium-report.js?v=20261108-performance-1" defer></script>
-<script src="./academy-tools.js?v=20261107-class-countdown" defer></script>
+<script src="./academy-tools.js?v=20261108-admin-class-delete-1" defer></script>
 <script src="./admin-workspace.js?v=20261107-rebates" defer></script>
 <script src="./admin-billing.js?v=20261107-integrated" defer></script>
 <script src="./admin-rebates.js?v=20261107-rebates" defer></script>
@@ -1363,6 +1396,6 @@ window.addEventListener("load", () => {
 })();
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
-<script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script></body>
+<script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
 </html>
 
