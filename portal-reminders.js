@@ -110,7 +110,9 @@
         if(manage||!adminList.childElementCount)paintAdmin(rows);
         studentPanel.hidden=true;
       }else{
-        const today=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Puerto_Rico",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+        const fmt=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Puerto_Rico",year:"numeric",month:"2-digit",day:"2-digit"});
+        const pr=Object.fromEntries(fmt.formatToParts(new Date()).map(part=>[part.type,part.value]));
+        const today=pr.year+"-"+pr.month+"-"+pr.day;
         paintStudent(rows.filter(r=>r.active&&(!r.expires_on||r.expires_on>=today)));
       }
       loadedFor=owner;
