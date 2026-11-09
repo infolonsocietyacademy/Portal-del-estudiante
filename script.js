@@ -1990,7 +1990,9 @@ document.addEventListener("DOMContentLoaded", function(){
     if(!/^\d{4}-\d{2}-\d{2}$/.test(due))return false;
     const valid=new Date(due+"T00:00:00Z");
     if(!Number.isFinite(valid.getTime())||valid.toISOString().slice(0,10)!==due)return false;
-    const today=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Puerto_Rico",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
+    const fmt=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Puerto_Rico",year:"numeric",month:"2-digit",day:"2-digit"});
+    const pr=Object.fromEntries(fmt.formatToParts(now).map(part=>[part.type,part.value]));
+    const today=pr.year+"-"+pr.month+"-"+pr.day;
     return due<=today;
   }
   function showMembershipExpiredNotice(){
