@@ -4,7 +4,7 @@
 const $=id=>document.getElementById(id);
 const escape=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const endpoint=()=>SUPABASE_URL+"/functions/v1/olon-license-manager";
-let busy=false,adminBusy=false,generated=[],current=null;
+let busy=false,adminBusy=false,generated=[],current=null,adminStudents=[];
 async function call(action,data={}){
  const {data:session,error}=await supabaseClient.auth.getSession();
  if(error||!session?.session?.access_token)throw Error("Tu sesión expiró. Inicia sesión nuevamente.");
@@ -30,7 +30,7 @@ async function status(){if(busy)return;const u=typeof currentUser!=="undefined"?
 async function redeem(event){event?.preventDefault();const el=$("olonLicenseCode"),code=String(el?.value||"").trim().toUpperCase();if(!code)return note("olonLicenseStudentFeedback","Introduce tu licencia.",true);const btn=$("olonLicenseRedeem");if(btn)btn.disabled=true;try{const r=await call("redeem",{code});if(el)el.value="";note("olonLicenseStudentFeedback","Licencia activada. Todos tus registros se conservaron.");await status();if(typeof currentUser!=="undefined"&&currentUser){const d=new Date(r.expires_at);const p=Object.fromEntries(new Intl.DateTimeFormat("en-US",{year:"numeric",month:"2-digit",day:"2-digit",timeZone:"America/Puerto_Rico"}).formatToParts(d).map(v=>[v.type,v.value]));currentUser.next_payment_date=p.year+"-"+p.month+"-"+p.day;if(typeof renderVipPayment==="function")renderVipPayment(currentUser);}}catch(e){note("olonLicenseStudentFeedback",e.message,true);}finally{if(btn)btn.disabled=false;}}
 async function adminRefresh(){if(adminBusy||typeof currentUser==="undefined"||currentUser?.role!=="admin")return;adminBusy=true;try{const r=await call("list");const list=$("olonLicenseList"),students=$("olonLicenseStudents");
  if(list)list.innerHTML=r.licenses.length?r.licenses.map(l=>'<div class="olonLicenseRow"><span><b>'+l.duration_days+' días / •••'+escape(l.code_hint)+'</b><small>'+escape(l.status)+' · '+date(l.created_at)+'</small></span>'+(l.status==="available"?'<button type="button" class="adminSmallButton" data-license-revoke="'+escape(l.id)+'">Revocar</button>':'')+'</div>').join(""):"<p>No hay licencias generadas.</p>";
- if(students)students.innerHTML=r.students.map(u=>'<div class="olonLicenseRow"><span><b>'+escape(u.full_name||u.email||"Estudiante")+'</b><small>'+escape(phase(u.phase))+' · '+escape(u.expires_at?(u.managed?date(u.expires_at):u.expires_at):"Sin fecha")+(u.pending_payment?" · Comprobante pendiente":"")+'</small></span></div>').join("")||"<p>No hay estudiantes.</p>";
+ adminStudents=r.students||[];if(students)students.innerHTML=r.students.map(u=>'<div class="olonLicenseRow"><span><b>'+escape(u.full_name||u.email||"Estudiante")+'</b><small>'+escape(phase(u.phase))+' · '+escape(u.expires_at?(u.managed?date(u.expires_at):u.expires_at):"Sin fecha")+(u.pending_payment?" · Comprobante pendiente":"")+'</small></span>'+(u.phase==="eligible"&&!u.pending_payment?'<button type="button" class="adminSmallButton" data-license-review="'+escape(u.id)+'">Revisar eliminación</button>':'')+'</div>').join("")||"<p>No hay estudiantes.</p>";
  if($("olonLicenseAvailable"))$("olonLicenseAvailable").textContent=r.licenses.filter(l=>l.status==="available").length;
  if($("olonLicenseGrace"))$("olonLicenseGrace").textContent=r.students.filter(s=>["grace","eligible"].includes(s.phase)).length;
  }catch(e){note("olonLicenseAdminFeedback",e.message,true);}finally{adminBusy=false;}}
@@ -46,6 +46,7 @@ function init(){
  $("olonLicenseRefresh")?.addEventListener("click",adminRefresh);
  $("olonLicenseCopy")?.addEventListener("click",async()=>{if(!generated.length)return;try{await navigator.clipboard.writeText(generated.map(x=>x.code).join("\n"));note("olonLicenseAdminFeedback","Códigos copiados.");}catch{note("olonLicenseAdminFeedback","Selecciona y copia los códigos manualmente.",true);}});
  $("olonLicenseList")?.addEventListener("click",e=>{const id=e.target.closest("[data-license-revoke]")?.dataset.licenseRevoke;if(id)void revoke(id);});
+ $("olonLicenseStudents")?.addEventListener("click",e=>{const id=e.target.closest("[data-license-review]")?.dataset.licenseReview;const person=adminStudents.find(u=>u.id===id&&u.phase==="eligible"&&!u.pending_payment);if(person)window.olonRequests?.manageAccount(person,"delete");});
  const admin=$("admin");if(admin)new MutationObserver(()=>{if(!admin.classList.contains("hidden")&&currentUser?.role==="admin")void adminRefresh();}).observe(admin,{attributes:true,attributeFilter:["class"]});
  const portal=$("portal");if(portal)new MutationObserver(()=>{if(!portal.classList.contains("hidden")&&currentUser?.role==="student")void status();}).observe(portal,{attributes:true,attributeFilter:["class"]});
  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&currentUser?.role==="student")void status();});
