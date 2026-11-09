@@ -71,25 +71,12 @@
       const net=el("td",money(record.net),Number(record.net)>=0?"profit":"loss");
       const pct=el("td",percentage(record.return_pct),record.return_pct==null?"none":Number(record.return_pct)>=0?"profit":"loss");
       const action=el("td");
-      const btn=el("button","Agregar al TOP 3","adminBtn adminBtnOutline olonPerformanceStage");
-      btn.type="button";
-      const eligible=["active","approved"].includes(String(user.status||"").toLowerCase())
-        &&Number(record.trade_count)>0&&Number(record.deposited)>0&&record.return_pct!=null&&period!=="all";
-      btn.disabled=!eligible;
-      btn.title=period==="all"?"Elige una semana, mes o año para el TOP 3":
-        Number(record.deposited)<=0?"Registra un depósito antes de calcular el rendimiento":
-        Number(record.trade_count)<=0?"El estudiante todavía no ha registrado trades":"Preparar este estudiante sin publicarlo automáticamente";
-      btn.addEventListener("click",async()=>{
-        if(!open()||!eligible||typeof window.olonRankingStageCandidate!=="function")return;
-        btn.disabled=true;
-        try{
-          const ok=await window.olonRankingStageCandidate(record.student_id,Number(record.return_pct),period,key);
-          if(ok)status.textContent="Estudiante añadido al borrador del TOP 3. Revisa y publica desde Administrar TOP 3.";
-        }catch(error){
-          status.textContent="No se pudo preparar el ranking: "+String(error.message||"Error.");
-        }finally{btn.disabled=false;}
-      });
-      action.append(btn);
+      const eligible=Number(record.trade_count)>0&&Number(record.deposited)>0&&
+        record.return_pct!=null&&["active","approved"].includes(String(user.status||"").toLowerCase());
+      const marker=el("span",eligible?"Automático":"Sin clasificar","olonPerformanceAuto");
+      marker.title=eligible?"Se clasifica automáticamente por sus resultados si entra al TOP 3":
+        "Para clasificar debe registrar operaciones y un depósito, y tener acceso activo";
+      action.append(marker);
       tr.append(name,ops,capital,net,pct,action);
       rowsEl.append(tr);
     }
@@ -102,7 +89,7 @@
     const key=periodKey(period);
     reload.disabled=true;
     status.textContent="Consultando trades y calculando porcentajes…";
-    periodNote.textContent=period==="all"?"Histórico: neto total ÷ depósitos totales. Selecciona un período para el TOP 3.":
+    periodNote.textContent=period==="all"?"Histórico: neto total ÷ depósitos totales. El TOP 3 se clasifica automáticamente.":
       "Neto de "+key+" ÷ depósitos totales registrados × 100.";
     try{
       const {data,error}=await supabaseClient.rpc("olon_admin_student_performance",{
@@ -112,7 +99,7 @@
       if(current!==token||!open())return;
       cache=data||[];lastPeriod=period;lastKey=key;
       paint(cache,period,key);
-      status.textContent="Actualizado: "+cache.length+" estudiantes · "+cache.filter(r=>Number(r.trade_count)>0).length+" con trades registrados.";
+      status.textContent="Ranking automático · "+cache.length+" estudiantes · "+cache.filter(r=>Number(r.trade_count)>0).length+" con trades registrados.";
       if(period==="all")window.olonAdmin?.setPerformance(cache);
       else if(window.olonAdmin?.setPerformance){
         // Historical figures stay in the directory, independent of the ranking period.
