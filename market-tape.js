@@ -25,6 +25,7 @@
     script.textContent=JSON.stringify({symbols:[
       {proName:"BITSTAMP:BTCUSD",title:"BTC"},
       {proName:"OANDA:US30USD",title:"US30"},
+      {proName:"OANDA:NAS100USD",title:"NAS100"},
       {proName:"OANDA:XAUUSD",title:"XAUUSD"},
       {proName:"OANDA:EURUSD",title:"EURUSD"}
     ],showSymbolLogo:true,isTransparent:true,displayMode:"regular",colorTheme:theme,locale:"es"});
@@ -32,7 +33,7 @@
     const observer=new MutationObserver(()=>{
       const frame=container.querySelector("iframe");
       if(!frame) return;
-      frame.title="Precios de BTC, US30, XAUUSD y EURUSD · TradingView";
+      frame.title="Precios de BTC, US30, NAS100, XAUUSD y EURUSD · TradingView";
       frame.addEventListener("load",()=>{if(current!==generation)return;clearTimeout(timer);status.hidden=true;},{once:true});
       observer.disconnect();
     });
