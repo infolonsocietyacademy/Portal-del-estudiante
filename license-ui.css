@@ -71,3 +71,15 @@ body.olonLicenseChecking #portal.app #dashboard #portalWelcomeCard #vipPayment{p
 body.olonLicenseChecking #olonLicenseRedeem{opacity:.7}
 @media(max-width:1200px){#portal.app #dashboard #portalWelcomeCard:has(#olonLicenseStudentCard){grid-template-columns:minmax(0,1fr) minmax(0,1.3fr)}#portal.app #dashboard #portalWelcomeCard #vipPayment{grid-column:1/-1}}
 @media(max-width:760px){#portal.app #dashboard #portalWelcomeCard:has(#olonLicenseStudentCard){grid-template-columns:minmax(0,1fr)}#portal.app #dashboard #portalWelcomeCard #vipPayment{grid-column:1}#olonLicenseStudentCard .olonLicenseProfileInputRow .btn{flex:1 1 auto}}
+
+
+/* Administración / seleccionar la duración desde un calendario */
+#olonLicenseAdminBlock .olonLicenseDurationSelect{display:flex;flex-direction:column;gap:5px;flex:1 1 180px;min-width:170px}
+#olonLicenseAdminBlock .olonLicenseDurationLabel{font-size:12px;font-weight:700;color:#cbd8e6}
+#olonLicenseAdminBlock .olonLicenseDateTrigger{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:48px;padding:9px 12px;color:#edf4fb;background:#0c1520;border:1px solid #485568;border-radius:9px;text-align:left;cursor:pointer;font-family:'JetBrains Mono',monospace}
+#olonLicenseAdminBlock .olonLicenseDateTrigger:hover{border-color:#92a9bf;background:#172635}
+#olonLicenseAdminBlock .olonLicenseDateTrigger:focus-visible{outline:2px solid #abcce8;outline-offset:3px}
+#olonLicenseAdminBlock .olonLicenseDateText{display:flex;flex-direction:column;gap:4px;min-width:0}
+#olonLicenseAdminBlock .olonLicenseDateText strong{font-size:12px;font-weight:750;text-transform:capitalize;white-space:normal}
+#olonLicenseAdminBlock .olonLicenseDateText small{font-size:11px;color:#b2c5d8}
+#olonLicenseAdminBlock .olonLicenseDateTrigger svg{flex-shrink:0;color:#b8cfe0}
