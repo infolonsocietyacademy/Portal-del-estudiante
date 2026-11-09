@@ -48,7 +48,7 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 <link rel="stylesheet" href="./trading-terminal-pro.css?v=20261108">
 <link rel="stylesheet" href="./trader-analytics.css?v=20261108-black-tape-1">
 <link rel="stylesheet" href="./mobile-notifications.css?v=20261108-push-1">
-<link rel="stylesheet" href="./terminal-workspace.css?v=20261109-billboard-cover-1">
+<link rel="stylesheet" href="./terminal-workspace.css?v=20261109-welcome-vip-1">
 </head>
 <body class="trader-themed">
 
@@ -294,13 +294,6 @@ window.addEventListener("load", () => {
     <section id="institutionalFlowPage" class="page hidden" aria-label="OLFX Institutional Contract Flow"></section>
 
     <section id="dashboard" class="page">
-      <section id="olonMarketTape" class="marketTape" aria-labelledby="marketTapeTitle">
-        <div class="marketTapeHead"><div class="marketTapeBrand"><span class="marketTapeEmblem" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 8 12l4 3 9-10M15 5h6v6"/></svg></span><div><span class="marketTapeEyebrow">OLON / MARKET STREAM</span><h3 id="marketTapeTitle">Pulso del mercado</h3></div></div><span class="marketTapeSource"><i aria-hidden="true"></i> SPOT &amp; CFD</span></div>
-        <div id="marketTapeMount" class="marketTapeMount"></div>
-        <p id="marketTapeStatus" class="marketTapeStatus" role="status">Cargando cotizaciones…</p>
-        <div class="marketTapeFooter"><div class="marketTapeAssets" aria-label="Activos del billboard"><span>BTC</span><span>US30</span><span>XAUUSD</span><span>EURUSD</span></div><p class="marketTapeNote">US30: CFD · Cotizaciones según proveedor y horario del mercado.</p></div>
-      </section>
-      <div class="pushQuickCard"><div class="pushQuickCopy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><strong data-push-quick-status>Lleva los avisos de OLON a tu celular</strong></div><button type="button" class="btn secondary" data-open-notifications>Configurar avisos</button></div>
       <div id="portalWelcomeCard" class="card welcomeHeroCard profileHero">
         <div class="cyberWelcomeIdentity" aria-hidden="true"><img src="./assets/favicon.png" alt=""><strong>OLON SOCIETY<span>ACADEMY</span></strong></div>
         <img class="profileHeroCover" data-profile-photo="cover" alt="" hidden>
@@ -310,8 +303,29 @@ window.addEventListener("load", () => {
           <p class="welcomeSub">Consulta tu rendimiento y tu progreso en la academia.</p>
           <button class="profileEditButton" type="button" data-edit-profile>Editar perfil</button>
         </div>
+
+        <section class="vipPayment studentOnly terminalWelcomeVip" id="vipPayment" aria-labelledby="vipPaymentTitle" data-state="unassigned">
+          <header class="vipPaymentHeader">
+            <span class="vipPaymentIcon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 10h18m-13 6 2 2 5-5"/></svg></span>
+            <div><span class="vipPaymentKicker">TU MEMBRESÍA</span><h3 id="vipPaymentTitle">Acceso VIP</h3></div>
+            <span class="vipPaymentBadge" id="vipPaymentBadge">Fecha pendiente</span>
+          </header>
+          <dl class="vipPaymentDetails">
+            <div><dt>Próximo pago</dt><dd id="vipPaymentDate">Sin fecha asignada</dd></div>
+            <div><dt>Días para renovar tu acceso</dt><dd id="vipPaymentDays">—</dd></div>
+          </dl>
+          <div class="academyActions vipRenewalAction">
+            <button type="button" class="btn secondary" data-academy-page="academyVipPage">Ver renovación VIP</button>
+          </div>
+        </section>
       </div>
 
+      <section id="olonMarketTape" class="marketTape" aria-labelledby="marketTapeTitle">
+        <div class="marketTapeHead"><div class="marketTapeBrand"><span class="marketTapeEmblem" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 8 12l4 3 9-10M15 5h6v6"/></svg></span><div><span class="marketTapeEyebrow">OLON / MARKET STREAM</span><h3 id="marketTapeTitle">Pulso del mercado</h3></div></div><span class="marketTapeSource"><i aria-hidden="true"></i> SPOT &amp; CFD</span></div>
+        <div id="marketTapeMount" class="marketTapeMount"></div>
+        <p id="marketTapeStatus" class="marketTapeStatus" role="status">Cargando cotizaciones…</p>
+        <div class="marketTapeFooter"><div class="marketTapeAssets" aria-label="Activos del billboard"><span>BTC</span><span>US30</span><span>XAUUSD</span><span>EURUSD</span></div><p class="marketTapeNote">US30: CFD · Cotizaciones según proveedor y horario del mercado.</p></div>
+      </section>
       <section id="olonLeaderboard" class="card olonLeaderboard studentOnly" aria-labelledby="olonLeaderboardTitle">
         <div class="olonLeaderboardTop">
           <div>
@@ -353,21 +367,6 @@ window.addEventListener("load", () => {
         <p id="olonLeaderboardLoading" class="olonLeaderboardNotice" role="status">Cargando ranking...</p>
         <p id="olonLeaderboardEmpty" class="olonLeaderboardNotice" hidden>Aún no hay TOP 3 publicado para este período.</p>
         <p id="olonLeaderboardError" class="olonLeaderboardNotice" role="status" hidden></p>
-      </section>
-
-      <section class="vipPayment studentOnly" id="vipPayment" aria-labelledby="vipPaymentTitle" data-state="unassigned">
-        <header class="vipPaymentHeader">
-          <span class="vipPaymentIcon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 10h18m-13 6 2 2 5-5"/></svg></span>
-          <div><span class="vipPaymentKicker">TU MEMBRESÍA</span><h3 id="vipPaymentTitle">Acceso VIP</h3></div>
-          <span class="vipPaymentBadge" id="vipPaymentBadge">Fecha pendiente</span>
-        </header>
-        <dl class="vipPaymentDetails">
-          <div><dt>Próximo pago</dt><dd id="vipPaymentDate">Sin fecha asignada</dd></div>
-          <div><dt>Días para renovar tu acceso</dt><dd id="vipPaymentDays">—</dd></div>
-        </dl>
-        <div class="academyActions vipRenewalAction">
-          <button type="button" class="btn secondary" data-academy-page="academyVipPage">Ver renovación VIP</button>
-        </div>
       </section>
 
       <section class="card ledgerQuickActions" aria-labelledby="ledgerQuickTitle">
@@ -1364,6 +1363,6 @@ window.addEventListener("load", () => {
 })();
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
-<script src="./terminal-workspace.js?v=20261109-billboard-cover-1" defer></script></body>
+<script src="./terminal-workspace.js?v=20261109-welcome-vip-1" defer></script></body>
 </html>
 

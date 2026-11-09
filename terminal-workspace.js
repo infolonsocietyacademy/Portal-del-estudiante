@@ -44,7 +44,10 @@
     const summary = document.createDocumentFragment();
     summary.append(metrics, overview);
     const marketTape = dashboard.querySelector(":scope > #olonMarketTape");
+    const welcome = dashboard.querySelector("#portalWelcomeCard");
+    if(welcome && dashboard.firstElementChild !== welcome) dashboard.prepend(welcome);
     if(marketTape) marketTape.after(summary);
+    else if(welcome) welcome.after(summary);
     else dashboard.prepend(summary);
 
     // A chart may already exist by DOMContentLoaded. Let it measure its new column.

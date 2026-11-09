@@ -83,6 +83,7 @@ body.trader-themed #portal.app.admin-mode > main.main > .portalTopbar {
 }
 #portal.app .portalTopbar:has(> .terminalHeaderCover:not([hidden])) > .terminalHeaderShade { display: block; }
 #portal.app .portalTopbar > :is(.terminalBrand, .cyberPortalWordmark, .portalTopActions) { position: relative; z-index: 1; }
+#portal.app .portalTopbar > .cyberPortalWordmark { top: auto; left: auto; }
 #portal.app .terminalCoverButton {
   display: inline-flex;
   align-items: center;
@@ -336,6 +337,39 @@ body.trader-themed #portal.app.admin-mode > main.main > .portalTopbar {
 #portal.app #dashboard > .welcomeHeroCard::after { display: none; }
 #portal.app #dashboard .welcomeHeroCard :is(.welcomeTitle, .cyberWelcomeIdentity strong) { color: var(--cyber-ui-ink) !important; }
 #portal.app #dashboard .welcomeHeroCard .welcomeSub { color: var(--cyber-ui-muted) !important; }
+#portal.app #dashboard > #portalWelcomeCard {
+  grid-template-columns: minmax(160px, .55fr) minmax(210px, .85fr) minmax(320px, 1.2fr);
+  gap: 20px;
+}
+#portal.app #dashboard #portalWelcomeCard .welcomeHeroContent { padding-left: 18px; }
+#portal.app #dashboard #portalWelcomeCard .terminalWelcomeVip {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  padding: 0 0 0 18px !important;
+  border: 0 !important;
+  border-left: 1px solid var(--cyber-ui-border) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--cyber-ui-ink);
+}
+#portal.app #dashboard #portalWelcomeCard .vipPaymentHeader { gap: 8px; }
+#portal.app #dashboard #portalWelcomeCard .vipPaymentIcon { flex-basis: 32px; height: 32px; border-radius: 6px; }
+#portal.app #dashboard #portalWelcomeCard .vipPaymentIcon svg { width: 19px; height: 19px; }
+#portal.app #dashboard #portalWelcomeCard .vipPaymentHeader h3 { font-size: calc(15px * var(--trader-font-scale, 1)) !important; }
+#portal.app #dashboard #portalWelcomeCard .vipPaymentKicker { font-size: calc(8px * var(--trader-font-scale, 1)) !important; }
+#portal.app #dashboard #portalWelcomeCard .vipPaymentBadge { margin-left: auto; font-size: calc(9px * var(--trader-font-scale, 1)); }
+#portal.app #dashboard #portalWelcomeCard .vipPaymentDetails { gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#portal.app #dashboard #portalWelcomeCard .vipPaymentDetails > div { padding: 0; border: 0; }
+#portal.app #dashboard #portalWelcomeCard .vipPaymentDetails dt { font-size: calc(10px * var(--trader-font-scale, 1)) !important; color: var(--cyber-ui-muted); }
+#portal.app #dashboard #portalWelcomeCard .vipPaymentDetails dd { font-size: calc(13px * var(--trader-font-scale, 1)) !important; color: var(--cyber-ui-ink); overflow-wrap: anywhere; }
+#portal.app #dashboard #portalWelcomeCard .vipRenewalAction { margin: 0; }
+#portal.app #dashboard #portalWelcomeCard .vipRenewalAction .btn { min-height: 36px; padding: 7px 11px; font-size: calc(10px * var(--trader-font-scale, 1)) !important; }
 #portal.app #dashboard :is(.olonTerminalIntro, .olonRiskCard) { border-radius: 8px; border-color: var(--cyber-ui-border); background: var(--cyber-ui-panel); color: var(--cyber-ui-ink); }
 #portal.app #dashboard .olonRiskCard :is(h3, label) { color: var(--cyber-ui-ink); }
 #portal.app #dashboard .olonRiskCard :is(p, small) { color: var(--cyber-ui-muted); }
@@ -361,6 +395,17 @@ body.trader-themed #portal.app.admin-mode > main.main > .portalTopbar {
   #portal.app .terminalNav .portalDockLink { flex: 1 1 0; }
   #portal.app #dashboard > .terminalOverview { grid-template-columns: minmax(0, 1fr) minmax(280px, .65fr); }
 }
+@media (max-width: 1100px) and (min-width: 761px) {
+  #portal.app #dashboard > #portalWelcomeCard { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); }
+  #portal.app #dashboard #portalWelcomeCard .terminalWelcomeVip {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(160px, .9fr) minmax(230px, 1.1fr) auto;
+    gap: 14px;
+    padding: 14px 0 0 !important;
+    border-left: 0 !important;
+    border-top: 1px solid var(--cyber-ui-border) !important;
+  }
+}
 @media (max-width: 760px) {
   body.trader-themed #portal.app { --terminal-gutter: 16px; }
   #portal.app .terminalBrand strong { font-size: 14px; }
@@ -371,6 +416,13 @@ body.trader-themed #portal.app.admin-mode > main.main > .portalTopbar {
   #portal.app #dashboard > .terminalOverview { grid-template-columns: minmax(0, 1fr); }
   #portal.app #dashboard .terminalOverviewRail { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
   #portal.app #dashboard .terminalCalendarWidget { grid-column: 1 / -1; }
+  #portal.app #dashboard > #portalWelcomeCard { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  #portal.app #dashboard #portalWelcomeCard .welcomeHeroContent { padding-left: 0; }
+  #portal.app #dashboard #portalWelcomeCard .terminalWelcomeVip {
+    padding: 14px 0 0 !important;
+    border-left: 0 !important;
+    border-top: 1px solid var(--cyber-ui-border) !important;
+  }
   #portal.app .terminalNav .portalDockLink { padding-inline: 9px; gap: 6px; }
   #portal.app .terminalNav .portalDockLabel { font-size: calc(11px * var(--trader-font-scale, 1)); }
 }
