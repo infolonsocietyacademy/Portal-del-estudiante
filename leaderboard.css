@@ -219,3 +219,56 @@
   #portal.app #admin .olonRankPreviewItem{gap:7px;padding:8px}
   #portal.app #admin .olonRankPreviewPercent{font-size:12px}
 }
+
+/* Private live performance candidates under TOP 3: no automatic publication. */
+#portal.app #admin .olonRankCandidates{
+  margin:19px 0 17px;padding:16px 16px 8px;
+  border:1px solid var(--cyber-ui-border);border-radius:11px;
+  background:color-mix(in srgb,var(--cyber-ui-panel-2) 70%,transparent);
+}
+#portal.app #admin .olonRankCandidatesHead{
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;
+  gap:12px;padding-bottom:13px;border-bottom:1px solid var(--cyber-ui-border)
+}
+#portal.app #admin .olonRankCandidatesHead span:first-child{
+  color:var(--trader-accent-ink,var(--trader-accent));font:700 9px/1.5 var(--font-mono);letter-spacing:.1em
+}
+#portal.app #admin .olonRankCandidatesHead h5{
+  color:var(--cyber-ui-ink);font:750 14px/1.5 var(--font-mono);margin:5px 0
+}
+#portal.app #admin .olonRankCandidatesHead p{
+  color:var(--cyber-ui-muted);font:500 10px/1.6 var(--font-mono);margin:0
+}
+#portal.app #admin .olonRankCandidatesCount{
+  font:700 10px var(--font-mono)!important;letter-spacing:0!important;
+  border:1px solid var(--cyber-ui-border);border-radius:6px;padding:8px 10px;color:var(--cyber-ui-muted)!important
+}
+#portal.app #admin .olonRankCandidatesList{display:grid;gap:0;max-height:470px;overflow-y:auto}
+#portal.app #admin .olonRankCandidatesEmpty{font:500 11px/1.7 var(--font-mono);color:var(--cyber-ui-muted);padding:14px 0}
+#portal.app #admin .olonRankCandidate{
+  display:grid;grid-template-columns:minmax(0,1fr) 120px 150px;gap:12px;
+  align-items:center;padding:13px 3px;border-bottom:1px solid var(--cyber-ui-border)
+}
+#portal.app #admin .olonRankCandidate:last-child{border-bottom:0}
+#portal.app #admin .olonRankCandidateInfo{display:grid;gap:5px;min-width:0}
+#portal.app #admin .olonRankCandidateInfo strong{
+  color:var(--cyber-ui-ink);font:700 12px/1.5 var(--font-mono);overflow-wrap:anywhere
+}
+#portal.app #admin .olonRankCandidateInfo small{
+  color:var(--cyber-ui-muted);font:500 10px/1.7 var(--font-mono);overflow-wrap:anywhere
+}
+#portal.app #admin .olonRankCandidatePct{
+  text-align:right;font:750 15px/1.4 var(--font-mono);font-variant-numeric:tabular-nums;color:var(--cyber-profit)
+}
+#portal.app #admin .olonRankCandidatePct[data-loss="true"]{color:var(--cyber-loss)}
+#portal.app #admin .olonRankCandidateAdd{min-height:37px;font:700 10px/1.4 var(--font-mono);white-space:nowrap}
+#portal.app #admin .olonRankCandidateAdd:disabled{opacity:.45;cursor:not-allowed}
+#portal.app #admin .olonRankCandidateReason{
+  color:var(--cyber-ui-muted);grid-column:1/-1;font:500 10px/1.5 var(--font-mono)
+}
+@media(max-width:680px){
+  #portal.app #admin .olonRankCandidates{padding:13px 11px 8px}
+  #portal.app #admin .olonRankCandidate{grid-template-columns:minmax(0,1fr) auto;gap:9px}
+  #portal.app #admin .olonRankCandidatePct{text-align:right;font-size:13px}
+  #portal.app #admin .olonRankCandidateAdd{grid-column:1/-1;width:100%}
+}
