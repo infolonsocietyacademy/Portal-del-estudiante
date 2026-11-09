@@ -2010,6 +2010,9 @@ document.addEventListener("DOMContentLoaded", function(){
     const portalElement = document.getElementById("portal");
     if(portalElement) portalElement.classList.toggle("admin-mode", String(profile?.role||"").trim().toLowerCase()==="admin");
     localStorage.setItem("olon_current_user", JSON.stringify(profile));
+    // Hold student access behind the renewal gate until the license service confirms validity.
+    const licenseGate=document.getElementById("olonLicenseLock");
+    if(licenseGate && String(profile.role).toLowerCase()!=="admin")licenseGate.hidden=false;
     showPortalLoader("Preparando tu espacio…");
     await window.enterPortal();
   }
