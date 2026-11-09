@@ -272,3 +272,22 @@
   #portal.app #admin .olonRankCandidatePct{text-align:right;font-size:13px}
   #portal.app #admin .olonRankCandidateAdd{grid-column:1/-1;width:100%}
 }
+
+/* Automatic ranking: personal opt-in for showing a real name. */
+#portal.app #dashboard .olonRankingNamePreference{
+  display:flex;align-items:flex-start;gap:10px;margin:14px 0 0;
+  color:var(--cyber-ui-muted);font:500 10px/1.65 var(--font-mono);
+  cursor:pointer;max-width:90ch;
+}
+#portal.app #dashboard .olonRankingNamePreference input{
+  margin:3px 0 0;flex:0 0 15px;width:15px;height:15px;
+  accent-color:var(--trader-accent);cursor:pointer;
+}
+#portal.app #dashboard .olonRankingNameFeedback{
+  margin:7px 0 0;color:var(--cyber-ui-muted);
+  font:600 10px/1.5 var(--font-mono);
+}
+#portal.app #dashboard .olonRankingNameFeedback[hidden]{display:none!important}
+#portal.app #admin .olonRankEditor,#portal.app #admin .olonRankCandidates{
+  display:none!important;
+}
