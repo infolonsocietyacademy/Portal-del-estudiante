@@ -27,14 +27,14 @@
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="border-collapse:separate;margin:0 0 26px;">
                 <tr>
                   <td align="center" bgcolor="#d5b473" style="border-radius:9px;background:#d5b473;">
-                    <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:16px 26px;font-size:15px;font-weight:bold;color:#172c20;text-decoration:none;border-radius:9px;">Restablecer mi contraseña</a>
+                    <a href="{{ .RedirectTo }}#type=recovery&amp;token_hash={{ .TokenHash }}" style="display:inline-block;padding:16px 26px;font-size:15px;font-weight:bold;color:#172c20;text-decoration:none;border-radius:9px;">Restablecer mi contraseña</a>
                   </td>
                 </tr>
               </table>
               <p style="font-size:13px;line-height:1.75;color:#647f72;margin:0 0 20px;">Si no solicitaste este cambio, puedes ignorar este mensaje. Tu contraseña actual seguirá siendo la misma.</p>
               <p style="font-size:13px;line-height:1.75;color:#647f72;margin:0 0 12px;">Si el botón no funciona, copia este enlace en tu navegador:</p>
               <p style="font-size:12px;line-height:1.7;overflow-wrap:anywhere;word-break:break-all;margin:0 0 9px;">
-                <a href="{{ .ConfirmationURL }}" style="color:#18694f;text-decoration:underline;">{{ .ConfirmationURL }}</a>
+                <a href="{{ .RedirectTo }}#type=recovery&amp;token_hash={{ .TokenHash }}" style="color:#18694f;text-decoration:underline;">{{ .RedirectTo }}#type=recovery&amp;token_hash={{ .TokenHash }}</a>
               </p>
               <p style="font-size:12px;line-height:1.6;color:#899a90;margin:24px 0 0;border-top:1px solid #e7ede8;padding-top:18px;">Por tu seguridad, no compartas este enlace ni tu contraseña con nadie.</p>
             </td>

@@ -20,7 +20,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 
 
@@ -133,7 +133,7 @@ window.addEventListener("load", () => {
           <button id="tabSignup" type="button" onclick="toggleAuth('signup')">Crear cuenta</button>
         </div>
         <div id="loginForm" class="form active">
-          <div class="field"><label for="loginCode">Usuario o correo electrónico</label><input id="loginCode" type="text" placeholder="correo@ejemplo.com" autocomplete="username" autocapitalize="none" spellcheck="false"></div>
+          <div class="field"><label for="loginCode">Correo electrónico</label><input id="loginCode" type="text" placeholder="correo@ejemplo.com" autocomplete="username" autocapitalize="none" spellcheck="false"></div>
           <div class="field"><label for="loginPass">Contraseña</label><div class="cyberPasswordField"><input id="loginPass" type="password" placeholder="Tu contraseña" autocomplete="current-password"><button class="togglePassword" id="toggleLoginPassword" type="button" aria-label="Mostrar contraseña" aria-pressed="false" onclick="var p=document.getElementById('loginPass');var visible=p.type==='password';p.type=visible?'text':'password';this.setAttribute('aria-pressed',String(visible));this.setAttribute('aria-label',visible?'Ocultar contraseña':'Mostrar contraseña')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
           <div class="recoveryShortcut"><a href="./recuperar.html">¿Olvidaste tu contraseña?</a></div>
           <button id="loginSubmitBtn" class="btn full" type="button" onclick="login()">Entrar al Portal del Trader</button>
@@ -149,14 +149,14 @@ window.addEventListener("load", () => {
           </div>
         </div>
         <div id="signupForm" class="form">
-          <h2>Solicita tu acceso</h2><p>Completa el formulario. Administración revisará tu solicitud y te enviará los datos de acceso por un canal privado.</p>
+          <h2>Solicita tu acceso</h2><p>Completa el formulario. Administración revisará tu solicitud. Si la aprueba, recibirás una invitación por correo.</p>
           <div class="field"><label for="signupName">Nombre completo</label><input id="signupName" type="text" placeholder="Tu nombre y apellido" autocomplete="name"></div>
           <div class="field"><label for="signupEmail">Correo electrónico</label><input id="signupEmail" type="email" placeholder="correo@ejemplo.com" autocomplete="email"></div>
           <div class="field"><label for="signupEmailConfirm">Confirma tu correo</label><input id="signupEmailConfirm" type="email" placeholder="Repite tu correo" autocomplete="email"><div id="emailVerifyStatus" class="emailStatus neutral">Verifica que tu correo esté escrito correctamente.</div><button type="button" class="btn secondary full verifyBtn" onclick="verifySignupEmail()">Comprobar correo</button></div>
           <div class="signupHoney" aria-hidden="true"><label for="signupWebsite">Sitio web</label><input type="text" id="signupWebsite" tabindex="-1" autocomplete="off"></div>
           <div class="signupMembership"><span>Membresía</span><strong>VIP</strong></div>
           <button id="signupSubmitBtn" class="btn full" type="button" onclick="signup()">Enviar solicitud de acceso →</button>
-          <div id="signupRequestResult" class="authNote" role="status" aria-live="polite" hidden></div><div class="authLegal"><div class="authLegalItem"><div class="authLegalIcon">🛡️</div><div><b>Acceso sujeto a aprobación</b><p>Enviar la solicitud no crea una cuenta de inmediato. Cuando el administrador la apruebe, te dará una contraseña temporal.</p></div></div></div>
+          <div id="signupRequestResult" class="authNote" role="status" aria-live="polite" hidden></div><div class="authLegal"><div class="authLegalItem"><div class="authLegalIcon">🛡️</div><div><b>Acceso sujeto a aprobación</b><p>Enviar la solicitud no crea una cuenta de inmediato. Si se aprueba, recibirás una invitación por correo.</p></div></div></div>
         </div>
       </div>
     </div>
@@ -232,6 +232,8 @@ window.addEventListener("load", () => {
       <button type="button" class="portalNavLink studentNav" data-page="newsProPage" onclick="showPage('newsProPage',this)" aria-label="Noticias"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10M7 11h4M13 11h4M7 15h10M7 18h7"/></svg></span><span class="portalNavText">Noticias</span></button>
       <button type="button" class="portalNavLink" data-page="notificationsPage" onclick="showPage('notificationsPage',this)" aria-label="Notificaciones"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></span><span class="portalNavText">Notificaciones</span></button>
       <div class="portalNavGroup adminNav hidden">ADMINISTRACIÓN</div>
+      <button type="button" class="portalNavLink" data-page="securityAccountPage" onclick="showPage('securityAccountPage',this)" aria-label="Seguridad de mi cuenta"><span class="portalNavIcon" aria-hidden="true">🛡️</span><span class="portalNavText">Seguridad de mi cuenta</span></button>
+      <button type="button" class="portalNavLink adminNav hidden" data-page="securityCenterPage" onclick="showPage('securityCenterPage',this)" aria-label="OLFX SECURITY CENTER"><span class="portalNavIcon" aria-hidden="true">🛡️</span><span class="portalNavText">OLFX SECURITY CENTER</span></button>
       <button type="button" class="portalNavLink terminalPrimaryLink adminNav hidden" data-page="admin" onclick="showPage('admin',this)" aria-label="Centro administrativo"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4M9 15h6M12 15v3"/></svg></span><span class="portalNavText">Centro administrativo</span></button>
       <button type="button" class="portalNavLink terminalPrimaryLink adminNav hidden" data-page="academyAdminClassesPage" onclick="showPage('academyAdminClassesPage',this)" aria-label="Gestionar clases"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h8"/></svg></span><span class="portalNavText">Gestionar clases</span></button>
       <button type="button" class="portalNavLink terminalPrimaryLink adminNav hidden" data-page="academyAdminVipPage" onclick="showPage('academyAdminVipPage',this)" aria-label="Comprobantes VIP"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg></span><span class="portalNavText">Comprobantes VIP</span></button>
@@ -313,6 +315,9 @@ window.addEventListener("load", () => {
         <h2 id="pageTitle">Resumen de rendimiento</h2>
         <p id="pageSubtitle">Tu actividad y progreso en la academia.</p>
       </div>
+
+    <section id="securityCenterPage" class="page hidden" aria-label="OLFX SECURITY CENTER"></section>
+    <section id="securityAccountPage" class="page hidden" aria-label="Seguridad de mi cuenta"></section>
 
     <section id="institutionalFlowPage" class="page hidden" aria-label="OLFX Institutional Contract Flow"></section>
 
@@ -1216,11 +1221,10 @@ window.addEventListener("load", () => {
     <button type="button" class="profileCloseButton" data-close-admin-account aria-label="Cerrar">×</button>
   </header>
   <form id="adminResetForm" hidden>
-    <label class="field">Nueva contraseña<input name="password" type="password" autocomplete="new-password" minlength="12" maxlength="72" required></label>
-    <p class="accountHint">Usa al menos 12 caracteres. El estudiante podrá cambiarla desde su cuenta.</p>
+    <p class="accountHint">Supabase enviará un enlace de un solo uso al correo de la cuenta. El estudiante elegirá su contraseña.</p>
     <div class="profileDialogActions">
       <button type="button" class="btn secondary" data-close-admin-account>Cancelar</button>
-      <button type="submit" class="btn">Asignar contraseña</button>
+      <button type="submit" class="btn">Enviar recuperación</button>
     </div>
   </form>
   <form id="adminDeleteForm" hidden>
@@ -1235,7 +1239,7 @@ window.addEventListener("load", () => {
 </dialog>
 
 <script src="./analytics-core.js?v=20261108-performance-1" defer></script>
-<script src="./script.js?v=20261108-vip-expiry-1" defer></script>
+<script src="./script.js?v=20261109-olfx-security-1" defer></script>
 <script src="./interior-typewriter.js?v=20261107-profile-nickname-fix" defer></script>
 <script src="./appearance.js?v=20261109-terminal-1" defer></script>
 <script src="./trade-history.js?v=20261108-performance-1" defer></script>
@@ -1248,13 +1252,13 @@ window.addEventListener("load", () => {
 <script src="./mobile-notifications.js?v=20261108-push-1" defer></script>
 <script src="./premium-report.js?v=20261108-performance-1" defer></script>
 <script src="./academy-tools.js?v=20261108-admin-class-delete-1" defer></script>
-<script src="./admin-workspace.js?v=20261108-performance-linked-1" defer></script>
+<script src="./admin-workspace.js?v=20261109-security-1" defer></script>
 <script src="./admin-billing.js?v=20261107-integrated" defer></script>
 <script src="./admin-rebates.js?v=20261107-rebates" defer></script>
-<script src="./leaderboard.js?v=20261108-top3-avatar-colors-4" defer></script>
+<script src="./leaderboard.js?v=20261109-security-1" defer></script>
 <script src="./admin-performance.js?v=20261108-auto-ranking-2" defer></script>
-<script src="./admin-registration.js?v=20261106-trader" defer></script>
-<script src="./password-settings.js?v=20261107-security-hardening" defer></script>
+<script src="./admin-registration.js?v=20261109-security-1" defer></script>
+<script src="./password-settings.js?v=20261109-olfx-security-1" defer></script>
 
 <script>
 /* FIX FUERTE: La pantalla de código NO se muestra al cargar.

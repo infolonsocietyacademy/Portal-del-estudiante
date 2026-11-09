@@ -1,4 +1,3 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 const URL_BASE=Deno.env.get("SUPABASE_URL")||"";
 const SERVICE=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
 const PUBLIC=Deno.env.get("SUPABASE_ANON_KEY")||"";
@@ -17,21 +16,29 @@ const hex=async(v:string)=>{
  const result=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(v));
  return Array.from(new Uint8Array(result)).map(c=>c.toString(16).padStart(2,"0")).join("");
 };
-async function whoIsAdmin(req:Request){
- const token=(req.headers.get("Authorization")||"").replace(/^Bearer\s+/i,"").trim();
- if(!token)return null;
- const auth=await fetch(URL_BASE+"/auth/v1/user",{headers:{Authorization:"Bearer "+token,apikey:PUBLIC}});
+const PORTAL = Deno.env.get("OLON_PORTAL_URL") ||
+ "https://infolonsocietyacademy.github.io/Portal-del-estudiante/";
+const accountLink = (mode:string) => new URL("recuperar.html?mode="+mode, PORTAL).toString();
+async function whoIsAdmin(req:Request, fresh:boolean){
+ const authorization=req.headers.get("Authorization")||"";
+ if(!/^Bearer [^ ]+$/i.test(authorization))return null;
+ const headers={Authorization:authorization,apikey:PUBLIC,"Content-Type":"application/json"};
+ const gate=await fetch(URL_BASE+"/rest/v1/rpc/olon_security_can_admin",{
+  method:"POST",headers,body:JSON.stringify({p_fresh:fresh})
+ });
+ if(!gate.ok||await gate.json()!==true)return null;
+ const auth=await fetch(URL_BASE+"/auth/v1/user",{headers});
  if(!auth.ok)return null;
  const user=await auth.json().catch(()=>null);
- if(!user?.id)return null;
- const rows=await db("profiles?id=eq."+encodeURIComponent(user.id)+"&select=id,role,status");
- const p=rows?.[0];
- return p?.role==="admin"&&p?.status==="active"?user:null;
+ return goodId(user?.id)?user:null;
 }
-function temporaryPassword(){
- const alphabet="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";
- const bytes=crypto.getRandomValues(new Uint8Array(24));
- return Array.from(bytes,b=>alphabet[b%alphabet.length]).join("");
+async function audit(actor:string,subject:string|null,action:string){
+ try{
+  await db("rpc/olon_registration_audit",{method:"POST",
+   body:JSON.stringify({p_actor:actor,p_subject:subject,p_action:action})});
+ }catch{
+  console.error("OLON registration audit was not accepted.");
+ }
 }
 
 async function removeStudentFiles(id:string){
@@ -67,24 +74,25 @@ Deno.serve(async(req:Request)=>{
    const email=String(body?.email||"").trim().toLowerCase();
    if(full_name.length<2||full_name.length>120||!goodEmail(email))return respond({error:"Completa un nombre y correo electrónico válidos."},400);
    // Honey-pot + fingerprint prevent basic automated floods without persisting plaintext IP.
-   if(body?.website)return respond({ok:true,message:"Solicitud recibida."});
+   const accepted=()=>respond({ok:true,message:"Recibimos la solicitud. Si corresponde, un administrador revisará el acceso."});
+   if(body?.website)return accepted();
    const remote=(req.headers.get("x-forwarded-for")||"").split(",")[0].trim();
    const ipHash=await hex(remote+"|"+SERVICE.slice(0,32));
    const fifteen=new Date(Date.now()-15*60_000).toISOString();
    const recent=await db("access_requests?ip_hash=eq."+ipHash+"&created_at=gte."+encodeURIComponent(fifteen)+"&select=id&limit=6");
    if(recent.length>=5)return respond({error:"Demasiadas solicitudes recientes. Intenta más tarde."},429);
    const duplicate=await db("access_requests?email=eq."+encodeURIComponent(email)+"&status=eq.pending&select=id&limit=1");
-   if(duplicate.length)return respond({ok:true,message:"Si ya enviaste una solicitud, permanece pendiente de revisión."});
+   if(duplicate.length)return accepted();
    const exists=await db("profiles?email=eq."+encodeURIComponent(email)+"&select=id&limit=1");
-   if(exists.length)return respond({ok:true,message:"Si tu correo ya tiene una cuenta, inicia sesión o recupera tu contraseña."});
+   if(exists.length)return accepted();
    try{
     await db("access_requests",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify([{full_name,email,ip_hash:ipHash}])});
-   }catch(e){if((e as any).code==="23505")return respond({ok:true,message:"La solicitud ya fue recibida."});throw e}
-   return respond({ok:true,message:"Solicitud enviada. Un administrador debe revisar tu acceso. Aún no se ha creado tu cuenta de inicio de sesión."});
+   }catch(e){if((e as any).code==="23505")return accepted();throw e}
+   return accepted();
   }
-  const admin=await whoIsAdmin(req);
-  if(!admin)return respond({error:"Acceso exclusivo del administrador."},403);
-  if(action==="reset_student_password"||action==="delete_student"){
+  const admin=await whoIsAdmin(req,action!=="list");
+  if(!admin)return respond({error:"Se requiere una sesión administrativa con MFA verificado."},403);
+  if(action==="send_student_recovery"||action==="delete_student"){
    const id=String(body.id||"").toLowerCase();
    if(!goodId(id)||id===admin.id)return respond({error:"Selecciona una cuenta de estudiante válida."},400);
    const profilePath="profiles?id=eq."+encodeURIComponent(id);
@@ -93,19 +101,19 @@ Deno.serve(async(req:Request)=>{
    if(student && student.role!=="student")return respond({error:"La cuenta seleccionada está protegida."},403);
    const authPath=URL_BASE+"/auth/v1/admin/users/"+encodeURIComponent(id);
 
-   if(action==="reset_student_password"){
+   if(action==="send_student_recovery"){
     if(!student)return respond({error:"La cuenta ya no está en el portal."},404);
     if(student.status==="deleting")return respond({error:"La cuenta está pendiente de eliminación."},409);
-    const password=body.password;
-    if(typeof password!=="string"||!password.trim()||Array.from(password).length<12||
-       new TextEncoder().encode(password).length>72){
-     return respond({error:"Usa al menos 12 caracteres y un máximo de 72 bytes."},400);
-    }
-    const result=await fetch(authPath,{method:"PUT",headers:svc(),body:JSON.stringify({password})});
-    if(!result.ok){
-     const invalid=[400,422].includes(result.status);
-     return respond({error:invalid?"Escoge otra contraseña que cumpla los requisitos de seguridad.":"No se pudo confirmar el cambio de contraseña."},invalid?400:503);
-    }
+    const authUser=await fetch(authPath,{headers:svc()});
+    const current=await authUser.json().catch(()=>null);
+    const email=String(current?.user?.email||current?.email||"").trim().toLowerCase();
+    if(!authUser.ok||!goodEmail(email))return respond({error:"La cuenta no tiene un correo disponible para recuperación."},409);
+    const redirect=encodeURIComponent(accountLink("update"));
+    const result=await fetch(URL_BASE+"/auth/v1/recover?redirect_to="+redirect,{
+     method:"POST",headers:svc(),body:JSON.stringify({email})
+    });
+    if(!result.ok)return respond({error:"Supabase no aceptó el envío. Revisa la configuración de correo."},503);
+    await audit(admin.id,id,"recovery_email_requested");
     return respond({ok:true});
    }
 
@@ -130,7 +138,9 @@ Deno.serve(async(req:Request)=>{
     });
     if(!removed.ok&&removed.status!==404)return pending();
     const remaining=await db(profilePath+"&select=id");
-    return remaining?.length?pending():respond({ok:true});
+    if(remaining?.length)return pending();
+    await audit(admin.id,id,"student_deleted");
+    return respond({ok:true});
    }catch{
     return pending();
    }
@@ -142,38 +152,42 @@ Deno.serve(async(req:Request)=>{
   if(action==="reject"){
    const id=String(body.id||"");
    if(!/^[a-f0-9-]{36}$/i.test(id))return respond({error:"Solicitud inválida."},400);
-   await db("access_requests?id=eq."+encodeURIComponent(id)+"&status=eq.pending",{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({status:"rejected",processed_at:new Date().toISOString()})});
+   const rows=await db("access_requests?id=eq."+encodeURIComponent(id)+"&status=eq.pending",{method:"PATCH",headers:{Prefer:"return=representation"},body:JSON.stringify({status:"rejected",processed_at:new Date().toISOString()})});
+   if(!rows?.length)return respond({error:"La solicitud ya fue procesada."},409);
+   await audit(admin.id,null,"request_rejected");
    return respond({ok:true});
   }
   if(action==="approve"){
    const id=String(body.id||"");
-   const plan=["VIP Regular","VIP Premium"].includes(body.plan)?body.plan:"VIP Regular";
-   if(!/^[a-f0-9-]{36}$/i.test(id))return respond({error:"Solicitud inválida."},400);
+   if(!goodId(id))return respond({error:"Solicitud inválida."},400);
    const rows=await db("access_requests?id=eq."+encodeURIComponent(id)+"&status=eq.pending&select=id,full_name,email");
    const reqRow=rows?.[0];
    if(!reqRow)return respond({error:"Solicitud no encontrada o ya procesada."},404);
    const existing=await db("profiles?email=eq."+encodeURIComponent(reqRow.email)+"&select=id,role,status&limit=1");
-   if(existing.length)return respond({error:"Ya existe una cuenta con ese correo. No se creará una cuenta duplicada; revisa Authentication > Users."},409);
-   const password=temporaryPassword();
-   const result=await fetch(URL_BASE+"/auth/v1/admin/users",{method:"POST",headers:svc(),body:JSON.stringify({
-     email:reqRow.email,password,email_confirm:true,user_metadata:{full_name:reqRow.full_name}
-   })});
-   const created=await result.json().catch(()=>({}));
-   // GoTrue versions may return a User directly or wrapped as { user: User }.
-   const newId=String(created?.user?.id||created?.id||"");
-   if(!result.ok||!/^[a-f0-9-]{36}$/i.test(newId)){
-    return respond({error:"No se pudo crear la cuenta: "+String(created.msg||created.message||created.error||result.status).slice(0,180)},409);
+   let newId=String(existing?.[0]?.id||"");
+   if(newId){
+    const found=await fetch(URL_BASE+"/auth/v1/admin/users/"+encodeURIComponent(newId),{headers:svc()});
+    const payload=await found.json().catch(()=>null);
+    const user=payload?.user||payload;
+    if(!found.ok||!user?.invited_at||user?.user_metadata?.olon_request_id!==id){
+     return respond({error:"El correo ya pertenece a otra cuenta. Revisa la solicitud antes de activarla."},409);
+    }
    }
-   try{
-    const updated=await db("profiles?id=eq."+encodeURIComponent(newId)+"&role=eq.student",{method:"PATCH",headers:{Prefer:"return=representation"},body:JSON.stringify({status:"active",plan})});
-    if(!updated?.length)throw Error("No se encontró el perfil automático.");
-   }catch(e){
-    // Leave the Auth user pending rather than claiming account activation.
-    return respond({error:"Se creó el usuario de Auth pero no se activó su perfil. Revisa el panel de Supabase antes de reintentar."},503);
+   if(!newId){
+    const redirect=encodeURIComponent(accountLink("invite"));
+    const result=await fetch(URL_BASE+"/auth/v1/invite?redirect_to="+redirect,{method:"POST",headers:svc(),
+     body:JSON.stringify({email:reqRow.email,data:{full_name:reqRow.full_name,olon_request_id:id}})});
+    const invited=await result.json().catch(()=>({}));
+    newId=String(invited?.user?.id||invited?.id||"");
+    if(!result.ok||!goodId(newId)){
+     return respond({error:"No se pudo enviar la invitación. Revisa el servicio de correo y vuelve a intentar."},503);
+    }
    }
-   await db("access_requests?id=eq."+encodeURIComponent(id)+"&status=eq.pending",{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({status:"processed",processed_at:new Date().toISOString()})});
-   return respond({ok:true,email:reqRow.email,name:reqRow.full_name,password,plan,message:"Cuenta creada y activada. Comparte la contraseña temporal únicamente por un canal privado."});
+   const activated=await db("rpc/olon_finish_registration",{method:"POST",
+    body:JSON.stringify({p_request:id,p_user:newId,p_actor:admin.id})});
+   if(activated!==true)return respond({error:"No se activó la cuenta. Verifica que la invitación corresponda a esta solicitud."},409);
+   return respond({ok:true,message:"Supabase aceptó la invitación y la cuenta se activó."});
   }
   return respond({error:"Acción no permitida"},400);
- }catch(e){console.error("olon registration error",String((e as any)?.message||e));return respond({error:"No se pudo completar la operación. Revisa la conexión e inténtalo de nuevo."},503)}
+ }catch(e){console.error("OLON registration request failed.",(e as {status?:number})?.status||503);return respond({error:"No se pudo completar la operación. Revisa la conexión e inténtalo de nuevo."},503)}
 });

@@ -88,10 +88,10 @@
     if(state==="deleting")return '<div class="adminRowActions">'+remove+'</div>';
     return '<div class="adminRowActions">'+
       (state==="pending"?'<button type="button" class="adminSmallButton approve" onclick="olonAdmin.status(\''+id+'\',\'active\')">✓ Aprobar</button>':'')+
-      (state==="suspended"?'<button type="button" class="adminSmallButton" onclick="olonAdmin.status(\''+id+'\',\'pending\')">Reabrir</button>':
+      (state==="suspended"?'<button type="button" class="adminSmallButton" onclick="olonAdmin.status(\''+id+'\',\'active\')">Reactivar</button>':
        '<button type="button" class="adminSmallButton" onclick="olonAdmin.status(\''+id+'\',\'suspended\')">Suspender</button>')+
       '<button type="button" class="adminSmallButton" data-billing-student="'+id+'">Facturar</button>'+
-      '<button type="button" class="adminSmallButton" data-manage-account="reset" data-student-id="'+id+'">Cambiar contraseña</button>'+remove+
+      '<button type="button" class="adminSmallButton" data-manage-account="reset" data-student-id="'+id+'">Enviar recuperación</button>'+remove+
       '</div>';
   }
   function performanceCell(u){
@@ -253,7 +253,20 @@
   async function setStatus(id,state){
     const u=findStudent(id);
     if(!u)return notify("No se encuentra el estudiante.",true);
-    if(state==="suspended"&&!confirm("¿Suspender el acceso de "+(u.full_name||u.email||"este estudiante")+"?")){renderTable();return;}
+    if(state==="suspended"||norm(u.status)==="suspended"){
+      if(!["suspended","active"].includes(state)){renderTable();return;}
+      const action=state==="suspended"?"suspend":"reactivate";
+      if(!confirm((action==="suspend"?"¿Suspender a ":"¿Reactivar a ")+(u.full_name||u.email)+"?")){renderTable();return;}
+      try {
+        const {freshAdminTotp}=await import("./security/auth.mjs?v=1");
+        if(!await freshAdminTotp(supabaseClient)){renderTable();return;}
+        const {error}=await supabaseClient.rpc("olon_security_admin_action",{p_action:action,p_target:id});
+        if(error)throw error;
+        await refresh();
+        notify("Acceso actualizado en Supabase.");
+      }catch(error){notify(errorMessage(error),true);renderTable();}
+      return;
+    }
     if(state==="active"&&norm(u.status)==="pending"&&!confirm("¿Aprobar el acceso de "+(u.full_name||u.email||"este estudiante")+"?")){renderTable();return;}
     await save(id,"status",state,"Estado de "+(u.full_name||"estudiante"));
   }

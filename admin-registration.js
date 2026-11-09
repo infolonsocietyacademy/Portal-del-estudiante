@@ -18,6 +18,10 @@ function status(text,isError=false){
 async function call(action,data={}){
  let token="";
  if(action!=="apply"){
+  if(action!=="list"){
+   const {freshAdminTotp}=await import("./security/auth.mjs?v=1");
+   if(!await freshAdminTotp(supabaseClient))throw Error("Verificación cancelada.");
+  }
   const {data:session,error}=await supabaseClient.auth.getSession();
   if(error||!session?.session?.access_token)throw new Error("Tu sesión expiró. Vuelve a iniciar sesión como administrador.");
   token=session.session.access_token;
@@ -54,42 +58,6 @@ function render(){
  list.querySelectorAll("[data-approve]").forEach(btn=>btn.addEventListener("click",()=>approve(btn.dataset.approve)));
  list.querySelectorAll("[data-reject]").forEach(btn=>btn.addEventListener("click",()=>reject(btn.dataset.reject)));
 }
-function showCredentials(data, isReset=false){
- const dialog=document.createElement("dialog");
- dialog.className="profileDialog traderDialog adminCredentialDialog";
- dialog.setAttribute("aria-label",isReset?"Contraseña asignada":"Credenciales temporales");
- const heading=document.createElement("h3");
- heading.textContent=isReset?"Contraseña asignada":"Cuenta creada";
- const info=document.createElement("p");
- info.textContent=isReset
-  ?"Copia esta contraseña para compartirla por privado. El estudiante puede cambiarla desde su cuenta."
-  :"Comparte estas credenciales por privado y solicita al estudiante que cambie la contraseña.";
- const email=document.createElement("div");email.className="adminTempField";
- const emailLabel=document.createElement("small");emailLabel.textContent="Correo de acceso";
- const emailText=document.createElement("strong");emailText.textContent=data.email;
- email.append(emailLabel,emailText);
- const pass=document.createElement("div");pass.className="adminTempField";
- const passLabel=document.createElement("small");passLabel.textContent=isReset?"Contraseña nueva":"Contraseña temporal";
- const passText=document.createElement("strong");passText.textContent=data.password;
- pass.append(passLabel,passText);
- const copy=document.createElement("button");copy.type="button";copy.className="btn";copy.textContent=isReset?"Copiar contraseña":"Copiar credenciales";
- copy.addEventListener("click",async()=>{
-  const text=isReset?passText.textContent:
-    ["OLON Society Academy","Portal del Trader","Correo: "+emailText.textContent,"Contraseña temporal: "+passText.textContent].join("\\n");
-  try{await navigator.clipboard.writeText(text);copy.textContent="Copiado";}
-  catch{copy.textContent="Selecciona el texto para copiar";}
- });
- const close=document.createElement("button");close.type="button";close.className="btn secondary";
- close.textContent="Cerrar y ocultar contraseña";
- close.addEventListener("click",()=>dialog.close());
- const actions=document.createElement("div");actions.className="profileDialogActions";actions.append(copy,close);
- dialog.addEventListener("close",()=>{passText.textContent="";dialog.remove();},{once:true});
- dialog.append(heading,info,email,pass,actions);
- document.body.append(dialog);
- dialog.showModal();
- close.focus();
-}
-
 const accountDialog=$("adminAccountDialog");
 const resetForm=$("adminResetForm");
 const deleteForm=$("adminDeleteForm");
@@ -118,7 +86,7 @@ function manageAccount(student,mode){
  deleteForm.reset();
  resetForm.hidden=mode!=="reset";
  deleteForm.hidden=mode!=="delete";
- $("adminAccountTitle").textContent=mode==="reset"?"Cambiar contraseña":"Eliminar estudiante";
+ $("adminAccountTitle").textContent=mode==="reset"?"Enviar recuperación":"Eliminar estudiante";
  $("adminAccountIdentity").textContent=account.name+" · "+account.confirmation;
  $("adminDeleteConfirmationLabel").textContent=hasEmail?"Escribe el correo del estudiante para confirmar":"Escribe el ID del estudiante para confirmar";
  confirmation.inputMode=hasEmail?"email":"text";
@@ -131,23 +99,17 @@ async function runAccountAction(event,mode){
  event.preventDefault();
  if(!isAdmin()||!account||accountBusy)return;
  const target=account;
- const password=resetForm.elements.namedItem("password").value;
  if(mode==="delete"&&confirmation.value.trim().toLowerCase()!==target.confirmation)return;
- if(mode==="reset"&&(!password.trim()||Array.from(password).length<12||new TextEncoder().encode(password).length>72)){
-  accountNote("Usa al menos 12 caracteres y un máximo de 72 bytes.",true);
-  return;
- }
  const controls=accountDialog.querySelectorAll("button,input");
  accountBusy=true;
  controls.forEach(control=>{control.disabled=true;});
- accountNote(mode==="delete"?"Eliminando cuenta y archivos…":"Asignando contraseña…");
+ accountNote(mode==="delete"?"Eliminando cuenta y archivos…":"Solicitando correo de recuperación…");
  try{
   if(mode==="reset"){
-   await call("reset_student_password",{id:target.id,password});
+   await call("send_student_recovery",{id:target.id});
    resetForm.reset();
    accountDialog.close();
-   showCredentials({email:target.email||target.id,password},true);
-   window.olonAdmin?.notify("Contraseña asignada a "+target.name+".");
+   window.olonAdmin?.notify("Supabase aceptó la solicitud de recuperación para "+target.name+".");
   }else{
    await call("delete_student",{id:target.id,confirmation:target.confirmation});
    accountDialog.close();
@@ -190,12 +152,11 @@ async function approve(id){
  if(!isAdmin()||busy)return;
  const target=last.find(r=>r.id===id&&r.status==="pending");
  if(!target)return;
- if(!window.confirm("¿Crear y activar una cuenta para "+target.full_name+" ("+target.email+")?\nConfirma que el solicitante controla ese correo. Se generará una contraseña temporal visible solo ahora."))return;
+ if(!window.confirm("¿Crear y activar una cuenta para "+target.full_name+" ("+target.email+")?\nSupabase enviará una invitación al correo del solicitante."))return;
  busy=true;
  try{
-  const result=await call("approve",{id});
-  status("Cuenta de "+target.full_name+" creada y activada. Guarda sus credenciales temporales antes de cerrar.");
-  showCredentials(result);
+  await call("approve",{id});
+  status("Invitación de "+target.full_name+" aceptada para envío por Supabase.");
  }catch(e){status("No se pudo crear esta cuenta: "+String(e.message||e),true);}
  finally{busy=false;await refresh();if(window.olonAdmin?.refresh)void window.olonAdmin.refresh().catch(()=>{});}
 }
