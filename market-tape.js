@@ -6,7 +6,7 @@
   const status=document.getElementById("marketTapeStatus");
   let theme="",timer=null,generation=0;
   function render(){
-    if(document.getElementById("portal")?.classList.contains("hidden") || document.getElementById("dashboard")?.classList.contains("hidden")) return;
+    if(document.getElementById("portal")?.classList.contains("hidden")) return;
     // Quotes stay on the requested black surface in every portal theme.
     const next="dark";
     if(next===theme) return;
@@ -41,6 +41,6 @@
     timer=setTimeout(()=>{if(current===generation&&!container.querySelector("iframe")){observer.disconnect();status.textContent="Cotizaciones no disponibles en este momento. Consulta los gráficos en TradingView.";}},15000);
   }
   new MutationObserver(render).observe(document.body,{attributes:true,attributeFilter:["class"]});
-  for(const id of ["portal","dashboard"]){const element=document.getElementById(id);if(element)new MutationObserver(render).observe(element,{attributes:true,attributeFilter:["class"]});}
+  for(const id of ["portal"]){const element=document.getElementById(id);if(element)new MutationObserver(render).observe(element,{attributes:true,attributeFilter:["class"]});}
   render();
 })();
