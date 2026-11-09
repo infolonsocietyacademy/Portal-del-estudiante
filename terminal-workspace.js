@@ -16,7 +16,7 @@
     const equityPanel = overview.querySelector(".chartBox");
     equityPanel?.classList.add("terminalEquityPanel");
     const equityTitle = equityPanel?.querySelector("h3");
-    if(equityTitle) equityTitle.textContent = "Evolución de tu cuenta";
+    if(equityTitle) equityTitle.textContent = "Rendimiento (balance registrado)";
 
     const rail = overview.querySelector(".cyberDashboardRail");
     if(rail){
@@ -38,16 +38,32 @@
       [classesCard, leaderboard, actionsCard, calendar].forEach(widget => {
         if(widget) rail.append(widget);
       });
+      if(!rail.querySelector(".terminalRailHeading")){
+        const railHeading = document.createElement("h3");
+        railHeading.className = "terminalFluidHeading terminalRailHeading";
+        railHeading.textContent = "Actividad y calendario";
+        rail.prepend(railHeading);
+      }
     }
 
-    // Move the actual nodes: IDs, handlers, charts and data owners stay intact.
+    // Existing live DOM nodes are moved, never copied: data bindings remain intact.
+    const accountStrip = dashboard.querySelector(":scope > .ledgerMetrics");
+    if(accountStrip) accountStrip.classList.add("terminalAccountStrip");
+    const analytics = dashboard.querySelector(":scope > #traderAnalytics");
+    function sectionHeading(label){
+      const heading = document.createElement("h2");
+      heading.className = "terminalFluidHeading";
+      heading.textContent = label;
+      return heading;
+    }
     const summary = document.createDocumentFragment();
-    summary.append(metrics, overview);
-    const marketTape = dashboard.querySelector(":scope > #olonMarketTape");
+    summary.append(sectionHeading("Resumen de la cuenta"));
+    if(accountStrip) summary.append(accountStrip);
+    summary.append(overview, sectionHeading("Métricas de trading"), metrics);
+    if(analytics) summary.append(analytics);
     const welcome = dashboard.querySelector("#portalWelcomeCard");
     if(welcome && dashboard.firstElementChild !== welcome) dashboard.prepend(welcome);
-    if(marketTape) marketTape.after(summary);
-    else if(welcome) welcome.after(summary);
+    if(welcome) welcome.after(summary);
     else dashboard.prepend(summary);
 
     // A chart may already exist by DOMContentLoaded. Let it measure its new column.
