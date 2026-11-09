@@ -227,6 +227,8 @@ body.trader-themed #portal.app.admin-mode > main.main > .portalTopbar {
 #portal.app .terminalNav button:focus-visible,
 #portal.app #sidebar button:focus-visible { outline: 2px solid var(--trader-accent-ink); outline-offset: -3px; }
 #portal.app .terminalPageHeading { padding: 26px 0 22px; }
+#portal.app:has(#dashboard.page:not(.hidden)) .terminalPageHeading { display: none; }
+#portal.app #dashboard { padding-top: 20px; }
 #portal.app .terminalPageHeading .portalTopBreadcrumb { display: none; }
 #portal.app .terminalPageHeading #pageTitle { font-size: clamp(22px, 2.2vw, 30px); margin: 0 0 8px; letter-spacing: -.025em; }
 #portal.app .terminalPageHeading #pageSubtitle { margin: 0; color: var(--cyber-ui-muted); font-size: 13px; line-height: 1.6; }
