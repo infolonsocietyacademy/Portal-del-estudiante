@@ -1984,8 +1984,22 @@ document.addEventListener("DOMContentLoaded", function(){
     if(!data) throw new Error("Tu usuario existe en Auth, pero falta su perfil. Revisa el trigger olon_auth_user_created en SQL Editor.");
     return data;
   }
+  function membershipExpired(profile, now = new Date()){
+    if(!profile || String(profile.role||"").toLowerCase()==="admin") return false;
+    const due=String(profile.next_payment_date||"");
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(due))return false;
+    const valid=new Date(due+"T00:00:00Z");
+    if(!Number.isFinite(valid.getTime())||valid.toISOString().slice(0,10)!==due)return false;
+    const today=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Puerto_Rico",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
+    return due<=today;
+  }
+  function showMembershipExpiredNotice(){
+    const notice=$auth("membershipExpiredNotice");
+    if(notice)notice.hidden=false;
+    $auth("homeAccess")?.scrollIntoView({behavior:"smooth",block:"center"});
+  }
   function canUsePortal(profile){
-    return !!profile && ["active","approved"].includes(String(profile.status||"").toLowerCase());
+    return !!profile && ["active","approved"].includes(String(profile.status||"").toLowerCase()) && !membershipExpired(profile);
   }
   async function openVerifiedProfile(profile,user){
     currentUser = profile;
@@ -2022,12 +2036,18 @@ document.addEventListener("DOMContentLoaded", function(){
       const {data,error} = await supabaseClient.auth.signInWithPassword({email,password});
       if(error) throw error;
       const profile = await profileForAuthenticatedUser(data.user);
+      const expiredNotice=$auth("membershipExpiredNotice");
+      if(expiredNotice)expiredNotice.hidden=true;
       if(!canUsePortal(profile)){
         await supabaseClient.auth.signOut();
         const status = String(profile.status||"").toLowerCase();
-        alert(status === "pending"
-          ? "Tu cuenta está pendiente de aprobación por el administrador. Tu código de referencia es: " + (profile.access_code||"pendiente")
-          : "Tu cuenta no está activa. Contacta al administrador.");
+        if(membershipExpired(profile)){
+          showMembershipExpiredNotice();
+        }else{
+          alert(status === "pending"
+            ? "Tu cuenta está pendiente de aprobación por el administrador. Tu código de referencia es: " + (profile.access_code||"pendiente")
+            : "Tu cuenta no está activa. Contacta al administrador.");
+        }
         return;
       }
       await openVerifiedProfile(profile,data.user);
@@ -2116,6 +2136,7 @@ document.addEventListener("DOMContentLoaded", function(){
       const profile = await profileForAuthenticatedUser(data.user);
       if(!canUsePortal(profile)){
         await supabaseClient.auth.signOut();
+        if(membershipExpired(profile))showMembershipExpiredNotice();
         return;
       }
       await openVerifiedProfile(profile,data.user);
@@ -2127,6 +2148,26 @@ document.addEventListener("DOMContentLoaded", function(){
       hidePortalLoader();
     }
   }
+  let lastMembershipCheck=0;
+  async function recheckMembership(){
+    if(!currentUser || String(currentUser.role||"").toLowerCase()==="admin" ||
+      document.getElementById("portal")?.classList.contains("hidden"))return;
+    if(Date.now()-lastMembershipCheck<30000)return;
+    lastMembershipCheck=Date.now();
+    const {data,error}=await supabaseClient.auth.getUser();
+    if(error||!data?.user)return;
+    const profile=await profileForAuthenticatedUser(data.user);
+    if(canUsePortal(profile)){currentUser.next_payment_date=profile.next_payment_date;renderVipPayment(currentUser);return;}
+    await supabaseClient.auth.signOut().catch(()=>{});
+    localStorage.removeItem("olon_current_user");
+    currentUser=null;
+    document.getElementById("portal")?.classList.add("hidden");
+    document.getElementById("auth")?.classList.remove("hidden");
+    if(membershipExpired(profile))showMembershipExpiredNotice();
+  }
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden)void recheckMembership().catch(console.warn);});
+  window.addEventListener("focus",()=>void recheckMembership().catch(console.warn));
+  setInterval(()=>{if(!document.hidden)void recheckMembership().catch(console.warn);},60000);
   // DOMContentLoaded se dispara después de los módulos del portal cargados con defer.
   if(document.readyState === "complete") void restoreSupabaseSession();
   else document.addEventListener("DOMContentLoaded",restoreSupabaseSession,{once:true});
