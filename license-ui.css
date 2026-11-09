@@ -31,3 +31,43 @@
 .olonLicenseCalendarActions .btn{font:600 12px 'JetBrains Mono',monospace}
 .olonLicenseRowActions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}
 @media(max-width:480px){.olonLicenseCalendarInner{padding:16px}.olonLicenseCalendarDay{min-height:33px}.olonLicenseCalendarSummary{grid-template-columns:1fr}.olonLicenseCalendarActions>button{flex:1}}
+
+
+/* OLFX profile-integrated renewal; never render a floating license layer */
+#olonLicenseStudentCard.olonLicenseProfileInline{
+  grid-column:1/-1;position:relative;z-index:4;min-width:0;
+  border-top:1px solid var(--cyber-ui-border,#3d4b5b);padding-top:14px;
+  font-family:'JetBrains Mono',monospace;color:var(--cyber-ui-ink,#eef3f8);
+}
+#portal.app #dashboard #portalWelcomeCard:has(#olonLicenseStudentCard){
+  grid-template-columns:minmax(150px,.5fr) minmax(180px,.7fr) minmax(340px,1.2fr);
+  align-items:start;
+}
+#portal.app #dashboard #portalWelcomeCard #vipPayment{align-self:stretch;min-width:0}
+#olonLicenseStudentCard .olonLicenseProfileHeading{display:flex;justify-content:space-between;flex-wrap:wrap;align-items:center;gap:8px}
+#olonLicenseStudentCard .olonLicenseProfileHeading span:not(.olonLicenseProfileBadge){font-size:9px;letter-spacing:.1em;color:var(--cyber-ui-muted,#a6b4c3)}
+#olonLicenseStudentCard h4{margin:4px 0 0;font-size:13px;line-height:1.4;color:inherit}
+#olonLicenseStudentCard .olonLicenseProfileBadge{border:1px solid var(--cyber-ui-border,#4a596a);border-radius:7px;padding:5px 9px;font-size:10px;font-weight:700}
+#olonLicenseStudentCard .olonLicenseProfileHint{font-size:11px;line-height:1.5;color:var(--cyber-ui-muted,#b1bdca);margin:10px 0}
+#olonLicenseStudentCard .olonLicenseProfileDates{font-size:11px;color:var(--cyber-ui-muted,#a6b4c3);display:flex;flex-wrap:wrap;gap:12px;margin:8px 0}
+#olonLicenseStudentCard .olonLicenseProfileDates strong{color:var(--cyber-ui-ink,#fff)}
+#olonLicenseStudentCard .olonLicenseProfileForm label{display:block;font-size:10px;font-weight:700;margin-bottom:6px}
+#olonLicenseStudentCard .olonLicenseProfileInputRow{display:flex;flex-wrap:wrap;gap:8px;min-width:0}
+#olonLicenseStudentCard input{flex:1 1 220px;min-width:0;width:auto;border:1px solid var(--cyber-ui-border,#536277);border-radius:8px;background:var(--cyber-ui-bg,#08111a);color:var(--cyber-ui-ink,#f7f9fc);font:12px 'JetBrains Mono',monospace;padding:11px}
+#olonLicenseStudentCard .olonLicenseProfileInputRow .btn{flex:0 1 auto;min-height:40px;padding:9px 13px;font:700 11px 'JetBrains Mono',monospace}
+#olonLicenseStudentCard #olonLicenseRefreshStudent{min-height:40px;min-width:40px}
+#olonLicenseStudentCard .olonLicenseFeedback{margin:7px 0 0}
+body.olonLicenseRenewalRequired #portal.app #dashboard > :not(#portalWelcomeCard),
+body.olonLicenseChecking #portal.app #dashboard > :not(#portalWelcomeCard){display:none!important}
+body.olonLicenseRenewalRequired #portal.app #dashboard #portalWelcomeCard .vipRenewalAction{display:none}
+body.olonLicenseRenewalRequired #portal.app #dashboard #portalWelcomeCard,
+body.olonLicenseChecking #portal.app #dashboard #portalWelcomeCard{grid-template-columns:minmax(0,1fr)!important;max-width:850px;margin-inline:auto}
+body.olonLicenseRenewalRequired #portal.app #dashboard #portalWelcomeCard .cyberWelcomeIdentity,
+body.olonLicenseChecking #portal.app #dashboard #portalWelcomeCard .cyberWelcomeIdentity{display:none}
+body.olonLicenseRenewalRequired #portal.app #dashboard #portalWelcomeCard .welcomeHeroContent,
+body.olonLicenseChecking #portal.app #dashboard #portalWelcomeCard .welcomeHeroContent{padding-left:0;border-left:0}
+body.olonLicenseRenewalRequired #portal.app #dashboard #portalWelcomeCard #vipPayment,
+body.olonLicenseChecking #portal.app #dashboard #portalWelcomeCard #vipPayment{padding:0!important;border:0!important;display:block!important}
+body.olonLicenseChecking #olonLicenseRedeem{opacity:.7}
+@media(max-width:1200px){#portal.app #dashboard #portalWelcomeCard:has(#olonLicenseStudentCard){grid-template-columns:minmax(0,1fr) minmax(0,1.3fr)}#portal.app #dashboard #portalWelcomeCard #vipPayment{grid-column:1/-1}}
+@media(max-width:760px){#portal.app #dashboard #portalWelcomeCard:has(#olonLicenseStudentCard){grid-template-columns:minmax(0,1fr)}#portal.app #dashboard #portalWelcomeCard #vipPayment{grid-column:1}#olonLicenseStudentCard .olonLicenseProfileInputRow .btn{flex:1 1 auto}}
