@@ -1,6 +1,6 @@
 /* OLON Society Academy — TOP 3 automático a partir de la bitácora.
    Los registros privados permanecen en Supabase. Participación automática,
-   nombres visibles solo con elección explícita del estudiante. */
+   nombres reales visibles por defecto; el estudiante puede ocultar el suyo. */
 (function(){
   "use strict";
   const $=id=>document.getElementById(id);
@@ -156,7 +156,7 @@
         .select("show_name").eq("student_id",uid).maybeSingle();
       if(error)throw error;
       if(request!==state.nameRequest||currentUser?.id!==uid)return;
-      input.checked=data?.show_name===true;
+      input.checked=data?.show_name!==false;
       if(feedback)feedback.hidden=true;
     }catch(error){
       if(feedback){feedback.textContent="No se pudo consultar tu preferencia de nombre.";feedback.hidden=false;}
