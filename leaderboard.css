@@ -291,3 +291,20 @@
 #portal.app #admin .olonRankEditor,#portal.app #admin .olonRankCandidates{
   display:none!important;
 }
+
+/* Automatic ranking: always respect the sign of the actual performance. */
+#portal.app #dashboard .olonTopPercent.isNegative,
+#portal.app #admin .olonRankPreviewPercent.isNegative{
+  color:var(--cyber-loss,#ef4444)!important;
+}
+#portal.app #dashboard .olonTopPercent.isPositive,
+#portal.app #admin .olonRankPreviewPercent.isPositive{
+  color:var(--cyber-profit,#22c55e)!important;
+}
+#portal.app #dashboard .olonPodiumEntry.isEmpty .olonTopPercent{
+  color:var(--cyber-ui-muted)!important;
+}
+#portal.app #dashboard .olonPodiumEntry .olonTopAvatar img[data-top-avatar]{
+  object-fit:cover;object-position:center;
+  width:100%;height:100%;border-radius:inherit;
+}
