@@ -368,6 +368,54 @@
       $("olonRankClear").disabled=false;
     }
   }
+  async function stageCandidate(studentId,percentage,period,key){
+    if(!activeAdmin()||state.isSaving)return false;
+    if(!periods.includes(period)||!validPeriodKey(period,key)){
+      showStatus("olonRankFeedback","Elige una semana, mes o año para preparar el TOP 3.",true);
+      return false;
+    }
+    const numeric=Number(percentage);
+    if(!Number.isFinite(numeric)||numeric < -100||numeric > 100000){
+      showStatus("olonRankFeedback","El porcentaje de rendimiento no es válido.",true);
+      return false;
+    }
+    const periodField=$("olonRankPeriod"),keyField=$("olonRankKey");
+    const changed=periodField.value!==period||selectedAdminKey()!==key;
+    if(changed){
+      periodField.value=period;
+      adminPeriodFields();
+      keyField.value=key;
+    }
+    await loadAdminUsers();
+    if(changed)await loadAdmin();
+    let slot=0;
+    for(let i=1;i<=3;i++){
+      if($("olonRankStudent"+i).value===studentId){slot=i;break;}
+    }
+    if(!slot){
+      for(let i=1;i<=3;i++){
+        if(!$("olonRankStudent"+i).value){slot=i;break;}
+      }
+    }
+    if(!slot){
+      showStatus("olonRankFeedback","Los tres puestos están ocupados. Retira un estudiante de la selección antes de agregar otro.",true);
+      $("olonRankingAdmin")?.scrollIntoView({behavior:"smooth",block:"start"});
+      return false;
+    }
+    const select=$("olonRankStudent"+slot);
+    if(!Array.from(select.options).some(o=>o.value===studentId)){
+      showStatus("olonRankFeedback","Este estudiante no tiene una cuenta activa para participar en el TOP 3.",true);
+      return false;
+    }
+    select.value=studentId;
+    $("olonRankPct"+slot).value=numeric.toFixed(2);
+    $("olonRankConsent").checked=false;
+    $("olonRankPhotoConsent").checked=false;
+    showStatus("olonRankFeedback","Estudiante preparado en el puesto #"+slot+" con "+numeric.toFixed(2)+"%. Aún NO está publicado. Confirma el consentimiento y pulsa «Publicar TOP 3» cuando corresponda.");
+    $("olonRankingAdmin")?.scrollIntoView({behavior:"smooth",block:"start"});
+    return true;
+  }
+  window.olonRankingStageCandidate=stageCandidate;
   function init(){
     const board=$("olonLeaderboard"),manager=$("olonRankingAdmin");
     if(!board||!manager)return;
