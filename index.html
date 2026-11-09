@@ -31,7 +31,7 @@
 <link rel="stylesheet" href="./leaderboard.css?v=20261108-top3-avatar-colors-4">
 <link rel="stylesheet" href="./admin-billing.css?v=20261107-integrated">
 <link rel="stylesheet" href="./admin-rebates.css?v=20261107-rebates">
-<link rel="stylesheet" href="./admin-performance.css?v=20261108-student-perf-1"><link rel="stylesheet" href="./license-ui.css?v=20261109-calendar-edit-1">
+<link rel="stylesheet" href="./admin-performance.css?v=20261108-student-perf-1"><link rel="stylesheet" href="./license-ui.css?v=20261109-profile-inline-1">
 <noscript><style>#olonLoader{display:none}</style></noscript>
 
 <style id="olon-rescue-css">
@@ -337,6 +337,22 @@ window.addEventListener("load", () => {
             <div><dt>Próximo pago</dt><dd id="vipPaymentDate">Sin fecha asignada</dd></div>
             <div><dt>Días para renovar tu acceso</dt><dd id="vipPaymentDays">—</dd></div>
           </dl>
+          <section id="olonLicenseStudentCard" class="olonLicenseProfileInline" aria-labelledby="olonLicenseProfileTitle">
+            <div class="olonLicenseProfileHeading">
+              <div><span>OLFX / LICENCIA DIGITAL</span><h4 id="olonLicenseProfileTitle">Activar o renovar licencia</h4></div>
+              <span id="olonLicenseMyStatus" class="olonLicenseProfileBadge">Consultando…</span>
+            </div>
+            <p id="olonLicenseProfileHint" class="olonLicenseProfileHint">¿Ya realizaste tu pago? Pega aquí la licencia que te entregó Administración.</p>
+            <div class="olonLicenseProfileDates"><span>Vencimiento: <strong id="olonLicenseMyDate">—</strong></span><span id="olonLicenseMyGrace"></span></div>
+            <div class="olonLicenseProfileForm">
+              <label for="olonLicenseCode">Nueva licencia VIP</label>
+              <div class="olonLicenseProfileInputRow">
+                <input type="text" id="olonLicenseCode" placeholder="OLFX-30D-XXXXX-XXXXX-XXXXX-XXXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="44">
+                <button type="button" class="btn" id="olonLicenseRedeem">Activar licencia</button>
+              </div>
+            </div>
+            <p id="olonLicenseStudentFeedback" class="olonLicenseFeedback" role="status" aria-live="polite" hidden></p>
+          </section>
           <div class="academyActions vipRenewalAction">
             <button type="button" class="btn secondary" data-academy-page="academyVipPage">Ver renovación VIP</button>
           </div>
@@ -712,14 +728,6 @@ window.addEventListener("load", () => {
 
     <section id="academyVipPage" class="page hidden academyPage">
       <header class="card academyHero"><span>MEMBRESÍA OLON</span><h3>Renovación VIP</h3><p>Envía el comprobante de tu pago y consulta la respuesta de Administración.</p><p id="academyVipDate" class="academyPaymentDate"></p></header>
-      <section id="olonLicenseStudentCard" class="card academyCard olonLicensePanel">
-        <h3>OLFX / MI LICENCIA VIP</h3>
-        <p>Si ya pagaste, pega aquí tu nueva licencia. Los días se actualizan de inmediato sin perder tus operaciones ni configuraciones.</p>
-        <p>Estado: <b id="olonLicenseMyStatus">Consultando…</b></p>
-        <p>Caducidad: <b id="olonLicenseMyDate">—</b></p><p id="olonLicenseMyGrace"></p>
-        <div class="olonLicenseForm"><label>Código de licencia<input type="text" id="olonLicenseCode" autocomplete="off" autocapitalize="characters" placeholder="OLFX-30D-XXXXX-XXXXX-XXXXX-XXXXX"></label><button type="button" class="btn" id="olonLicenseRedeem">Activar licencia</button></div>
-        <p id="olonLicenseStudentFeedback" class="olonLicenseFeedback" role="status" hidden></p>
-      </section>
       <section class="card academyCard">
         <h4>Enviar comprobante</h4>
         <p id="academyVipPending" class="academyNote" hidden>Tu comprobante está pendiente de revisión.</p>
@@ -1272,7 +1280,7 @@ window.addEventListener("load", () => {
 <script src="./admin-rebates.js?v=20261107-rebates" defer></script>
 <script src="./leaderboard.js?v=20261108-top3-avatar-colors-4" defer></script>
 <script src="./admin-performance.js?v=20261108-auto-ranking-2" defer></script>
-<script src="./admin-registration.js?v=20261109-requests-fast-2" defer></script><script src="./license-ui.js?v=20261109-calendar-edit-1" defer></script>
+<script src="./admin-registration.js?v=20261109-requests-fast-2" defer></script><script src="./license-ui.js?v=20261109-profile-inline-1" defer></script>
 <script src="./password-settings.js?v=20261107-security-hardening" defer></script>
 
 <script>
@@ -1402,11 +1410,6 @@ window.addEventListener("load", () => {
 })();
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
-<script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script><div id="olonLicenseLock" hidden role="dialog" aria-modal="true" aria-labelledby="olonLicenseLockHeading"><div class="olonLicenseLockCard">
-<span>OLON SOCIETY ACADEMY / OLFX LICENSE</span><h2 id="olonLicenseLockHeading">Renueva tu acceso VIP</h2>
-<p id="olonLicenseLockInfo">Tus registros siguen protegidos. Si ya pagaste, pega aquí la licencia nueva que recibiste de Administración.</p>
-<input id="olonLicenseLockCode" aria-label="Código de licencia" placeholder="OLFX-15D-XXXXX-XXXXX-XXXXX-XXXXX" autocomplete="off">
-<div class="olonLicenseLockActions"><button type="button" class="btn" id="olonLicenseLockRedeem">Activar licencia</button><button type="button" class="btn secondary" id="olonLicenseLockLogout">Cerrar sesión</button></div>
-<p id="olonLicenseLockFeedback" role="status"></p><p>Solicita tu licencia a Administración después de realizar el pago.</p></div></div></body>
+<script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
 </html>
 
