@@ -31,6 +31,7 @@
 <link rel="stylesheet" href="./leaderboard.css?v=20261107-ranking-avatar-3">
 <link rel="stylesheet" href="./admin-billing.css?v=20261107-integrated">
 <link rel="stylesheet" href="./admin-rebates.css?v=20261107-rebates">
+<link rel="stylesheet" href="./admin-performance.css?v=20261108-student-perf-1">
 <noscript><style>#olonLoader{display:none}</style></noscript>
 
 <style id="olon-rescue-css">
@@ -1059,6 +1060,23 @@ window.addEventListener("load", () => {
         </section>
       </div>
 
+      <section id="olonPerformanceBlock" class="adminWorkspaceCard olonPerformanceBlock" aria-labelledby="olonPerformanceTitle">
+        <header class="olonPerformanceHeader">
+          <div><span class="adminSectionEyebrow">PERFORMANCE / ESTUDIANTES</span><h4 id="olonPerformanceTitle">Resultados de los traders</h4>
+          <p>Porcentaje calculado con los resultados registrados. Revisa y prepara estudiantes para el TOP 3; publicar requiere autorización.</p></div>
+          <button type="button" id="olonPerformanceReload" class="adminBtn adminBtnOutline">↻ Actualizar resultados</button>
+        </header>
+        <div class="olonPerformanceFilters">
+          <label>Período <select id="olonPerformancePeriod"><option value="weekly">Esta semana</option><option value="monthly">Este mes</option><option value="annual">Este año</option><option value="all">Histórico completo</option></select></label>
+          <span id="olonPerformancePeriodNote">Resultados por período, sobre capital depositado acumulado.</span>
+        </div>
+        <div id="olonPerformanceStatus" role="status" aria-live="polite">Preparando resultados…</div>
+        <div class="olonPerformanceTableWrap"><table class="olonPerformanceTable">
+          <thead><tr><th>Estudiante</th><th>Operaciones</th><th>Capital registrado</th><th>Resultado neto</th><th>Rendimiento</th><th>Ranking</th></tr></thead>
+          <tbody id="olonPerformanceRows"><tr><td colspan="6">Sincronizando resultados…</td></tr></tbody>
+        </table></div>
+      </section>
+
       <section id="adminStudentsBlock" class="adminWorkspaceCard adminWorkspaceDirectory" aria-labelledby="adminStudentsHeading">
         <div class="adminWorkspaceCardHead adminDirectoryHead">
           <div><span class="adminSectionEyebrow">03 / DIRECTORIO</span><h4 id="adminStudentsHeading">Gestión de estudiantes</h4><p>Administra accesos y asigna la próxima fecha de pago de cada estudiante VIP.</p></div>
@@ -1080,8 +1098,8 @@ window.addEventListener("load", () => {
         <div id="adminActionFeedback" class="adminActionFeedback" role="status" aria-live="polite" hidden></div>
         <div class="tableWrap adminTable adminGodTable adminDirectoryTable">
           <table>
-            <thead><tr><th>Estudiante</th><th>Código</th><th>Membresía</th><th>Acceso</th><th>Próximo pago</th><th>Seguimiento</th><th>Acciones</th></tr></thead>
-            <tbody id="usersBody"><tr><td colspan="7">Cargando estudiantes…</td></tr></tbody>
+            <thead><tr><th>Estudiante</th><th>Código</th><th>Membresía</th><th>Acceso</th><th>Próximo pago</th><th>Seguimiento</th><th>Rendimiento</th><th>Acciones</th></tr></thead>
+            <tbody id="usersBody"><tr><td colspan="8">Cargando estudiantes…</td></tr></tbody>
           </table>
         </div>
         <div id="usersMobileCards" class="mobileCards adminMobileCards"></div>
@@ -1262,10 +1280,11 @@ window.addEventListener("load", () => {
 <script src="./mobile-notifications.js?v=20261108-push-1" defer></script>
 <script src="./premium-report.js?v=20261108-performance-1" defer></script>
 <script src="./academy-tools.js?v=20261108-admin-class-delete-1" defer></script>
-<script src="./admin-workspace.js?v=20261107-rebates" defer></script>
+<script src="./admin-workspace.js?v=20261108-performance-linked-1" defer></script>
 <script src="./admin-billing.js?v=20261107-integrated" defer></script>
 <script src="./admin-rebates.js?v=20261107-rebates" defer></script>
 <script src="./leaderboard.js?v=20261107-ranking-avatar-image-load-6" defer></script>
+<script src="./admin-performance.js?v=20261108-student-perf-1" defer></script>
 <script src="./admin-registration.js?v=20261106-trader" defer></script>
 <script src="./password-settings.js?v=20261107-security-hardening" defer></script>
 
