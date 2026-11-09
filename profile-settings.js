@@ -137,7 +137,7 @@
       : "Quitar " + (photo.key === "cover" ? "portada" : "foto");
   }
 
-  async function open(){
+  async function open(focusPhoto){
     const state = account;
     if(!state || state.owner !== currentUser?.id || dialog.open) return;
     resetDraft();
@@ -159,6 +159,11 @@
       photos.forEach(photo => renderDraftPhoto(editing,photo));
       note();
       setBusy(false,true);
+      if(focusPhoto === "cover"){
+        const coverInput = form.elements.namedItem("cover");
+        coverInput.focus({preventScroll:true});
+        coverInput.scrollIntoView({block:"center",behavior:"instant"});
+      }
     }catch{
       if(draft === editing) note("No se pudo cargar tu perfil. Cierra la ventana y vuelve a abrirla.",true);
     }
@@ -309,7 +314,8 @@
   });
 
   document.addEventListener("click", event => {
-    if(event.target.closest("[data-edit-profile]")) void open();
+    const profileTrigger = event.target.closest("[data-edit-profile]");
+    if(profileTrigger) void open(profileTrigger.dataset.profileFocus);
     if(event.target.closest("[data-close-profile]") && !draft?.saving) dialog.close();
   });
   dialog.addEventListener("cancel", event => { if(draft?.saving) event.preventDefault(); });

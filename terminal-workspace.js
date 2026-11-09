@@ -43,7 +43,9 @@
     // Move the actual nodes: IDs, handlers, charts and data owners stay intact.
     const summary = document.createDocumentFragment();
     summary.append(metrics, overview);
-    dashboard.prepend(summary);
+    const marketTape = dashboard.querySelector(":scope > #olonMarketTape");
+    if(marketTape) marketTape.after(summary);
+    else dashboard.prepend(summary);
 
     // A chart may already exist by DOMContentLoaded. Let it measure its new column.
     window.requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));

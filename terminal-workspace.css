@@ -57,6 +57,51 @@ body.trader-themed #portal.app.admin-mode > main.main > .portalTopbar {
   box-shadow: none;
   backdrop-filter: none;
 }
+#portal.app .portalTopbar > .terminalHeaderCover {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+}
+#portal.app .terminalHeaderCover[hidden] { display: none !important; }
+#portal.app .terminalHeaderShade {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(90deg, #07101bd9, #07101b99 50%, #07101bdf);
+  pointer-events: none;
+}
+#portal.app .portalTopbar:has(> .terminalHeaderCover:not([hidden])) {
+  --cyber-ui-ink: #f5f8fc;
+  --cyber-ui-muted: #ced8e5;
+  --cyber-ui-panel-2: #172230;
+}
+#portal.app .portalTopbar:has(> .terminalHeaderCover:not([hidden])) > .terminalHeaderShade { display: block; }
+#portal.app .portalTopbar > :is(.terminalBrand, .cyberPortalWordmark, .portalTopActions) { position: relative; z-index: 1; }
+#portal.app .terminalCoverButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid var(--cyber-ui-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--cyber-ui-ink);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+#portal.app .terminalCoverButton svg { width: 18px; height: 18px; flex: none; }
+#portal.app .terminalCoverButton:hover { background: var(--cyber-ui-panel-2); }
+#portal.app .terminalCoverButton:focus-visible { outline: 2px solid var(--trader-accent-ink); outline-offset: 2px; }
 #portal.app .terminalBrand { display: flex; align-items: center; gap: 10px; min-width: 0; }
 #portal.app .terminalBrand img { width: 35px; height: 35px; object-fit: contain; flex: none; }
 #portal.app .terminalBrand strong { display: block; font-size: 17px; letter-spacing: .015em; color: var(--cyber-ui-ink); }
@@ -321,6 +366,8 @@ body.trader-themed #portal.app.admin-mode > main.main > .portalTopbar {
   #portal.app .terminalBrand strong { font-size: 14px; }
   #portal.app .terminalBrand small { font-size: 8px; }
   #portal.app .portalUserPill :is(.cyberProfileInfo, .cyberProfileEdit) { display: none; }
+  #portal.app .terminalCoverButton { width: 44px; min-width: 44px; min-height: 44px; padding: 10px; }
+  #portal.app .terminalCoverButton > span { display: none; }
   #portal.app #dashboard > .terminalOverview { grid-template-columns: minmax(0, 1fr); }
   #portal.app #dashboard .terminalOverviewRail { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
   #portal.app #dashboard .terminalCalendarWidget { grid-column: 1 / -1; }
@@ -360,6 +407,12 @@ body.trader-themed #portal.app.admin-mode > main.main > .portalTopbar {
   #portal.app #dashboard .terminalEquityPanel canvas#balanceChart { height: 260px !important; min-height: 210px !important; }
   #portal.app #dashboard .terminalOverviewRail { display: flex; flex-direction: column; }
   #portal.app #dashboard .terminalOverviewRail > * { width: 100%; }
+}
+@media (max-width: 360px) {
+  #portal.app .terminalBrand { gap: 5px; }
+  #portal.app .terminalBrand img { width: 24px; height: 24px; }
+  #portal.app .terminalBrand strong { font-size: 10px; }
+  #portal.app .terminalBrand small { font-size: 6.5px; }
 }
 @media (prefers-reduced-motion: reduce) {
   #portal.app .portalDockLink, #portal.app > #sidebar.sidebar.portalSidebar { transition: none !important; }
