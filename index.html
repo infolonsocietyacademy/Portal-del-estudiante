@@ -46,7 +46,7 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 
 </style>
 <link rel="stylesheet" href="./trading-terminal-pro.css?v=20261108">
-<link rel="stylesheet" href="./trader-analytics.css?v=20261108-black-tape-1">
+<link rel="stylesheet" href="./trader-analytics.css?v=20261108-nav-billboard-1">
 <link rel="stylesheet" href="./mobile-notifications.css?v=20261108-push-1">
 <link rel="stylesheet" href="./terminal-workspace.css?v=20261109-clean-summary-1">
 </head>
@@ -285,6 +285,11 @@ window.addEventListener("load", () => {
       </div>
     </nav>
 
+    <section id="olonMarketTape" class="marketTape" aria-label="Cotizaciones del mercado en tiempo real">
+      <div id="marketTapeMount" class="marketTapeMount"></div>
+      <p id="marketTapeStatus" class="marketTapeStatus" role="status">Cargando cotizaciones…</p>
+    </section>
+
       <div class="portalPageInfo terminalPageHeading">
         <div class="portalTopBreadcrumb">PORTAL PRIVADO<span class="cyberBlinkCaret cyberBreadcrumbCaret" aria-hidden="true">_</span></div>
         <h2 id="pageTitle">Resumen de rendimiento</h2>
@@ -320,12 +325,6 @@ window.addEventListener("load", () => {
         </section>
       </div>
 
-      <section id="olonMarketTape" class="marketTape" aria-labelledby="marketTapeTitle">
-        <div class="marketTapeHead"><div class="marketTapeBrand"><span class="marketTapeEmblem" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 8 12l4 3 9-10M15 5h6v6"/></svg></span><div><span class="marketTapeEyebrow">OLON / MARKET STREAM</span><h3 id="marketTapeTitle">Pulso del mercado</h3></div></div><span class="marketTapeSource"><i aria-hidden="true"></i> SPOT &amp; CFD</span></div>
-        <div id="marketTapeMount" class="marketTapeMount"></div>
-        <p id="marketTapeStatus" class="marketTapeStatus" role="status">Cargando cotizaciones…</p>
-        <div class="marketTapeFooter"><div class="marketTapeAssets" aria-label="Activos del billboard"><span>BTC</span><span>US30</span><span>XAUUSD</span><span>EURUSD</span></div><p class="marketTapeNote">US30: CFD · Cotizaciones según proveedor y horario del mercado.</p></div>
-      </section>
       <section id="olonLeaderboard" class="card olonLeaderboard studentOnly" aria-labelledby="olonLeaderboardTitle">
         <div class="olonLeaderboardTop">
           <div>
@@ -1225,7 +1224,7 @@ window.addEventListener("load", () => {
 <script src="./profile-settings.js?v=20261109-billboard-cover-1" defer></script>
 <script src="./student-records.js?v=20261108-performance-1" defer></script>
 <script src="./trader-analytics.js?v=20261108-performance-1" defer></script>
-<script src="./market-tape.js?v=20261108-black-tape-1" defer></script>
+<script src="./market-tape.js?v=20261108-nav-billboard-1" defer></script>
 <script src="./mobile-notifications.js?v=20261108-push-1" defer></script>
 <script src="./premium-report.js?v=20261108-performance-1" defer></script>
 <script src="./academy-tools.js?v=20261107-class-countdown" defer></script>
