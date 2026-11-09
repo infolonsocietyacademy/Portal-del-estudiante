@@ -188,23 +188,29 @@ export async function mountSecurity(root, client, user, adminView) {
       protection.append(el('p', factors.length ? factors.length + ' autenticador(es) verificado(s).' : 'Sin autenticador verificado.'));
       const factorActions = el('div');
       factorActions.className = 'olfxActions';
-      if (!factors.length || (user.role === 'admin' && factors.length < 2)) {
+      if (factors.length < 2) {
         button(factorActions, factors.length ? 'Registrar autenticador de respaldo' : 'Registrar autenticador', async () => {
           if (!await verifyTotp(client, { enroll: true, backup: Boolean(factors.length) })) return 'Registro cancelado.';
           await load();
           return 'Autenticador registrado.';
         });
       }
-      if (user.role === 'student' && factors.length) {
-        button(factorActions, 'Retirar autenticador', async () => {
-          if (!window.confirm('¿Retirar el autenticador registrado de esta cuenta?')) return;
-          if (!await verifyTotp(client, { factors: [factors[0]] })) return 'Verificación cancelada.';
-          checked(await client.auth.mfa.unenroll({ factorId: factors[0].id }));
-          // The removed factor may have been associated with this AAL2 session.
-          await client.auth.refreshSession();
-          await load();
-          return 'Autenticador retirado.';
-        });
+      if (user.role === 'student') {
+        for (const [index, factor] of factors.entries()) {
+          const label = factor.friendly_name || 'Autenticador ' + (index + 1);
+          button(factorActions, 'Retirar ' + label, async () => {
+            if (!window.confirm('¿Retirar ' + label + ' de esta cuenta?')) return;
+            if (!await verifyTotp(client, { factors })) return 'Verificación cancelada.';
+            checked(await client.auth.mfa.unenroll({ factorId: factor.id }));
+            const remaining = factors.filter(item => item.id !== factor.id);
+            checked(await client.auth.refreshSession());
+            if (remaining.length && checked(await client.auth.mfa.getAuthenticatorAssuranceLevel()).currentLevel !== 'aal2') {
+              if (!await verifyTotp(client, { factors: remaining })) return 'Autenticador retirado. Vuelve a iniciar sesión para actualizar el panel.';
+            }
+            await load();
+            return 'Autenticador retirado.';
+          });
+        }
       }
       button(factorActions, 'Cambiar contraseña', () => document.getElementById('olonChangePasswordBtn').click());
       protection.append(factorActions, el('p', 'Si pierdes el acceso, usa la recuperación por correo. Si también pierdes tu autenticador, contacta a la academia.'));
