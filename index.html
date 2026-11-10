@@ -29,7 +29,7 @@
 <link rel="stylesheet" href="./landing-cyber.css?v=20261106-cyber-console-1">
 <link rel="stylesheet" href="./interior-cyber.css?v=20261108-compact-welcome-1">
 <link rel="stylesheet" href="./leaderboard.css?v=20261108-top3-avatar-colors-4">
-<link rel="stylesheet" href="./admin-billing.css?v=20261110-reservations-1">
+<link rel="stylesheet" href="./admin-billing.css?v=20261110-student-billing-nav-1">
 <link rel="stylesheet" href="./admin-shell.css?v=20261110-navigation-1">
 <link rel="stylesheet" href="./admin-rebates.css?v=20261107-rebates">
 <link rel="stylesheet" href="./admin-performance.css?v=20261108-student-perf-1"><link rel="stylesheet" href="./license-ui.css?v=20261110-restore-original-5">
@@ -962,7 +962,7 @@ window.addEventListener("load", () => {
           <div class="billingPagination" id="billingPagination" hidden><button type="button" class="billingButton" id="billingPrev">← Anterior</button><span id="billingPage"></span><button type="button" class="billingButton" id="billingNext">Siguiente →</button></div>
         </div>
         <div class="billingContent" id="billingEditorPanel" hidden>
-          <div class="billingStudentPicker"><label for="billingStudent">Facturar a un estudiante<select id="billingStudent"><option value="">Cliente particular</option></select></label><p>Selecciona un estudiante para completar su nombre y contacto, o escribe los datos de un cliente particular.</p></div>
+          <div class="billingStudentContext" id="billingStudentContext" hidden><div class="billingStudentContextMark" aria-hidden="true">▤</div><div class="billingStudentContextCopy"><span>FACTURA DESDE DIRECTORIO DE ESTUDIANTES</span><strong id="billingStudentContextName">Estudiante</strong><small>El cliente seleccionado se completará automáticamente en la factura.</small></div><button type="button" class="billingButton" id="billingReturnStudents">← Volver a estudiantes</button></div><div class="billingStudentPicker"><label for="billingStudent">Cliente / estudiante<select id="billingStudent"><option value="">Cliente particular</option></select></label><p>La factura se vincula al estudiante seleccionado. Puedes cambiar el cliente antes de guardar.</p></div>
           <p class="billingEditorLoading" id="billingEditorLoading" role="status" hidden>Preparando el editor y el generador PDF…</p>
           <div id="billingEditorHost"></div>
         </div>
@@ -1285,9 +1285,9 @@ window.addEventListener("load", () => {
 <script src="./mobile-notifications.js?v=20261108-push-1" defer></script>
 <script src="./premium-report.js?v=20261108-performance-1" defer></script>
 <script src="./academy-tools.js?v=20261108-admin-class-delete-1" defer></script>
-<script src="./admin-workspace.js?v=20261110-admin-sections-1" defer></script>
+<script src="./admin-workspace.js?v=20261110-student-billing-nav-1" defer></script>
 <script src="./admin-shell.js?v=20261110-navigation-1" defer></script>
-<script src="./admin-billing.js?v=20261110-reservations-1" defer></script>
+<script src="./admin-billing.js?v=20261110-student-billing-nav-1" defer></script>
 <script src="./admin-rebates.js?v=20261110-axi-xml-fix-1" defer></script>
 <script src="./leaderboard.js?v=20261108-top3-avatar-colors-4" defer></script>
 <script src="./admin-performance.js?v=20261108-auto-ranking-2" defer></script>
