@@ -14,6 +14,9 @@
   let rows = [], students = [], editor = null, editorPromise = null;
   let assetsPromise = null, loading = false, saving = false, loaded = false;
   let searchTimer;
+  let reservations = new Set(), reservationIntent = false, paymentInvoice = null, payments = [], paymentBusy = false;
+  const paymentCurrency = cents => currency.format(Number(cents || 0) / 100);
+  const todayPR = () => new Intl.DateTimeFormat("en-CA",{timeZone:"America/Puerto_Rico",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
 
   function authorized() {
     return typeof currentUser !== "undefined" && !!currentUser &&
@@ -34,7 +37,8 @@
   }
   function reset() {
     epoch++; request++; owner = null; loaded = false; loading = false; saving = false;
-    rows = []; students = []; page = 0; count = 0;
+    rows = []; students = []; reservations.clear(); paymentInvoice = null; payments = []; reservationIntent = false; paymentBusy = false; page = 0; count = 0;
+    showPayments(false);
     editor?.dispose(); editor = null; editorPromise = null;
     $("billingEditorHost").replaceChildren();
     $("billingEditorPanel").hidden = true; $("billingHistoryPanel").hidden = false; $("billingBack").hidden = true;
@@ -55,7 +59,7 @@
     $("billingStudent").disabled = saving;
     $("billingPrev").disabled = loading || page === 0;
     $("billingNext").disabled = loading || (page + 1) * pageSize >= count;
-    block.querySelectorAll("[data-invoice-open],[data-invoice-status]").forEach(el => { el.disabled = saving; });
+    block.querySelectorAll("[data-invoice-open],[data-invoice-status],[data-invoice-edit],[data-invoice-archive],[data-invoice-reserve]").forEach(el => { el.disabled = saving || paymentBusy; });
     $("billingSync").textContent = loading ? "Sincronizando…" : loaded ? "Historial sincronizado" : "Acceso administrativo";
   }
   function render() {
@@ -72,12 +76,15 @@
       body.innerHTML = rows.map(row => {
         const status = Object.hasOwn(labels, row.status) ? row.status : "pending";
         const due = row.due_date ? 'Vence ' + row.due_date.split("-").reverse().join("/") : "Sin vencimiento";
+        const reserved = reservations.has(row.id);
+        const badge = reserved ? '<small class="billingReservationTag">' + (row.status === "paid" ? "Reserva saldada" : "Reserva con abonos") + '</small>' : "";
+        const reservationAction = reserved || row.status === "pending" ? '<button type="button" class="billingOpen" data-invoice-reserve="' + row.id + '">' + (reserved ? "Ver abonos" : "Separar clase") + '</button>' : "";
         return '<article class="billingInvoiceRow"><div class="billingInvoiceIdentity"><span class="billingDocIcon" aria-hidden="true">▤</span><div><strong>' + esc(row.invoice_number) +
           '</strong><small>' + esc(row.issue_date.split("-").reverse().join("/")) + '</small></div></div><div class="billingInvoiceClient"><strong>' + esc(row.client_name) +
-          '</strong><small>' + esc(row.service) + '</small></div><div class="billingInvoiceAmount"><strong>' + money(row.total_cents) +
+          '</strong><small>' + esc(row.service) + '</small>' + badge + '</div><div class="billingInvoiceAmount"><strong>' + money(row.total_cents) +
           '</strong><small>' + esc(due) + '</small></div><div class="billingInvoiceActions"><select class="billingState ' + status + '" aria-label="Estado de ' + esc(row.invoice_number) +
           '" data-invoice-status="' + row.id + '">' + Object.entries(labels).map(([value,label]) => '<option value="' + value + '"' + (value === status ? " selected" : "") + '>' + label + '</option>').join("") +
-          '</select><button type="button" class="billingOpen" data-invoice-open="' + row.id + '">Ver / PDF <span aria-hidden="true">↗</span></button></div></article>';
+          '</select><button type="button" class="billingOpen" data-invoice-edit="' + row.id + '">Editar / PDF</button>' + reservationAction + '<button type="button" class="billingOpen billingArchive" data-invoice-archive="' + row.id + '">Eliminar</button></div></article>';
       }).join("");
     }
     updateButtons();
@@ -88,7 +95,7 @@
     const ticket = ++request;
     loading = true; updateButtons(); if (!loaded) render();
     try {
-      let query = supabaseClient.from("olon_invoices").select("*", {count:"exact"}).order("sequence_number", {ascending:false});
+      let query = supabaseClient.from("olon_invoices").select("*", {count:"exact"}).is("archived_at",null).order("sequence_number", {ascending:false});
       const status = $("billingStatus").value;
       if (Object.hasOwn(labels, status)) query = query.eq("status", status);
       // Strip PostgREST filter syntax; invoice content is rendered as escaped text.
@@ -104,6 +111,13 @@
       count = Number(list.count || 0);
       if (page && page * pageSize >= count) { page = 0; return await refresh(); }
       rows = list.data || []; loaded = true;
+      reservations.clear();
+      if(rows.length){
+        const linked = await supabaseClient.from("olon_invoice_reservations").select("invoice_id").in("invoice_id",rows.map(row=>row.id));
+        if(!active(captured) || ticket!==request)return;
+        if(linked.error) throw linked.error;
+        reservations = new Set((linked.data || []).map(x=>x.invoice_id));
+      }
       const metrics = summary.data || {};
       $("billingPaidTotal").textContent = money(metrics.paid_cents);
       $("billingPendingTotal").textContent = money(metrics.pending_cents);
@@ -169,8 +183,16 @@
       const root = mount.attachShadow({mode:"open"}); root.innerHTML = html;
       editor = window.createOlonInvoiceEditor(root, {
         save,
+        paymentSummary,
         setBusy: value => { if (active(captured)) { saving = value; updateButtons(); } },
-        saved: row => { if (active(captured)) { feedback("Factura " + row.invoice_number + " guardada en tu historial."); void refresh(); } },
+        saved: async row => { if (active(captured)) {
+          if(reservationIntent){
+            const result=await supabaseClient.rpc("olon_start_invoice_reservation",{p_invoice_id:row.id});
+            if(result.error) throw Error(reason(result.error));
+            reservationIntent=false;
+          }
+          feedback("Factura " + row.invoice_number + " guardada en tu historial."); void refresh();
+        } },
         newInvoice: () => void newInvoice()
       });
       return editor;
@@ -184,15 +206,18 @@
     $("billingEditorPanel").hidden = !show;
     $("billingHistoryPanel").hidden = show;
     $("billingBack").hidden = !show;
+    if(show)showPayments(false);
     if (show) $("billingEditorPanel").scrollIntoView({behavior:"smooth",block:"start"});
   }
-  async function newInvoice(studentId = "") {
+  async function newInvoice(studentId = "", classReservation = false) {
     if (!authorized() || !mayLeave()) return;
     try {
       session(); feedback(); showEditor(true);
       const instance = await ensureEditor();
       const student = students.find(user => user.id === studentId);
+      reservationIntent=classReservation;
       instance.reset(null, student);
+      if(classReservation)instance.presetClass();
       $("billingStudent").value = student?.id || "";
     } catch (error) { feedback(reason(error), true); }
   }
@@ -204,6 +229,7 @@
       const [instance, result] = await Promise.all([ensureEditor(), supabaseClient.from("olon_invoices").select("*").eq("id", id).single()]);
       if (!active(captured)) return;
       if (result.error) throw result.error;
+      reservationIntent=false;
       instance.reset(result.data);
       $("billingStudent").value = result.data.student_id || "";
     } catch (error) { if (active(captured)) feedback(reason(error), true); }
@@ -211,6 +237,8 @@
   async function changeStatus(id, status) {
     const row = rows.find(invoice => invoice.id === id);
     if (!authorized() || saving || !row || !Object.hasOwn(labels,status)) return;
+    if(reservations.has(id) && status==="paid") { feedback("Registra todos los abonos para saldar la reserva automáticamente.",true); await refresh(); return; }
+    if(reservations.has(id) && status==="cancelled") { feedback("Las reservas con abonos deben conservarse para conciliación.",true); await refresh(); return; }
     saving = true; updateButtons();
     try {
       const saved = await save(id, {...row.form_data,status}, row.student_id, row.revision);
@@ -219,12 +247,155 @@
     } catch (error) { feedback(reason(error), true); await refresh(); }
     finally { saving = false; updateButtons(); }
   }
+
+  // Reservation installments are stored in a separate, immutable financial ledger.
+  const payPanel=document.createElement("section");
+  payPanel.id="olonInstallmentPanel";
+  payPanel.className="billingInstallmentPanel";
+  payPanel.hidden=true;
+  payPanel.innerHTML=`
+    <div class="billingInstallmentHead">
+      <div><span class="billingReservationTag">RESERVA DE CLASE</span><h5 id="installmentTitle">Abonos y saldo</h5>
+      <p id="installmentDescription">Los abonos registrados permanecen asociados a esta factura.</p></div>
+      <button type="button" class="billingButton" id="installmentBack">← Volver a facturas</button>
+    </div>
+    <div class="billingInstallmentMetrics">
+      <div><span>Total de la clase</span><strong id="installmentTotal">—</strong></div>
+      <div><span>Total abonado</span><strong id="installmentReceived">—</strong></div>
+      <div><span>Balance pendiente</span><strong id="installmentBalance">—</strong></div>
+    </div>
+    <form id="installmentForm" class="billingInstallmentForm">
+      <h6>Registrar nuevo abono</h6>
+      <label>Importe recibido (USD)<input name="amount" type="number" min=".01" step=".01" required placeholder="0.00"></label>
+      <label>Fecha de pago<input name="date" type="date" required></label>
+      <label>Método de pago<select name="method" required><option value="ATH Móvil">ATH Móvil</option><option value="Transferencia">Transferencia</option><option value="Efectivo">Efectivo</option><option value="Tarjeta">Tarjeta</option><option value="Otro">Otro</option></select></label>
+      <label>Referencia (opcional)<input name="reference" maxlength="160" placeholder="Número de confirmación"></label>
+      <button type="submit" class="billingButton primary">Guardar abono</button>
+    </form>
+    <h6>Historial de pagos</h6><div id="installmentHistory" class="billingInstallmentHistory"></div>
+    <p id="installmentFeedback" class="billingFeedback" role="status" hidden></p>
+  `;
+  $("billingEditorPanel").after(payPanel);
+  const payForm=payPanel.querySelector("#installmentForm");
+  function payField(name){return payForm.elements.namedItem(name);}
+  function payText(id,value){payPanel.querySelector("#"+id).textContent=value;}
+  function payFeedback(message="",error=false){const el=payPanel.querySelector("#installmentFeedback");el.hidden=!message;el.textContent=message;el.classList.toggle("error",error);}
+  function showPayments(show){
+    if(!payPanel?.isConnected)return;
+    payPanel.hidden=!show;
+    if(show){
+      $("billingHistoryPanel").hidden=true;$("billingEditorPanel").hidden=true;$("billingBack").hidden=true;
+    }
+  }
+  async function paymentSummary(id){
+    const [reserve,paid] = await Promise.all([
+      supabaseClient.from("olon_invoice_reservations").select("invoice_id").eq("invoice_id",id).maybeSingle(),
+      supabaseClient.from("olon_invoice_payments").select("id,amount_cents,paid_on,method,reference,created_at").eq("invoice_id",id).order("created_at",{ascending:true})
+    ]);
+    if(reserve.error)throw Error(reason(reserve.error));
+    if(paid.error)throw Error(reason(paid.error));
+    if(!reserve.data)return null;
+    return {payments:paid.data||[],paidCents:(paid.data||[]).reduce((n,p)=>n+Number(p.amount_cents),0)};
+  }
+  async function renderPayments(){
+    if(!paymentInvoice)return;
+    const id=paymentInvoice.id;
+    const [invoice,summary]=await Promise.all([
+      supabaseClient.from("olon_invoices").select("*").eq("id",id).single(),paymentSummary(id)
+    ]);
+    if(!authorized() || paymentInvoice?.id!==id)return;
+    if(invoice.error)throw Error(reason(invoice.error));
+    if(invoice.data.archived_at)throw Error("Esta factura fue retirada del historial activo.");
+    paymentInvoice=invoice.data;payments=summary?.payments||[];
+    const received=summary?.paidCents||0;
+    const balance=Math.max(0,Number(paymentInvoice.total_cents)-received);
+    payText("installmentTitle",paymentInvoice.invoice_number+" · "+paymentInvoice.client_name);
+    payText("installmentDescription",paymentInvoice.service);
+    payText("installmentTotal",paymentCurrency(paymentInvoice.total_cents));
+    payText("installmentReceived",paymentCurrency(received));
+    payText("installmentBalance",paymentCurrency(balance));
+    const button=payForm.querySelector('button[type="submit"]');
+    button.disabled=balance===0 || paymentBusy;
+    payField("amount").max=(balance/100).toFixed(2);
+    payField("date").value=todayPR();payField("date").max=todayPR();
+    const list=payPanel.querySelector("#installmentHistory");list.replaceChildren();
+    if(!payments.length){const p=document.createElement("p");p.textContent="No se han registrado abonos todavía.";list.append(p);}
+    for(const entry of payments){
+      const line=document.createElement("div");line.className="billingInstallmentItem";
+      const desc=document.createElement("span");desc.textContent=entry.paid_on+" · "+entry.method+(entry.reference?" · "+entry.reference:"");
+      const amount=document.createElement("strong");amount.textContent=paymentCurrency(entry.amount_cents);
+      line.append(desc,amount);list.append(line);
+    }
+    if(!balance)payFeedback("Reserva saldada. El estado de la factura se actualizó automáticamente.");
+  }
+  async function openPayments(id){
+    if(!authorized() || saving || !validId(id) || !mayLeave())return;
+    try{
+      const captured=session();
+      const invoice=rows.find(row=>row.id===id) || (await supabaseClient.from("olon_invoices").select("*").eq("id",id).single()).data;
+      if(!active(captured) || !invoice || invoice.archived_at)return;
+      if(!reservations.has(id)){
+        if(invoice.status!=="pending")throw Error("Solo se pueden separar facturas pendientes.");
+        if(!confirm("¿Activar una reserva de clase con abonos para "+invoice.invoice_number+"?"))return;
+        const result=await supabaseClient.rpc("olon_start_invoice_reservation",{p_invoice_id:id});
+        if(result.error)throw Error(reason(result.error));
+        reservations.add(id);
+      }
+      paymentInvoice=invoice;editor?.reset();showPayments(true);payFeedback();
+      await renderPayments();
+      payPanel.scrollIntoView({behavior:"auto",block:"start"});
+      void refresh();
+    }catch(error){if(paymentInvoice){showPayments(true);payFeedback(reason(error),true);}else feedback(reason(error),true);}
+  }
+  async function archiveInvoice(id){
+    const row=rows.find(row=>row.id===id);
+    if(!authorized() || saving || !row || !mayLeave())return;
+    if(!confirm("¿Eliminar "+row.invoice_number+" del historial activo? No se borrarán los abonos ni el registro de auditoría."))return;
+    saving=true;updateButtons();
+    try{
+      const result=await supabaseClient.rpc("olon_archive_invoice",{p_invoice_id:id});
+      if(result.error)throw Error(reason(result.error));
+      feedback("Factura retirada del historial activo. Los registros financieros se conservaron.");
+      await refresh();
+    }catch(error){feedback(reason(error),true);}
+    finally{saving=false;updateButtons();}
+  }
+  payPanel.querySelector("#installmentBack").addEventListener("click",()=>{
+    paymentInvoice=null;payments=[];showPayments(false);$("billingHistoryPanel").hidden=false;payFeedback();void refresh();
+  });
+  payForm.addEventListener("submit",async event=>{
+    event.preventDefault();
+    if(!authorized() || paymentBusy || !paymentInvoice || !payForm.reportValidity())return;
+    const raw=Number(payField("amount").value);
+    if(!Number.isFinite(raw) || raw<=0 || Math.round(raw*100)/100!==raw){payFeedback("Indica una cantidad válida con máximo dos decimales.",true);return;}
+    const cents=Math.round(raw*100);
+    const remaining=Number(paymentInvoice.total_cents)-payments.reduce((n,p)=>n+Number(p.amount_cents),0);
+    if(cents>remaining){payFeedback("El abono supera el saldo pendiente.",true);return;}
+    if(!confirm("¿Confirmas que recibiste "+paymentCurrency(cents)+"? Los abonos se registran permanentemente."))return;
+    const invoiceId=paymentInvoice.id;
+    paymentBusy=true;payForm.querySelector('button[type="submit"]').disabled=true;payFeedback();
+    try{
+      const res=await supabaseClient.rpc("olon_add_invoice_payment",{
+        p_invoice_id:invoiceId,p_payment_id:crypto.randomUUID(),p_amount_cents:cents,
+        p_paid_on:payField("date").value,p_method:payField("method").value,p_reference:payField("reference").value.trim()
+      });
+      if(res.error)throw Error(reason(res.error));
+      payField("amount").value="";payField("reference").value="";
+      await renderPayments();payFeedback("Abono registrado correctamente.");void refresh();
+    }catch(error){payFeedback(reason(error),true);}
+    finally{paymentBusy=false;payForm.querySelector('button[type="submit"]').disabled=paymentInvoice?.status==="paid";}
+  });
+
+
   function activate() {
     if (!authorized()) return;
     session(); if (window.cachedUsers) setStudents(window.cachedUsers);
     if (!loading) void refresh();
   }
   $("billingNew").addEventListener("click", () => void newInvoice());
+  const reserveNew=document.createElement("button");reserveNew.type="button";reserveNew.className="billingButton";reserveNew.textContent="＋ Separar clase";
+  $("billingNew").before(reserveNew);
+  reserveNew.addEventListener("click",()=>void newInvoice("",true));
   $("billingRefresh").addEventListener("click", () => { feedback(); void refresh(); });
   $("billingBack").addEventListener("click", () => { if (mayLeave()) { editor?.reset(); showEditor(false); feedback(); void refresh(); } });
   $("billingStudent").addEventListener("change", event => editor?.setClient(students.find(student => student.id === event.target.value)));
@@ -235,6 +406,12 @@
   block.addEventListener("click", event => {
     const button = event.target.closest("[data-invoice-open]");
     if (button) void openInvoice(button.dataset.invoiceOpen);
+    const edit=event.target.closest("[data-invoice-edit]");
+    if(edit)void openInvoice(edit.dataset.invoiceEdit);
+    const reserve=event.target.closest("[data-invoice-reserve]");
+    if(reserve)void openPayments(reserve.dataset.invoiceReserve);
+    const archive=event.target.closest("[data-invoice-archive]");
+    if(archive)void archiveInvoice(archive.dataset.invoiceArchive);
   });
   block.addEventListener("change", event => {
     const select = event.target.closest("[data-invoice-status]");
