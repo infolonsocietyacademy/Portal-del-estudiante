@@ -97,6 +97,17 @@
     if(quick)register.prepend(quick);
     if(classesShortcut)byId("academyClassesPage")?.append(classesShortcut);
     if(registerShortcut)register.append(registerShortcut);
+    // Keep the welcome card compact; license redemption belongs to VIP renewal.
+    const license=byId("olonLicenseStudentCard");
+    const vipPage=byId("academyVipPage");
+    if(license && vipPage) {
+      const holder=section("olLicenseRenewalBlock","Activar o renovar licencia","Después de pagar, pega tu nueva licencia para renovar el acceso.");
+      holder.classList.add("card");
+      move(license,holder);
+      const hero=vipPage.querySelector(".academyHero");
+      if(hero)hero.after(holder);
+      else vipPage.prepend(holder);
+    }
 
     const kpiBlock=section("olSummaryKPIsBlock","Tu rendimiento de un vistazo","Datos calculados desde tu historial personal.","comparacion");
     kpiBlock.id="olonSummaryKPIs";
