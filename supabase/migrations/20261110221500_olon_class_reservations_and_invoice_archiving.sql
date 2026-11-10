@@ -71,6 +71,48 @@ drop trigger if exists zz_olon_guard_reserved_invoice on public.olon_invoices;
 create trigger zz_olon_guard_reserved_invoice before insert or update on public.olon_invoices
 for each row execute function private.olon_guard_reserved_invoice();
 
+-- Direct-table inserts receive the same balance validation as the RPC.
+create or replace function private.olon_validate_installment()
+returns trigger language plpgsql security invoker set search_path='' as $
+declare invoice public.olon_invoices; existing bigint;
+begin
+ if not (select private.is_olon_admin()) or new.recorded_by is distinct from (select auth.uid()) then
+   raise exception 'Acceso exclusivo de administración' using errcode='42501';
+ end if;
+ select * into invoice from public.olon_invoices where id=new.invoice_id for update;
+ if not found or invoice.archived_at is not null or invoice.status<>'pending' then
+   raise exception 'La factura no acepta nuevos abonos';
+ end if;
+ select coalesce(sum(amount_cents),0) into existing
+   from public.olon_invoice_payments where invoice_id=new.invoice_id;
+ if existing+new.amount_cents>invoice.total_cents then
+   raise exception 'El abono supera el saldo pendiente';
+ end if;
+ if new.paid_on>((now() at time zone 'America/Puerto_Rico')::date) then
+   raise exception 'No se permiten abonos con fecha futura';
+ end if;
+ return new;
+end;$;
+revoke all on function private.olon_validate_installment() from public,anon,authenticated;
+create trigger olon_payment_validate before insert on public.olon_invoice_payments
+for each row execute function private.olon_validate_installment();
+create or replace function private.olon_sync_paid_installment()
+returns trigger language plpgsql security invoker set search_path='' as $
+declare credited bigint; due bigint;
+begin
+ select total_cents into due from public.olon_invoices where id=new.invoice_id;
+ select sum(amount_cents) into credited from public.olon_invoice_payments where invoice_id=new.invoice_id;
+ if due=credited then
+   update public.olon_invoices
+   set form_data=jsonb_set(form_data,'{status}','"paid"'::jsonb,true)
+   where id=new.invoice_id and status='pending';
+ end if;
+ return null;
+end;$;
+revoke all on function private.olon_sync_paid_installment() from public,anon,authenticated;
+create trigger olon_payment_sync after insert on public.olon_invoice_payments
+for each row execute function private.olon_sync_paid_installment();
+
 create or replace function public.olon_start_invoice_reservation(p_invoice_id uuid)
 returns public.olon_invoice_reservations language plpgsql security invoker set search_path='' as $$
 declare item public.olon_invoices; reservation public.olon_invoice_reservations;
