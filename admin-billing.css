@@ -99,3 +99,33 @@ body.trader-themed #portal.app #admin #adminBillingBlock :is(.billingEmpty p,.bi
 #adminBillingBlock .billingInstallmentItem span{min-width:0;overflow-wrap:anywhere}
 #adminBillingBlock .billingInstallmentItem strong{white-space:nowrap}
 @media(max-width:700px){#adminBillingBlock .billingInstallmentMetrics{grid-template-columns:1fr}#adminBillingBlock .billingInstallmentForm{grid-template-columns:1fr}#adminBillingBlock .billingInstallmentItem{flex-wrap:wrap}}
+
+
+/* Student → Billing workflow: focused actions and contextual invoice editor. */
+#admin #adminStudentsBlock .adminRowActions{display:flex;flex-wrap:wrap;align-items:center;gap:7px;min-width:0}
+#admin #adminStudentsBlock .adminStudentFinanceActions{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+#admin #adminStudentsBlock .adminStudentFinanceActions .adminInvoiceStudent{background:var(--trader-accent,#2c8067);border-color:var(--trader-accent,#2c8067);color:var(--trader-accent-on,#fff);font-weight:800}
+#admin #adminStudentsBlock .adminStudentFinanceActions .adminReserveStudent{border:1px solid var(--trader-accent,#2c8067);color:var(--trader-accent-ink,var(--text));font-weight:750}
+#admin #adminStudentsBlock .adminStudentMoreActions{position:relative;min-width:0}
+#admin #adminStudentsBlock .adminStudentMoreActions summary{list-style:none;display:inline-flex;align-items:center;min-height:35px;padding:7px 10px;border:1px solid var(--line,#dae1e7);border-radius:7px;cursor:pointer;font-size:11px;font-weight:700;background:var(--panel2,#edf2f6);color:var(--text,#253a44)}
+#admin #adminStudentsBlock .adminStudentMoreActions summary::-webkit-details-marker{display:none}
+#admin #adminStudentsBlock .adminStudentMoreActions summary::after{content:"⌄";margin-left:9px}
+#admin #adminStudentsBlock .adminStudentMoreActionsInner{display:flex;flex-wrap:wrap;gap:6px;padding:9px 0 3px}
+#admin #adminStudentsBlock .adminStudentMoreActions .adminDeleteStudent{color:#bc5151;border-color:rgba(188,81,81,.4)}
+#admin #adminStudentsBlock .adminStudentFinanceActions button:focus-visible,
+#admin #adminStudentsBlock .adminStudentMoreActions summary:focus-visible{outline:2px solid var(--trader-accent,#2c8067);outline-offset:2px}
+#adminBillingBlock .billingStudentContext{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px;padding:15px 17px;border:1px solid var(--trader-accent,#2c8067);border-radius:11px;background:var(--trader-soft,var(--billing-panel-2,#edf4f0));color:var(--text,#1e3439)}
+#adminBillingBlock .billingStudentContext[hidden]{display:none!important}
+#adminBillingBlock .billingStudentContextMark{width:43px;height:43px;display:grid;place-items:center;flex:none;border-radius:9px;background:var(--trader-accent,#2c8067);color:#fff;font-size:22px}
+#adminBillingBlock .billingStudentContextCopy{display:grid;gap:3px;flex:1 1 200px;min-width:0}
+#adminBillingBlock .billingStudentContextCopy span{font:700 9px/1.4 "JetBrains Mono",monospace;letter-spacing:.08em;color:var(--trader-accent-ink,var(--text))}
+#adminBillingBlock .billingStudentContextCopy strong{font:800 clamp(15px,1.5vw,19px)/1.4 "JetBrains Mono",monospace;overflow-wrap:anywhere}
+#adminBillingBlock .billingStudentContextCopy small{font-size:10px;color:var(--muted,#6b7b81);line-height:1.5}
+#adminBillingBlock .billingStudentContext>.billingButton{margin-left:auto}
+@media(max-width:700px){
+ #admin #adminStudentsBlock .adminStudentFinanceActions{width:100%}
+ #admin #adminStudentsBlock .adminStudentFinanceActions .adminSmallButton{flex:1 1 145px;min-height:42px}
+ #admin #adminStudentsBlock .adminStudentMoreActions{width:100%}
+ #admin #adminStudentsBlock .adminStudentMoreActions summary{width:100%;justify-content:space-between;min-height:40px}
+ #adminBillingBlock .billingStudentContext>.billingButton{width:100%;margin:2px 0 0}
+}
