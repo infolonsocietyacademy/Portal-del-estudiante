@@ -219,7 +219,7 @@ function go(){
  if(!isAdmin())return;
  const target=$("adminRequestsBlock");if(!target)return;
  if($("admin")?.classList.contains("hidden")&&window.showPage)window.showPage("admin",document.querySelector(".adminNav[data-page='admin']"));
- target.scrollIntoView({behavior:"smooth",block:"start"});
+ if(!window.olonAdminSections?.open?.("adminRequestsBlock"))target.scrollIntoView({behavior:"smooth",block:"start"});
  void refresh();
 }
 function install(){
