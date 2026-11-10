@@ -93,6 +93,15 @@
     }
     if(privateNote)move(privateNote,detailed);
     if(quote)move(quote,detailed);
+    // Keep the live risk calculator and any additional functioning widgets.
+    const calculator=byId("olonRiskCalculator");
+    if(calculator) {
+      const block=section("olDetailedBlock","Calculadora de riesgo","Calcula el tamaño de posición con tus propios parámetros.");
+      move(calculator,block);
+      detailed.append(block);
+    }
+    const terminalIntro=dashboard.querySelector(".olonTerminalIntro");
+    if(terminalIntro)move(terminalIntro,detailed);
 
     if(quick)register.prepend(quick);
     if(classesShortcut)byId("academyClassesPage")?.append(classesShortcut);
@@ -165,6 +174,16 @@
     const top=section("olSummaryRankingBlock","Comunidad OLON","TOP 3 semanal, mensual y anual.");
     top.id="olonSummaryRanking";
     move(leaderboard,top);
+
+    // Preserve any other functional modules added by external portal scripts.
+    for(const extra of Array.from(dashboard.children)) {
+      if(extra===welcome)continue;
+      if(extra.querySelector("button,input,select,textarea,canvas,[id]")) {
+        const block=section("olDetailedBlock","Otras herramientas","Funciones complementarias del portal.");
+        move(extra,block);
+        detailed.append(block);
+      }
+    }
 
     // Six predictable dashboard sections. Welcome remains the existing VIP profile.
     const layout=document.createDocumentFragment();
