@@ -285,10 +285,9 @@
   }
   function go(anchor){
     if(!authorized())return;
+    if(window.olonAdminSections?.open?.(anchor))return;
     const section=$(anchor);
-    if(anchor==="adminBillingBlock"){
-      window.olonBilling?.activate();
-    }
+    if(anchor==="adminBillingBlock")window.olonBilling?.activate();
     if(anchor==="adminRebatesBlock")window.olonRebates?.activate();
     if(section)section.scrollIntoView({behavior:"smooth",block:"start"});
   }
