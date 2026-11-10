@@ -17,10 +17,14 @@
     currency:["Rebate Wallet","Currency","Moneda"], platform:["Platform","Plataforma"]
   };
   const aliases = Object.fromEntries(Object.entries(headers).map(([key,list]) => [key,list.map(norm)]));
-  function xml(text) {
-    if (/<!DOCTYPE|<!ENTITY/i.test(text)) throw Error("Este archivo contiene un formato XML no compatible.");
-    const doc = new DOMParser().parseFromString(text,"application/xml");
-    if (doc.getElementsByTagName("parsererror").length) throw Error("El archivo Excel está dañado.");
+  function xml(text,component="componente interno") {
+    if (/<!DOCTYPE|<!ENTITY/i.test(text)) throw Error("El Excel contiene XML no compatible en " + component + ".");
+    const doc = new DOMParser().parseFromString(text.replace(/^\\uFEFF/,""),"application/xml");
+    const parserError = doc.getElementsByTagName("parsererror")[0];
+    if (parserError) {
+      const details = (parserError.textContent || "").trim().replace(/\\s+/g," ").slice(0,200);
+      throw Error("No se pudo interpretar " + component + " del Excel. " + details + " Exporta nuevamente el reporte original desde Axi.");
+    }
     return doc;
   }
   const nodes = (parent,name) => Array.from(parent.getElementsByTagNameNS("*",name));
@@ -86,14 +90,14 @@
     const readXml = async path => {
       const entry = zip.file(path);
       if (!entry) throw Error("Falta una hoja o componente del Excel.");
-      return xml(await entry.async("string"));
+      return xml(await entry.async("string"),path);
     };
     const workbook = await readXml("xl/workbook.xml");
     const relationships = await readXml("xl/_rels/workbook.xml.rels");
     const date1904 = ["1","true"].includes(nodes(workbook,"workbookPr")[0]?.getAttribute("date1904"));
     const rels = new Map(nodes(relationships,"Relationship").filter(rel => rel.getAttribute("TargetMode") !== "External").map(rel => [rel.getAttribute("Id"),rel.getAttribute("Target")]));
     const sharedFile = zip.file("xl/sharedStrings.xml");
-    const shared = sharedFile ? nodes(xml(await sharedFile.async("string")),"si").map(si => nodes(si,"t").map(t => t.textContent).join("")) : [];
+    const shared = sharedFile ? nodes(xml(await sharedFile.async("string"),"xl/sharedStrings.xml"),"si").map(si => nodes(si,"t").map(t => t.textContent).join("")) : [];
     const result = [], sheets = [], warnings = [];
     let matched = false, skippedTotals = 0, fallbackDates = 0;
     for (const sheet of nodes(workbook,"sheet")) {
