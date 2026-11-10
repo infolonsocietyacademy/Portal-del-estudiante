@@ -236,6 +236,21 @@ window.createInvoicePdf = async function createInvoicePdf(invoice, logoSource) {
   write(invoice.total, right - 10, cursor + 7, { size: 15, bold: true, align: "right" });
   cursor += 33;
 
+  if(invoice.installment){
+    const payment=invoice.installment;
+    textSection("Reserva de clase · Abonos",[
+      "Total abonado: "+payment.received,
+      "Saldo pendiente: "+payment.balance,
+      "Estado: "+invoice.statusLabel
+    ]);
+    if(payment.payments?.length){
+      const rows=payment.payments.map(p=>{
+        const amount=(Number(p.amount_cents)/100).toLocaleString("en-US",{style:"currency",currency:"USD"});
+        return p.paid_on+" · "+p.method+" · "+amount+(p.reference?" · Ref. "+p.reference:"");
+      });
+      textSection("Historial de abonos",rows);
+    }
+  }
   textSection("Métodos de pago", [invoice.methods, invoice.paymentDetails]);
   textSection("Notas", [invoice.notes]);
 
