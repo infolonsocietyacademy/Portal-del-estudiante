@@ -42,3 +42,64 @@ body.olfx-terminal-active{overflow:hidden!important}
 #olfxLiveTerminalPage .olfxTradeRow button{min-height:28px;font-size:10px}
 #olfxLiveTerminalPage .olfxResetAccount{font-size:10px}
 @media(max-width:750px){#olfxLiveTerminalPage .olfxTerminalBar{padding:5px;gap:5px;min-height:44px}#olfxLiveTerminalPage .olfxBrand{font-size:11px}#olfxLiveTerminalPage .olfxTerminalBar button,#olfxLiveTerminalPage .olfxTerminalBar select{padding:5px;min-height:32px;font-size:10px}#olfxLiveTerminalPage .olfxDemoBadge{display:none}#olfxLiveTerminalPage .olfxSimPanel{top:86px;bottom:29px;right:6px;width:calc(100vw - 12px)}}
+/* v4 fix: standalone terminal sits directly under #portal, not under main.
+   CSS :has fallback also works when other scripts change the sidebar. */
+body:has(#portal > #olfxLiveTerminalPage.page:not(.hidden)) {
+ overflow: hidden !important;
+}
+body:has(#portal > #olfxLiveTerminalPage.page:not(.hidden)) #portal #portalDock,
+body:has(#portal > #olfxLiveTerminalPage.page:not(.hidden)) #portal .portalTopbar,
+body:has(#portal > #olfxLiveTerminalPage.page:not(.hidden)) #portal #sidebar,
+body:has(#portal > #olfxLiveTerminalPage.page:not(.hidden)) #portal .portalPageInfo,
+body:has(#portal > #olfxLiveTerminalPage.page:not(.hidden)) #portal .terminalPageHeading {
+ visibility: hidden !important;
+ pointer-events: none !important;
+}
+body #portal > #olfxLiveTerminalPage.page.hidden { display: none !important; }
+body #portal > #olfxLiveTerminalPage.page:not(.hidden) {
+ display: block !important;
+ position: fixed !important;
+ inset: 0 !important;
+ height: 100vh !important;
+ height: 100dvh !important;
+ width: 100vw !important;
+ max-width: none !important;
+ max-height: none !important;
+ margin: 0 !important;
+ padding: 0 !important;
+ overflow: hidden !important;
+ border: 0 !important;
+ border-radius: 0 !important;
+ z-index: 2147483000 !important;
+ background: #080f1b !important;
+ isolation: isolate !important;
+}
+#olfxLiveTerminalPage .olfxFullscreenWorkspace {
+ height:100% !important;
+ max-height:100% !important;
+}
+#olfxLiveTerminalPage .olfxChartMount {
+ flex: 1 1 auto !important;
+ min-height: 0 !important;
+ height: auto !important;
+}
+#olfxLiveTerminalPage .olfxSimPanel[hidden] { display: none !important; }
+@supports (padding: env(safe-area-inset-top)) {
+ #olfxLiveTerminalPage .olfxTerminalBar { padding-top: max(7px, env(safe-area-inset-top)); }
+ #olfxLiveTerminalPage .olfxStatusBar { padding-bottom: max(3px, env(safe-area-inset-bottom)); }
+}
+@media (max-width: 750px) {
+ #olfxLiveTerminalPage .olfxTerminalBar {
+   min-height: 48px !important;
+   max-height: 112px !important;
+   overflow-y: auto;
+   align-content: start;
+   flex-shrink: 0;
+ }
+ #olfxLiveTerminalPage .olfxSimPanel {
+   right: 6px !important;
+   top: max(108px, calc(50px + env(safe-area-inset-top))) !important;
+   bottom: calc(26px + env(safe-area-inset-bottom)) !important;
+   max-height: calc(100dvh - 140px);
+ }
+}
