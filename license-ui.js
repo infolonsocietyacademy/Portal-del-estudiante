@@ -25,9 +25,9 @@ function setLicenseMode(phase){
  if(card){card.dataset.licenseState=phase;card.setAttribute("aria-busy",String(checking));}
  const badge=$("vipPaymentBadge");
  if(badge&&restricted)badge.textContent="Renovación requerida";
- if(restricted&&typeof window.showPage==="function"&&$("dashboard")?.classList.contains("hidden")){
-  const nav=document.querySelector('[data-page="dashboard"]');
-  window.showPage("dashboard",nav||undefined);
+ if(restricted&&typeof window.showPage==="function"&&$("academyVipPage")?.classList.contains("hidden")){
+  const nav=document.querySelector('[data-page="academyVipPage"]');
+  window.showPage("academyVipPage",nav||undefined);
  }
 }
 function showState(state){
@@ -201,9 +201,9 @@ function init(){
   const target=event.target.closest("[data-page],[data-dock-page],.portalNavLink,.portalDockLink");
   if(!target)return;
   const destination=target.dataset.page||target.dataset.dockPage;
-  if(destination&&destination!=="dashboard"&&destination!=="academyVipPage"){
+  if(destination&&destination!=="academyVipPage"){
    event.preventDefault();event.stopImmediatePropagation();
-   if(typeof window.showPage==="function")window.showPage("dashboard",document.querySelector('[data-page="dashboard"]'));
+   if(typeof window.showPage==="function")window.showPage("academyVipPage",document.querySelector('[data-page="academyVipPage"]'));
    $("olonLicenseStudentCard")?.scrollIntoView({behavior:"smooth",block:"center"});
   }
  },true);
