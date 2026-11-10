@@ -19,10 +19,10 @@
   const aliases = Object.fromEntries(Object.entries(headers).map(([key,list]) => [key,list.map(norm)]));
   function xml(text,component="componente interno") {
     if (/<!DOCTYPE|<!ENTITY/i.test(text)) throw Error("El Excel contiene XML no compatible en " + component + ".");
-    const doc = new DOMParser().parseFromString(text.replace(/^\\uFEFF/,""),"application/xml");
+    const doc = new DOMParser().parseFromString(text.replace(/^\uFEFF/,""),"application/xml");
     const parserError = doc.getElementsByTagName("parsererror")[0];
     if (parserError) {
-      const details = (parserError.textContent || "").trim().replace(/\\s+/g," ").slice(0,200);
+      const details = (parserError.textContent || "").trim().replace(/\s+/g," ").slice(0,200);
       throw Error("No se pudo interpretar " + component + " del Excel. " + details + " Exporta nuevamente el reporte original desde Axi.");
     }
     return doc;
