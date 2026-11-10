@@ -186,7 +186,7 @@ function init(){
  }
  async function historical(generation){
   const iv=Number(interval.value);
-  const granularity=iv===240?3600:iv==="D"?86400:iv*60;
+  const granularity=iv===240?3600:interval.value==="D"?86400:iv*60;
   if(![60,300,900,3600,86400].includes(granularity))throw new Error("Temporalidad no compatible");
   const now=Math.floor(Date.now()/1000);
   const end=new Date(now*1000).toISOString(),start=new Date((now-granularity*(iv===240?300:280))*1000).toISOString();
@@ -211,6 +211,7 @@ function init(){
  async function start(){
   if(!active()||!selected())return;
   const generation=++session;
+  if(native.parentElement!==mount)mount.append(native);
   native.hidden=false;page.classList.add("olfxAutoMode");
   oldToggle.hidden=true;oldPanel.hidden=true;warning.hidden=true;
   accountOwner();note("Cargando histórico y precio en vivo BTC-USD…");updateStats();
