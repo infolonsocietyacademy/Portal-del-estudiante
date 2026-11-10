@@ -2201,7 +2201,8 @@ function setPortalMenu(open, restoreFocus = false){
   const sidebar = $("sidebar");
   const dock = $("portalDock");
   const wasOpen = sidebar.classList.contains("open");
-  const expanded = Boolean(open && !portal.classList.contains("hidden"));
+  const persistentStudentNav = window.innerWidth > 980 && !portal.classList.contains("admin-mode");
+  const expanded = Boolean(open && !persistentStudentNav && !portal.classList.contains("hidden"));
 
   if(portalMenuFocusFrame !== null){
     window.cancelAnimationFrame(portalMenuFocusFrame);
@@ -2210,8 +2211,8 @@ function setPortalMenu(open, restoreFocus = false){
   if(expanded && !wasOpen) portalMenuReturnFocus = document.activeElement;
   if(expanded) positionPortalTools();
   sidebar.classList.toggle("open", expanded);
-  sidebar.inert = !expanded;
-  sidebar.setAttribute("aria-hidden", String(!expanded));
+  sidebar.inert = !expanded && !persistentStudentNav;
+  sidebar.setAttribute("aria-hidden", String(!expanded && !persistentStudentNav));
   if(expanded) sidebar.setAttribute("aria-modal", "true");
   else sidebar.removeAttribute("aria-modal");
   portal.querySelector("main.main").inert = expanded;
@@ -2280,7 +2281,11 @@ function installPortalNavigation(){
   const repositionTools = () => {
     if(sidebar.classList.contains("open")) positionPortalTools();
   };
-  window.addEventListener("resize", repositionTools, {passive:true});
+  window.addEventListener("resize", () => {
+    repositionTools();
+    if(!sidebar.classList.contains("open"))setPortalMenu(false);
+    else if(window.innerWidth>980)setPortalMenu(false);
+  }, {passive:true});
   window.addEventListener("scroll", repositionTools, {passive:true});
   dock.addEventListener("click", event => {
     const button = event.target.closest("[data-dock-page]");
