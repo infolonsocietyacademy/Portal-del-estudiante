@@ -56,6 +56,7 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 <link rel="stylesheet" href="./mobile-premium.css?v=20261109-mobile-premium-1">
 <link rel="stylesheet" href="./student-sidebar.css?v=20261110-student-rail-1">
 <link rel="stylesheet" href="./student-dashboard.css?v=20261110-summary-6blocks-1">
+<link rel="stylesheet" href="./olfx-live-terminal.css?v=20261110-1">
 </head>
 <body class="trader-themed">
 
@@ -231,6 +232,7 @@ window.addEventListener("load", () => {
       <button type="button" class="portalNavLink studentNav" data-page="academyChecklistPage" onclick="showPage('academyChecklistPage',this)" aria-label="Checklist"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="m7 9 1 1 2-2m2 2h4m-9 6 1 1 2-2m2 2h4"/></svg></span><span class="portalNavText">Checklist</span></button>
       <button type="button" class="portalNavLink terminalPrimaryLink studentNav" data-page="comparacion" onclick="showPage('comparacion',this)" aria-label="Resultados"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V11M10 20V5M16 20v-8M22 20V3"/><path d="M2 20h20"/></svg></span><span class="portalNavText">Resultados</span></button>
       <button type="button" class="portalNavLink" data-page="institutionalFlowPage" onclick="showPage('institutionalFlowPage',this)" aria-label="Institutional Flow"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M9 20V4M14 20v-8M19 20V7M2 20h20"/></svg></span><span class="portalNavText">INSTITUTIONAL FLOW</span></button>
+      <button type="button" class="portalNavLink studentNav" data-page="olfxLiveTerminalPage" onclick="showPage('olfxLiveTerminalPage',this)" aria-label="OLFX Live Terminal"><span class="portalNavIcon" aria-hidden="true">▣</span><span class="portalNavText">OLFX LIVE TERMINAL</span></button>
       <div class="portalNavGroup studentNav portalNavGroupSecondary">ACADEMIA</div>
       <button type="button" class="portalNavLink studentNav" data-page="newsProPage" onclick="showPage('newsProPage',this)" aria-label="Noticias"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10M7 11h4M13 11h4M7 15h10M7 18h7"/></svg></span><span class="portalNavText">Noticias</span></button>
       <button type="button" class="portalNavLink" data-page="notificationsPage" onclick="showPage('notificationsPage',this)" aria-label="Notificaciones"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></span><span class="portalNavText">Notificaciones</span></button>
@@ -316,6 +318,43 @@ window.addEventListener("load", () => {
         <h2 id="pageTitle">Resumen de rendimiento</h2>
         <p id="pageSubtitle">Tu actividad y progreso en la academia.</p>
       </div>
+
+    <section id="olfxLiveTerminalPage" class="page hidden" aria-label="OLFX Live Terminal">
+      <div class="olfxTerminalShell">
+        <header class="olfxTerminalHeader">
+          <div>
+            <span class="olfxTerminalEyebrow">● MARKET CHART / OLON SOCIETY ACADEMY</span>
+            <h2>OLFX LIVE TERMINAL</h2>
+            <p class="olfxTerminalSub">Gráficas del mercado integradas en el portal, sin operaciones reales.</p>
+          </div>
+          <div class="olfxTerminalControls">
+            <label>Mercado
+              <select id="olfxChartSymbol" aria-label="Seleccionar mercado">
+                <option value="XAUUSD">XAUUSD · OANDA</option>
+                <option value="NASDAQ">NASDAQ 100 · NDX</option>
+                <option value="EURUSD">EURUSD</option>
+                <option value="USDJPY">USDJPY</option>
+                <option value="BTCUSD">BTCUSD</option>
+              </select>
+            </label>
+            <label>Temporalidad
+              <select id="olfxChartInterval" aria-label="Seleccionar temporalidad">
+                <option value="1">1M</option>
+                <option value="5" selected>5M</option>
+                <option value="15">15M</option>
+                <option value="60">1H</option>
+                <option value="240">4H</option>
+                <option value="D">1D</option>
+              </select>
+            </label>
+            <button type="button" id="olfxChartReload">↻ Recargar</button>
+          </div>
+        </header>
+        <div id="olfxChartMount" class="olfxChartMount" aria-label="Gráfica TradingView"></div>
+        <p id="olfxChartStatus" class="olfxTerminalStatus" role="status" aria-live="polite">La gráfica se activa cuando abres esta sección.</p>
+        <p class="olfxTerminalNote">Los precios y su retraso dependen de TradingView y del mercado. NASDAQ 100 (NDX) es un índice, no el futuro NQ ni el CFD NAS100. Replay, BUY/SELL y órdenes simuladas todavía no están habilitados.</p>
+      </div>
+    </section>
 
     <section id="institutionalFlowPage" class="page hidden" aria-label="OLFX Institutional Contract Flow"></section>
 
@@ -1422,6 +1461,7 @@ window.addEventListener("load", () => {
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
 <script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script>
-<script src="./student-dashboard.js?v=20261110-vip-renewal-only-2" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
+<script src="./student-dashboard.js?v=20261110-vip-renewal-only-2" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script><script src="./olfx-live-terminal.js?v=20261110-1" defer></script>
+</body>
 </html>
 
