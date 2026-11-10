@@ -327,39 +327,11 @@ window.addEventListener("load", () => {
           <span class="profileAvatar profileHeroAvatar" aria-hidden="true"><span data-profile-initials>O</span><img data-profile-photo="avatar" alt="" hidden></span>
           <div class="cyberWelcomeTypeRow"><h2 id="portalWelcomeText" class="welcomeTitle">Hola, Estudiante</h2><span class="cyberBlinkCaret cyberWelcomeCaret" aria-hidden="true">_</span></div>
           <p class="welcomeSub">Consulta tu rendimiento y tu progreso en la academia.</p>
+          <div class="olSummaryVipShortcut"><button class="btn secondary" type="button" data-academy-page="academyVipPage">Ver renovación VIP</button></div>
 
         </div>
 
-        <section class="vipPayment studentOnly terminalWelcomeVip" id="vipPayment" aria-labelledby="vipPaymentTitle" data-state="unassigned">
-          <header class="vipPaymentHeader">
-            <span class="vipPaymentIcon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 10h18m-13 6 2 2 5-5"/></svg></span>
-            <div><span class="vipPaymentKicker">TU MEMBRESÍA</span><h3 id="vipPaymentTitle">Acceso VIP</h3></div>
-            <span class="vipPaymentBadge" id="vipPaymentBadge">Fecha pendiente</span>
-          </header>
-          <dl class="vipPaymentDetails">
-            <div><dt>Próximo pago</dt><dd id="vipPaymentDate">Sin fecha asignada</dd></div>
-            <div><dt>Días para renovar tu acceso</dt><dd id="vipPaymentDays">—</dd></div>
-          </dl>
-          <section id="olonLicenseStudentCard" class="olonLicenseProfileInline" aria-labelledby="olonLicenseProfileTitle">
-            <div class="olonLicenseProfileHeading">
-              <div><span>OLFX / LICENCIA DIGITAL</span><h4 id="olonLicenseProfileTitle">Activar o renovar licencia</h4></div>
-              <span id="olonLicenseMyStatus" class="olonLicenseProfileBadge">Consultando…</span>
-            </div>
-            <p id="olonLicenseProfileHint" class="olonLicenseProfileHint">¿Ya realizaste tu pago? Pega aquí la licencia que te entregó Administración.</p>
-            <div class="olonLicenseProfileDates"><span>Vencimiento: <strong id="olonLicenseMyDate">—</strong></span><span id="olonLicenseMyGrace"></span></div>
-            <div class="olonLicenseProfileForm">
-              <label for="olonLicenseCode">Nueva licencia VIP</label>
-              <div class="olonLicenseProfileInputRow">
-                <input type="text" id="olonLicenseCode" placeholder="OLFX-30D-XXXXX-XXXXX-XXXXX-XXXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="44">
-                <button type="button" class="btn" id="olonLicenseRedeem">Activar licencia</button><button type="button" class="adminSmallButton" id="olonLicenseRefreshStudent" aria-label="Actualizar el estado de licencia">↻</button>
-              </div>
-            </div>
-            <p id="olonLicenseStudentFeedback" class="olonLicenseFeedback" role="status" aria-live="polite" hidden></p>
-          </section>
-          <div class="academyActions vipRenewalAction">
-            <button type="button" class="btn secondary" data-academy-page="academyVipPage">Ver renovación VIP</button>
-          </div>
-        </section>
+
       </div>
 
       <section id="olonLeaderboard" class="card olonLeaderboard studentOnly" aria-labelledby="olonLeaderboardTitle">
@@ -731,6 +703,33 @@ window.addEventListener("load", () => {
 
     <section id="academyVipPage" class="page hidden academyPage">
       <header class="card academyHero"><span>MEMBRESÍA OLON</span><h3>Renovación VIP</h3><p>Envía el comprobante de tu pago y consulta la respuesta de Administración.</p><p id="academyVipDate" class="academyPaymentDate"></p></header>
+        <section class="card academyCard vipPayment studentOnly vipRenewalDetails" id="vipPayment" aria-labelledby="vipPaymentTitle" data-state="unassigned">
+          <header class="vipPaymentHeader">
+            <span class="vipPaymentIcon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 10h18m-13 6 2 2 5-5"/></svg></span>
+            <div><span class="vipPaymentKicker">TU MEMBRESÍA</span><h3 id="vipPaymentTitle">Acceso VIP</h3></div>
+            <span class="vipPaymentBadge" id="vipPaymentBadge">Fecha pendiente</span>
+          </header>
+          <dl class="vipPaymentDetails">
+            <div><dt>Próximo pago</dt><dd id="vipPaymentDate">Sin fecha asignada</dd></div>
+            <div><dt>Días para renovar tu acceso</dt><dd id="vipPaymentDays">—</dd></div>
+          </dl>
+          <section id="olonLicenseStudentCard" class="olonLicenseProfileInline" aria-labelledby="olonLicenseProfileTitle">
+            <div class="olonLicenseProfileHeading">
+              <div><span>OLFX / LICENCIA DIGITAL</span><h4 id="olonLicenseProfileTitle">Activar o renovar licencia</h4></div>
+              <span id="olonLicenseMyStatus" class="olonLicenseProfileBadge">Consultando…</span>
+            </div>
+            <p id="olonLicenseProfileHint" class="olonLicenseProfileHint">¿Ya realizaste tu pago? Pega aquí la licencia que te entregó Administración.</p>
+            <div class="olonLicenseProfileDates"><span>Vencimiento: <strong id="olonLicenseMyDate">—</strong></span><span id="olonLicenseMyGrace"></span></div>
+            <div class="olonLicenseProfileForm">
+              <label for="olonLicenseCode">Nueva licencia VIP</label>
+              <div class="olonLicenseProfileInputRow">
+                <input type="text" id="olonLicenseCode" placeholder="OLFX-30D-XXXXX-XXXXX-XXXXX-XXXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="44">
+                <button type="button" class="btn" id="olonLicenseRedeem">Activar licencia</button><button type="button" class="adminSmallButton" id="olonLicenseRefreshStudent" aria-label="Actualizar el estado de licencia">↻</button>
+              </div>
+            </div>
+            <p id="olonLicenseStudentFeedback" class="olonLicenseFeedback" role="status" aria-live="polite" hidden></p>
+          </section>
+        </section>
       <section class="card academyCard">
         <h4>Enviar comprobante</h4>
         <p id="academyVipPending" class="academyNote" hidden>Tu comprobante está pendiente de revisión.</p>
@@ -1422,6 +1421,6 @@ window.addEventListener("load", () => {
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
 <script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script>
-<script src="./student-dashboard.js?v=20261110-vip-renewal-only-2" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
+<script src="./student-dashboard.js?v=20261110-vip-all-in-page-3" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
 </html>
 
