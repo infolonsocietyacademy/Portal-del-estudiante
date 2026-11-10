@@ -9,7 +9,9 @@ const round=n=>Math.round(n*100)/100;
 const user=()=>{try{return typeof currentUser!=="undefined"&&currentUser&&currentUser.id?String(currentUser.id):""}catch(e){return ""}};
 function init(){
  const page=document.getElementById("olfxLiveTerminalPage"),portal=document.getElementById("portal");if(!page||!portal||page.dataset.olfxReady)return;
- page.dataset.olfxReady="1";portal.append(page);
+ page.dataset.olfxReady="1";
+ // The terminal is now placed directly under #portal in the HTML (no runtime reparenting).
+ if (page.parentElement !== portal) portal.append(page);
  const $=id=>page.querySelector("#"+id),symbol=$("olfxChartSymbol"),interval=$("olfxChartInterval"),mount=$("olfxChartMount"),status=$("olfxChartStatus"),panel=$("olfxSimPanel");
  let chartKey="",active=false,owner="",size=200,ledger={trades:[],marks:{}},persistent=true;
  const key=()=> "olfx-demo-v3:"+owner+":"+size;
