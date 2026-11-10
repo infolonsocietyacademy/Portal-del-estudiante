@@ -1,0 +1,63 @@
+/* Only OLFX terminal elements are styled here. */
+#olfxLiveTerminalPage { min-width: 0; }
+#olfxLiveTerminalPage .olfxTerminalShell {
+  color: #e9f1fc;
+  background: #0b1019;
+  border: 1px solid #29364a;
+  border-radius: 16px;
+  padding: clamp(12px, 2vw, 22px);
+  font-family: "JetBrains Mono", monospace;
+  overflow: hidden;
+}
+#olfxLiveTerminalPage .olfxTerminalHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+#olfxLiveTerminalPage .olfxTerminalEyebrow {
+  display: block;
+  color: #69dbc0;
+  font-size: 11px;
+  letter-spacing: 0.13em;
+  margin-bottom: 8px;
+}
+#olfxLiveTerminalPage h2 { color: #edf6ff; font-size: clamp(18px, 2vw, 23px); margin: 0; }
+#olfxLiveTerminalPage .olfxTerminalSub { color: #a9b8ce; font-size: 12px; line-height: 1.5; margin: 8px 0 0; }
+#olfxLiveTerminalPage .olfxTerminalControls { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+#olfxLiveTerminalPage .olfxTerminalControls label { display: grid; gap: 6px; color: #c5d3e4; font-size: 11px; }
+#olfxLiveTerminalPage .olfxTerminalControls select,
+#olfxLiveTerminalPage .olfxTerminalControls button {
+  background: #141f30;
+  border: 1px solid #40516c;
+  border-radius: 8px;
+  color: #f5f9ff;
+  padding: 11px 12px;
+  min-height: 43px;
+  font: 600 12px "JetBrains Mono", monospace;
+}
+#olfxLiveTerminalPage .olfxTerminalControls button { cursor: pointer; }
+#olfxLiveTerminalPage .olfxTerminalControls button:hover { border-color: #85c9ed; }
+#olfxLiveTerminalPage .olfxTerminalControls select:focus-visible,
+#olfxLiveTerminalPage .olfxTerminalControls button:focus-visible { outline: 2px solid #85c9ed; outline-offset: 2px; }
+#olfxLiveTerminalPage .olfxChartMount {
+  width: 100%;
+  height: clamp(430px, 68vh, 800px);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #101826;
+}
+#olfxLiveTerminalPage .olfxTvHost { width: 100%; height: 100%; }
+#olfxLiveTerminalPage .olfxTvWidget { width: 100%; height: calc(100% - 25px); }
+#olfxLiveTerminalPage .olfxTvCredit { height: 25px; font-size: 10px; padding: 4px 10px; text-align: right; }
+#olfxLiveTerminalPage .olfxTvCredit a { color: #adbed5; text-decoration: none; }
+#olfxLiveTerminalPage .olfxTerminalNote,
+#olfxLiveTerminalPage .olfxTerminalStatus { color: #b3c3d9; font-size: 11px; line-height: 1.75; margin: 12px 0 0; }
+@media (max-width: 640px) {
+  #olfxLiveTerminalPage .olfxTerminalShell { padding: 10px; }
+  #olfxLiveTerminalPage .olfxTerminalControls { width: 100%; }
+  #olfxLiveTerminalPage .olfxTerminalControls label { flex: 1 1 120px; }
+  #olfxLiveTerminalPage .olfxChartMount { height: 62vh; min-height: 420px; }
+}
