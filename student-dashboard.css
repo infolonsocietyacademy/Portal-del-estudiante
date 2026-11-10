@@ -1,6 +1,6 @@
 /* OLFX focused summary — exactly six main blocks. The original widgets are
    moved (not cloned), so stored values, IDs, handlers and analytics remain intact. */
-#portal.app #dashboard.olSummaryFocused{
+#portal.app #dashboard.olSummaryFocused:not(.hidden){
   display:grid!important;
   grid-template-columns:repeat(12,minmax(0,1fr));
   gap:16px!important;
