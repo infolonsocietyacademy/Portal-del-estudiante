@@ -124,7 +124,7 @@
       const update=()=>{
         const sourceValue=original.textContent.trim();
         if(item.operation) {
-          const count=sourceValue.match(/\\d[\\d.,]*/)?.[0];
+          const count=sourceValue.match(/\d[\d.,]*/)?.[0];
           value.textContent=count||"0";
         } else value.textContent=sourceValue||item.empty;
         card.classList.toggle("negative",/^[−-]/.test(value.textContent));
@@ -174,7 +174,7 @@
         const origin=byId(value.dataset.kpiSource);
         if(!origin)return;
         value.textContent=value.dataset.kpiSource==="analyticsSample"
-          ?(origin.textContent.match(/\\d[\\d.,]*/)?.[0]||"0")
+          ?(origin.textContent.match(/\d[\d.,]*/)?.[0]||"0")
           :origin.textContent.trim();
       });}
     };
