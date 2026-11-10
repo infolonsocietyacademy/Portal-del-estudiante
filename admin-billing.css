@@ -73,3 +73,29 @@ body.trader-themed #portal.app #admin #adminBillingBlock :is(input,select){font-
 body.trader-themed #portal.app #admin #adminBillingBlock .billingInvoiceRow small{font-size:calc(10px * var(--trader-font-scale,1))!important}
 body.trader-themed #portal.app #admin #adminBillingBlock :is(.billingEmpty p,.billingStudentPicker p,.billingFeedback){font-size:calc(11px * var(--trader-font-scale,1))!important}
 @media(max-width:600px){body.trader-themed #portal.app #admin #adminBillingBlock :is(input,select){font-size:max(16px,calc(14px * var(--trader-font-scale,1)))!important}body.trader-themed #portal.app #admin #adminBillingBlock .billingHeading p{font-size:calc(11px * var(--trader-font-scale,1))!important}}
+
+
+/* Class reservations and immutable installment payments */
+#adminBillingBlock .billingInvoiceActions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:6px}
+#adminBillingBlock .billingInvoiceActions>.billingOpen{white-space:nowrap}
+#adminBillingBlock .billingArchive{color:#b65252;border-color:rgba(182,82,82,.4)}
+#adminBillingBlock .billingReservationTag{display:inline-block;margin-top:5px;font:700 10px/1.4 "JetBrains Mono",monospace;color:var(--trader-accent,#b89b58);letter-spacing:.02em}
+#adminBillingBlock .billingInstallmentPanel{margin-top:18px;border:1px solid var(--cyber-ui-border,var(--line,#dce3ea));border-radius:12px;background:var(--cyber-ui-panel,var(--panel,#fff));padding:clamp(15px,3vw,25px)}
+#adminBillingBlock .billingInstallmentPanel[hidden]{display:none!important}
+#adminBillingBlock .billingInstallmentHead{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:14px}
+#adminBillingBlock .billingInstallmentHead h5{font-size:clamp(16px,2vw,22px);margin:8px 0}
+#adminBillingBlock .billingInstallmentHead p{font-size:12px;color:var(--muted)}
+#adminBillingBlock .billingInstallmentMetrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:19px 0}
+#adminBillingBlock .billingInstallmentMetrics>div{min-width:0;padding:16px;background:var(--cyber-ui-panel-2,var(--panel2,#f1f4f8));border:1px solid var(--cyber-ui-border,var(--line,#dce3ea));border-radius:9px}
+#adminBillingBlock .billingInstallmentMetrics span{display:block;color:var(--muted);font-size:11px;margin-bottom:7px}
+#adminBillingBlock .billingInstallmentMetrics strong{display:block;font-size:clamp(16px,2vw,25px);font-weight:800;overflow-wrap:anywhere}
+#adminBillingBlock .billingInstallmentForm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:end;padding:16px;border:1px solid var(--cyber-ui-border,var(--line,#dce3ea));border-radius:9px;margin-bottom:20px}
+#adminBillingBlock .billingInstallmentForm h6{grid-column:1/-1;font-size:13px;margin:0}
+#adminBillingBlock .billingInstallmentForm label{display:grid;gap:5px;font-size:12px;font-weight:700;min-width:0}
+#adminBillingBlock .billingInstallmentForm input,#adminBillingBlock .billingInstallmentForm select{width:100%;min-width:0;padding:10px;border-radius:7px;border:1px solid var(--cyber-ui-border,var(--line,#dce3ea));background:var(--cyber-ui-panel,var(--panel,#fff));color:var(--text)}
+#adminBillingBlock .billingInstallmentForm button{min-height:40px}
+#adminBillingBlock .billingInstallmentHistory{display:grid;gap:7px;margin:9px 0 14px}
+#adminBillingBlock .billingInstallmentItem{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px solid var(--cyber-ui-border,var(--line,#dce3ea));font-size:12px}
+#adminBillingBlock .billingInstallmentItem span{min-width:0;overflow-wrap:anywhere}
+#adminBillingBlock .billingInstallmentItem strong{white-space:nowrap}
+@media(max-width:700px){#adminBillingBlock .billingInstallmentMetrics{grid-template-columns:1fr}#adminBillingBlock .billingInstallmentForm{grid-template-columns:1fr}#adminBillingBlock .billingInstallmentItem{flex-wrap:wrap}}
