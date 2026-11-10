@@ -191,8 +191,17 @@ window.createOlonInvoiceEditor = function(root, api) {
         assignedNumber = result.sequence_number;
         savedSignature = signature();
         renderNumber();
-        api.saved(result);
+        await api.saved(result);
         const invoice = renderInvoice();
+        const payment = await api.paymentSummary(currentId);
+        if(payment){
+          const cents = Math.round(fieldAmount("price")*100);
+          const discount = Math.min(100,fieldAmount("discount"));
+          const totalCents = cents - Math.round(cents*Math.round(discount*100)/10000);
+          invoice.installment={received:money.format(payment.paidCents/100),balance:money.format(Math.max(0,totalCents-payment.paidCents)/100),payments:payment.payments};
+          if(totalCents===payment.paidCents){invoice.status="paid";invoice.statusLabel="Pagada";}
+          else {invoice.status="pending";invoice.statusLabel="Pendiente de saldo";}
+        }
         const logo = root.querySelector(".brand-logo").getAttribute("src");
         const logoBytes = await fetch(logo).then(response => { if (!response.ok) throw Error("No cargó el logo de la factura."); return response.arrayBuffer(); });
         const pdf = await window.createInvoicePdf(invoice, logoBytes);
@@ -255,6 +264,12 @@ window.createOlonInvoiceEditor = function(root, api) {
       savedSignature = signature();
       root.querySelector("h1").textContent = record ? "Factura " + formatNumber(assignedNumber) : "Nueva factura";
     }
+    function presetClass(){
+      if(busy||disposed)return;
+      element("service").value="Reserva de clase · OLON Society Academy";
+      element("status").value="pending";
+      updateDraft();
+    }
     element("newButton").addEventListener("click", () => api.newInvoice());
     // Shadow DOM anchors need an explicit scroll target.
     root.querySelectorAll(".jump-link").forEach(link => link.addEventListener("click", event => {
@@ -264,7 +279,7 @@ window.createOlonInvoiceEditor = function(root, api) {
     reset();
     element("pdfButton").disabled = false;
     return {
-      reset, setClient, dirty,
+      reset, setClient, presetClass, dirty,
       isBusy: () => busy,
       studentId: () => currentStudentId,
       dispose: () => {
