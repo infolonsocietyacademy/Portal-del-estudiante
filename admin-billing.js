@@ -14,6 +14,8 @@
   let rows = [], students = [], editor = null, editorPromise = null;
   let assetsPromise = null, loading = false, saving = false, loaded = false;
   let searchTimer;
+  let fromStudentDirectory = false;
+  let studentOpenTicket = 0;
   let reservations = new Set(), reservationIntent = false, paymentInvoice = null, payments = [], paymentBusy = false;
   const paymentCurrency = cents => currency.format(Number(cents || 0) / 100);
   const todayPR = () => new Intl.DateTimeFormat("en-CA",{timeZone:"America/Puerto_Rico",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
@@ -37,7 +39,8 @@
   }
   function reset() {
     epoch++; request++; owner = null; loaded = false; loading = false; saving = false;
-    rows = []; students = []; reservations.clear(); paymentInvoice = null; payments = []; reservationIntent = false; paymentBusy = false; page = 0; count = 0;
+    rows = []; students = []; reservations.clear(); paymentInvoice = null; payments = []; reservationIntent = false; paymentBusy = false; fromStudentDirectory = false; page = 0; count = 0;
+    updateStudentContext(null);
     showPayments(false);
     editor?.dispose(); editor = null; editorPromise = null;
     $("billingEditorHost").replaceChildren();
@@ -57,6 +60,7 @@
     $("billingNew").disabled = saving;
     $("billingBack").disabled = saving;
     $("billingStudent").disabled = saving;
+    const returnButton=$("billingReturnStudents");if(returnButton)returnButton.disabled=saving || paymentBusy;
     $("billingPrev").disabled = loading || page === 0;
     $("billingNext").disabled = loading || (page + 1) * pageSize >= count;
     block.querySelectorAll("[data-invoice-open],[data-invoice-status],[data-invoice-edit],[data-invoice-archive],[data-invoice-reserve]").forEach(el => { el.disabled = saving || paymentBusy; });
@@ -199,6 +203,13 @@
     })().finally(() => { if (active(captured)) { editorPromise = null; $("billingEditorLoading").hidden = true; } });
     return editorPromise;
   }
+  function updateStudentContext(student) {
+    const row=$("billingStudentContext");
+    const name=$("billingStudentContextName");
+    if(!row || !name)return;
+    row.hidden=!fromStudentDirectory;
+    name.textContent=student ? (student.full_name || student.email || "Estudiante") : "Estudiante";
+  }
   function mayLeave() {
     return !saving && (!editor?.dirty() || confirm("Tienes cambios sin guardar en esta factura. ¿Descartarlos y continuar?"));
   }
@@ -209,17 +220,48 @@
     if(show)showPayments(false);
     if (show) $("billingEditorPanel").scrollIntoView({behavior:"smooth",block:"start"});
   }
-  async function newInvoice(studentId = "", classReservation = false) {
+  async function newInvoice(studentId = "", classReservation = false, sourceStudent = false) {
     if (!authorized() || !mayLeave()) return;
     try {
-      session(); feedback(); showEditor(true);
-      const instance = await ensureEditor();
-      const student = students.find(user => user.id === studentId);
+      const captured=session();
+      if(studentId && !validId(studentId))throw Error("Identificador de estudiante no válido.");
+      if(studentId && !students.some(user=>user.id===studentId)){
+        setStudents(window.cachedUsers?.length ? window.cachedUsers : window.olonAdmin?.students?.() || []);
+      }
+      let student = students.find(user=>user.id===studentId);
+      if(studentId && !student){
+        const result=await supabaseClient.from("profiles")
+          .select("id,full_name,email,next_payment_date,role").eq("id",studentId).eq("role","student").maybeSingle();
+        if(!active(captured))return;
+        if(result.error)throw result.error;
+        if(!result.data)throw Error("Este estudiante ya no está disponible. Actualiza la lista.");
+        student=result.data;
+        students.push(student);
+        $("billingStudent").add(new Option((student.full_name || student.email || "Estudiante")+(student.email ? " · "+student.email : ""),student.id));
+      }
+      if(!active(captured))return;
+      fromStudentDirectory=Boolean(sourceStudent);
+      updateStudentContext(student);
+      feedback();showEditor(true);
+      const instance=await ensureEditor();
+      if(!active(captured))return;
       reservationIntent=classReservation;
-      instance.reset(null, student);
+      instance.reset(null,student);
       if(classReservation)instance.presetClass();
-      $("billingStudent").value = student?.id || "";
-    } catch (error) { feedback(reason(error), true); }
+      $("billingStudent").value=student?.id || "";
+      $("billingEditorPanel").scrollIntoView({behavior:"smooth",block:"start"});
+    }catch(error){ feedback(reason(error),true); }
+  }
+  async function openForStudent(studentId,classReservation=false){
+    if(!authorized() || !validId(studentId))return;
+    const ticket=++studentOpenTicket;
+    // Display the correct administration view before mounting the invoice editor.
+    if(window.olonAdminSections?.open){
+      if(!window.olonAdminSections.open("adminBillingBlock"))return;
+    }else if(window.olonAdmin?.go)window.olonAdmin.go("adminBillingBlock");
+    else return;
+    if(ticket!==studentOpenTicket)return;
+    await newInvoice(studentId,classReservation,true);
   }
   async function openInvoice(id) {
     if (!authorized() || !validId(id) || !mayLeave()) return;
@@ -230,6 +272,8 @@
       if (!active(captured)) return;
       if (result.error) throw result.error;
       reservationIntent=false;
+      fromStudentDirectory=false;
+      updateStudentContext(null);
       instance.reset(result.data);
       $("billingStudent").value = result.data.student_id || "";
     } catch (error) { if (active(captured)) feedback(reason(error), true); }
@@ -397,7 +441,13 @@
   $("billingNew").before(reserveNew);
   reserveNew.addEventListener("click",()=>void newInvoice("",true));
   $("billingRefresh").addEventListener("click", () => { feedback(); void refresh(); });
-  $("billingBack").addEventListener("click", () => { if (mayLeave()) { editor?.reset(); showEditor(false); feedback(); void refresh(); } });
+  $("billingBack").addEventListener("click", () => { if (mayLeave()) { editor?.reset(); fromStudentDirectory=false;updateStudentContext(null);showEditor(false); feedback(); void refresh(); } });
+  $("billingReturnStudents").addEventListener("click",()=>{
+    if(!authorized() || !mayLeave())return;
+    editor?.reset();fromStudentDirectory=false;updateStudentContext(null);showEditor(false);feedback();
+    if(window.olonAdminSections?.open)window.olonAdminSections.open("adminStudentsBlock");
+    else window.olonAdmin?.go?.("adminStudentsBlock");
+  });
   $("billingStudent").addEventListener("change", event => editor?.setClient(students.find(student => student.id === event.target.value)));
   $("billingSearch").addEventListener("input", () => { clearTimeout(searchTimer); searchTimer = setTimeout(() => { page = 0; void refresh(); }, 250); });
   $("billingStatus").addEventListener("change", () => { page = 0; void refresh(); });
@@ -418,11 +468,14 @@
     if (select) void changeStatus(select.dataset.invoiceStatus, select.value);
   });
   document.addEventListener("click", event => {
-    const button = event.target.closest("[data-billing-student]");
-    if (button && authorized()) void newInvoice(button.dataset.billingStudent);
+    const button=event.target.closest("[data-billing-student]");
+    if(!button || !authorized() || !block.isConnected)return;
+    event.preventDefault();
+    const studentId=button.dataset.billingStudent;
+    void openForStudent(studentId,button.dataset.billingReservation==="true");
   });
   supabaseClient.auth.onAuthStateChange(event => { if (event === "SIGNED_OUT") reset(); });
   window.addEventListener("beforeunload", event => { if (authorized() && editor?.dirty()) { event.preventDefault(); event.returnValue = ""; } });
-  window.olonBilling = {activate,refresh,setStudents,newInvoice};
+  window.olonBilling = {activate,refresh,setStudents,newInvoice,openForStudent};
   render();
 })();
