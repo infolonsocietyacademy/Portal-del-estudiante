@@ -22,4 +22,4 @@ jobs:
           node-version: '22'
       - run: node --test tests/*.test.cjs tests/*.test.mjs
       - run: python3 -m unittest discover -s tests -p '*_test.py'
-      - run: node --check script.js && node --check institutional-flow/entry.mjs
+      - run: node --check script.js && node --check institutional-flow/entry.mjs && node --check admin-billing.js && node --check billing/editor.js && node --check billing/invoice-pdf.js
