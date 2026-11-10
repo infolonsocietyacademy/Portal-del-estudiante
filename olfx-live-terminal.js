@@ -83,6 +83,7 @@ function init(){
  }
  function chart(force){
   if(!active)return;
+  if(symbol.value==="BTCUSD"){chartKey="";mount.replaceChildren();status.textContent="Iniciando gráfica BTC-USD para operaciones virtuales…";return;}
   const k=SYMBOLS[symbol.value]+"|"+interval.value;if(k===chartKey&&!force)return;
   chartKey=k;mount.replaceChildren();status.textContent="Conectando con TradingView…";
   const host=document.createElement("div");host.className="tradingview-widget-container olfxTvHost";
