@@ -73,7 +73,7 @@ for each row execute function private.olon_guard_reserved_invoice();
 
 -- Direct-table inserts receive the same balance validation as the RPC.
 create or replace function private.olon_validate_installment()
-returns trigger language plpgsql security invoker set search_path='' as $
+returns trigger language plpgsql security invoker set search_path='' as $$
 declare invoice public.olon_invoices; existing bigint;
 begin
  if not (select private.is_olon_admin()) or new.recorded_by is distinct from (select auth.uid()) then
@@ -92,12 +92,12 @@ begin
    raise exception 'No se permiten abonos con fecha futura';
  end if;
  return new;
-end;$;
+end;$$;
 revoke all on function private.olon_validate_installment() from public,anon,authenticated;
 create trigger olon_payment_validate before insert on public.olon_invoice_payments
 for each row execute function private.olon_validate_installment();
 create or replace function private.olon_sync_paid_installment()
-returns trigger language plpgsql security invoker set search_path='' as $
+returns trigger language plpgsql security invoker set search_path='' as $$
 declare credited bigint; due bigint;
 begin
  select total_cents into due from public.olon_invoices where id=new.invoice_id;
@@ -108,7 +108,7 @@ begin
    where id=new.invoice_id and status='pending';
  end if;
  return null;
-end;$;
+end;$$;
 revoke all on function private.olon_sync_paid_installment() from public,anon,authenticated;
 create trigger olon_payment_sync after insert on public.olon_invoice_payments
 for each row execute function private.olon_sync_paid_installment();
