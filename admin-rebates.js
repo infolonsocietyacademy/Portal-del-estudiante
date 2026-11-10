@@ -87,7 +87,7 @@
   async function assets() {
     if(!assetPromise)assetPromise=(async()=>{
       await loadScript("./rebates/vendor/jszip-3.10.1.min.js",()=>!!window.JSZip);
-      await loadScript("./rebates/xlsx-reader.js?v=20261107-rebates",()=>!!window.olonRebateReader);
+      await loadScript("./rebates/xlsx-reader.js?v=20261110-axi-xml-fix-1",()=>!!window.olonRebateReader);
     })().catch(error=>{assetPromise=null;throw error;});
     return assetPromise;
   }
