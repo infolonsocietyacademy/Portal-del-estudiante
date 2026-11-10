@@ -153,8 +153,8 @@
   async function assets() {
     if (!assetsPromise) assetsPromise = (async () => {
       await loadScript("./billing/vendor/pdf-lib.min.js", () => !!window.PDFLib);
-      await loadScript("./billing/invoice-pdf.js?v=20261107-integrated", () => typeof window.createInvoicePdf === "function");
-      await loadScript("./billing/editor.js?v=20261107-integrated", () => typeof window.createOlonInvoiceEditor === "function");
+      await loadScript("./billing/invoice-pdf.js?v=20261110-reservations-1", () => typeof window.createInvoicePdf === "function");
+      await loadScript("./billing/editor.js?v=20261110-reservations-1", () => typeof window.createOlonInvoiceEditor === "function");
     })().catch(error => { assetsPromise = null; throw error; });
     return assetsPromise;
   }
