@@ -83,3 +83,52 @@ body.olonLicenseChecking #olonLicenseRedeem{opacity:.7}
 #olonLicenseAdminBlock .olonLicenseDateText strong{font-size:12px;font-weight:750;text-transform:capitalize;white-space:normal}
 #olonLicenseAdminBlock .olonLicenseDateText small{font-size:11px;color:#b2c5d8}
 #olonLicenseAdminBlock .olonLicenseDateTrigger svg{flex-shrink:0;color:#b8cfe0}
+
+/* VIP renewal is a dedicated page; license status and redemption live here only. */
+#portal.app #academyVipPage > .vipRenewalDetails{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  margin:0 0 16px!important;
+  padding:18px!important;
+  border:1px solid var(--cyber-ui-border,var(--line,#364757))!important;
+  border-radius:12px!important;
+  background:var(--cyber-ui-panel,var(--panel,#111922))!important;
+  color:var(--cyber-ui-ink,var(--text,#e8edf5))!important;
+  box-shadow:none!important;
+}
+#portal.app #academyVipPage .vipRenewalDetails .vipPaymentDetails{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin:14px 0;
+}
+#portal.app #academyVipPage .vipRenewalDetails .vipPaymentDetails>div{
+  padding:13px;
+  background:var(--cyber-ui-panel-2,var(--panel2,#182332));
+  border:1px solid var(--cyber-ui-border,var(--line,#374759));
+  border-radius:9px;
+  min-width:0;
+}
+#portal.app #academyVipPage #olonLicenseStudentCard{
+  display:block;
+  width:100%;
+  margin-top:16px;
+  padding-top:18px;
+  border-top:1px solid var(--cyber-ui-border,var(--line,#374759));
+}
+#portal.app #dashboard #portalWelcomeCard .olSummaryVipShortcut{
+  margin-top:12px;
+  display:flex;
+  align-items:center;
+}
+#portal.app #dashboard #portalWelcomeCard .olSummaryVipShortcut button{
+  min-height:38px;
+  font:700 11px "JetBrains Mono",monospace;
+}
+@media(max-width:620px){
+  #portal.app #academyVipPage .vipRenewalDetails .vipPaymentDetails{grid-template-columns:1fr}
+  #portal.app #academyVipPage > .vipRenewalDetails{padding:13px!important}
+  #portal.app #academyVipPage #olonLicenseStudentCard .olonLicenseProfileInputRow{display:flex;flex-direction:column}
+  #portal.app #academyVipPage #olonLicenseStudentCard input{width:100%}
+}
