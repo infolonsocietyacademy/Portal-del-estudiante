@@ -218,6 +218,10 @@
 
   async function save(event){
     event.preventDefault();
+    if(window.olonMtRecords){
+      notice("olonRecordStatus","El registro manual está desactivado. Los datos vienen de tu cuenta MT4/MT5.","error");
+      return;
+    }
     const owner = studentId();
     if(!owner || busy) return;
     let fields;
@@ -278,6 +282,8 @@
   }
 
   async function retry(item){
+    // Preserve queued legacy drafts without creating any new manual rows.
+    if(window.olonMtRecords)return;
     const owner = studentId();
     if(busy || !owner || owner !== item.studentId || owner !== item.record.student_id) return;
     busy = true;
