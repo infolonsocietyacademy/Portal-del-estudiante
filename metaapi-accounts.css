@@ -68,3 +68,10 @@
 #metaapiAccountsPage .metaapi-investor-confirm input{width:18px;max-width:18px;height:18px;min-height:18px;flex:none;margin-top:2px;accent-color:#0c87c3}
 #metaapiAccountsPage .metaapi-privacy-note{max-width:740px}
 @media(max-width:720px){#metaapiAccountsPage .metaapi-credential-grid{grid-template-columns:1fr}#metaapiAccountsPage .metaapi-password-line button{width:auto;min-width:82px}}
+
+/* Cuenta MT vinculada: acción directa de desconexión, visible también en móvil */
+#metaapiAccountsPage .metaapi-account-actions{justify-content:flex-start;gap:12px}
+#metaapiAccountsPage .metaapi-disconnect{border:1px solid rgba(239,68,68,.55);color:#ef4444;background:rgba(239,68,68,.06);font-weight:700}
+#metaapiAccountsPage .metaapi-disconnect:hover{border-color:#ef4444;background:rgba(239,68,68,.13)}
+#metaapiAccountsPage .metaapi-disconnect-note{max-width:740px;margin-top:16px}
+@media(max-width:680px){#metaapiAccountsPage .metaapi-account-actions .metaapi-disconnect{width:100%}}
