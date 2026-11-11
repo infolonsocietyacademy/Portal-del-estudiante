@@ -150,7 +150,7 @@
       if (!/^[a-z0-9_ .+/-]{2,120}$/i.test(brokerServer) || brokerServer === "__manual__") {
         throw new Error("Selecciona el servidor exacto de tu cuenta MT4/MT5. AXI por sí solo no es un servidor.");
       }
-      if ($("metaapiBroker")?.value === "AXI" && (/^axiory/i.test(brokerServer) || /^axiance/i.test(brokerServer))) {
+      if (["AXI","AXICORP"].includes($("metaapiBroker")?.value) && (/^axiory/i.test(brokerServer) || /^axiance/i.test(brokerServer))) {
         throw new Error("Ese servidor pertenece a otro bróker. Selecciona el servidor correcto de AXI.");
       }
       const result = await callServer({ action: "connect", platform, brokerServer, broker: $("metaapiBroker")?.value });
@@ -210,7 +210,7 @@
     clearServerChoice();
     const button = $("metaapiFindServers");
     if (button) button.disabled = true;
-    serverMessage("Buscando los servidores conocidos de " + (broker === "AXI" ? "AXI" : query) + "…");
+    serverMessage("Buscando los servidores conocidos de " + (broker === "AXICORP" ? "AxiCorp Financial Services Pty Ltd" : broker === "AXI" ? "AXI" : query) + "…");
     try {
       const result = await callServer({
         action: "search-servers",
@@ -290,6 +290,7 @@
       if (isPageOpen()) void checkStatus();
     });
     selectPlatform("mt5");
+    if ($("metaapiBroker")) $("metaapiBroker").value = "AXICORP";
     if (isPageOpen()) void checkStatus();
   }
 
