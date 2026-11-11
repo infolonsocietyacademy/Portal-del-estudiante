@@ -7,7 +7,7 @@
   const number = value => new Intl.NumberFormat("en-US",{maximumFractionDigits:6}).format(Number(value || 0));
   const date = value => value ? value.slice(0,10).split("-").reverse().join("/") : "—";
   const amounts = values => (values || []).map(row => {
-    const amount = new Intl.NumberFormat("en-US",{style:"currency",currency:row.currency,minimumFractionDigits:2,maximumFractionDigits:6}).format(Number(row.rebate));
+    const amount = new Intl.NumberFormat("en-US",{style:"currency",currency:row.currency,minimumFractionDigits:2,maximumFractionDigits:12}).format(Number(row.rebate));
     return '<span>'+esc(amount)+' <small>'+esc(row.currency)+'</small></span>';
   }).join("") || '<span>—</span>';
   let owner=null,epoch=0,ticket=0,page=0,totalClients=0,busy=false,loading=false,loaded=false;
@@ -140,7 +140,7 @@
   async function assets() {
     if(!assetPromise)assetPromise=(async()=>{
       await loadScript("./rebates/vendor/jszip-3.10.1.min.js",()=>!!window.JSZip);
-      await loadScript("./rebates/xlsx-reader.js?v=20261111-settled-decimal-fix-2",()=>!!window.olonRebateReader);
+      await loadScript("./rebates/xlsx-reader.js?v=20261111-axi-exact-precision-1",()=>!!window.olonRebateReader);
     })().catch(error=>{assetPromise=null;throw error;});
     return assetPromise;
   }
