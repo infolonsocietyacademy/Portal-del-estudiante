@@ -8,18 +8,18 @@
     "adminBillingBlock", "adminRebatesBlock", "adminReminderBlock"
   ];
   const MENU = [
-    { group:"CONTROL", id:"adminOverviewBlock", icon:"▦", name:"Resumen general" },
-    { id:"adminStudentsBlock", icon:"♙", name:"Estudiantes" },
-    { id:"adminRequestsBlock", icon:"✓", name:"Solicitudes", counter:"adminRequestsNavCount" },
-    { id:"olonLicenseAdminBlock", icon:"◇", name:"Licencias VIP" },
-    { group:"TRADING Y FINANZAS", id:"olonRankingAdmin", icon:"★", name:"Ranking TOP 3" },
-    { id:"olonPerformanceBlock", icon:"▥", name:"Rendimiento" },
-    { id:"adminBillingBlock", icon:"▤", name:"Facturación" },
-    { id:"adminRebatesBlock", icon:"⇧", name:"Rebates / Excel" },
-    { group:"COMUNICACIÓN", route:"academyAdminClassesPage", icon:"▣", name:"Gestionar clases" },
-    { route:"academyAdminVipPage", icon:"◈", name:"Comprobantes VIP" },
-    { route:"adminChat", icon:"✉", name:"Mensajes", counter:"adminNavUnread" },
-    { id:"adminReminderBlock", icon:"◉", name:"Recordatorios" }
+    { group:"CENTRO DE CONTROL", id:"adminOverviewBlock", icon:"▦", name:"Resumen ejecutivo", desc:"Actividad y estado" },
+    { group:"GESTIÓN ACADÉMICA", id:"adminStudentsBlock", icon:"♙", name:"Estudiantes", desc:"Directorio y acceso" },
+    { id:"adminRequestsBlock", icon:"✓", name:"Solicitudes", desc:"Pendientes de aprobación", counter:"adminRequestsNavCount" },
+    { id:"olonLicenseAdminBlock", icon:"◇", name:"Licencias VIP", desc:"Renovación y vencimientos" },
+    { route:"academyAdminClassesPage", icon:"▣", name:"Clases", desc:"Programación académica" },
+    { group:"FINANZAS Y TRADING", id:"adminBillingBlock", icon:"▤", name:"Facturación", desc:"Cobros y recibos" },
+    { id:"adminRebatesBlock", icon:"⇧", name:"Volumen y rebates", desc:"Reportes del bróker" },
+    { route:"academyAdminVipPage", icon:"◈", name:"Comprobantes VIP", desc:"Pagos por validar" },
+    { id:"olonPerformanceBlock", icon:"▥", name:"Rendimiento", desc:"Estadísticas" },
+    { id:"olonRankingAdmin", icon:"★", name:"Ranking TOP 3", desc:"Clasificaciones" },
+    { group:"COMUNICACIONES", route:"adminChat", icon:"✉", name:"Mensajes", desc:"Bandeja de entrada", counter:"adminNavUnread" },
+    { id:"adminReminderBlock", icon:"◉", name:"Recordatorios", desc:"Avisos y seguimiento" }
   ];
 
   function isAdmin() {
@@ -41,17 +41,29 @@
     sidebar.setAttribute("aria-label","Navegación administrativa");
     const brand=document.createElement("div");
     brand.className="olAdminBrand";
-    brand.innerHTML='<span class="olAdminBrandMark" aria-hidden="true">OL</span><span><strong>OLFX ADMIN</strong><small>CONTROL CENTER / OLON</small></span>';
+    brand.innerHTML='<span class="olAdminBrandMark" aria-hidden="true">OL</span><span class="olAdminBrandText"><strong>OLON / ADMIN</strong><small>EXECUTIVE MANAGEMENT</small></span><span class="olAdminBrandLive" title="Centro administrativo">●</span>';
     const content=document.createElement("main");
     content.className="olAdminMain";
     content.id="olAdminMain";
     const mobileBar=document.createElement("div");
     mobileBar.className="olAdminMobileBar";
     mobileBar.innerHTML='<button type="button" class="olAdminMenuToggle" aria-controls="olAdminSidebar" aria-expanded="false"><span aria-hidden="true">☰</span> Secciones</button><strong id="olAdminMobileTitle">Resumen general</strong>';
+    const topbar=document.createElement("header");
+    topbar.className="olAdminWorkspaceTopbar";
+    topbar.innerHTML='<div class="olAdminWorkspaceHeading"><span>ADMINISTRACIÓN / PORTAL DEL TRADER</span><h2 id="olAdminWorkspaceTitle">Resumen ejecutivo</h2><small id="olAdminWorkspaceMeta">Actividad y estado</small></div><div class="olAdminTopbarAside"><span class="olAdminAccessDot"></span><span>ADMIN ACCESS</span></div>';
     const viewContainer=document.createElement("div");
     viewContainer.className="olAdminViewContainer";
-    content.append(mobileBar,viewContainer);
-    sidebar.append(brand,nav);
+    content.append(mobileBar,topbar,viewContainer);
+    const sidebarIntro=document.createElement("div");
+    sidebarIntro.className="olAdminSidebarIntro";
+    sidebarIntro.innerHTML='<span>ESPACIO ADMINISTRATIVO</span><strong>Centro de gestión</strong><small>Acceso privado · OLON Society Academy</small>';
+    const finder=document.createElement("div");
+    finder.className="olAdminFinder";
+    finder.innerHTML='<span aria-hidden="true">⌕</span><input id="olAdminMenuSearch" type="search" placeholder="Buscar módulo..." autocomplete="off" aria-label="Buscar secciones administrativas" maxlength="80"><kbd>/</kbd>';
+    const footer=document.createElement("div");
+    footer.className="olAdminSidebarFooter";
+    footer.innerHTML='<span>OLON SOCIETY ACADEMY</span><small>ADMIN TERMINAL · 2026</small>';
+    sidebar.append(brand,sidebarIntro,finder,nav,footer);
     shell.append(sidebar,content);
 
     const backdrop=document.createElement("button");
@@ -99,9 +111,10 @@
       button.className="olAdminNavItem";
       button.dataset.adminOpen=item.id||"";
       if(item.route)button.dataset.adminRoute=item.route;
-      button.innerHTML='<span class="olAdminNavIcon" aria-hidden="true"></span><span class="olAdminNavName"></span>';
+      button.innerHTML='<span class="olAdminNavIcon" aria-hidden="true"></span><span class="olAdminNavLabel"><span class="olAdminNavName"></span><small class="olAdminNavDesc"></small></span><span class="olAdminNavArrow" aria-hidden="true">›</span>';
       button.querySelector(".olAdminNavIcon").textContent=item.icon;
       button.querySelector(".olAdminNavName").textContent=item.name;
+      button.querySelector(".olAdminNavDesc").textContent=item.desc||"";
       if(item.counter) {
         const counter=document.createElement("span");
         counter.className="olAdminNavCounter";
@@ -113,6 +126,39 @@
       if(item.id)menuButtons.set(item.id,button);
     }
 
+    const searchInput=finder.querySelector("input");
+    function filterNavigation(){
+      const query=searchInput.value.trim().toLocaleLowerCase("es");
+      let any=false;
+      for(const button of nav.querySelectorAll(".olAdminNavItem")){
+        const match=!query||button.textContent.toLocaleLowerCase("es").includes(query);
+        button.hidden=!match;
+        if(match)any=true;
+      }
+      for(const group of nav.querySelectorAll(".olAdminNavGroup")){
+        let sibling=group.nextElementSibling,visible=false;
+        while(sibling&&!sibling.classList.contains("olAdminNavGroup")){
+          if(sibling.classList.contains("olAdminNavItem")&&!sibling.hidden)visible=true;
+          sibling=sibling.nextElementSibling;
+        }
+        group.hidden=!visible;
+      }
+      finder.classList.toggle("olAdminNoResults",!any);
+    }
+    searchInput.addEventListener("input",filterNavigation);
+    searchInput.addEventListener("keydown",event=>{
+      if(event.key==="Enter"){
+        const first=nav.querySelector(".olAdminNavItem:not([hidden])");
+        if(first){event.preventDefault();first.click();searchInput.blur();}
+      }
+      if(event.key==="Escape"){searchInput.value="";filterNavigation();searchInput.blur();}
+    });
+    document.addEventListener("keydown",event=>{
+      if(event.key==="/"&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&
+        !["INPUT","TEXTAREA"].includes(document.activeElement?.tagName)&&isAdmin()&&!admin.classList.contains("hidden")){
+        event.preventDefault();searchInput.focus();
+      }
+    });
     let selected="adminOverviewBlock";
     const toggle=mobileBar.querySelector(".olAdminMenuToggle");
     function closeMenu() {
@@ -143,6 +189,10 @@
       });
       const label=MENU.find(item=>item.id===id)?.name || "Administración";
       $("olAdminMobileTitle").textContent=label;
+      const workspaceTitle=$("olAdminWorkspaceTitle");
+      if(workspaceTitle)workspaceTitle.textContent=label;
+      const workspaceMeta=$("olAdminWorkspaceMeta");
+      if(workspaceMeta)workspaceMeta.textContent=MENU.find(item=>item.id===id)?.desc||"Centro de gestión";
       closeMenu();
       if(options.scroll!==false)admin.scrollIntoView({behavior:"auto",block:"start"});
       if(id==="adminBillingBlock")window.olonBilling?.activate?.();
