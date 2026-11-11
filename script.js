@@ -820,26 +820,18 @@ let recordsLoadedFor = null;
 
 async function fetchRecords(){
   if(!currentUser || isAdminUser(currentUser)) return [];
-  const studentId = currentUser.id;
-  const request = ++recordsRequest;
-  const records = [];
-  const pageSize = 500;
-  for(let offset = 0; ; offset += pageSize){
-    const { data, error } = await supabaseClient.from("student_records").select("*")
-      .eq("student_id", studentId).order("record_date").order("created_at").order("id")
-      .range(offset, offset + pageSize - 1);
-    if(currentUser?.id !== studentId || request !== recordsRequest) return [];
-    if(error){ showError("No se pudieron cargar los registros.", error); return cachedRecords; }
-    records.push(...(data || []));
-    if((data || []).length < pageSize) break;
+  const studentId=currentUser.id;
+  const request=++recordsRequest;
+  // The visible performance is sourced ONLY from the student's connected MT account.
+  // All old student_records stay untouched in Supabase as an archival backup.
+  if(!window.olonMtRecords){
+    cachedRecords=[];
+    return cachedRecords;
   }
-  cachedRecords = records.map(r => ({
-    id:r.id, date:r.record_date, kind:r.record_kind, revision:r.revision,
-    deposit:Number(r.deposit||0), withdrawal:Number(r.withdrawal||0),
-    gain:Number(r.gain||0), loss:Number(r.loss||0), created_at:r.created_at,
-    ...window.olonAnalyticsCore.decodeNote(r.note || "")
-  }));
-  recordsLoadedFor = studentId;
+  const real=await window.olonMtRecords.fetch(studentId);
+  if(currentUser?.id !== studentId || request !== recordsRequest) return [];
+  cachedRecords=Array.isArray(real)?real:[];
+  recordsLoadedFor=studentId;
   return cachedRecords;
 }
 
@@ -1309,6 +1301,7 @@ async function render(){
   }
   document.getElementById("mLoss").innerText = money(t.loss);
   document.getElementById("mGrowth").innerText = pct(t.growth);
+  window.olonMtRecords?.afterRender();
   window.olonHistory?.render(records);
   window.olonAnalytics?.render(records, studentId);
   renderCompare(); renderChart(); renderProDashboard();
@@ -1362,6 +1355,10 @@ function renderChart(){
 }
 async function clearData(){
   if(!currentUser || isAdminUser(currentUser)) return;
+  if(window.olonMtRecords?.linked()){
+    alert("Los resultados MT se sincronizan automáticamente. Los registros anteriores se conservan y no pueden borrarse desde esta pantalla.");
+    return;
+  }
   if(confirm("¿Borrar todos tus registros?")){
     const { error } = await supabaseClient.from("student_records").delete().eq("student_id", currentUser.id);
     if(error){ showError("No se pudieron borrar los registros.", error); return; }
