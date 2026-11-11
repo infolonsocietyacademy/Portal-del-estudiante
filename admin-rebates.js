@@ -140,7 +140,7 @@
   async function assets() {
     if(!assetPromise)assetPromise=(async()=>{
       await loadScript("./rebates/vendor/jszip-3.10.1.min.js",()=>!!window.JSZip);
-      await loadScript("./rebates/xlsx-reader.js?v=20261111-settled-annual-1",()=>!!window.olonRebateReader);
+      await loadScript("./rebates/xlsx-reader.js?v=20261111-settled-decimal-fix-2",()=>!!window.olonRebateReader);
     })().catch(error=>{assetPromise=null;throw error;});
     return assetPromise;
   }
