@@ -55,7 +55,7 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 <link rel="stylesheet" href="./terminal-workspace.css?v=20261109-clean-summary-1">
 <link rel="stylesheet" href="./terminal-fluid.css?v=20261108-fluid-terminal-1">
 <link rel="stylesheet" href="./mobile-premium.css?v=20261109-mobile-premium-1">
-<link rel="stylesheet" href="./metaapi-accounts.css?v=20261111-direct-5">
+<link rel="stylesheet" href="./metaapi-accounts.css?v=20261111-unlink-6">
 <link rel="stylesheet" href="./student-sidebar.css?v=20261110-student-rail-1">
 <link rel="stylesheet" href="./student-dashboard.css?v=20261110-navigation-fix-1">
 </head>
@@ -782,14 +782,11 @@ window.addEventListener("load", () => {
             <div id="metaapiConnectedNext">
               <p class="metaapi-muted">MetaApi está preparando la conexión. Pulsa «Actualizar estado» para comprobar si ya está disponible. Si necesitas corregir los datos, utiliza «Reiniciar conexión» más abajo.</p>
             </div>
-            <div class="metaapi-actions">
+            <div class="metaapi-actions metaapi-account-actions">
               <button id="metaapiRefresh" type="button" class="btn secondary">Actualizar estado</button>
+              <button id="metaapiDisconnect" type="button" class="btn secondary metaapi-disconnect">Desconectar cuenta</button>
             </div>
-            <details id="metaapiManageDetails" class="metaapi-help" hidden>
-              <summary>¿Te equivocaste de servidor? Cambiar conexión</summary>
-              <p class="metaapi-muted">Si necesitas cambiar de servidor o volver a configurar la conexión dentro del portal, reinicia la vinculación. Tu cuenta en el bróker no se elimina.</p>
-              <button id="metaapiDisconnect" type="button" class="btn secondary">Desconectar esta cuenta</button>
-            </details>
+            <p class="metaapi-muted metaapi-disconnect-note">Al desconectar, se detiene la sincronización de esta cuenta con el portal. Los movimientos que ya se guardaron en Supabase no se eliminan; dejarán de mostrarse hasta que se conecte una cuenta compatible. No se afecta la cuenta del bróker.</p>
             <div id="metaapiUnlinkPending" hidden></div>
           </div>
           <p id="metaapiFeedback" role="status" aria-live="polite" hidden></p>
@@ -1534,7 +1531,7 @@ window.addEventListener("load", () => {
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
 <script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script>
-<script src="./metaapi-accounts.js?v=20261111-direct-5" defer></script>
+<script src="./metaapi-accounts.js?v=20261111-unlink-6" defer></script>
 <script src="./student-dashboard.js?v=20261110-vip-renewal-only-2" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
 </html>
 
