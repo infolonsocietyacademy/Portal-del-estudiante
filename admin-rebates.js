@@ -16,7 +16,11 @@
   updateInput.type='file';updateInput.accept='.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';updateInput.hidden=true;
   updateInput.id='rebateUpdateFile';block.appendChild(updateInput);
   const comparison=document.createElement('div');comparison.id='rebateComparison';comparison.className='rebateComparison';comparison.hidden=true;
-  $('rebatePreviewMetrics').insertAdjacentElement('afterend',comparison);
+  // The preview grid is a CSS class, not an element id. A null dereference here
+  // previously stopped ALL rebate actions (including the Excel file chooser).
+  const previewMetrics=block.querySelector(".rebatePreviewMetrics");
+  if(previewMetrics)previewMetrics.insertAdjacentElement("afterend",comparison);
+  else block.querySelector("#rebatePreview")?.appendChild(comparison);
   function authorized() { return typeof currentUser!=="undefined" && !!currentUser && isAdminUser(currentUser) && currentUser.status==="active"; }
   function active(captured) { return authorized() && owner===currentUser.id && captured===epoch; }
   function feedback(message="",error=false) {
