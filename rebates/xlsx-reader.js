@@ -4,9 +4,9 @@
   const MAX_ROWS = 5000;
   const norm = value => String(value ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"");
   const headers = {
-    referral_id:["Referral ID","Referido ID"], customer_id:["Customer ID","Client ID","Cliente ID"],
+    referral_id:["Referral ID","Referido ID","Reffered by","Referred by"], customer_id:["Customer ID","Client ID","Cliente ID","A/C Number","Account Number"],
     customer_name:["Customer Name","Client Name","Nombre del cliente","Cliente"],
-    account_name:["A/C Name","Account Name","Nombre de cuenta"],
+    account_name:["A/C Name","Account Name","Nombre de cuenta","Referral Name"],
     order_id:["Order ID","Order","Ticket","Orden ID"],
     close_time:["Close Time","Close Date","Fecha de cierre"],
     open_time:["Open Time","Open Date","Fecha de apertura"],
@@ -14,7 +14,8 @@
     symbol:["Symbol","Símbolo","Instrumento"], side:["Type","Side","Tipo"],
     rebate:["Rebate Earnings","Rebates Generated","Rebates","Rebates generados"],
     rebate_id:["Rebate ID"], wallet_id:["Rebate Wallet ID","Wallet ID"],
-    currency:["Rebate Wallet","Currency","Moneda"], platform:["Platform","Plataforma"]
+    currency:["Rebate Wallet","Rebate Currency","Currency","Moneda"], platform:["Platform","Trading Platform","Plataforma"],
+    settlement_status:["Settlement Status"], settlement_reference:["Settlement Reference Number"], profit:["Profit"]
   };
   const aliases = Object.fromEntries(Object.entries(headers).map(([key,list]) => [key,list.map(norm)]));
   function xml(text,component="componente interno") {
@@ -99,7 +100,8 @@
     const sharedFile = zip.file("xl/sharedStrings.xml");
     const shared = sharedFile ? nodes(xml(await sharedFile.async("string"),"xl/sharedStrings.xml"),"si").map(si => nodes(si,"t").map(t => t.textContent).join("")) : [];
     const result = [], sheets = [], warnings = [];
-    let matched = false, skippedTotals = 0, fallbackDates = 0;
+    let matched = false, skippedTotals = 0, fallbackDates = 0, settledRows = 0;
+    const settlements = new Set();
     for (const sheet of nodes(workbook,"sheet")) {
       const rel = sheet.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships","id") || sheet.getAttribute("r:id");
       let target = rels.get(rel);
@@ -144,6 +146,13 @@
           const side = ({buy:"buy",sell:"sell",compra:"buy",venta:"sell"})[sideValue] || "unspecified";
           const closeDate = get("close_time"), openDate = get("open_time");
           if (!closeDate && openDate) fallbackDates++;
+          if (get("settlement_status")) {
+            const status=norm(get("settlement_status"));
+            if(status !== "paid" && status !== "settled") throw Error("Estado de liquidación no compatible: "+get("settlement_status"));
+            settledRows++;
+            const ref=get("settlement_reference");
+            if(ref) settlements.add(ref);
+          }
           result.push({
             platform, referral_id:id("referral_id","0"), customer_id:id("customer_id"),
             customer_name:(get("customer_name") || get("account_name") || "Cliente " + id("customer_id")).slice(0,160),
@@ -160,7 +169,9 @@
     if (!result.length) throw Error("El reporte no contiene registros para importar.");
     if (skippedTotals) warnings.push(skippedTotals + " fila(s) de totales omitidas para evitar contarlas dos veces.");
     if (fallbackDates) warnings.push(fallbackDates + " registro(s) usan la fecha de apertura porque no tienen fecha de cierre.");
-    return {rows:result,hash,name:file.name,sheets,warnings};
+    if(settledRows) warnings.push("Reporte Settled de Axi: "+settledRows+" operaciones liquidadas; "+settlements.size+" referencias de liquidación. Los rebates son comisiones, no las ganancias o pérdidas de los trades.");
+    const periods=Array.from(new Set(result.map(r=>r.trade_date.slice(0,7)))).sort();
+    return {rows:result,hash,name:file.name,sheets,warnings,periods,kind:settledRows?"settled":"unsettled"};
   }
   window.olonRebateReader = {read};
 })();
