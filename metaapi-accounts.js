@@ -60,7 +60,7 @@
     const account = data.account || null;
     lastAccount = account;
 
-    const draft = !!account && (statusCode(account.state) === "DRAFT" || (!account.loginMasked && statusCode(account.state) === "PENDING"));
+    const draft = !!account && (statusCode(account.state) === "DRAFT" || statusCode(account.state) === "PENDING" || account.needsCredentials === true);
     form.hidden = !!account && !draft;
     connectedArea.hidden = !account || draft;
     if (draft && account) {
@@ -132,7 +132,7 @@
         feedback("No pudimos confirmar el estado con MetaApi. Puedes volver a verificar.", "error");
       } else if (data.account && statusCode(data.account.connectionStatus) === "CONNECTED") {
         feedback("¡Conexión confirmada! Ya puedes cerrar esta sección.", "success");
-      } else if (data.account && (statusCode(data.account.state) === "DRAFT" || (!data.account.loginMasked && statusCode(data.account.state) === "PENDING"))) {
+      } else if (data.account && (statusCode(data.account.state) === "DRAFT" || statusCode(data.account.state) === "PENDING" || data.account.needsCredentials === true)) {
         feedback("La cuenta está incompleta: introduce tu número de cuenta y contraseña de inversor abajo y pulsa Conectar. No necesitas eliminarla.", "info");
       } else if (data.account) {
         feedback("La conexión todavía no está activa. Pulsa «Actualizar estado» para comprobar si MetaApi terminó de conectarla.", "info");
