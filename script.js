@@ -893,9 +893,11 @@ function totals(records=cachedRecords){
 }
 
 function monthRecords(offset){
-  const now = new Date(); const target = new Date(now.getFullYear(), now.getMonth()+offset, 1);
-  const y = target.getFullYear(), m = target.getMonth();
-  return cachedRecords.filter(r=>{ const d = new Date(r.date + "T00:00:00"); return d.getFullYear() === y && d.getMonth() === m; });
+  const today = window.olonAnalyticsCore.today();
+  const target = new Date(today.slice(0,7)+"-01T12:00:00Z");
+  target.setUTCMonth(target.getUTCMonth()+offset);
+  const key = target.toISOString().slice(0,7);
+  return cachedRecords.filter(r=>String(r.date||"").startsWith(key+"-"));
 }
 
 
@@ -973,27 +975,19 @@ function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
 
 
 function recordsBetween(start, end){
-  return (cachedRecords || []).filter(r=>{
-    const d = new Date(r.date + "T00:00:00");
-    return d >= start && d <= end;
-  });
+  const first=typeof start==="string"?start:new Date(start).toISOString().slice(0,10);
+  const last=typeof end==="string"?end:new Date(end).toISOString().slice(0,10);
+  return (cachedRecords||[]).filter(r=>r.date>=first && r.date<=last);
 }
 
 function yearRecords(){
-  const now = new Date();
-  return recordsBetween(new Date(now.getFullYear(),0,1), new Date(now.getFullYear(),11,31,23,59,59));
+  const now = window.olonAnalyticsCore.today();
+  return recordsBetween(now.slice(0,4)+"-01-01",now);
 }
 
 function weekRecords(){
-  const now = new Date();
-  const day = now.getDay();
-  const start = new Date(now);
-  start.setDate(now.getDate() - day);
-  start.setHours(0,0,0,0);
-  const end = new Date(start);
-  end.setDate(start.getDate()+6);
-  end.setHours(23,59,59,999);
-  return recordsBetween(start,end);
+  const bounds=window.olonAnalyticsCore.range("week");
+  return recordsBetween(bounds.start,bounds.end);
 }
 
 function winRateFromRecords(records){
