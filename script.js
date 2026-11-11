@@ -1308,6 +1308,7 @@ async function render(){
 }
 
 function recordHistoryActions(record){
+  if(record?.mt_record)return '<span class="mtHistoryReadOnly" aria-label="Dato automático verificado">MT · Automático</span>';
   const safeId = escapeHTML(record.id);
   const journal = isTradingRecord(record)
     ? `<button type="button" class="btn secondary" data-record-journal="${safeId}">Diario visual</button>` : "";
