@@ -31,7 +31,7 @@
 <link rel="stylesheet" href="./leaderboard.css?v=20261108-top3-avatar-colors-4">
 <link rel="stylesheet" href="./admin-billing.css?v=20261110-student-billing-nav-1">
 <link rel="stylesheet" href="./admin-shell.css?v=20261110-executive-ui-2">
-<link rel="stylesheet" href="./admin-rebates.css?v=20261110-admin-delete-2">
+<link rel="stylesheet" href="./admin-rebates.css?v=20261111-settled-periods-1">
 <link rel="stylesheet" href="./admin-performance.css?v=20261108-student-perf-1"><link rel="stylesheet" href="./license-ui.css?v=20261110-restore-original-5">
 <noscript><style>#olonLoader{display:none}</style></noscript>
 
@@ -969,8 +969,8 @@ window.addEventListener("load", () => {
         <footer class="billingFooter"><span><strong>Serie OSA-P</strong> · Numeración automática compartida entre dispositivos.</span><span>Facturador OLFX · Solo administración</span></footer>
       </section>
       <section class="adminWorkspaceCard" id="adminRebatesBlock" aria-labelledby="rebateTitle">
-        <header class="rebateHead"><div><span class="rebateEyebrow">OLON SOCIETY / REPORTES DEL BRÓKER</span><h4 id="rebateTitle">Volumen y rebates</h4><p>Sube tus reportes Excel y sigue acumulando el volumen en lotes y los rebates generados.</p></div><div class="rebateActions"><button type="button" class="rebateButton" id="rebateRefresh">↻ Actualizar</button><button type="button" class="rebateButton primary" id="rebateChoose">⇧ Subir Excel</button><input id="rebateFile" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Seleccionar reporte Excel" hidden></div></header>
-        <div class="rebateUploadHint"><span id="rebateUploadStatus" role="status">Excel .xlsx · Hasta 10 MB y 5,000 registros por archivo</span><span>Los registros repetidos se cuentan una sola vez.</span></div>
+        <header class="rebateHead"><div><span class="rebateEyebrow">OLON SOCIETY / REPORTES DEL BRÓKER</span><h4 id="rebateTitle">Volumen y rebates</h4><p>Importa reportes Settled y UnSettled de Axi. Consulta sus operaciones y rebates por mes y año, sin duplicados.</p></div><div class="rebateActions"><button type="button" class="rebateButton" id="rebateRefresh">↻ Actualizar</button><button type="button" class="rebateButton primary" id="rebateChoose">⇧ Subir Excel</button><input id="rebateFile" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Seleccionar reporte Excel" hidden></div></header>
+        <div class="rebateUploadHint"><span id="rebateUploadStatus" role="status">Excel de Axi Settled / UnSettled (.xlsx) · Hasta 10 MB y 5,000 operaciones por archivo</span><span>Los registros repetidos se cuentan una sola vez.</span></div>
         <div class="rebateMetrics" aria-label="Acumulado de reportes">
           <div class="rebateMetric"><span>Volumen total (lotes)</span><strong id="rebateTotalLots">—</strong><small id="rebateEarningLots">—</small></div>
           <div class="rebateMetric"><span>Rebates generados</span><strong class="rebateMoney" id="rebateTotalAmount">—</strong><small>Importes reportados por moneda</small></div>
@@ -1288,7 +1288,7 @@ window.addEventListener("load", () => {
 <script src="./admin-workspace.js?v=20261110-student-billing-nav-1" defer></script>
 <script src="./admin-shell.js?v=20261110-executive-ui-2" defer></script>
 <script src="./admin-billing.js?v=20261110-student-billing-nav-1" defer></script>
-<script src="./admin-rebates.js?v=20261110-admin-delete-2" defer></script>
+<script src="./admin-rebates.js?v=20261111-settled-periods-1" defer></script>
 <script src="./leaderboard.js?v=20261108-top3-avatar-colors-4" defer></script>
 <script src="./admin-performance.js?v=20261108-auto-ranking-2" defer></script>
 <script src="./admin-registration.js?v=20261110-admin-sections-1" defer></script><script src="./license-ui.js?v=20261110-restore-original-5" defer></script>
