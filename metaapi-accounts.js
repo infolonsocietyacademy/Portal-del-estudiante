@@ -49,6 +49,8 @@
     if (!container || !form || !state) return;
     container.hidden = !data;
     form.hidden = !!data;
+    const configLink = byId("metaapiOpenLink");
+    if (configLink) { configLink.hidden = true; configLink.removeAttribute("href"); }
     if (!data) {
       state.textContent = "SIN CONECTAR";
       return;
@@ -82,13 +84,12 @@
   function openConfig(url) {
     const link = new URL(url);
     if (link.protocol !== "https:" || link.hostname !== "app.metaapi.cloud") throw new Error("MetaApi devolvió un enlace de configuración inesperado.");
-    // Open a button-driven new tab to avoid handing a secret configuration URL to other sites.
-    const a = document.createElement("a");
-    a.href = url;
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-    a.click();
-    say("Se abrió el formulario seguro de MetaApi. Utiliza solamente la contraseña de inversor y luego presiona Actualizar estado.");
+    // Present a user-clickable link; browsers can block pop-ups started after async requests.
+    const a = byId("metaapiOpenLink");
+    if (!a) throw new Error("No se pudo mostrar el enlace de configuración.");
+    a.href = link.href;
+    a.hidden = false;
+    say("Tu enlace de configuración está listo. Pulsa Abrir formulario seguro e introduce únicamente la contraseña de inversor. Después actualiza el estado.");
   }
   function init() {
     const form = byId("metaapiConnectForm");
