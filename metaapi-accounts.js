@@ -31,7 +31,7 @@
       if (button) button.disabled = flag;
     }
     const btn = $("metaapiConnect");
-    if (btn) btn.textContent = flag ? "Conectando…" : "Conectar cuenta desde el portal";
+    if (btn) btn.textContent = flag ? "Procesando conexión…" : "Conectar cuenta desde el portal";
   }
 
   async function callServer(payload) {
@@ -60,8 +60,26 @@
     const account = data.account || null;
     lastAccount = account;
 
-    form.hidden = !!account;
-    connectedArea.hidden = !account;
+    const draft = !!account && (statusCode(account.state) === "DRAFT" || statusCode(account.state) === "PENDING" || account.needsCredentials === true);
+    form.hidden = !!account && !draft;
+    connectedArea.hidden = !account || draft;
+    if (draft && account) {
+      $("metaapiPlatform").value = account.platform || "mt5";
+      document.querySelectorAll("[data-metaapi-platform]").forEach(button => {
+        const selected = button.dataset.metaapiPlatform === account.platform;
+        button.classList.toggle("selected", selected);
+        button.setAttribute("aria-pressed", String(selected));
+      });
+      const choices = $("metaapiServerChoices");
+      if (choices && account.brokerServer) {
+        choices.replaceChildren(new Option(account.brokerServer + " · vinculación pendiente", account.brokerServer));
+        choices.disabled = false;
+        choices.value = account.brokerServer;
+        $("metaapiServerManualWrap").hidden = true;
+      }
+      const serverHint = $("metaapiServerHint");
+      if (serverHint) serverHint.textContent = "Cuenta en borrador detectada. Completa número de cuenta y contraseña de inversor para finalizarla sin crear otra conexión.";
+    }
     if (!account) {
       badge.textContent = "Sin vincular";
       badge.dataset.status = "off";
@@ -114,8 +132,10 @@
         feedback("No pudimos confirmar el estado con MetaApi. Puedes volver a verificar.", "error");
       } else if (data.account && statusCode(data.account.connectionStatus) === "CONNECTED") {
         feedback("¡Conexión confirmada! Ya puedes cerrar esta sección.", "success");
+      } else if (data.account && (statusCode(data.account.state) === "DRAFT" || statusCode(data.account.state) === "PENDING" || data.account.needsCredentials === true)) {
+        feedback("La cuenta está incompleta: introduce tu número de cuenta y contraseña de inversor abajo y pulsa Conectar. No necesitas eliminarla.", "info");
       } else if (data.account) {
-        feedback("La cuenta está pendiente. Pulsa «Actualizar estado» o reinicia para volver a introducir los datos si hubo un error.", "info");
+        feedback("La conexión todavía no está activa. Pulsa «Actualizar estado» para comprobar si MetaApi terminó de conectarla.", "info");
       } else {
         const box = $("metaapiFeedback");
         if (box) box.hidden = true;
