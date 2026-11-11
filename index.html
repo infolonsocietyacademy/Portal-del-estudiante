@@ -49,6 +49,7 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 </style>
 <link rel="stylesheet" href="./trading-terminal-pro.css?v=20261108">
 <link rel="stylesheet" href="./trader-analytics.css?v=20261108-public-tape-1">
+<link rel="stylesheet" href="./olon-mt-records.css?v=20261111-mt-auto-1">
 <link rel="stylesheet" href="./portal-reminders.css?v=20261108-reminders-1">
 <link rel="stylesheet" href="./mobile-notifications.css?v=20261108-push-1">
 <link rel="stylesheet" href="./terminal-workspace.css?v=20261109-clean-summary-1">
@@ -364,6 +365,7 @@ window.addEventListener("load", () => {
         </section>
       </div>
 
+      <section id="mtSyncStatus" class="mtSyncStatus" role="status" aria-live="polite" hidden></section>
       <section id="olonLeaderboard" class="card olonLeaderboard studentOnly" aria-labelledby="olonLeaderboardTitle">
         <div class="olonLeaderboardTop">
           <div>
@@ -498,7 +500,7 @@ window.addEventListener("load", () => {
 
       <div class="cyberDashboardSpotlight" aria-label="Resumen de trading">
         <div class="card chartBox">
-          <div class="cyberChartHead"><h3>EQUITY CURVE — RENDIMIENTO</h3><span class="cyberChartHint">BALANCE REGISTRADO · DATOS PERSONALES</span></div>
+          <div class="cyberChartHead"><h3>EQUITY CURVE — RENDIMIENTO</h3><span class="cyberChartHint">BALANCE DE TU CUENTA MT · DATOS AUTOMÁTICOS</span></div>
           <canvas id="balanceChart"></canvas>
         </div>
         <aside class="cyberDashboardRail" aria-label="Calendario y acciones">
@@ -799,7 +801,7 @@ window.addEventListener("load", () => {
     </section>
     <section id="historial" class="page hidden" aria-labelledby="historyTitle">
       <header class="card traderHistoryHero">
-        <div><span class="traderKicker">BITÁCORA PERSONAL</span><h3 id="historyTitle">Historial de trading</h3><p>Consulta tus resultados y movimientos de capital por período.</p></div>
+        <div><span class="traderKicker">HISTORIAL MT4/MT5</span><h3 id="historyTitle">Historial de trading</h3><p>Consulta tus operaciones reales y movimientos de capital de MT4/MT5 por período.</p></div>
         <button type="button" class="btn" data-record-open="trading">Registrar resultado</button>
       </header>
       <dl class="historyMetrics" aria-label="Totales de los registros filtrados">
@@ -1383,7 +1385,8 @@ window.addEventListener("load", () => {
 </dialog>
 
 <script src="./analytics-core.js?v=20261108-performance-1" defer></script>
-<script src="./script.js?v=20261110-student-rail-1" defer></script>
+<script src="./olon-mt-records.js?v=20261111-automatic-mt-1" defer></script>
+<script src="./script.js?v=20261111-mt-only-1" defer></script>
 <script src="./interior-typewriter.js?v=20261107-profile-nickname-fix" defer></script>
 <script src="./appearance.js?v=20261109-terminal-1" defer></script>
 <script src="./trade-history.js?v=20261108-performance-1" defer></script>

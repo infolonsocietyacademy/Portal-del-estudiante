@@ -1,0 +1,24 @@
+/* MT performance source only. Prior manually entered records remain intact in Supabase.
+   Registration UI is not deleted from the project: only hidden while MT mode is enabled. */
+#sidebar [data-page="registro"],
+#portalDock [data-dock-page="registro"],
+#portalDock .terminalRegisterButton,
+#dashboard .ledgerQuickActions,
+#traderAnalytics [data-record-open],
+#registro,
+#portal [data-record-open],
+#portal [data-record-edit],
+#portal [data-record-delete] {display:none!important}
+#mtSyncStatus {
+ display:block;max-width:1100px;margin:12px 0 16px;padding:12px 14px;
+ border:1px solid rgba(56,189,248,.3);border-radius:10px;
+ background:rgba(56,189,248,.06);font-size:.8rem;line-height:1.65;
+ color:var(--text,#dbeafe);
+}
+#mtSyncStatus[hidden]{display:none!important}
+#portal .mtHistoryReadOnly {font-size:.73rem;line-height:1.5;opacity:.72;letter-spacing:.04em}
+#portal .historyRow .mtHistoryReadOnly{padding:6px 10px;align-self:center}
+@media(max-width:600px){#mtSyncStatus{font-size:.72rem;padding:10px}}
+
+#mtSyncStatus .mtManualRefresh{display:inline-flex;margin:9px 0 0 12px;padding:7px 12px;font-size:.77rem;min-height:34px}
+#mtSyncStatus .mtManualRefresh:disabled{opacity:.55}

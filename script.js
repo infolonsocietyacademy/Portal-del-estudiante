@@ -820,30 +820,23 @@ let recordsLoadedFor = null;
 
 async function fetchRecords(){
   if(!currentUser || isAdminUser(currentUser)) return [];
-  const studentId = currentUser.id;
-  const request = ++recordsRequest;
-  const records = [];
-  const pageSize = 500;
-  for(let offset = 0; ; offset += pageSize){
-    const { data, error } = await supabaseClient.from("student_records").select("*")
-      .eq("student_id", studentId).order("record_date").order("created_at").order("id")
-      .range(offset, offset + pageSize - 1);
-    if(currentUser?.id !== studentId || request !== recordsRequest) return [];
-    if(error){ showError("No se pudieron cargar los registros.", error); return cachedRecords; }
-    records.push(...(data || []));
-    if((data || []).length < pageSize) break;
+  const studentId=currentUser.id;
+  const request=++recordsRequest;
+  // The visible performance is sourced ONLY from the student's connected MT account.
+  // All old student_records stay untouched in Supabase as an archival backup.
+  if(!window.olonMtRecords){
+    cachedRecords=[];
+    return cachedRecords;
   }
-  cachedRecords = records.map(r => ({
-    id:r.id, date:r.record_date, kind:r.record_kind, revision:r.revision,
-    deposit:Number(r.deposit||0), withdrawal:Number(r.withdrawal||0),
-    gain:Number(r.gain||0), loss:Number(r.loss||0), created_at:r.created_at,
-    ...window.olonAnalyticsCore.decodeNote(r.note || "")
-  }));
-  recordsLoadedFor = studentId;
+  const real=await window.olonMtRecords.fetch(studentId);
+  if(currentUser?.id !== studentId || request !== recordsRequest) return [];
+  cachedRecords=Array.isArray(real)?real:[];
+  recordsLoadedFor=studentId;
   return cachedRecords;
 }
 
 async function delRecord(id){
+  if(window.olonMtRecords)return;
   const owner = currentUser?.id;
   if(!owner) return;
   const { error } = await supabaseClient.from("student_records").delete().eq("id", id).eq("student_id", owner);
@@ -900,9 +893,11 @@ function totals(records=cachedRecords){
 }
 
 function monthRecords(offset){
-  const now = new Date(); const target = new Date(now.getFullYear(), now.getMonth()+offset, 1);
-  const y = target.getFullYear(), m = target.getMonth();
-  return cachedRecords.filter(r=>{ const d = new Date(r.date + "T00:00:00"); return d.getFullYear() === y && d.getMonth() === m; });
+  const today = window.olonAnalyticsCore.today();
+  const target = new Date(today.slice(0,7)+"-01T12:00:00Z");
+  target.setUTCMonth(target.getUTCMonth()+offset);
+  const key = target.toISOString().slice(0,7);
+  return cachedRecords.filter(r=>String(r.date||"").startsWith(key+"-"));
 }
 
 
@@ -980,27 +975,19 @@ function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
 
 
 function recordsBetween(start, end){
-  return (cachedRecords || []).filter(r=>{
-    const d = new Date(r.date + "T00:00:00");
-    return d >= start && d <= end;
-  });
+  const first=typeof start==="string"?start:new Date(start).toISOString().slice(0,10);
+  const last=typeof end==="string"?end:new Date(end).toISOString().slice(0,10);
+  return (cachedRecords||[]).filter(r=>r.date>=first && r.date<=last);
 }
 
 function yearRecords(){
-  const now = new Date();
-  return recordsBetween(new Date(now.getFullYear(),0,1), new Date(now.getFullYear(),11,31,23,59,59));
+  const now = window.olonAnalyticsCore.today();
+  return recordsBetween(now.slice(0,4)+"-01-01",now);
 }
 
 function weekRecords(){
-  const now = new Date();
-  const day = now.getDay();
-  const start = new Date(now);
-  start.setDate(now.getDate() - day);
-  start.setHours(0,0,0,0);
-  const end = new Date(start);
-  end.setDate(start.getDate()+6);
-  end.setHours(23,59,59,999);
-  return recordsBetween(start,end);
+  const bounds=window.olonAnalyticsCore.range("week");
+  return recordsBetween(bounds.start,bounds.end);
 }
 
 function winRateFromRecords(records){
@@ -1309,12 +1296,14 @@ async function render(){
   }
   document.getElementById("mLoss").innerText = money(t.loss);
   document.getElementById("mGrowth").innerText = pct(t.growth);
+  window.olonMtRecords?.afterRender();
   window.olonHistory?.render(records);
   window.olonAnalytics?.render(records, studentId);
   renderCompare(); renderChart(); renderProDashboard();
 }
 
 function recordHistoryActions(record){
+  if(record?.mt_record)return '<span class="mtHistoryReadOnly" aria-label="Dato automático verificado">MT · Automático</span>';
   const safeId = escapeHTML(record.id);
   const journal = isTradingRecord(record)
     ? `<button type="button" class="btn secondary" data-record-journal="${safeId}">Diario visual</button>` : "";
@@ -1361,13 +1350,9 @@ function renderChart(){
   });
 }
 async function clearData(){
-  if(!currentUser || isAdminUser(currentUser)) return;
-  if(confirm("¿Borrar todos tus registros?")){
-    const { error } = await supabaseClient.from("student_records").delete().eq("student_id", currentUser.id);
-    if(error){ showError("No se pudieron borrar los registros.", error); return; }
-    cachedRecords = []; await render();
-  }
+  alert("Los registros manuales históricos están protegidos en Supabase. Los resultados visibles provienen únicamente de la cuenta MT conectada.");
 }
+
 setupEmailVerificationListeners();
 updateAuthRealStats();
 /* ===== BIENVENIDO ANIMADO PRO ===== */
