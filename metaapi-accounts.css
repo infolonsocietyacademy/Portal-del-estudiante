@@ -1,0 +1,17 @@
+/* Scoped, lightweight MT4/MT5 account screen */
+#metaapiAccountsPage { max-width: 1120px; margin: 0 auto; }
+#metaapiAccountsPage .metaapi-head { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:20px; }
+#metaapiAccountsPage .metaapi-head h3 { margin:4px 0; font-size:clamp(1.1rem,2vw,1.6rem); }
+#metaapiAccountsPage .metaapi-kicker { font-size:.72rem; letter-spacing:.13em; opacity:.7; }
+#metaapiAccountsPage .metaapi-badge { border:1px solid currentColor; border-radius:30px; font-size:.7rem; padding:.5rem .8rem; white-space:nowrap; }
+#metaapiAccountsPage .metaapi-panel { padding:clamp(16px,3vw,28px); border-radius:16px; background:var(--card,#141a24); border:1px solid rgba(150,160,185,.2); }
+#metaapiAccountsPage .metaapi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; }
+#metaapiAccountsPage label { display:block; font-size:.82rem; margin-bottom:7px; }
+#metaapiAccountsPage select,#metaapiAccountsPage input { box-sizing:border-box; width:100%; padding:12px; border-radius:8px; border:1px solid rgba(145,165,185,.5); background:var(--input-bg,#111827); color:var(--text,#f3f4f6); font:inherit; }
+#metaapiAccountsPage .metaapi-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:20px; }
+#metaapiAccountsPage .metaapi-actions button { min-height:44px; }
+#metaapiAccountsPage .metaapi-tip { line-height:1.7; font-size:.85rem; opacity:.78; margin-top:16px; }
+#metaapiAccountsPage .metaapi-fields { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-top:12px; }
+#metaapiAccountsPage .metaapi-fields strong { display:block; overflow-wrap:anywhere; margin-top:6px; }
+#metaapiFeedback { margin:14px 0 0; padding:10px 14px; border-left:3px solid #38bdf8; background:rgba(56,189,248,.09); border-radius:4px; }
+#metaapiAccountsPage [hidden] { display:none!important; }

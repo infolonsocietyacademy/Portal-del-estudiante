@@ -54,6 +54,7 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 <link rel="stylesheet" href="./terminal-workspace.css?v=20261109-clean-summary-1">
 <link rel="stylesheet" href="./terminal-fluid.css?v=20261108-fluid-terminal-1">
 <link rel="stylesheet" href="./mobile-premium.css?v=20261109-mobile-premium-1">
+<link rel="stylesheet" href="./metaapi-accounts.css?v=20261111-mt-connect-1">
 <link rel="stylesheet" href="./student-sidebar.css?v=20261110-student-rail-1">
 <link rel="stylesheet" href="./student-dashboard.css?v=20261110-navigation-fix-1">
 </head>
@@ -227,6 +228,7 @@ window.addEventListener("load", () => {
       <button type="button" class="portalNavLink terminalPrimaryLink studentNav" data-page="academyClassesPage" onclick="showPage('academyClassesPage',this)" aria-label="Clases"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h8"/></svg></span><span class="portalNavText">Clases</span><span id="classUnreadBadge" class="classUnreadBadge" aria-hidden="true" hidden></span></button>
       <button type="button" class="portalNavLink studentNav" data-page="academyVipPage" onclick="showPage('academyVipPage',this)" aria-label="Renovación VIP"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg></span><span class="portalNavText">Renovación VIP</span></button>
       <button type="button" class="portalNavLink terminalPrimaryLink studentNav" data-page="registro" onclick="showPage('registro',this)" aria-label="Registrar día"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/><rect x="2.5" y="2.5" width="19" height="19" rx="4"/></svg></span><span class="portalNavText">Registrar día</span></button>
+      <button type="button" class="portalNavLink studentNav" data-page="metaapiAccountsPage" onclick="showPage('metaapiAccountsPage',this)" aria-label="Mis cuentas MT4 y MT5"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="7" width="19" height="13" rx="2"/><path d="M7 7V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2M2.5 12h19"/></svg></span><span class="portalNavText">Mis cuentas MT4/MT5</span></button>
       <button type="button" class="portalNavLink studentNav" data-page="historial" onclick="showPage('historial',this)" aria-label="Historial"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 14h3M8 17h7"/></svg></span><span class="portalNavText">Historial</span></button>
       <button type="button" class="portalNavLink studentNav" data-page="academyChecklistPage" onclick="showPage('academyChecklistPage',this)" aria-label="Checklist"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="m7 9 1 1 2-2m2 2h4m-9 6 1 1 2-2m2 2h4"/></svg></span><span class="portalNavText">Checklist</span></button>
       <button type="button" class="portalNavLink terminalPrimaryLink studentNav" data-page="comparacion" onclick="showPage('comparacion',this)" aria-label="Resultados"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V11M10 20V5M16 20v-8M22 20V3"/><path d="M2 20h20"/></svg></span><span class="portalNavText">Resultados</span></button>
@@ -686,6 +688,40 @@ window.addEventListener("load", () => {
       </div>
     </section>
 
+    <section id="metaapiAccountsPage" class="page hidden" aria-labelledby="metaapiAccountsTitle">
+      <header class="metaapi-head">
+        <div><span class="metaapi-kicker">OLFX / METAAPI · SOLO LECTURA</span><h3 id="metaapiAccountsTitle">Mis cuentas MT4 / MT5</h3><p>Conecta tu propia cuenta para consultar tu rendimiento verificado.</p></div>
+        <span id="metaapiConnectionBadge" class="metaapi-badge">SIN CONECTAR</span>
+      </header>
+      <div class="metaapi-panel">
+        <form id="metaapiConnectForm" autocomplete="off">
+          <h4>Conectar cuenta de trading</h4>
+          <p>Selecciona tu plataforma y escribe el servidor de tu bróker. Abriremos un formulario seguro de MetaApi para que completes la conexión.</p>
+          <div class="metaapi-grid">
+            <div><label for="metaapiPlatform">Plataforma</label><select id="metaapiPlatform"><option value="mt5">MetaTrader 5 (MT5)</option><option value="mt4">MetaTrader 4 (MT4)</option></select></div>
+            <div><label for="metaapiServer">Servidor del bróker</label><input id="metaapiServer" maxlength="120" placeholder="Ej. Broker-Real" required spellcheck="false" autocapitalize="none"></div>
+          </div>
+          <div class="metaapi-actions"><button id="metaapiConnect" class="btn" type="submit">Conectar mi cuenta</button></div>
+        </form>
+        <div id="metaapiConnected" hidden>
+          <h4>Cuenta vinculada</h4>
+          <div class="metaapi-fields">
+            <div><span>Plataforma</span><strong id="metaapiAccountPlatform">—</strong></div>
+            <div><span>Servidor</span><strong id="metaapiAccountBroker">—</strong></div>
+            <div><span>Cuenta</span><strong id="metaapiAccountLogin">—</strong></div>
+            <div><span>Estado</span><strong id="metaapiAccountState">—</strong></div>
+          </div>
+          <div class="metaapi-actions">
+            <a id="metaapiOpenLink" class="btn" target="_blank" rel="noopener noreferrer" hidden>Abrir formulario seguro de MetaApi</a>
+            <button id="metaapiRefresh" class="btn secondary" type="button">Actualizar estado</button>
+            <button id="metaapiChange" class="btn secondary" type="button">Abrir configuración segura</button>
+            <button id="metaapiDisconnect" class="btn secondary" type="button">Desconectar cuenta</button>
+          </div>
+        </div>
+        <p id="metaapiFeedback" role="status" aria-live="polite" hidden></p>
+        <p class="metaapi-tip">Para consultar resultados sin ejecutar órdenes, usa únicamente tu contraseña de inversor (Investor Password). Nunca compartas tu contraseña principal. La primera versión permite una cuenta por estudiante; MetaApi puede cobrar por cuentas conectadas.</p>
+      </div>
+    </section>
     <section id="historial" class="page hidden" aria-labelledby="historyTitle">
       <header class="card traderHistoryHero">
         <div><span class="traderKicker">BITÁCORA PERSONAL</span><h3 id="historyTitle">Historial de trading</h3><p>Consulta tus resultados y movimientos de capital por período.</p></div>
@@ -1422,6 +1458,7 @@ window.addEventListener("load", () => {
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
 <script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script>
+<script src="./metaapi-accounts.js?v=20261111-mt-connect-1" defer></script>
 <script src="./student-dashboard.js?v=20261110-vip-renewal-only-2" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
 </html>
 
