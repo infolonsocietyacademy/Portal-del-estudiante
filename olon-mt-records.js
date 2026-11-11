@@ -71,6 +71,13 @@
     const coverage=syncState?.backfill_done?"Historial importado":"Importando historial antiguo por etapas";
     const extras=syncState?.last_error?" · Error de sincronización: "+safeText(syncState.last_error):"";
     box.textContent="MT4/MT5: fuente automática de resultados · "+coverage+" · Última actualización: "+synced+" · "+lastRows.length+" movimientos visibles"+extras;
+    const button=document.createElement("button");
+    button.type="button";
+    button.className="btn secondary mtManualRefresh";
+    button.textContent=syncing?"Sincronizando…":"Actualizar operaciones MT";
+    button.disabled=syncing;
+    button.addEventListener("click",()=>void refresh());
+    box.append(button);
   }
   async function loadData(id) {
     const results=[];
