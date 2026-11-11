@@ -61,6 +61,7 @@
     byId("metaapiAccountLogin").textContent = data.loginMasked || "Por configurar";
     byId("metaapiAccountState").textContent = (data.state || "Pendiente") + " / " + (data.connectionStatus || "Sin verificar");
     byId("metaapiRefresh").disabled = busy;
+    byId("metaapiChange").textContent = data.state === "PENDING" ? "Continuar conexión" : "Abrir configuración segura";
   }
   async function withBusy(work) {
     if (busy) return;
@@ -107,9 +108,13 @@
     byId("metaapiRefresh")?.addEventListener("click", () => void refresh());
     byId("metaapiChange")?.addEventListener("click", () => {
       void withBusy(async () => {
-        const data = await invoke({ action: "configuration-link" });
+        const payload = lastAccount?.state === "PENDING"
+          ? { action: "connect", platform: lastAccount.platform, brokerServer: lastAccount.brokerServer }
+          : { action: "configuration-link" };
+        const data = await invoke(payload);
+        render(data);
         if (data.configurationUrl) openConfig(data.configurationUrl);
-        else say("MetaApi aún no permite abrir el formulario. Intenta de nuevo.");
+        else say(data.message || "MetaApi aún está preparando la conexión. Presiona Continuar conexión más adelante.");
       });
     });
     byId("metaapiDisconnect")?.addEventListener("click", () => {
