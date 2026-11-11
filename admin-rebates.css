@@ -63,3 +63,13 @@ body.trader-themed #portal.app #admin #adminRebatesBlock button.primary{backgrou
 body.trader-themed.atlas-dark #adminRebatesBlock input{color-scheme:dark}
 body.trader-themed:not(.atlas-dark) #adminRebatesBlock input{color-scheme:light}
 @media(max-width:600px){#adminRebatesBlock .rebateFilters{grid-template-columns:minmax(0,1fr)}}
+
+#adminRebatesBlock .rebateUpdateAction{white-space:nowrap;flex-shrink:0;font-size:11px}
+#adminRebatesBlock .rebateComparison{padding:16px;border:1px solid var(--rb-line);background:var(--rb-soft);border-radius:12px;margin:14px 0}
+#adminRebatesBlock .rebateComparison>strong{display:block;font-size:11px;letter-spacing:.06em;margin-bottom:12px}
+#adminRebatesBlock .rebateCompareGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#adminRebatesBlock .rebateCompareGrid>div{padding:11px;border:1px solid var(--rb-line);border-radius:9px;min-width:0}
+#adminRebatesBlock .rebateCompareGrid small{display:block;color:var(--rb-muted);margin-bottom:6px}
+#adminRebatesBlock .rebateCompareGrid b{font-size:14px;overflow-wrap:anywhere}
+#adminRebatesBlock .rebateComparison p{margin:12px 0 0;line-height:1.6}
+@media(max-width:600px){#adminRebatesBlock .rebateUpdateAction{width:100%}#adminRebatesBlock .rebateCompareGrid{grid-template-columns:1fr 1fr}#adminRebatesBlock .rebateCompareGrid b{font-size:12px}}
