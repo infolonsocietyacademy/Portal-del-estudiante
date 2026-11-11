@@ -50,3 +50,9 @@
 #metaapiFeedback[data-tone=error]{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.09)}
 #metaapiAccountsPage [hidden]{display:none!important}
 @media(max-width:680px){#metaapiAccountsPage .metaapi-steps{gap:6px}#metaapiAccountsPage .metaapi-step{font-size:.66rem;padding:9px 7px;flex-direction:column;text-align:center;gap:6px}#metaapiAccountsPage .metaapi-number{width:24px;height:24px}#metaapiAccountsPage .metaapi-panel{padding:17px 14px}#metaapiAccountsPage .metaapi-fields{grid-template-columns:1fr}#metaapiAccountsPage .metaapi-actions{flex-direction:column;align-items:stretch}#metaapiAccountsPage .metaapi-actions .btn{width:100%;box-sizing:border-box}#metaapiAccountsPage .metaapi-platform-buttons button{padding:14px}}
+
+#metaapiAccountsPage .metaapi-broker-select{display:block;width:100%;max-width:600px;box-sizing:border-box;min-height:46px;padding:12px 14px;margin-bottom:15px;border:1px solid rgba(148,163,184,.45);border-radius:10px;background:var(--input-bg,#172234);color:inherit;font:inherit}
+#metaapiAccountsPage .metaapi-broker-select:disabled{opacity:.65;cursor:not-allowed}
+#metaapiAccountsPage #metaapiFindServers{margin-bottom:12px}
+#metaapiAccountsPage #metaapiOtherBrokerWrap,#metaapiAccountsPage #metaapiServerManualWrap{margin:12px 0 17px}
+#metaapiAccountsPage #metaapiServerHint{max-width:680px;margin-top:4px}

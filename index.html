@@ -54,7 +54,7 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 <link rel="stylesheet" href="./terminal-workspace.css?v=20261109-clean-summary-1">
 <link rel="stylesheet" href="./terminal-fluid.css?v=20261108-fluid-terminal-1">
 <link rel="stylesheet" href="./mobile-premium.css?v=20261109-mobile-premium-1">
-<link rel="stylesheet" href="./metaapi-accounts.css?v=20261111-mt-easy-2">
+<link rel="stylesheet" href="./metaapi-accounts.css?v=20261111-broker-chooser-3">
 <link rel="stylesheet" href="./student-sidebar.css?v=20261110-student-rail-1">
 <link rel="stylesheet" href="./student-dashboard.css?v=20261110-navigation-fix-1">
 </head>
@@ -715,9 +715,27 @@ window.addEventListener("load", () => {
             </div>
             <div class="metaapi-form-section">
               <h4>2. ¿Cuál es tu servidor?</h4>
-              <label for="metaapiServer">Servidor de tu bróker</label>
-              <input id="metaapiServer" maxlength="120" placeholder="Ej. TuBroker-Live" required spellcheck="false" autocapitalize="none" autocomplete="off">
-              <p class="metaapi-muted">Escribe el nombre <strong>exactamente igual</strong> al que aparece en tu aplicación de MetaTrader. No es el número de cuenta ni una página web.</p>
+              <label for="metaapiBroker">Selecciona tu bróker</label>
+              <select id="metaapiBroker" class="metaapi-broker-select">
+                <option value="AXI">AXI</option><option value="OTHER">Otro bróker</option>
+              </select>
+              <div id="metaapiOtherBrokerWrap" hidden>
+                <label for="metaapiOtherBroker">Nombre de tu bróker</label>
+                <input id="metaapiOtherBroker" maxlength="60" placeholder="Escribe el nombre para buscar" autocomplete="off">
+              </div>
+              <div class="metaapi-actions">
+                <button id="metaapiFindServers" class="btn secondary" type="button">Buscar servidores disponibles</button>
+              </div>
+              <label for="metaapiServerChoices">Servidor de tu cuenta</label>
+              <select id="metaapiServerChoices" class="metaapi-broker-select" disabled required>
+                <option value="">Primero busca los servidores</option>
+              </select>
+              <div id="metaapiServerManualWrap" hidden>
+                <label for="metaapiServer">Servidor exacto (si no aparece en la lista)</label>
+                <input id="metaapiServer" maxlength="120" placeholder="Tal como aparece en tu MT4/MT5" spellcheck="false" autocapitalize="none" autocomplete="off">
+              </div>
+              <p id="metaapiServerHint" class="metaapi-muted" role="status">Selecciona AXI y pulsa Buscar servidores. Verás los servidores que MetaApi conoce para la plataforma elegida.</p>
+              <p class="metaapi-muted">Es importante elegir el <strong>servidor exacto</strong> donde se encuentra tu cuenta; AXI es el nombre del bróker, no del servidor.</p>
               <details class="metaapi-help">
                 <summary>¿Dónde encuentro mi servidor?</summary>
                 <div>En MT4 o MT5, abre <strong>Gestionar cuentas</strong> (o Ajustes → Cuentas), selecciona la cuenta de trading y busca el servidor que aparece en sus detalles. También puede aparecer en el correo de bienvenida de tu bróker.</div>
@@ -749,8 +767,8 @@ window.addEventListener("load", () => {
               <button id="metaapiRefresh" type="button" class="btn secondary">Ya terminé, comprobar</button>
             </div>
             <details id="metaapiManageDetails" class="metaapi-help" hidden>
-              <summary>Administrar cuenta vinculada</summary>
-              <p class="metaapi-muted">Desconectar elimina la vinculación en el portal, pero no elimina tu cuenta del bróker.</p>
+              <summary>¿Te equivocaste de servidor? Cambiar conexión</summary>
+              <p class="metaapi-muted">Si elegiste un servidor incorrecto, reinicia la vinculación y escoge el servidor exacto. Tu cuenta real del bróker no se elimina.</p>
               <button id="metaapiDisconnect" type="button" class="btn secondary">Desconectar esta cuenta</button>
             </details>
             <div id="metaapiUnlinkPending" hidden></div>
@@ -1496,7 +1514,7 @@ window.addEventListener("load", () => {
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
 <script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script>
-<script src="./metaapi-accounts.js?v=20261111-mt-easy-2" defer></script>
+<script src="./metaapi-accounts.js?v=20261111-broker-chooser-3" defer></script>
 <script src="./student-dashboard.js?v=20261110-vip-renewal-only-2" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
 </html>
 

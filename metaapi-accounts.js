@@ -103,7 +103,8 @@
       ? "Continuar la conexión"
       : "Generar enlace seguro";
     $("metaapiConnectedNext").hidden = !isWaiting;
-    $("metaapiManageDetails").hidden = !isConnected;
+    $("metaapiManageDetails").hidden = false;
+    $("metaapiDisconnect").textContent = isConnected ? "Desconectar esta cuenta" : "Reiniciar y cambiar servidor";
     if (isConnected && link) { link.hidden = true; link.removeAttribute("href"); }
   }
 
@@ -145,11 +146,14 @@
   async function prepareAccount() {
     await withBusy(async () => {
       const platform = clean($("metaapiPlatform").value);
-      const brokerServer = clean($("metaapiServer").value);
-      if (!/^[a-z0-9_ .+/-]{2,120}$/i.test(brokerServer)) {
-        throw new Error("Escribe el nombre exacto del servidor de tu bróker, sin añadir un enlace web.");
+      const brokerServer = currentServer();
+      if (!/^[a-z0-9_ .+/-]{2,120}$/i.test(brokerServer) || brokerServer === "__manual__") {
+        throw new Error("Selecciona el servidor exacto de tu cuenta MT4/MT5. AXI por sí solo no es un servidor.");
       }
-      const result = await callServer({ action: "connect", platform, brokerServer });
+      if ($("metaapiBroker")?.value === "AXI" && (/^axiory/i.test(brokerServer) || /^axiance/i.test(brokerServer))) {
+        throw new Error("Ese servidor pertenece a otro bróker. Selecciona el servidor correcto de AXI.");
+      }
+      const result = await callServer({ action: "connect", platform, brokerServer, broker: $("metaapiBroker")?.value });
       if (result.account) render(result);
       if (result.configurationUrl) showLink(result.configurationUrl);
       else feedback(result.message || "Estamos preparando la conexión. Pulsa «Continuar la conexión» después.", "info");
@@ -171,7 +175,7 @@
   }
 
   async function unlink() {
-    if (!confirm("¿Desconectar esta cuenta del portal? No borra tu cuenta en el bróker.")) return;
+    if (!confirm("¿Quitar la vinculación de MetaApi y volver a elegir bróker y servidor? No borra tu cuenta en el bróker.")) return;
     await withBusy(async () => {
       await callServer({ action: "disconnect" });
       render({ account: null });
@@ -180,8 +184,70 @@
     });
   }
 
+  const serverChoices = () => $("metaapiServerChoices");
+  const serverMessage = (message) => { const node = $("metaapiServerHint"); if (node) node.textContent = message; };
+  const manualMode = () => serverChoices()?.value === "__manual__";
+  function clearServerChoice() {
+    const options = serverChoices();
+    if (!options) return;
+    options.replaceChildren(new Option("Pulsa Buscar servidores", ""));
+    options.disabled = true;
+    const manual = $("metaapiServerManualWrap");
+    if (manual) manual.hidden = true;
+    const field = $("metaapiServer");
+    if (field) field.value = "";
+  }
+  function currentServer() {
+    return manualMode() ? clean($("metaapiServer")?.value) : clean(serverChoices()?.value);
+  }
+  async function loadBrokerServers() {
+    if (busy) return;
+    const broker = $("metaapiBroker")?.value;
+    const query = clean($("metaapiOtherBroker")?.value);
+    if (broker === "OTHER" && query.length < 2) {
+      feedback("Escribe al menos dos letras del nombre del bróker.", "error"); return;
+    }
+    clearServerChoice();
+    const button = $("metaapiFindServers");
+    if (button) button.disabled = true;
+    serverMessage("Buscando los servidores conocidos de " + (broker === "AXI" ? "AXI" : query) + "…");
+    try {
+      const result = await callServer({
+        action: "search-servers",
+        platform: clean($("metaapiPlatform").value),
+        broker, query,
+      });
+      const options = serverChoices();
+      options.replaceChildren(new Option("Selecciona el servidor exacto", ""));
+      const servers = Array.isArray(result.servers) ? result.servers : [];
+      for (const item of servers) {
+        if (!item || typeof item.server !== "string") continue;
+        const option = new Option(item.server + (item.company ? " · " + item.company : ""), item.server);
+        options.add(option);
+      }
+      options.add(new Option("Mi servidor no aparece — escribirlo manualmente", "__manual__"));
+      options.disabled = false;
+      if (servers.length) {
+        serverMessage(servers.length + " servidores encontrados. Selecciona el mismo que aparece en tu cuenta MetaTrader.");
+      } else {
+        serverMessage("MetaApi no devolvió servidores de ese bróker. Puedes escribir manualmente el servidor exacto que aparece en MT4/MT5. Si MetaApi no lo reconoce, el bróker puede requerir un perfil de aprovisionamiento.");
+      }
+    } catch (error) {
+      const options = serverChoices();
+      options.replaceChildren(new Option("Mi servidor no aparece — escribirlo manualmente", "__manual__"));
+      options.disabled = false;
+      options.value = "__manual__";
+      $("metaapiServerManualWrap").hidden = false;
+      serverMessage("No se pudo consultar el directorio de MetaApi. Comprueba el servidor exacto en tu bróker antes de continuar.");
+      feedback(error instanceof Error ? error.message : "No se pudo consultar los servidores.", "error");
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
   function selectPlatform(value) {
     $("metaapiPlatform").value = value;
+    clearServerChoice();
+    serverMessage("Pulsa Buscar servidores para ver los de " + value.toUpperCase() + ".");
     document.querySelectorAll("[data-metaapi-platform]").forEach(button => {
       const active = button.dataset.metaapiPlatform === value;
       button.setAttribute("aria-pressed", String(active));
@@ -196,6 +262,15 @@
     form.dataset.ready = "1";
     document.querySelectorAll("[data-metaapi-platform]").forEach(button => {
       button.addEventListener("click", () => selectPlatform(button.dataset.metaapiPlatform));
+    });
+    $("metaapiBroker")?.addEventListener("change", () => {
+      $("metaapiOtherBrokerWrap").hidden = $("metaapiBroker").value !== "OTHER";
+      clearServerChoice();
+      serverMessage("Pulsa Buscar servidores para ver las opciones del bróker.");
+    });
+    $("metaapiFindServers")?.addEventListener("click", () => void loadBrokerServers());
+    serverChoices()?.addEventListener("change", () => {
+      $("metaapiServerManualWrap").hidden = !manualMode();
     });
     form.addEventListener("submit", event => { event.preventDefault(); void prepareAccount(); });
     $("metaapiChange")?.addEventListener("click", () => void continueAccount());
