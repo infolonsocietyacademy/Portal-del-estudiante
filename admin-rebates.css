@@ -73,3 +73,15 @@ body.trader-themed:not(.atlas-dark) #adminRebatesBlock input{color-scheme:light}
 #adminRebatesBlock .rebateCompareGrid b{font-size:14px;overflow-wrap:anywhere}
 #adminRebatesBlock .rebateComparison p{margin:12px 0 0;line-height:1.6}
 @media(max-width:600px){#adminRebatesBlock .rebateUpdateAction{width:100%}#adminRebatesBlock .rebateCompareGrid{grid-template-columns:1fr 1fr}#adminRebatesBlock .rebateCompareGrid b{font-size:12px}}
+
+#adminRebatesBlock .rebateReportActions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+#adminRebatesBlock .rebateDeleteAction{border-color:color-mix(in srgb,#c3434c 50%,var(--rb-line));color:#c44955!important}
+#adminRebatesBlock .rebateDeleteAction:hover{background:color-mix(in srgb,#b9263b 9%,var(--rb-panel))!important}
+#adminRebatesBlock .rebateDeletePanel{margin:17px 0;padding:18px;border-radius:12px;border:1px solid color-mix(in srgb,#cb4755 45%,var(--rb-line));background:var(--rb-panel)}
+#adminRebatesBlock .rebateDeletePanel[hidden]{display:none!important}
+#adminRebatesBlock .rebateDeletePanel>strong{font:800 12px/1.4 "JetBrains Mono",monospace;letter-spacing:.045em}
+#adminRebatesBlock .rebateDeletePanel p{font:500 11px/1.7 "JetBrains Mono",monospace;color:var(--rb-muted)}
+#adminRebatesBlock .rebateDeletePanel .rebateActions{justify-content:flex-end;margin-top:14px}
+#adminRebatesBlock .rebateDeleteConfirm{background:#a93442!important;border-color:#a93442!important;color:white!important}
+body.trader-themed #portal.app #admin #adminRebatesBlock .rebateDeleteConfirm{background:#a93442!important;color:#fff!important;border-color:#a93442!important}
+@media(max-width:600px){#adminRebatesBlock .rebateReportActions{width:100%;justify-content:stretch}#adminRebatesBlock .rebateReportActions button{flex:1;min-width:120px}#adminRebatesBlock .rebateDeletePanel{padding:14px}}
