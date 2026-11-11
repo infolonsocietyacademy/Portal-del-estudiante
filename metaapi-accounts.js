@@ -103,7 +103,8 @@
       ? "Continuar la conexión"
       : "Generar enlace seguro";
     $("metaapiConnectedNext").hidden = !isWaiting;
-    $("metaapiManageDetails").hidden = !isConnected;
+    $("metaapiManageDetails").hidden = false;
+    $("metaapiDisconnect").textContent = isConnected ? "Desconectar esta cuenta" : "Reiniciar y cambiar servidor";
     if (isConnected && link) { link.hidden = true; link.removeAttribute("href"); }
   }
 
@@ -174,7 +175,7 @@
   }
 
   async function unlink() {
-    if (!confirm("¿Desconectar esta cuenta del portal? No borra tu cuenta en el bróker.")) return;
+    if (!confirm("¿Quitar la vinculación de MetaApi y volver a elegir bróker y servidor? No borra tu cuenta en el bróker.")) return;
     await withBusy(async () => {
       await callServer({ action: "disconnect" });
       render({ account: null });
