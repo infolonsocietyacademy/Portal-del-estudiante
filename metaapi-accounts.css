@@ -56,3 +56,15 @@
 #metaapiAccountsPage #metaapiFindServers{margin-bottom:12px}
 #metaapiAccountsPage #metaapiOtherBrokerWrap,#metaapiAccountsPage #metaapiServerManualWrap{margin:12px 0 17px}
 #metaapiAccountsPage #metaapiServerHint{max-width:680px;margin-top:4px}
+
+/* Conexión dentro del portal: campos de acceso de inversor */
+#metaapiAccountsPage .metaapi-credential-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:16px 0}
+#metaapiAccountsPage .metaapi-credential-grid>div{min-width:0}
+#metaapiAccountsPage .metaapi-credential-grid input{width:100%;max-width:none}
+#metaapiAccountsPage .metaapi-password-line{display:flex;align-items:center;gap:8px}
+#metaapiAccountsPage .metaapi-password-line input{flex:1;min-width:0}
+#metaapiAccountsPage .metaapi-password-line button{min-height:46px;flex:none}
+#metaapiAccountsPage .metaapi-investor-confirm{display:flex;align-items:flex-start;gap:11px;margin:12px 0;font-weight:400;line-height:1.5;max-width:690px}
+#metaapiAccountsPage .metaapi-investor-confirm input{width:18px;max-width:18px;height:18px;min-height:18px;flex:none;margin-top:2px;accent-color:#0c87c3}
+#metaapiAccountsPage .metaapi-privacy-note{max-width:740px}
+@media(max-width:720px){#metaapiAccountsPage .metaapi-credential-grid{grid-template-columns:1fr}#metaapiAccountsPage .metaapi-password-line button{width:auto;min-width:82px}}
