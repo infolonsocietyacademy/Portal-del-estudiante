@@ -54,7 +54,7 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 <link rel="stylesheet" href="./terminal-workspace.css?v=20261109-clean-summary-1">
 <link rel="stylesheet" href="./terminal-fluid.css?v=20261108-fluid-terminal-1">
 <link rel="stylesheet" href="./mobile-premium.css?v=20261109-mobile-premium-1">
-<link rel="stylesheet" href="./metaapi-accounts.css?v=20261111-mt-connect-1">
+<link rel="stylesheet" href="./metaapi-accounts.css?v=20261111-mt-easy-2">
 <link rel="stylesheet" href="./student-sidebar.css?v=20261110-student-rail-1">
 <link rel="stylesheet" href="./student-dashboard.css?v=20261110-navigation-fix-1">
 </head>
@@ -689,37 +689,75 @@ window.addEventListener("load", () => {
     </section>
 
     <section id="metaapiAccountsPage" class="page hidden" aria-labelledby="metaapiAccountsTitle">
-      <header class="metaapi-head">
-        <div><span class="metaapi-kicker">OLFX / METAAPI · SOLO LECTURA</span><h3 id="metaapiAccountsTitle">Mis cuentas MT4 / MT5</h3><p>Conecta tu propia cuenta para consultar tu rendimiento verificado.</p></div>
-        <span id="metaapiConnectionBadge" class="metaapi-badge">SIN CONECTAR</span>
-      </header>
-      <div class="metaapi-panel">
-        <form id="metaapiConnectForm" autocomplete="off">
-          <h4>Conectar cuenta de trading</h4>
-          <p>Selecciona tu plataforma y escribe el servidor de tu bróker. Abriremos un formulario seguro de MetaApi para que completes la conexión.</p>
-          <div class="metaapi-grid">
-            <div><label for="metaapiPlatform">Plataforma</label><select id="metaapiPlatform"><option value="mt5">MetaTrader 5 (MT5)</option><option value="mt4">MetaTrader 4 (MT4)</option></select></div>
-            <div><label for="metaapiServer">Servidor del bróker</label><input id="metaapiServer" maxlength="120" placeholder="Ej. Broker-Real" required spellcheck="false" autocapitalize="none"></div>
+      <div class="metaapi-shell">
+        <header class="metaapi-head">
+          <div><span class="metaapi-kicker">OLFX / CUENTAS VERIFICADAS</span>
+            <h3 id="metaapiAccountsTitle">Conecta tu cuenta MT4 o MT5</h3>
+            <p>Una conexión sencilla y privada, sin configurar APIs ni compartir tu contraseña principal.</p>
           </div>
-          <div class="metaapi-actions"><button id="metaapiConnect" class="btn" type="submit">Conectar mi cuenta</button></div>
-        </form>
-        <div id="metaapiConnected" hidden>
-          <h4>Cuenta vinculada</h4>
-          <div class="metaapi-fields">
-            <div><span>Plataforma</span><strong id="metaapiAccountPlatform">—</strong></div>
-            <div><span>Servidor</span><strong id="metaapiAccountBroker">—</strong></div>
-            <div><span>Cuenta</span><strong id="metaapiAccountLogin">—</strong></div>
-            <div><span>Estado</span><strong id="metaapiAccountState">—</strong></div>
-          </div>
-          <div class="metaapi-actions">
-            <a id="metaapiOpenLink" class="btn" target="_blank" rel="noopener noreferrer" hidden>Abrir formulario seguro de MetaApi</a>
-            <button id="metaapiRefresh" class="btn secondary" type="button">Actualizar estado</button>
-            <button id="metaapiChange" class="btn secondary" type="button">Abrir configuración segura</button>
-            <button id="metaapiDisconnect" class="btn secondary" type="button">Desconectar cuenta</button>
-          </div>
+          <span id="metaapiConnectionBadge" class="metaapi-badge" data-status="off">Sin vincular</span>
+        </header>
+        <div class="metaapi-steps" aria-label="Tres pasos para conectar tu cuenta">
+          <div class="metaapi-step"><span class="metaapi-number">1</span><span>Elige tu plataforma</span></div>
+          <div class="metaapi-step"><span class="metaapi-number">2</span><span>Indica tu servidor</span></div>
+          <div class="metaapi-step"><span class="metaapi-number">3</span><span>Conecta de forma segura</span></div>
         </div>
-        <p id="metaapiFeedback" role="status" aria-live="polite" hidden></p>
-        <p class="metaapi-tip">Para consultar resultados sin ejecutar órdenes, usa únicamente tu contraseña de inversor (Investor Password). Nunca compartas tu contraseña principal. La primera versión permite una cuenta por estudiante; MetaApi puede cobrar por cuentas conectadas.</p>
+        <div class="metaapi-panel">
+          <form id="metaapiConnectForm" autocomplete="off">
+            <div class="metaapi-form-section">
+              <h4>1. ¿Qué plataforma utilizas?</h4>
+              <p class="metaapi-muted">Selecciona la aplicación donde operas.</p>
+              <div class="metaapi-platform-buttons" role="group" aria-label="Plataforma MetaTrader">
+                <button type="button" data-metaapi-platform="mt4" aria-pressed="false"><strong>MT4</strong><span>MetaTrader 4</span></button>
+                <button type="button" data-metaapi-platform="mt5" class="selected" aria-pressed="true"><strong>MT5</strong><span>MetaTrader 5</span></button>
+              </div>
+              <select id="metaapiPlatform" aria-label="Plataforma elegida" class="metaapi-hidden-select"><option value="mt5">MT5</option><option value="mt4">MT4</option></select>
+            </div>
+            <div class="metaapi-form-section">
+              <h4>2. ¿Cuál es tu servidor?</h4>
+              <label for="metaapiServer">Servidor de tu bróker</label>
+              <input id="metaapiServer" maxlength="120" placeholder="Ej. TuBroker-Live" required spellcheck="false" autocapitalize="none" autocomplete="off">
+              <p class="metaapi-muted">Escribe el nombre <strong>exactamente igual</strong> al que aparece en tu aplicación de MetaTrader. No es el número de cuenta ni una página web.</p>
+              <details class="metaapi-help">
+                <summary>¿Dónde encuentro mi servidor?</summary>
+                <div>En MT4 o MT5, abre <strong>Gestionar cuentas</strong> (o Ajustes → Cuentas), selecciona la cuenta de trading y busca el servidor que aparece en sus detalles. También puede aparecer en el correo de bienvenida de tu bróker.</div>
+              </details>
+            </div>
+            <div class="metaapi-form-section metaapi-last">
+              <h4>3. Autoriza la conexión</h4>
+              <p class="metaapi-muted">Te enviaremos al formulario oficial de MetaApi para que escribas el número de cuenta y la <strong>contraseña de inversor</strong>, de solo lectura.</p>
+              <div class="metaapi-actions"><button id="metaapiConnect" type="submit" class="btn metaapi-primary">Continuar de forma segura</button></div>
+            </div>
+          </form>
+          <div id="metaapiConnected" hidden>
+            <div class="metaapi-state-head">
+              <span id="metaapiConnectedIcon" class="metaapi-state-icon" aria-hidden="true">2</span>
+              <div><h4 id="metaapiConnectedTitle">Ya casi terminamos</h4><p id="metaapiConnectedSubtitle" class="metaapi-muted">Completa el formulario seguro y comprueba la conexión.</p></div>
+            </div>
+            <div class="metaapi-fields">
+              <div><span>Plataforma</span><strong id="metaapiAccountPlatform">—</strong></div>
+              <div><span>Servidor</span><strong id="metaapiAccountBroker">—</strong></div>
+              <div><span>Cuenta</span><strong id="metaapiAccountLogin">—</strong></div>
+              <div><span>Conexión</span><strong id="metaapiAccountState">—</strong></div>
+            </div>
+            <div id="metaapiConnectedNext">
+              <p class="metaapi-muted">Si no has terminado, abre el formulario de MetaApi para autorizar tu cuenta. Luego vuelve a esta pantalla.</p>
+            </div>
+            <div class="metaapi-actions">
+              <a id="metaapiOpenLink" class="btn metaapi-primary" target="_blank" rel="noopener noreferrer" hidden>Abrir formulario seguro</a>
+              <button id="metaapiChange" type="button" class="btn secondary">Continuar la conexión</button>
+              <button id="metaapiRefresh" type="button" class="btn secondary">Ya terminé, comprobar</button>
+            </div>
+            <details id="metaapiManageDetails" class="metaapi-help" hidden>
+              <summary>Administrar cuenta vinculada</summary>
+              <p class="metaapi-muted">Desconectar elimina la vinculación en el portal, pero no elimina tu cuenta del bróker.</p>
+              <button id="metaapiDisconnect" type="button" class="btn secondary">Desconectar esta cuenta</button>
+            </details>
+            <div id="metaapiUnlinkPending" hidden></div>
+          </div>
+          <p id="metaapiFeedback" role="status" aria-live="polite" hidden></p>
+        </div>
+        <div class="metaapi-footnote"><strong>Tu privacidad primero.</strong> No introduzcas tu contraseña principal en el portal. Utiliza una contraseña de inversor para acceso de solo lectura. La primera versión admite una cuenta por estudiante y MetaApi puede cobrar por conexión. Las estadísticas automáticas se habilitarán por separado.</div>
       </div>
     </section>
     <section id="historial" class="page hidden" aria-labelledby="historyTitle">
@@ -1458,7 +1496,7 @@ window.addEventListener("load", () => {
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
 <script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script>
-<script src="./metaapi-accounts.js?v=20261111-mt-connect-1" defer></script>
+<script src="./metaapi-accounts.js?v=20261111-mt-easy-2" defer></script>
 <script src="./student-dashboard.js?v=20261110-vip-renewal-only-2" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
 </html>
 
