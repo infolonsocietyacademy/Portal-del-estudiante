@@ -101,8 +101,7 @@
       : "Puedes actualizar el estado o reiniciar la vinculación si hubo un error.";
     $("metaapiConnectedIcon").textContent = isConnected ? "✓" : "2";
     $("metaapiConnectedNext").hidden = isConnected;
-    $("metaapiManageDetails").hidden = false;
-    $("metaapiDisconnect").textContent = isConnected ? "Desconectar cuenta" : "Reiniciar conexión";
+    $("metaapiDisconnect").textContent = isConnected ? "Desconectar cuenta" : "Cancelar conexión pendiente";
 
   }
 
@@ -172,12 +171,23 @@
   }
 
   async function unlink() {
-    if (!confirm("¿Quitar la vinculación de MetaApi y volver a elegir bróker y servidor? No borra tu cuenta en el bróker.")) return;
+    const wasConnected = statusCode(lastAccount?.connectionStatus) === "CONNECTED";
+    const message = wasConnected
+      ? "¿Desconectar esta cuenta MT4/MT5 del Portal del Trader? Dejará de sincronizarse y sus estadísticas dejarán de mostrarse. Los movimientos ya guardados en Supabase se conservarán y tu cuenta del bróker no se afectará."
+      : "¿Cancelar la conexión pendiente y volver a elegir servidor? Los movimientos que ya estén guardados en Supabase no se borrarán.";
+    if (!confirm(message)) return;
     await withBusy(async () => {
+      // Backend removes only the account mapping and its MetaApi resource.
+      // The immutable historical deal rows and old manual records are left untouched.
       await callServer({ action: "disconnect" });
       render({ account: null });
-      feedback("Se desvinculó tu cuenta del portal. Tu cuenta del bróker permanece intacta.", "success");
-      $("metaapiManageDetails").open = false;
+      const password = $("metaapiInvestorPassword");
+      if (password) password.value = "";
+      feedback("Cuenta desconectada del portal. Historial anterior conservado en Supabase. Puedes conectar otra cuenta cuando quieras.", "success");
+      if (typeof window.render === "function") {
+        try { await window.render(); }
+        catch (error) { console.warn("La vista de resultados debe recargarse:", error); }
+      }
     });
   }
 
