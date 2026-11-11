@@ -19,3 +19,6 @@
 #portal .mtHistoryReadOnly {font-size:.73rem;line-height:1.5;opacity:.72;letter-spacing:.04em}
 #portal .historyRow .mtHistoryReadOnly{padding:6px 10px;align-self:center}
 @media(max-width:600px){#mtSyncStatus{font-size:.72rem;padding:10px}}
+
+#mtSyncStatus .mtManualRefresh{display:inline-flex;margin:9px 0 0 12px;padding:7px 12px;font-size:.77rem;min-height:34px}
+#mtSyncStatus .mtManualRefresh:disabled{opacity:.55}
