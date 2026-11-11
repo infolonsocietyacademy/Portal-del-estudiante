@@ -16,11 +16,13 @@
   let reportYear=2026,reportMonth=0;
   const periodPanel=document.createElement("section");
   periodPanel.className="rebatePeriodPanel";
-  periodPanel.innerHTML='<div class="rebatePeriodHeader"><div><span class="rebateEyebrow">REBATe CONTROL · AÑO / MES</span><h5>Reportes históricos</h5><p>2026, 2027 y años siguientes. Los períodos se determinan por las operaciones del Excel.</p></div><label>AÑO <select id="rebateYear" aria-label="Seleccionar año de rebates"><option value="2026">2026</option><option value="2027">2027</option></select></label></div><div id="rebateAnnual" class="rebateAnnual"></div><div id="rebateMonths" class="rebateMonths"></div>';
+  periodPanel.innerHTML='<div class="rebatePeriodHeader"><div><span class="rebateEyebrow">OLFX / CONTABILIDAD DE REBATES</span><h5>Acumulado anual</h5><p>Todos los Excel subidos se suman por año. Escoge un mes solo cuando quieras revisar su detalle.</p></div><div class="rebatePeriodSelectors"><label>AÑO <select id="rebateYear" aria-label="Seleccionar año"><option value="2026">2026</option><option value="2027">2027</option></select></label><label>MES <select id="rebateMonthSelect" aria-label="Seleccionar mes"><option value="0">Todos los meses</option></select></label></div></div><div id="rebateAnnual" class="rebateAnnual"></div><p id="rebateMonthDetail" class="rebateMonthDetail" hidden></p>';
   block.querySelector(".rebateMetrics")?.insertAdjacentElement("beforebegin",periodPanel);
   const yearControl=periodPanel.querySelector("#rebateYear");
   const annual=periodPanel.querySelector("#rebateAnnual");
-  const months=periodPanel.querySelector("#rebateMonths");
+  const months=periodPanel.querySelector("#rebateMonthSelect");
+  const monthDetail=periodPanel.querySelector("#rebateMonthDetail");
+  for(let i=0;i<monthNames.length;i++)months.add(new Option(monthNames[i],String(i+1)));
   const periods=(y,m)=>m?[y+"-"+String(m).padStart(2,"0")+"-01",new Date(Date.UTC(y,m,0)).toISOString().slice(0,10)]:[y+"-01-01",y+"-12-31"];
   const setPeriod=()=>{const [a,b]=periods(reportYear,reportMonth);$("rebateFrom").value=a;$("rebateTo").value=b;};
   const addYear=y=>{if(![...yearControl.options].some(o=>Number(o.value)===y))yearControl.add(new Option(String(y),String(y)));};
@@ -29,9 +31,12 @@
     yearControl.value=String(reportYear);
     const summary=data.annual||{};
     annual.innerHTML='<div><small>TOTAL '+reportYear+'</small><strong>'+number(summary.lots)+' lotes</strong></div><div><small>REBATES</small><strong>'+amounts(summary.currencies)+'</strong></div><div><small>OPERACIONES</small><strong>'+number(summary.row_count)+'</strong></div><div><small>CLIENTES</small><strong>'+number(summary.client_count)+'</strong></div>';
+    months.value=String(reportMonth);
     const monthData=new Map((data.months||[]).map(r=>[Number(r.month),r]));
-    const entries=[{month:0,name:"Año completo",...summary},...monthNames.map((name,i)=>({month:i+1,name,...(monthData.get(i+1)||{})}))];
-    months.innerHTML=entries.map(r=>'<button type="button" class="rebateMonth'+(reportMonth===r.month?' active':'')+'" data-month="'+r.month+'" aria-pressed="'+(reportMonth===r.month)+'"><span>'+esc(r.name)+'</span><b>'+number(r.lots)+' lotes</b><small>'+amounts(r.currencies)+'</small><em>'+number(r.row_count)+' órdenes</em></button>').join("");
+    const activeMonth=monthData.get(reportMonth);
+    monthDetail.hidden=!reportMonth;
+    monthDetail.innerHTML=reportMonth?'<strong>'+esc(monthNames[reportMonth-1]||"")+' '+reportYear+'</strong> · '+
+      number(activeMonth?.lots)+' lotes · '+amounts(activeMonth?.currencies)+' · '+number(activeMonth?.row_count)+' órdenes':'';
     const [start,end]=periods(reportYear,reportMonth);
     const reports=(data.reports||[]).filter(r=>r.first_date<=end&&r.last_date>=start);
     knownReports.clear();
@@ -39,7 +44,7 @@
     $("rebateReportRows").innerHTML=reports.map(row=>'<article class="rebateReport"><div><strong>'+esc(row.file_name)+'</strong><small>'+date(row.first_date)+' — '+date(row.last_date)+(row.version>1?' · v'+number(row.version):'')+'</small></div><div><span>'+number(row.inserted_rows)+' nuevos</span><small>'+number(row.duplicate_rows)+' repetidos</small></div><div class="rebateReportActions"><button type="button" class="rebateButton rebateUpdateAction" data-rebate-update="'+esc(row.id)+'">Actualizar archivo</button><button type="button" class="rebateButton rebateDeleteAction" data-rebate-delete="'+esc(row.id)+'">Eliminar</button></div></article>').join("")||'<p class="rebateHint">No hay archivos guardados para este período.</p>';
   }
   yearControl.addEventListener("change",()=>{reportYear=Number(yearControl.value);reportMonth=0;page=0;setPeriod();void dashboard();});
-  months.addEventListener("click",e=>{const button=e.target.closest("[data-month]");if(!button||busy||loading)return;reportMonth=Number(button.dataset.month);page=0;setPeriod();void dashboard();});
+  months.addEventListener("change",()=>{if(busy||loading)return;reportMonth=Number(months.value);page=0;setPeriod();void dashboard();});
   setPeriod();
   const updateInput=document.createElement('input');
   updateInput.type='file';updateInput.accept='.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';updateInput.hidden=true;
@@ -57,8 +62,8 @@
   }
   function reason(error) {
     const text=String(error?.message || "No se pudo completar la operación.");
-    if (/42501|permission denied|row.level security/i.test(text)) return "Esta área requiere una sesión de administrador activa.";
-    if (/Failed to fetch|network/i.test(text)) return "No hay conexión. Vuelve a intentarlo; los registros ya guardados no se duplicarán.";
+    if (/42501|permission denied|row.level security/i.test(text)) return "Supabase rechazó la operación: entra con tu cuenta administrativa activa.";
+    if (/Failed to fetch|network/i.test(text)) return "No hay conexión con Supabase. Revisa internet y vuelve a intentarlo; no se duplicará la carga.";
     return text;
   }
   function buttons() {
@@ -70,9 +75,9 @@
     $("rebateClear").disabled=busy;
     const canUpdate=!!updateTarget&&!!plan?.eligible;
     $("rebateImport").disabled=busy||loading||!plan||(updateTarget?!canUpdate:plan.already_imported||Number(plan.new_rows)===0);
-    $("rebateImport").textContent=busy?"Procesando…":updateTarget?"Confirmar actualización":plan?"Importar "+number(plan.new_rows)+" registros nuevos":"Importar y sumar";
+    $("rebateImport").textContent=busy?"Procesando…":updateTarget?"Confirmar actualización":plan?"Confirmar y guardar "+number(plan.new_rows)+" operaciones":"Confirmar y guardar";
     block.querySelectorAll("[data-rebate-update],[data-rebate-delete]").forEach(button=>button.disabled=busy||loading);
-    yearControl.disabled=busy||loading;months.querySelectorAll("button").forEach(b=>b.disabled=busy||loading);
+    yearControl.disabled=busy||loading;months.disabled=busy||loading;
     $("rebatePrev").disabled=loading||page===0;
     $("rebateNext").disabled=loading||(page+1)*20>=totalClients;
   }
@@ -86,7 +91,7 @@
     ["rebateTotalLots","rebateEarningLots","rebateTotalRows","rebateTotalClients","rebateRange"].forEach(id=>$(id).textContent="—");
     $("rebateTotalAmount").replaceChildren();$("rebateClientRows").replaceChildren();$("rebateReportRows").replaceChildren();
     $("rebateSearch").value="";setPeriod();
-    $("rebatePager").hidden=true;$("rebateEmpty").hidden=false;annual.replaceChildren();months.replaceChildren();feedback();buttons();
+    $("rebatePager").hidden=true;$("rebateEmpty").hidden=false;annual.replaceChildren();monthDetail.hidden=true;feedback();buttons();
   }
   function session() {
     if (!authorized()) {reset();throw Error("Inicia sesión como administrador.");}
@@ -179,14 +184,16 @@
     buttons();
   }
   async function choose(file,target=null) {
-    if(!file||!authorized()||busy)return;
+    if(!file||busy)return;
+    if(!authorized()){feedback("Primero inicia sesión como administrador activo para subir reportes.",true);return;}
     const captured=session();clearPreview();updateTarget=target;feedback();busy=true;buttons();
-    $("rebateUploadStatus").textContent="Leyendo y comprobando el Excel…";
+    $("rebateUploadStatus").textContent="Paso 1/3 · Leyendo el archivo XLSX…";
     try {
       await assets();
       const result=await window.olonRebateReader.read(file);
       if(!active(captured))return;
       parsed=result;requestId=crypto.randomUUID();
+      $("rebateUploadStatus").textContent="Paso 2/3 · Comparando "+number(result.rows.length)+" operaciones con Supabase…";
       const {data,error}=updateTarget
         ?await supabaseClient.rpc("olon_update_rebate_report",{
           p_report_id:updateTarget.id,p_expected_file_sha256:updateTarget.hash,
@@ -196,13 +203,14 @@
       if(!active(captured))return;
       if(error)throw error;
       plan=data;preview();
+      $("rebateUploadStatus").textContent="Paso 3/3 · Excel reconocido. Revisa los importes y presiona el botón de confirmación.";
       $("rebatePreview").scrollIntoView({behavior:"smooth",block:"start"});
-    }catch(error){if(active(captured)){clearPreview();feedback(reason(error),true);}}
-    finally{if(active(captured)){busy=false;$("rebateUploadStatus").textContent="Excel .xlsx · Hasta 10 MB y 5,000 registros por archivo";buttons();}}
+    }catch(error){if(active(captured)){clearPreview();feedback("No se pudo preparar el archivo: "+reason(error),true);$("rebateUploadStatus").textContent="Error al leer o comparar el archivo. Revisa el mensaje inferior e inténtalo otra vez.";}}
+    finally{if(active(captured)){busy=false;buttons();}}
   }
   async function importFile() {
     if(!authorized()||busy||!parsed||!plan||(updateTarget?!plan.eligible:!Number(plan.new_rows)))return;
-    const captured=session();busy=true;feedback();buttons();
+    const captured=session();busy=true;feedback("Guardando el reporte en Supabase…");buttons();
     try {
       const {data,error}=updateTarget
         ?await supabaseClient.rpc("olon_update_rebate_report",{
@@ -217,7 +225,7 @@
       clearPreview();feedback(message);page=0;
       if(lastDate){reportYear=Number(lastDate.slice(0,4));reportMonth=Number(lastDate.slice(5,7));addYear(reportYear);setPeriod();}
       await dashboard();
-    }catch(error){if(active(captured))feedback(reason(error),true);}
+    }catch(error){if(active(captured))feedback("No se pudo guardar: "+reason(error),true);}
     finally{if(active(captured)){busy=false;buttons();}}
   }
   // Two-stage deletion: preview counts and totals from Supabase before any write.
