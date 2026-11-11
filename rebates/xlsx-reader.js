@@ -48,12 +48,20 @@
     }
   }
   function decimal(value,label,negative=false) {
-    let text = String(value ?? "").trim().replace(/\s/g,"");
-    if (/^-?\d+,\d{1,6}$/.test(text)) text = text.replace(",",".");
-    if (!new RegExp(negative ? "^-?\\d{1,9}(\\.\\d{1,6})?$" : "^\\d{1,9}(\\.\\d{1,6})?$").test(text)) throw Error(label + ": importe no válido o con más de seis decimales.");
-    const sign = text.startsWith("-") ? "-" : "";
-    const [whole,fraction=""] = text.replace(/^-/,"").split(".");
-    return sign + String(BigInt(whole)) + "." + fraction.padEnd(6,"0");
+    // Axi Settled commonly exports seven decimal places (e.g. 0.3600000).
+    // Extra zeroes are formatting, not additional precision: remove them
+    // losslessly before mapping to the database's six-decimal NUMERIC fields.
+    let text=String(value ?? "").trim().replace(/\s/g,"");
+    if (/^-?\d+,\d{1,12}$/.test(text)) text=text.replace(",",".");
+    const pattern=negative ? /^-?\d{1,9}(?:\.\d{1,12})?$/ : /^\d{1,9}(?:\.\d{1,12})?$/;
+    if (!pattern.test(text)) throw Error(label+": formato numérico no válido.");
+    const sign=text.startsWith("-")?"-":"";
+    const [whole,rawFraction=""]=text.replace(/^-/,"").split(".");
+    const precision=rawFraction.replace(/0+$/,"");
+    if (precision.length>6) throw Error(label+": el valor tiene más de seis decimales significativos y no se puede importar sin redondearlo.");
+    const digits=String(BigInt(whole));
+    const frac=precision.padEnd(6,"0");
+    return (sign==="-" && (digits!=="0"||precision!=="" ) ? "-" : "") + digits + "." + frac;
   }
   function date(value,date1904) {
     const text = String(value ?? "").trim();
