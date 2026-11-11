@@ -29,6 +29,7 @@
   function renderPeriod(data){
     for(const row of data.years||[])addYear(Number(row.year));
     yearControl.value=String(reportYear);
+    block.classList.toggle("rebateShowYearOnly",reportMonth===0);
     const summary=data.annual||{};
     annual.innerHTML='<div><small>TOTAL '+reportYear+'</small><strong>'+number(summary.lots)+' lotes</strong></div><div><small>REBATES</small><strong>'+amounts(summary.currencies)+'</strong></div><div><small>OPERACIONES</small><strong>'+number(summary.row_count)+'</strong></div><div><small>CLIENTES</small><strong>'+number(summary.client_count)+'</strong></div>';
     months.value=String(reportMonth);
