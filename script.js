@@ -836,6 +836,7 @@ async function fetchRecords(){
 }
 
 async function delRecord(id){
+  if(window.olonMtRecords)return;
   const owner = currentUser?.id;
   if(!owner) return;
   const { error } = await supabaseClient.from("student_records").delete().eq("id", id).eq("student_id", owner);
@@ -1355,17 +1356,9 @@ function renderChart(){
   });
 }
 async function clearData(){
-  if(!currentUser || isAdminUser(currentUser)) return;
-  if(window.olonMtRecords?.linked()){
-    alert("Los resultados MT se sincronizan automáticamente. Los registros anteriores se conservan y no pueden borrarse desde esta pantalla.");
-    return;
-  }
-  if(confirm("¿Borrar todos tus registros?")){
-    const { error } = await supabaseClient.from("student_records").delete().eq("student_id", currentUser.id);
-    if(error){ showError("No se pudieron borrar los registros.", error); return; }
-    cachedRecords = []; await render();
-  }
+  alert("Los registros manuales históricos están protegidos en Supabase. Los resultados visibles provienen únicamente de la cuenta MT conectada.");
 }
+
 setupEmailVerificationListeners();
 updateAuthRealStats();
 /* ===== BIENVENIDO ANIMADO PRO ===== */
