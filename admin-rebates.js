@@ -85,7 +85,7 @@
     if($("rebateDeletePanel"))$("rebateDeletePanel").hidden=true;
     ["rebateTotalLots","rebateEarningLots","rebateTotalRows","rebateTotalClients","rebateRange"].forEach(id=>$(id).textContent="—");
     $("rebateTotalAmount").replaceChildren();$("rebateClientRows").replaceChildren();$("rebateReportRows").replaceChildren();
-    $("rebateFrom").value="";$("rebateTo").value="";$("rebateSearch").value="";
+    $("rebateSearch").value="";setPeriod();
     $("rebatePager").hidden=true;$("rebateEmpty").hidden=false;annual.replaceChildren();months.replaceChildren();feedback();buttons();
   }
   function session() {
