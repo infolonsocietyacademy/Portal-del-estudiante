@@ -34,6 +34,7 @@
   }
   function buttons() {
     updateInput.disabled=busy;
+    const deleteConfirm=$("rebateDeleteConfirm");if(deleteConfirm)deleteConfirm.disabled=busy;
     $("rebateChoose").disabled=busy;
     $("rebateRefresh").disabled=busy||loading;
     $("rebateApply").disabled=busy||loading;
@@ -41,7 +42,7 @@
     const canUpdate=!!updateTarget&&!!plan?.eligible;
     $("rebateImport").disabled=busy||loading||!plan||(updateTarget?!canUpdate:plan.already_imported||Number(plan.new_rows)===0);
     $("rebateImport").textContent=busy?"Procesando…":updateTarget?"Confirmar actualización":plan?"Importar "+number(plan.new_rows)+" registros nuevos":"Importar y sumar";
-    block.querySelectorAll("[data-rebate-update]").forEach(button=>button.disabled=busy||loading);
+    block.querySelectorAll("[data-rebate-update],[data-rebate-delete]").forEach(button=>button.disabled=busy||loading);
     $("rebatePrev").disabled=loading||page===0;
     $("rebateNext").disabled=loading||(page+1)*20>=totalClients;
   }
@@ -51,6 +52,7 @@
   }
   function reset() {
     epoch++;ticket++;owner=null;page=0;totalClients=0;busy=false;loading=false;loaded=false;knownReports.clear();clearPreview();
+    if($("rebateDeletePanel"))$("rebateDeletePanel").hidden=true;
     ["rebateTotalLots","rebateEarningLots","rebateTotalRows","rebateTotalClients","rebateRange"].forEach(id=>$(id).textContent="—");
     $("rebateTotalAmount").replaceChildren();$("rebateClientRows").replaceChildren();$("rebateReportRows").replaceChildren();
     $("rebateFrom").value="";$("rebateTo").value="";$("rebateSearch").value="";
@@ -94,7 +96,7 @@
         const detail=knownReports.get(row.id);
         const meta=detail?.version>1?' · Versión '+number(detail.version):'';
         const changed=detail?.updated_rows?' · '+number(detail.updated_rows)+' modificados':'';
-        return '<article class="rebateReport"><div><strong>'+esc(row.file_name)+'</strong><small>'+date(row.first_date)+' — '+date(row.last_date)+meta+'</small></div><div><span>'+number(row.inserted_rows)+' nuevos</span><small>'+number(row.duplicate_rows)+' iguales'+changed+(row.conflict_rows?' · '+number(row.conflict_rows)+' con diferencias':"")+'</small></div><button type="button" class="rebateButton rebateUpdateAction" data-rebate-update="'+esc(row.id)+'">Actualizar archivo</button></article>';
+        return '<article class="rebateReport"><div><strong>'+esc(row.file_name)+'</strong><small>'+date(row.first_date)+' — '+date(row.last_date)+meta+'</small></div><div><span>'+number(row.inserted_rows)+' nuevos</span><small>'+number(row.duplicate_rows)+' iguales'+changed+(row.conflict_rows?' · '+number(row.conflict_rows)+' con diferencias':"")+'</small></div><div class="rebateReportActions"><button type="button" class="rebateButton rebateUpdateAction" data-rebate-update="'+esc(row.id)+'">Actualizar archivo</button><button type="button" class="rebateButton rebateDeleteAction" data-rebate-delete="'+esc(row.id)+'">Eliminar</button></div></article>';
       }).join("") || '<p class="rebateHint">Cada importación aparecerá aquí con su período y los registros añadidos.</p>';
       $("rebatePager").hidden=totalClients<=20;
       $("rebatePage").textContent="Página "+(page+1)+" de "+Math.max(1,Math.ceil(totalClients/20));
@@ -196,6 +198,67 @@
     }catch(error){if(active(captured))feedback(reason(error),true);}
     finally{if(active(captured)){busy=false;buttons();}}
   }
+  // Two-stage deletion: preview counts and totals from Supabase before any write.
+  const deletePanel=document.createElement("section");
+  deletePanel.id="rebateDeletePanel";
+  deletePanel.className="rebateDeletePanel";
+  deletePanel.hidden=true;
+  deletePanel.innerHTML='<strong>CONFIRMAR ELIMINACIÓN DEL REPORTE</strong>'+
+    '<p id="rebateDeleteDescription"></p><p id="rebateDeleteImpact"></p>'+
+    '<div class="rebateActions"><button type="button" class="rebateButton" id="rebateDeleteCancel">Cancelar</button>'+
+    '<button type="button" class="rebateButton rebateDeleteConfirm" id="rebateDeleteConfirm">Eliminar definitivamente</button></div>';
+  $("rebateReportRows").insertAdjacentElement("beforebegin",deletePanel);
+  let deletion=null;
+  function hideDelete(){
+    deletion=null;deletePanel.hidden=true;
+    $("rebateDeleteDescription").textContent="";
+    $("rebateDeleteImpact").textContent="";
+  }
+  async function prepareDelete(id){
+    if(!authorized()||busy||loading)return;
+    const detail=knownReports.get(id);
+    if(!detail?.file_sha256){feedback("Actualiza el historial antes de eliminar.",true);return;}
+    const captured=session();busy=true;buttons();feedback();hideDelete();
+    try {
+      const {data,error}=await supabaseClient.rpc("olon_delete_rebate_report",{
+        p_report_id:id,p_expected_file_sha256:detail.file_sha256,p_dry_run:true
+      });
+      if(!active(captured))return;
+      if(error)throw error;
+      deletion={id,hash:detail.file_sha256,impact:data};
+      $("rebateDeleteDescription").textContent="Archivo: "+data.file_name+" · "+number(data.linked_rows)+" órdenes asociadas.";
+      $("rebateDeleteImpact").textContent="Se quitarán "+number(data.removed_rows)+" órdenes exclusivas ("+
+        (data.currencies_removed||[]).map(c=>number(c.rebate)+" "+c.currency).join(" · ")+
+        "). Se conservarán "+number(data.preserved_rows)+" órdenes compartidas. Esta acción no se puede deshacer.";
+      deletePanel.hidden=false;
+      deletePanel.scrollIntoView({behavior:"smooth",block:"nearest"});
+    }catch(error){if(active(captured))feedback(reason(error),true);}
+    finally{if(active(captured)){busy=false;buttons();}}
+  }
+  async function confirmDelete(){
+    if(!deletion||!authorized()||busy)return;
+    const captured=session();
+    const selected=deletion;
+    busy=true;buttons();feedback();
+    try{
+      const {data,error}=await supabaseClient.rpc("olon_delete_rebate_report",{
+        p_report_id:selected.id,p_expected_file_sha256:selected.hash,p_dry_run:false
+      });
+      if(!active(captured))return;
+      if(error)throw error;
+      hideDelete();clearPreview();page=0;
+      await dashboard();
+      feedback("Reporte eliminado. "+number(data.removed_rows)+" órdenes exclusivas eliminadas y "+
+        number(data.preserved_rows)+" compartidas conservadas.");
+    }catch(error){if(active(captured))feedback(reason(error),true);}
+    finally{if(active(captured)){busy=false;buttons();}}
+  }
+  $("rebateReportRows").addEventListener("click",event=>{
+    const button=event.target.closest("[data-rebate-delete]");
+    if(button)void prepareDelete(button.dataset.rebateDelete);
+  });
+  $("rebateDeleteCancel").addEventListener("click",hideDelete);
+  $("rebateDeleteConfirm").addEventListener("click",()=>void confirmDelete());
   function activate() {if(authorized())void dashboard();}
   $("rebateChoose").addEventListener("click",()=>{if(authorized()&&!busy)$("rebateFile").click();});
   $("rebateFile").addEventListener("change",event=>void choose(event.target.files?.[0]));
