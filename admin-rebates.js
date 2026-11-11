@@ -12,6 +12,35 @@
   }).join("") || '<span>—</span>';
   let owner=null,epoch=0,ticket=0,page=0,totalClients=0,busy=false,loading=false,loaded=false;
   let parsed=null,requestId=null,plan=null,assetPromise=null,updateTarget=null,knownReports=new Map();
+  const monthNames=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+  let reportYear=2026,reportMonth=0;
+  const periodPanel=document.createElement("section");
+  periodPanel.className="rebatePeriodPanel";
+  periodPanel.innerHTML='<div class="rebatePeriodHeader"><div><span class="rebateEyebrow">REBATe CONTROL · AÑO / MES</span><h5>Reportes históricos</h5><p>2026, 2027 y años siguientes. Los períodos se determinan por las operaciones del Excel.</p></div><label>AÑO <select id="rebateYear" aria-label="Seleccionar año de rebates"><option value="2026">2026</option><option value="2027">2027</option></select></label></div><div id="rebateAnnual" class="rebateAnnual"></div><div id="rebateMonths" class="rebateMonths"></div>';
+  block.querySelector(".rebateMetrics")?.insertAdjacentElement("beforebegin",periodPanel);
+  const yearControl=periodPanel.querySelector("#rebateYear");
+  const annual=periodPanel.querySelector("#rebateAnnual");
+  const months=periodPanel.querySelector("#rebateMonths");
+  const periods=(y,m)=>m?[y+"-"+String(m).padStart(2,"0")+"-01",new Date(Date.UTC(y,m,0)).toISOString().slice(0,10)]:[y+"-01-01",y+"-12-31"];
+  const setPeriod=()=>{const [a,b]=periods(reportYear,reportMonth);$("rebateFrom").value=a;$("rebateTo").value=b;};
+  const addYear=y=>{if(![...yearControl.options].some(o=>Number(o.value)===y))yearControl.add(new Option(String(y),String(y)));};
+  function renderPeriod(data){
+    for(const row of data.years||[])addYear(Number(row.year));
+    yearControl.value=String(reportYear);
+    const summary=data.annual||{};
+    annual.innerHTML='<div><small>TOTAL '+reportYear+'</small><strong>'+number(summary.lots)+' lotes</strong></div><div><small>REBATES</small><strong>'+amounts(summary.currencies)+'</strong></div><div><small>OPERACIONES</small><strong>'+number(summary.row_count)+'</strong></div><div><small>CLIENTES</small><strong>'+number(summary.client_count)+'</strong></div>';
+    const monthData=new Map((data.months||[]).map(r=>[Number(r.month),r]));
+    const entries=[{month:0,name:"Año completo",...summary},...monthNames.map((name,i)=>({month:i+1,name,...(monthData.get(i+1)||{})}))];
+    months.innerHTML=entries.map(r=>'<button type="button" class="rebateMonth'+(reportMonth===r.month?' active':'')+'" data-month="'+r.month+'" aria-pressed="'+(reportMonth===r.month)+'"><span>'+esc(r.name)+'</span><b>'+number(r.lots)+' lotes</b><small>'+amounts(r.currencies)+'</small><em>'+number(r.row_count)+' órdenes</em></button>').join("");
+    const [start,end]=periods(reportYear,reportMonth);
+    const reports=(data.reports||[]).filter(r=>r.first_date<=end&&r.last_date>=start);
+    knownReports.clear();
+    for(const r of reports)knownReports.set(r.id,{id:r.id,file_sha256:r.file_sha256,version:r.version,updated_rows:r.updated_rows});
+    $("rebateReportRows").innerHTML=reports.map(row=>'<article class="rebateReport"><div><strong>'+esc(row.file_name)+'</strong><small>'+date(row.first_date)+' — '+date(row.last_date)+(row.version>1?' · v'+number(row.version):'')+'</small></div><div><span>'+number(row.inserted_rows)+' nuevos</span><small>'+number(row.duplicate_rows)+' repetidos</small></div><div class="rebateReportActions"><button type="button" class="rebateButton rebateUpdateAction" data-rebate-update="'+esc(row.id)+'">Actualizar archivo</button><button type="button" class="rebateButton rebateDeleteAction" data-rebate-delete="'+esc(row.id)+'">Eliminar</button></div></article>').join("")||'<p class="rebateHint">No hay archivos guardados para este período.</p>';
+  }
+  yearControl.addEventListener("change",()=>{reportYear=Number(yearControl.value);reportMonth=0;page=0;setPeriod();void dashboard();});
+  months.addEventListener("click",e=>{const button=e.target.closest("[data-month]");if(!button||busy||loading)return;reportMonth=Number(button.dataset.month);page=0;setPeriod();void dashboard();});
+  setPeriod();
   const updateInput=document.createElement('input');
   updateInput.type='file';updateInput.accept='.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';updateInput.hidden=true;
   updateInput.id='rebateUpdateFile';block.appendChild(updateInput);
@@ -43,6 +72,7 @@
     $("rebateImport").disabled=busy||loading||!plan||(updateTarget?!canUpdate:plan.already_imported||Number(plan.new_rows)===0);
     $("rebateImport").textContent=busy?"Procesando…":updateTarget?"Confirmar actualización":plan?"Importar "+number(plan.new_rows)+" registros nuevos":"Importar y sumar";
     block.querySelectorAll("[data-rebate-update],[data-rebate-delete]").forEach(button=>button.disabled=busy||loading);
+    yearControl.disabled=busy||loading;months.querySelectorAll("button").forEach(b=>b.disabled=busy||loading);
     $("rebatePrev").disabled=loading||page===0;
     $("rebateNext").disabled=loading||(page+1)*20>=totalClients;
   }
@@ -56,7 +86,7 @@
     ["rebateTotalLots","rebateEarningLots","rebateTotalRows","rebateTotalClients","rebateRange"].forEach(id=>$(id).textContent="—");
     $("rebateTotalAmount").replaceChildren();$("rebateClientRows").replaceChildren();$("rebateReportRows").replaceChildren();
     $("rebateFrom").value="";$("rebateTo").value="";$("rebateSearch").value="";
-    $("rebatePager").hidden=true;$("rebateEmpty").hidden=false;feedback();buttons();
+    $("rebatePager").hidden=true;$("rebateEmpty").hidden=false;annual.replaceChildren();months.replaceChildren();feedback();buttons();
   }
   function session() {
     if (!authorized()) {reset();throw Error("Inicia sesión como administrador.");}
@@ -83,21 +113,10 @@
       const clients=data.clients||[];
       $("rebateEmpty").hidden=clients.length>0;
       $("rebateClientRows").innerHTML=clients.map(row=>'<article class="rebateClient"><div><strong>'+esc(row.customer_name)+'</strong><small>ID '+esc(row.customer_id)+' · '+esc(row.platform)+'</small></div><div><b>'+number(row.lots)+'</b><small>lotes · '+number(row.row_count)+' registros</small></div><div class="rebateClientAmount">'+amounts([row])+'</div></article>').join("");
-      const reports=data.reports||[];
-      const ids=reports.map(r=>r.id);
-      knownReports.clear();
-      if(ids.length){
-        const details=await supabaseClient.from("olon_rebate_reports").select("id,file_sha256,version,updated_at,updated_rows").in("id",ids);
-        if(!active(captured)||current!==ticket)return;
-        if(details.error)throw details.error;
-        for(const report of details.data||[])knownReports.set(report.id,report);
-      }
-      $("rebateReportRows").innerHTML=reports.map(row=>{
-        const detail=knownReports.get(row.id);
-        const meta=detail?.version>1?' · Versión '+number(detail.version):'';
-        const changed=detail?.updated_rows?' · '+number(detail.updated_rows)+' modificados':'';
-        return '<article class="rebateReport"><div><strong>'+esc(row.file_name)+'</strong><small>'+date(row.first_date)+' — '+date(row.last_date)+meta+'</small></div><div><span>'+number(row.inserted_rows)+' nuevos</span><small>'+number(row.duplicate_rows)+' iguales'+changed+(row.conflict_rows?' · '+number(row.conflict_rows)+' con diferencias':"")+'</small></div><div class="rebateReportActions"><button type="button" class="rebateButton rebateUpdateAction" data-rebate-update="'+esc(row.id)+'">Actualizar archivo</button><button type="button" class="rebateButton rebateDeleteAction" data-rebate-delete="'+esc(row.id)+'">Eliminar</button></div></article>';
-      }).join("") || '<p class="rebateHint">Cada importación aparecerá aquí con su período y los registros añadidos.</p>';
+      const period=await supabaseClient.rpc("olon_rebate_period_summary",{p_year:reportYear});
+      if(!active(captured)||current!==ticket)return;
+      if(period.error)throw period.error;
+      renderPeriod(period.data);
       $("rebatePager").hidden=totalClients<=20;
       $("rebatePage").textContent="Página "+(page+1)+" de "+Math.max(1,Math.ceil(totalClients/20));
     } catch(error){if(active(captured)&&current===ticket)feedback(reason(error),true);}
@@ -115,7 +134,7 @@
   async function assets() {
     if(!assetPromise)assetPromise=(async()=>{
       await loadScript("./rebates/vendor/jszip-3.10.1.min.js",()=>!!window.JSZip);
-      await loadScript("./rebates/xlsx-reader.js?v=20261110-axi-xml-fix-1",()=>!!window.olonRebateReader);
+      await loadScript("./rebates/xlsx-reader.js?v=20261111-settled-annual-1",()=>!!window.olonRebateReader);
     })().catch(error=>{assetPromise=null;throw error;});
     return assetPromise;
   }
@@ -145,7 +164,7 @@
     if(plan.conflict_rows)message+=" "+number(plan.conflict_rows)+" órdenes tienen importes distintos a los guardados y se omitirán para revisión.";
     if(plan.repeated_in_file)message+=" "+number(plan.repeated_in_file)+" filas repetidas dentro del Excel se contarán una sola vez.";
     if(!updateTarget)$("rebatePreviewStatus").textContent=message;
-    $("rebatePreviewWarnings").textContent=parsed.warnings.join(" ");
+    $("rebatePreviewWarnings").textContent=parsed.warnings.join(" ")+(parsed.periods?.length?" Períodos: "+parsed.periods.join(", ")+".":"");
     const groups=new Map(), seen=new Set();
     for(const row of parsed.rows) {
       const identity=JSON.stringify([row.platform,row.referral_id,row.customer_id,row.order_id,row.rebate_id,row.wallet_id,row.currency]);
@@ -194,7 +213,10 @@
       if(!active(captured))return;
       if(error)throw error;
       const message=updateTarget?("Reporte actualizado a versión "+number(data.version)+": "+number(data.new_rows)+" órdenes nuevas y "+number(data.changed_rows)+" modificadas. Se conservaron los datos históricos."):data.already_imported?"Este archivo ya estaba importado. El acumulado se conserva sin duplicados.":number(data.new_rows)+" registros añadidos al acumulado. "+number(data.duplicate_rows)+" repetidos omitidos."+(data.conflict_rows?" "+number(data.conflict_rows)+" con diferencias se omitieron para revisión.":"");
-      clearPreview();feedback(message);page=0;await dashboard();
+      const lastDate=parsed.rows.reduce((a,r)=>r.trade_date>a?r.trade_date:a,"");
+      clearPreview();feedback(message);page=0;
+      if(lastDate){reportYear=Number(lastDate.slice(0,4));reportMonth=Number(lastDate.slice(5,7));addYear(reportYear);setPeriod();}
+      await dashboard();
     }catch(error){if(active(captured))feedback(reason(error),true);}
     finally{if(active(captured)){busy=false;buttons();}}
   }
