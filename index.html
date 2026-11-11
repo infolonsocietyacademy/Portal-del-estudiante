@@ -717,7 +717,7 @@ window.addEventListener("load", () => {
               <h4>2. ¿Cuál es tu servidor?</h4>
               <label for="metaapiBroker">Selecciona tu bróker</label>
               <select id="metaapiBroker" class="metaapi-broker-select">
-                <option value="AXI">AXI</option><option value="OTHER">Otro bróker</option>
+                <option value="AXICORP">AxiCorp Financial Services Pty Ltd (AXI)</option><option value="AXI">AXI — otras entidades</option><option value="OTHER">Otro bróker</option>
               </select>
               <div id="metaapiOtherBrokerWrap" hidden>
                 <label for="metaapiOtherBroker">Nombre de tu bróker</label>
@@ -734,8 +734,8 @@ window.addEventListener("load", () => {
                 <label for="metaapiServer">Servidor exacto (si no aparece en la lista)</label>
                 <input id="metaapiServer" maxlength="120" placeholder="Tal como aparece en tu MT4/MT5" spellcheck="false" autocapitalize="none" autocomplete="off">
               </div>
-              <p id="metaapiServerHint" class="metaapi-muted" role="status">Selecciona AXI y pulsa Buscar servidores. Verás los servidores que MetaApi conoce para la plataforma elegida.</p>
-              <p class="metaapi-muted">Es importante elegir el <strong>servidor exacto</strong> donde se encuentra tu cuenta; AXI es el nombre del bróker, no del servidor.</p>
+              <p id="metaapiServerHint" class="metaapi-muted" role="status">AxiCorp Financial Services Pty Ltd está seleccionado. Pulsa Buscar servidores y elige el mismo servidor que muestra tu cuenta MT4/MT5.</p>
+              <p class="metaapi-muted">Es importante elegir el <strong>servidor exacto</strong> de tu cuenta; AxiCorp Financial Services Pty Ltd identifica a la empresa, no al servidor. Si no aparece en la lista, comprueba el nombre en MetaTrader o en el Portal del Cliente de AXI.</p>
               <details class="metaapi-help">
                 <summary>¿Dónde encuentro mi servidor?</summary>
                 <div>En MT4 o MT5, abre <strong>Gestionar cuentas</strong> (o Ajustes → Cuentas), selecciona la cuenta de trading y busca el servidor que aparece en sus detalles. También puede aparecer en el correo de bienvenida de tu bróker.</div>
@@ -1514,7 +1514,7 @@ window.addEventListener("load", () => {
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
 <script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script>
-<script src="./metaapi-accounts.js?v=20261111-broker-chooser-3" defer></script>
+<script src="./metaapi-accounts.js?v=20261111-axicorp-4" defer></script>
 <script src="./student-dashboard.js?v=20261110-vip-renewal-only-2" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
 </html>
 
