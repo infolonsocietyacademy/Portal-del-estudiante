@@ -54,7 +54,7 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 <link rel="stylesheet" href="./terminal-workspace.css?v=20261109-clean-summary-1">
 <link rel="stylesheet" href="./terminal-fluid.css?v=20261108-fluid-terminal-1">
 <link rel="stylesheet" href="./mobile-premium.css?v=20261109-mobile-premium-1">
-<link rel="stylesheet" href="./metaapi-accounts.css?v=20261111-broker-chooser-3">
+<link rel="stylesheet" href="./metaapi-accounts.css?v=20261111-direct-5">
 <link rel="stylesheet" href="./student-sidebar.css?v=20261110-student-rail-1">
 <link rel="stylesheet" href="./student-dashboard.css?v=20261110-navigation-fix-1">
 </head>
@@ -742,9 +742,30 @@ window.addEventListener("load", () => {
               </details>
             </div>
             <div class="metaapi-form-section metaapi-last">
-              <h4>3. Autoriza la conexión</h4>
-              <p class="metaapi-muted">Te enviaremos al formulario oficial de MetaApi para que escribas el número de cuenta y la <strong>contraseña de inversor</strong>, de solo lectura.</p>
-              <div class="metaapi-actions"><button id="metaapiConnect" type="submit" class="btn metaapi-primary">Continuar de forma segura</button></div>
+              <h4>3. Conecta tu cuenta aquí mismo</h4>
+              <p class="metaapi-muted">Introduce el número de cuenta y la <strong>contraseña de inversor</strong> (solo lectura). No necesitas abrir la página de MetaApi.</p>
+              <div class="metaapi-credential-grid">
+                <div>
+                  <label for="metaapiLogin">Número de cuenta MT4/MT5</label>
+                  <input id="metaapiLogin" type="text" inputmode="numeric" pattern="[0-9]{4,20}" maxlength="20" placeholder="Número que utilizas en MetaTrader" autocomplete="off" spellcheck="false" required>
+                </div>
+                <div>
+                  <label for="metaapiInvestorPassword">Contraseña de inversor (solo lectura)</label>
+                  <div class="metaapi-password-line">
+                    <input id="metaapiInvestorPassword" type="password" maxlength="256" placeholder="Tu contraseña de inversor" autocomplete="new-password" autocapitalize="none" spellcheck="false" required>
+                    <button id="metaapiTogglePassword" type="button" class="btn secondary" aria-pressed="false" aria-label="Mostrar contraseña">Mostrar</button>
+                  </div>
+                </div>
+              </div>
+              <label class="metaapi-investor-confirm" for="metaapiInvestorConfirm">
+                <input id="metaapiInvestorConfirm" type="checkbox" required>
+                <span>Confirmo que uso una contraseña de <strong>inversor</strong>, no mi contraseña principal de trading.</span>
+              </label>
+              <p class="metaapi-muted metaapi-privacy-note">La contraseña se transmite por HTTPS al servidor de OLFX y después a MetaApi para realizar la conexión. No se guarda en la base de datos del portal, pero MetaApi necesita conservarla para mantener la conexión.</p>
+              <div class="metaapi-actions">
+                <button id="metaapiConnect" type="submit" class="btn metaapi-primary">Conectar cuenta desde el portal</button>
+                <button id="metaapiCancelPending" type="button" class="btn secondary" hidden>Cancelar intento y cambiar servidor</button>
+              </div>
             </div>
           </form>
           <div id="metaapiConnected" hidden>
@@ -759,23 +780,21 @@ window.addEventListener("load", () => {
               <div><span>Conexión</span><strong id="metaapiAccountState">—</strong></div>
             </div>
             <div id="metaapiConnectedNext">
-              <p class="metaapi-muted">Si no has terminado, abre el formulario de MetaApi para autorizar tu cuenta. Luego vuelve a esta pantalla.</p>
+              <p class="metaapi-muted">Esta conexión fue iniciada con el método anterior. Para configurarla por completo dentro del portal, utiliza «Reiniciar conexión» y vuelve a agregar tu cuenta.</p>
             </div>
             <div class="metaapi-actions">
-              <a id="metaapiOpenLink" class="btn metaapi-primary" target="_blank" rel="noopener noreferrer" hidden>Abrir formulario seguro</a>
-              <button id="metaapiChange" type="button" class="btn secondary">Continuar la conexión</button>
-              <button id="metaapiRefresh" type="button" class="btn secondary">Ya terminé, comprobar</button>
+              <button id="metaapiRefresh" type="button" class="btn secondary">Actualizar estado</button>
             </div>
             <details id="metaapiManageDetails" class="metaapi-help" hidden>
               <summary>¿Te equivocaste de servidor? Cambiar conexión</summary>
-              <p class="metaapi-muted">Si elegiste un servidor incorrecto, reinicia la vinculación y escoge el servidor exacto. Tu cuenta real del bróker no se elimina.</p>
+              <p class="metaapi-muted">Si necesitas cambiar de servidor o volver a configurar la conexión dentro del portal, reinicia la vinculación. Tu cuenta en el bróker no se elimina.</p>
               <button id="metaapiDisconnect" type="button" class="btn secondary">Desconectar esta cuenta</button>
             </details>
             <div id="metaapiUnlinkPending" hidden></div>
           </div>
           <p id="metaapiFeedback" role="status" aria-live="polite" hidden></p>
         </div>
-        <div class="metaapi-footnote"><strong>Tu privacidad primero.</strong> No introduzcas tu contraseña principal en el portal. Utiliza una contraseña de inversor para acceso de solo lectura. La primera versión admite una cuenta por estudiante y MetaApi puede cobrar por conexión. Las estadísticas automáticas se habilitarán por separado.</div>
+        <div class="metaapi-footnote"><strong>Tu privacidad primero.</strong> No introduzcas tu contraseña principal. El portal recibe temporalmente tu contraseña de inversor por HTTPS y la envía directamente a MetaApi, donde se utiliza para la conexión. La primera versión admite una cuenta por estudiante y MetaApi puede cobrar por conexión. Las estadísticas automáticas se habilitarán por separado.</div>
       </div>
     </section>
     <section id="historial" class="page hidden" aria-labelledby="historyTitle">
@@ -1514,7 +1533,7 @@ window.addEventListener("load", () => {
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
 <script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script>
-<script src="./metaapi-accounts.js?v=20261111-axicorp-4" defer></script>
+<script src="./metaapi-accounts.js?v=20261111-direct-5" defer></script>
 <script src="./student-dashboard.js?v=20261110-vip-renewal-only-2" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
 </html>
 
