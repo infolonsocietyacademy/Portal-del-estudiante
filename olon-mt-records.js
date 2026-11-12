@@ -8,6 +8,8 @@
   const dateParts = new Intl.DateTimeFormat("en-US", {timeZone:PR,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
   let owner=null,linked=false,account=null,syncState=null,lastSync=0,syncing=false,lastRows=[],error=null;
   let requestNumber=0,selectedVaultId=null,viewingArchive=false,currentVault=null;
+  let fetchedAt=0;
+  function invalidate(){fetchedAt=0;}
   function prDate(value) {
     const timestamp=new Date(value);
     if(!Number.isFinite(timestamp.valueOf()))return null;
@@ -101,10 +103,12 @@
   }
   async function fetch(id) {
     if(!id||!core){setLinked(false);return null;}
+    // Avoid repeating thousands of trade rows on every dashboard goal/theme redraw.
+    if(id===owner&&fetchedAt&&Date.now()-fetchedAt<45000)return lastRows.slice();
     if(id!==owner){
       owner=id;account=null;syncState=null;lastRows=[];lastSync=0;error=null;
       selectedVaultId=null;viewingArchive=false;currentVault=null;
-      setLinked(false);requestNumber++;
+      fetchedAt=0;setLinked(false);requestNumber++;
     }
     const request=++requestNumber;
     const [linkResult,vaultResult]=await Promise.all([
@@ -130,7 +134,7 @@
     const legacyUsable=!!link?.provider_account_id
       &&!["DRAFT","PENDING"].includes(String(link.provider_state||"").toUpperCase());
     if(!target&&!legacyUsable){
-      account=null;lastRows=[];syncState=null;setLinked(false);return null;
+      account=null;lastRows=[];syncState=null;setLinked(false);fetchedAt=Date.now();return null;
     }
     account={...(link||{}),
       vault_account_id:target?.id||null,
@@ -150,6 +154,7 @@
       const deals=await loadData(id);
       if(request!==requestNumber)return [];
       lastRows=normalize(deals);
+      fetchedAt=Date.now();
       showStatus();
     }catch(e){
       error="No se pudieron cargar los resultados reales.";
@@ -165,6 +170,7 @@
   function selectVault(id=null){
     if(id!==null && (!/^[0-9a-f-]{36}$/i.test(String(id))))return;
     selectedVaultId=id;
+    invalidate();
     void window.render?.();
   }
   function selectedAccount(){return currentVault?.id??null;}
@@ -175,7 +181,10 @@
     try{
       const {data,error:callError}=await supabaseClient.functions.invoke("olon-mt-history",{body:{action:"sync"}});
       if(callError||data?.error)throw new Error(data?.error||"Sincronización temporalmente no disponible");
-      if(id===owner && !data?.throttled && !data?.error)await window.render?.();
+      if(id===owner && !data?.throttled && !data?.error){
+        invalidate();
+        await window.render?.();
+      }
     }catch(e){error=String(e?.message||e).slice(0,160);console.warn("OLFX MT data sync:",error);}
     finally{syncing=false;showStatus();}
   }
@@ -195,5 +204,5 @@
     const link=event.target.closest("[data-record-open],[data-record-edit],[data-record-delete]");
     if(link){event.preventDefault();event.stopImmediatePropagation();window.showPageById?.("historial");}
   },true);
-  window.olonMtRecords={fetch,refresh,afterRender,linked:linkedNow,selectVault,selectedAccount};
+  window.olonMtRecords={fetch,refresh,afterRender,linked:linkedNow,selectVault,selectedAccount,invalidate};
 })();
