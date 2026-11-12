@@ -233,7 +233,10 @@
         action: "connect-direct", platform, brokerServer, broker: $("metaapiBroker")?.value,
         login, investorPassword,
       });
-      if (result.account) render(result);
+      if (result.account) {
+        window.olonMtRecords?.invalidate?.();
+        render(result);
+      }
       feedback(result.message || "Cuenta registrada en MetaApi. Comprueba el estado para confirmar que está conectada.", "success");
     });
   }
@@ -248,6 +251,7 @@
       // Backend removes only the account mapping and its MetaApi resource.
       // The immutable historical deal rows and old manual records are left untouched.
       await callServer({ action: "disconnect" });
+      window.olonMtRecords?.invalidate?.();
       render({ account: null });
       const password = $("metaapiInvestorPassword");
       if (password) password.value = "";
