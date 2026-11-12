@@ -105,6 +105,73 @@
 
   }
 
+  async function loadVault() {
+    const list = $("mtVaultList"), message = $("mtVaultMessage");
+    if (!list || !message || !isPageOpen()) return;
+    const client = typeof supabaseClient !== "undefined" ? supabaseClient : null;
+    if (!client) return;
+    try {
+      const {data:userData} = await client.auth.getUser();
+      const studentId=userData?.user?.id;
+      if (!studentId) return;
+      const [vaultResult,backupsResult]=await Promise.all([
+        client.from("olon_mt_vault_accounts")
+          .select("id,platform,broker_server,login_masked,active_provider_account_id,archived_at,last_connected_at")
+          .eq("student_id",studentId).order("last_connected_at",{ascending:false}),
+        client.from("olon_mt_vault_backup_state")
+          .select("vault_account_id,last_backup_at,backed_up_deals,last_error")
+          .eq("student_id",studentId)
+      ]);
+      if(vaultResult.error)throw vaultResult.error;
+      if(backupsResult.error)throw backupsResult.error;
+      const backups=new Map((backupsResult.data||[]).map(x=>[x.vault_account_id,x]));
+      const accounts=vaultResult.data||[];
+      list.replaceChildren();
+      if(!accounts.length) {
+        message.textContent="No hay cuentas archivadas todavía. Al conectar una cuenta, su historial se guardará aquí.";
+        return;
+      }
+      message.textContent=accounts.length+" cuenta"+(accounts.length===1?" protegida":"s protegidas")+" · Los registros nunca se mezclan entre cuentas.";
+      for(const vault of accounts){
+        const card=document.createElement("article");
+        card.className="metaapi-vault-card";
+        const head=document.createElement("div");
+        head.className="metaapi-vault-card-head";
+        const title=document.createElement("strong");
+        title.textContent=vault.platform.toUpperCase()+" · "+vault.broker_server;
+        const badge=document.createElement("span");
+        const active=Boolean(vault.active_provider_account_id);
+        badge.textContent=active?"Activa":"Archivada";
+        badge.className="metaapi-vault-tag"+(active?" is-active":"");
+        head.append(title,badge);
+        const description=document.createElement("p");
+        description.className="metaapi-muted";
+        description.textContent="Cuenta "+(vault.login_masked||"••••")+" · "+
+          (vault.last_connected_at?"Última conexión: "+new Date(vault.last_connected_at)
+           .toLocaleDateString("es-PR",{timeZone:"America/Puerto_Rico"}):"Identidad registrada");
+        const backup=backups.get(vault.id);
+        const backupText=document.createElement("p");
+        backupText.className="metaapi-vault-backup";
+        backupText.textContent=backup?.last_backup_at
+          ?"Respaldo verificado: "+new Date(backup.last_backup_at).toLocaleDateString("es-PR",{timeZone:"America/Puerto_Rico"})+
+             " · "+(backup.backed_up_deals||0)+" movimientos"
+          : "Respaldo programado: pendiente";
+        const button=document.createElement("button");
+        button.type="button";button.className="btn secondary";
+        button.textContent=active?"Ver resultados de esta cuenta":"Ver historial archivado";
+        button.addEventListener("click",()=>{
+          window.olonMtRecords?.selectVault(active?null:vault.id);
+          window.showPageById?.("dashboard");
+        });
+        card.append(head,description,backupText,button);
+        list.append(card);
+      }
+    }catch(e){
+      message.textContent="No se pudo cargar Account Vault. Puedes intentar con «Actualizar lista».";
+      console.warn("OLFX Account Vault:",e?.code||"LOAD_ERROR");
+    }
+  }
+
   async function withBusy(work) {
     if (busy) return;
     lock(true);
@@ -140,6 +207,7 @@
         if (box) box.hidden = true;
       }
     });
+    await loadVault();
   }
 
   async function prepareAccount() {
@@ -184,6 +252,7 @@
       const password = $("metaapiInvestorPassword");
       if (password) password.value = "";
       feedback("Cuenta desconectada del portal. Historial anterior conservado en Supabase. Puedes conectar otra cuenta cuando quieras.", "success");
+      await loadVault();
       if (typeof window.render === "function") {
         try { await window.render(); }
         catch (error) { console.warn("La vista de resultados debe recargarse:", error); }
@@ -282,6 +351,7 @@
     form.addEventListener("submit", event => { event.preventDefault(); void prepareAccount(); });
     $("metaapiCancelPending")?.addEventListener("click", () => void unlink());
     $("metaapiRefresh")?.addEventListener("click", () => void checkStatus(true));
+    $("mtVaultRefresh")?.addEventListener("click", () => void loadVault());
     $("metaapiDisconnect")?.addEventListener("click", () => void unlink());
     $("metaapiTogglePassword")?.addEventListener("click", () => {
       const field = $("metaapiInvestorPassword");
