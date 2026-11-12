@@ -55,7 +55,7 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 <link rel="stylesheet" href="./terminal-workspace.css?v=20261109-clean-summary-1">
 <link rel="stylesheet" href="./terminal-fluid.css?v=20261108-fluid-terminal-1">
 <link rel="stylesheet" href="./mobile-premium.css?v=20261109-mobile-premium-1">
-<link rel="stylesheet" href="./metaapi-accounts.css?v=20261111-unlink-6">
+<link rel="stylesheet" href="./metaapi-accounts.css?v=20261111-vault-7">
 <link rel="stylesheet" href="./student-sidebar.css?v=20261110-student-rail-1">
 <link rel="stylesheet" href="./student-dashboard.css?v=20261110-navigation-fix-1">
 </head>
@@ -791,6 +791,16 @@ window.addEventListener("load", () => {
           </div>
           <p id="metaapiFeedback" role="status" aria-live="polite" hidden></p>
         </div>
+        <section id="mtVaultSection" class="metaapi-vault-panel" aria-labelledby="mtVaultTitle">
+          <div class="metaapi-vault-heading">
+            <div><span class="metaapi-kicker">OLFX / ACCOUNT VAULT</span>
+            <h4 id="mtVaultTitle">Historial permanente de mis cuentas</h4>
+            <p class="metaapi-muted">Cada cuenta conserva sus operaciones anteriores en Supabase. Puedes revisar una cuenta archivada o volver a tu cuenta activa.</p></div>
+            <button type="button" class="btn secondary" id="mtVaultRefresh">Actualizar lista</button>
+          </div>
+          <p id="mtVaultMessage" role="status" aria-live="polite" class="metaapi-muted">Consultando historial protegido…</p>
+          <div id="mtVaultList" class="metaapi-vault-list"></div>
+        </section>
         <div class="metaapi-footnote"><strong>Tu privacidad primero.</strong> No introduzcas tu contraseña principal. El portal recibe temporalmente tu contraseña de inversor por HTTPS y la envía directamente a MetaApi, donde se utiliza para la conexión. La primera versión admite una cuenta por estudiante y MetaApi puede cobrar por conexión. Las estadísticas automáticas se habilitarán por separado.</div>
       </div>
     </section>
@@ -1380,7 +1390,7 @@ window.addEventListener("load", () => {
 </dialog>
 
 <script src="./analytics-core.js?v=20261108-performance-1" defer></script>
-<script src="./olon-mt-records.js?v=20261111-automatic-mt-1" defer></script>
+<script src="./olon-mt-records.js?v=20261111-vault-2" defer></script>
 <script src="./script.js?v=20261111-mt-only-1" defer></script>
 <script src="./interior-typewriter.js?v=20261107-profile-nickname-fix" defer></script>
 <script src="./appearance.js?v=20261109-terminal-1" defer></script>
@@ -1531,7 +1541,7 @@ window.addEventListener("load", () => {
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
 <script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script>
-<script src="./metaapi-accounts.js?v=20261111-unlink-6" defer></script>
+<script src="./metaapi-accounts.js?v=20261111-vault-7" defer></script>
 <script src="./student-dashboard.js?v=20261110-vip-renewal-only-2" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
 </html>
 
