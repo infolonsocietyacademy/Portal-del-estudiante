@@ -1037,6 +1037,7 @@ window.addEventListener("load", () => {
         <button type="button" onclick="olonRequests.go()">Solicitudes <span id="adminRequestsNavCount">0</span></button>
         <button type="button" onclick="olonAdmin.go('adminStudentsBlock')">Estudiantes</button>
         <button type="button" id="olonRankNav">🏆 TOP 3</button>
+        <button type="button" id="olonMyfxbookNav" onclick="document.getElementById('olonMyfxbookAdminBlock')?.scrollIntoView({behavior:'smooth',block:'start'})">Myfxbook (prueba)</button>
         <button type="button" data-academy-page="academyAdminClassesPage">Clases</button>
         <button type="button" data-academy-page="academyAdminVipPage">Comprobantes VIP</button>
         <button type="button" onclick="olonAdmin.go('adminBillingBlock')">Facturación</button>
@@ -1044,6 +1045,30 @@ window.addEventListener("load", () => {
         <button type="button" onclick="olonAdmin.openChat()">Mensajes <span id="adminNavUnread">0</span></button>
         <button type="button" onclick="document.getElementById('adminReminderBlock')?.scrollIntoView({behavior:'smooth',block:'start'})">Recordatorios</button>
       </nav>
+      <section class="adminWorkspaceCard olfx-myfxbook-panel" id="olonMyfxbookAdminBlock" aria-labelledby="olonMyfxbookTitle" hidden>
+        <div class="adminWorkspaceCardHead">
+          <div>
+            <span class="adminSectionEyebrow">OLFX / MYFXBOOK / PRUEBA PRIVADA</span>
+            <h3 id="olonMyfxbookTitle">Conexión Myfxbook — cuenta de prueba</h3>
+            <p>Consulta agregados de una cuenta autorizada sin instalar EA. Este módulo no publica resultados en TOP TRADER ni sustituye MetaApi todavía.</p>
+          </div>
+        </div>
+        <p class="olmy-note">Configura primero MYFXBOOK_EMAIL y MYFXBOOK_PASSWORD como Secrets de Supabase. No escribas contraseñas aquí. Solo enlaza cuentas pertenecientes a estudiantes que hayan autorizado esta prueba.</p>
+        <div class="olmy-actions">
+          <button id="olmyDiscover" class="btn secondary" type="button">Detectar cuentas Myfxbook</button>
+          <button id="olmyRefresh" class="btn secondary" type="button">Actualizar estado</button>
+        </div>
+        <p id="olmyStatus" role="status" aria-live="polite">Preparando la conexión de prueba…</p>
+        <div class="olmy-form">
+          <label for="olmyStudent">Estudiante autorizado</label>
+          <select id="olmyStudent"><option value="">Selecciona el estudiante</option></select>
+          <label for="olmyAccount">Cuenta del Myfxbook de la academia</label>
+          <select id="olmyAccount"><option value="">Primero detecta cuentas disponibles</option></select>
+          <label class="olmy-consent"><input id="olmyConsent" type="checkbox"> Confirmo que el estudiante autorizó enlazar su cuenta y usar sus métricas solo en esta prueba privada.</label>
+          <button id="olmyLink" type="button" class="btn secondary">Vincular cuenta de prueba</button>
+        </div>
+        <div id="olmyLinks" class="olmy-links"></div>
+      </section>
       <section class="adminWorkspaceCard olonRemindersAdmin" id="adminReminderBlock" aria-labelledby="olonReminderAdminTitle">
         <header class="olonReminderAdminHeader">
           <div><span>OLON / COMUNICACIONES</span><h4 id="olonReminderAdminTitle">Recordatorios para estudiantes</h4><p>Escribe un aviso y aparecerá en el portal de los estudiantes con membresía activa.</p></div>
@@ -1409,6 +1434,8 @@ window.addEventListener("load", () => {
 <script src="./admin-billing.js?v=20261110-student-billing-nav-1" defer></script>
 <script src="./admin-rebates.js?v=20261111-axi-exact-precision-4" defer></script>
 <script src="./leaderboard.js?v=20261108-top3-avatar-colors-4" defer></script>
+<link rel="stylesheet" href="./olon-myfxbook.css?v=20261111-1">
+<script src="./olon-myfxbook.js?v=20261111-1" defer></script>
 <script src="./admin-performance.js?v=20261108-auto-ranking-2" defer></script>
 <script src="./admin-registration.js?v=20261110-admin-sections-1" defer></script><script src="./license-ui.js?v=20261110-restore-original-5" defer></script>
 <script src="./password-settings.js?v=20261107-security-hardening" defer></script>

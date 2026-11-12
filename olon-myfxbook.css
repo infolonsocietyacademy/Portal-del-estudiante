@@ -1,0 +1,20 @@
+/* Myfxbook pilot stays hidden outside validated administrator sessions. */
+#olonMyfxbookAdminBlock[hidden],#olonMyfxbookNav[hidden]{display:none!important}
+/* OLFX Myfxbook trial: neutral design matching portal admin. */
+#olonMyfxbookAdminBlock{scroll-margin-top:90px}
+#olonMyfxbookAdminBlock .adminWorkspaceCardHead{margin-bottom:12px}
+#olonMyfxbookAdminBlock .olmy-note{font-size:.85rem;line-height:1.6;opacity:.82;margin:10px 0 14px}
+#olonMyfxbookAdminBlock .olmy-actions{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+#olonMyfxbookAdminBlock #olmyStatus{min-height:30px;margin:14px 0;font-size:.86rem}
+#olonMyfxbookAdminBlock .olmy-form{display:grid;gap:10px;max-width:630px;padding:16px;border:1px solid rgba(148,163,184,.24);border-radius:12px}
+#olonMyfxbookAdminBlock .olmy-form label{font-size:.84rem;font-weight:600}
+#olonMyfxbookAdminBlock .olmy-form select{width:100%;min-height:44px;padding:9px 12px;border:1px solid rgba(148,163,184,.35);border-radius:8px;background:var(--card-bg,var(--surface,#111827));color:inherit;font:inherit}
+#olonMyfxbookAdminBlock .olmy-consent{display:flex;align-items:flex-start;gap:8px;font-weight:400!important;line-height:1.45}
+#olonMyfxbookAdminBlock .olmy-consent input{margin-top:4px;flex:0 0 auto}
+#olonMyfxbookAdminBlock .olmy-form .btn{justify-self:start}
+#olonMyfxbookAdminBlock .olmy-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:12px;margin-top:16px}
+#olonMyfxbookAdminBlock .olmy-link{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:15px;border:1px solid rgba(148,163,184,.25);border-radius:12px;min-width:0}
+#olonMyfxbookAdminBlock .olmy-link>p{font-size:.84rem;margin:0;overflow-wrap:anywhere}
+#olonMyfxbookAdminBlock .olmy-link>small{opacity:.7}
+#olonMyfxbookAdminBlock .olmy-link>.btn{margin-top:auto}
+@media(max-width:640px){#olonMyfxbookAdminBlock .olmy-actions .btn,#olonMyfxbookAdminBlock .olmy-form .btn,#olonMyfxbookAdminBlock .olmy-link .btn{width:100%}}
