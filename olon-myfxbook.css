@@ -1,3 +1,5 @@
+/* Myfxbook pilot stays hidden outside validated administrator sessions. */
+#olonMyfxbookAdminBlock[hidden],#olonMyfxbookNav[hidden]{display:none!important}
 /* OLFX Myfxbook trial: neutral design matching portal admin. */
 #olonMyfxbookAdminBlock{scroll-margin-top:90px}
 #olonMyfxbookAdminBlock .adminWorkspaceCardHead{margin-bottom:12px}
