@@ -75,3 +75,19 @@
 #metaapiAccountsPage .metaapi-disconnect:hover{border-color:#ef4444;background:rgba(239,68,68,.13)}
 #metaapiAccountsPage .metaapi-disconnect-note{max-width:740px;margin-top:16px}
 @media(max-width:680px){#metaapiAccountsPage .metaapi-account-actions .metaapi-disconnect{width:100%}}
+
+/* OLFX Account Vault / archivo de cuentas – aislado del resto del portal */
+#metaapiAccountsPage .metaapi-vault-panel{border:1px solid rgba(148,163,184,.22);border-radius:15px;padding:clamp(16px,2.6vw,25px);background:rgba(100,116,139,.045)}
+#metaapiAccountsPage .metaapi-vault-heading{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:13px}
+#metaapiAccountsPage .metaapi-vault-heading h4{margin:6px 0 4px;font-size:1.03rem}
+#metaapiAccountsPage .metaapi-vault-heading .btn{min-height:38px;white-space:normal}
+#metaapiAccountsPage .metaapi-vault-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(270px,100%),1fr));gap:12px;margin-top:14px}
+#metaapiAccountsPage .metaapi-vault-card{display:flex;flex-direction:column;gap:8px;border:1px solid rgba(148,163,184,.23);border-radius:12px;padding:15px;background:rgba(100,116,139,.07);min-width:0}
+#metaapiAccountsPage .metaapi-vault-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap}
+#metaapiAccountsPage .metaapi-vault-card-head strong{overflow-wrap:anywhere;font-size:.86rem}
+#metaapiAccountsPage .metaapi-vault-tag{border:1px solid rgba(148,163,184,.4);border-radius:100px;padding:4px 9px;font-size:.68rem;white-space:nowrap}
+#metaapiAccountsPage .metaapi-vault-tag.is-active{border-color:rgba(34,197,94,.4);color:#22c55e}
+#metaapiAccountsPage .metaapi-vault-card .metaapi-muted{margin:3px 0}
+#metaapiAccountsPage .metaapi-vault-backup{font-size:.76rem;line-height:1.6;opacity:.8;margin:0}
+#metaapiAccountsPage .metaapi-vault-card>.btn{margin-top:auto;align-self:flex-start}
+@media(max-width:680px){#metaapiAccountsPage .metaapi-vault-card>.btn{width:100%;align-self:stretch}}

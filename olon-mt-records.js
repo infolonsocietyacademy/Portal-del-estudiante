@@ -7,7 +7,7 @@
   const $ = id => document.getElementById(id);
   const dateParts = new Intl.DateTimeFormat("en-US", {timeZone:PR,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
   let owner=null,linked=false,account=null,syncState=null,lastSync=0,syncing=false,lastRows=[],error=null;
-  let requestNumber=0;
+  let requestNumber=0,selectedVaultId=null,viewingArchive=false,currentVault=null;
   function prDate(value) {
     const timestamp=new Date(value);
     if(!Number.isFinite(timestamp.valueOf()))return null;
@@ -68,14 +68,15 @@
     box.hidden=!linked;
     if(!linked)return;
     const synced=syncState?.last_success_at?new Date(syncState.last_success_at).toLocaleString("es-PR",{timeZone:PR}):"sin sincronizar";
-    const coverage=syncState?.backfill_done?"Historial importado":"Importando historial antiguo por etapas";
-    const extras=syncState?.last_error?" · Error de sincronización: "+safeText(syncState.last_error):"";
-    box.textContent="MT4/MT5: fuente automática de resultados · "+coverage+" · Última actualización: "+synced+" · "+lastRows.length+" movimientos visibles"+extras;
+    const coverage=viewingArchive?"Cuenta archivada · solo lectura":syncState?.backfill_done?"Historial importado":"Importando historial antiguo por etapas";
+    const extras=!viewingArchive&&syncState?.last_error?" · Error de sincronización: "+safeText(syncState.last_error):"";
+    box.textContent="OLFX Account Vault · "+coverage+(viewingArchive?"":" · Última actualización: "+synced)+" · "+lastRows.length+" movimientos visibles"+extras;
     const button=document.createElement("button");
     button.type="button";
     button.className="btn secondary mtManualRefresh";
     button.textContent=syncing?"Sincronizando…":"Actualizar operaciones MT";
-    button.disabled=syncing;
+    button.disabled=syncing||viewingArchive;
+    button.hidden=viewingArchive;
     button.addEventListener("click",()=>void refresh());
     box.append(button);
   }
@@ -83,9 +84,12 @@
     const results=[];
     const limit=750;
     for(let offset=0;offset<200000;offset+=limit){
-      const {data,error}=await supabaseClient.from("olon_mt_deals")
-        .select("id,deal_id,position_id,order_id,occurred_at,deal_type,entry_type,symbol,volume,profit,commission,swap,fee,comment")
-        .eq("provider_account_id",account.provider_account_id)
+      let query=supabaseClient.from("olon_mt_deals")
+        .select("id,deal_id,position_id,order_id,occurred_at,deal_type,entry_type,symbol,volume,profit,commission,swap,fee,comment");
+      query=account.vault_account_id
+        ? query.eq("vault_account_id",account.vault_account_id)
+        : query.eq("provider_account_id",account.provider_account_id);
+      const {data,error}=await query
         .order("occurred_at",{ascending:true}).order("id",{ascending:true})
         .range(offset,offset+limit-1);
       if(error)throw error;
@@ -98,20 +102,49 @@
   async function fetch(id) {
     if(!id||!core){setLinked(false);return null;}
     if(id!==owner){
-      owner=id;account=null;syncState=null;lastRows=[];lastSync=0;error=null;setLinked(false);requestNumber++;
+      owner=id;account=null;syncState=null;lastRows=[];lastSync=0;error=null;
+      selectedVaultId=null;viewingArchive=false;currentVault=null;
+      setLinked(false);requestNumber++;
     }
     const request=++requestNumber;
-    const {data:link,error:linkError}=await supabaseClient.from("olon_metaapi_accounts")
-      .select("provider_account_id,provider_state,connection_status,platform,broker_server")
-      .eq("student_id",id).maybeSingle();
+    const [linkResult,vaultResult]=await Promise.all([
+      supabaseClient.from("olon_metaapi_accounts")
+        .select("provider_account_id,provider_state,connection_status,platform,broker_server")
+        .eq("student_id",id).maybeSingle(),
+      supabaseClient.from("olon_mt_vault_accounts")
+        .select("id,platform,broker_server,login_masked,active_provider_account_id,archived_at,last_connected_at")
+        .eq("student_id",id).order("last_connected_at",{ascending:false})
+    ]);
     if(request!==requestNumber)return [];
-    if(linkError){error="No se pudo comprobar la cuenta MT";setLinked(false);return null;}
-    const usable=!!link?.provider_account_id && !["DRAFT","PENDING"].includes(String(link.provider_state||"").toUpperCase());
-    if(!usable){account=null;lastRows=[];setLinked(false);return null;}
-    account=link;setLinked(true);
+    if(linkResult.error||vaultResult.error){
+      error="No se pudo comprobar el historial protegido.";
+      setLinked(false);return null;
+    }
+    const link=linkResult.data;
+    const vaults=vaultResult.data||[];
+    const active=vaults.find(v=>v.active_provider_account_id&&v.active_provider_account_id===link?.provider_account_id);
+    const selected=selectedVaultId?vaults.find(v=>v.id===selectedVaultId):null;
+    const target=selected||active||(!link?.provider_account_id?vaults[0]:null);
+    currentVault=target||null;
+    viewingArchive=!!target&&!target.active_provider_account_id;
+    const legacyUsable=!!link?.provider_account_id
+      &&!["DRAFT","PENDING"].includes(String(link.provider_state||"").toUpperCase());
+    if(!target&&!legacyUsable){
+      account=null;lastRows=[];syncState=null;setLinked(false);return null;
+    }
+    account={...(link||{}),
+      vault_account_id:target?.id||null,
+      provider_account_id:target?.active_provider_account_id||(!target?link?.provider_account_id:null),
+      archived:viewingArchive};
+    setLinked(true);
     try{
-      const {data:state}=await supabaseClient.from("olon_mt_sync_state").select("*")
-        .eq("provider_account_id",account.provider_account_id).maybeSingle();
+      let state=null;
+      if(!viewingArchive&&account.provider_account_id){
+        const result=await supabaseClient.from("olon_mt_sync_state").select("*")
+          .eq("provider_account_id",account.provider_account_id).maybeSingle();
+        if(result.error)throw result.error;
+        state=result.data;
+      }
       if(request!==requestNumber)return [];
       syncState=state;
       const deals=await loadData(id);
@@ -120,17 +153,23 @@
       showStatus();
     }catch(e){
       error="No se pudieron cargar los resultados reales.";
-      showStatus();
-      // Never fall back to legacy manual totals for a linked MT account.
+      lastRows=[];showStatus();
+      // An unexpected read error never falls back to old manual figures.
     }
-    if(Date.now()-lastSync>180000 && !syncing && link.connection_status==="CONNECTED"){
-      lastSync=Date.now();
-      void refresh(id);
+    if(!viewingArchive&&account.provider_account_id
+      &&Date.now()-lastSync>180000&&!syncing&&link?.connection_status==="CONNECTED"){
+      lastSync=Date.now();void refresh(id);
     }
     return lastRows.slice();
   }
+  function selectVault(id=null){
+    if(id!==null && (!/^[0-9a-f-]{36}$/i.test(String(id))))return;
+    selectedVaultId=id;
+    void window.render?.();
+  }
+  function selectedAccount(){return currentVault?.id??null;}
   async function refresh(id=owner) {
-    if(syncing||!linked||id!==owner)return;
+    if(syncing||!linked||viewingArchive||!account?.provider_account_id||id!==owner)return;
     syncing=true;
     showStatus();
     try{
@@ -141,7 +180,7 @@
     finally{syncing=false;showStatus();}
   }
   function afterRender(){
-    if(!linked)return;
+    if(!linked||viewingArchive)return;
     // Real account balance should not be approximated from historical deposit records.
     const element=$("mBalance");
     if(element&&syncState?.balance!=null) {
@@ -156,5 +195,5 @@
     const link=event.target.closest("[data-record-open],[data-record-edit],[data-record-delete]");
     if(link){event.preventDefault();event.stopImmediatePropagation();window.showPageById?.("historial");}
   },true);
-  window.olonMtRecords={fetch,refresh,afterRender,linked:linkedNow};
+  window.olonMtRecords={fetch,refresh,afterRender,linked:linkedNow,selectVault,selectedAccount};
 })();
