@@ -72,11 +72,11 @@
     const synced=syncState?.last_success_at?new Date(syncState.last_success_at).toLocaleString("es-PR",{timeZone:PR}):"sin sincronizar";
     const coverage=viewingArchive?"Cuenta archivada · solo lectura":syncState?.backfill_done?"Historial importado":"Importando historial antiguo por etapas";
     const extras=!viewingArchive&&syncState?.last_error?" · Error de sincronización: "+safeText(syncState.last_error):"";
-    box.textContent="OLFX Account Vault · "+coverage+(viewingArchive?"":" · Última actualización: "+synced)+" · "+lastRows.length+" movimientos visibles"+extras;
+    box.textContent="OLFX Account Vault · "+coverage+(viewingArchive?"":" · Última actualización: "+synced+" · Próxima sincronización: después del cierre NY, días hábiles")+" · "+lastRows.length+" movimientos visibles"+extras;
     const button=document.createElement("button");
     button.type="button";
     button.className="btn secondary mtManualRefresh";
-    button.textContent=syncing?"Sincronizando…":"Actualizar operaciones MT";
+    button.textContent=syncing?"Cargando…":"Recargar historial guardado";
     button.disabled=syncing||viewingArchive;
     button.hidden=viewingArchive;
     button.addEventListener("click",()=>void refresh());
@@ -161,10 +161,6 @@
       lastRows=[];showStatus();
       // An unexpected read error never falls back to old manual figures.
     }
-    if(!viewingArchive&&account.provider_account_id
-      &&Date.now()-lastSync>180000&&!syncing&&link?.connection_status==="CONNECTED"){
-      lastSync=Date.now();void refresh(id);
-    }
     return lastRows.slice();
   }
   function selectVault(id=null){
@@ -175,18 +171,20 @@
   }
   function selectedAccount(){return currentVault?.id??null;}
   async function refresh(id=owner) {
-    if(syncing||!linked||viewingArchive||!account?.provider_account_id||id!==owner)return;
+    if(syncing||!linked||id!==owner)return;
     syncing=true;
     showStatus();
-    try{
-      const {data,error:callError}=await supabaseClient.functions.invoke("olon-mt-history",{body:{action:"sync"}});
-      if(callError||data?.error)throw new Error(data?.error||"Sincronización temporalmente no disponible");
-      if(id===owner && !data?.throttled && !data?.error){
-        invalidate();
-        await window.render?.();
-      }
-    }catch(e){error=String(e?.message||e).slice(0,160);console.warn("OLFX MT data sync:",error);}
-    finally{syncing=false;showStatus();}
+    try {
+      // Reload data already in Supabase. Do not invoke paid MetaApi while market is open.
+      invalidate();
+      await window.render?.();
+    } catch(e) {
+      error=String(e?.message||e).slice(0,160);
+      console.warn("OLFX historial guardado:",error);
+    } finally {
+      syncing=false;
+      showStatus();
+    }
   }
   function afterRender(){
     if(!linked||viewingArchive)return;
