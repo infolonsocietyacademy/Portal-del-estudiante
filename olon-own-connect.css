@@ -41,3 +41,5 @@
 .olfxAccountSync{font-size:.78rem;opacity:.76;margin:12px 0}
 .olfxAccountActions{display:flex;gap:8px;flex-wrap:wrap}
 @media(max-width:700px){.olfxAccountMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}.olfxAccountCard{padding:12px}.olfxAccountManagementIntro{align-items:flex-start}}
+
+#metaapiAccountsPage [hidden]{display:none!important}
