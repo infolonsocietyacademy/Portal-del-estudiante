@@ -121,9 +121,9 @@
         .select("id,platform,broker_server,login_masked,active_provider_account_id,archived_at,last_connected_at")
         .eq("student_id",id).order("last_connected_at",{ascending:false}),
       supabaseClient.from("olon_own_accounts")
-        .select("provider_account_id,vault_account_id,platform,broker_server,status,last_sync_at")
+        .select("provider_account_id,vault_account_id,platform,broker_server,status,last_sync_at,is_primary")
         .eq("student_id",id).neq("status","revoked")
-        .order("created_at",{ascending:false}).limit(1)
+        .order("is_primary",{ascending:false}).order("created_at",{ascending:false}).limit(1)
     ]);
     if(request!==requestNumber)return [];
     if(linkResult.error||vaultResult.error||ownResult.error){
