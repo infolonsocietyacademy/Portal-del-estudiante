@@ -99,6 +99,7 @@ async function connect(){
   await invoke({action:"connect",platform:"mt5",brokerServer:server,login,encryptedPayload});
   notice("Cuenta registrada en OLFX CONNECT, sin MetaApi. Se comprobará al iniciar el programa de Windows.","success");
   window.olonMtRecords?.invalidate?.();
+  await window.render?.();
   const result=await invoke({action:"status"});render(result.account);
  }catch(e){notice(e.message,"error");}finally{
   if(passwordEl)passwordEl.value="";
@@ -108,7 +109,13 @@ async function connect(){
 async function unlink(){
  if(busy||!confirm("¿Desvincular esta cuenta de OLFX CONNECT? Tus operaciones históricas quedarán guardadas."))return;
  busy=true;
- try{await invoke({action:"disconnect"});render(null);window.olonMtRecords?.invalidate?.();notice("Cuenta desvinculada. El historial guardado permanece protegido.","success");}catch(e){notice(e.message,"error");}
+ try{
+    await invoke({action:"disconnect"});
+    render(null);
+    window.olonMtRecords?.invalidate?.();
+    await window.render?.();
+    notice("Cuenta desvinculada. Resumen se ha limpiado y el historial archivado permanece protegido.","success");
+  }catch(e){notice(e.message,"error");}
  finally{busy=false;}
 }
 
