@@ -111,6 +111,12 @@
 
     const kpiBlock=section("olSummaryKPIsBlock","Tu rendimiento de un vistazo","Datos calculados desde tu historial personal.","comparacion");
     kpiBlock.id="olonSummaryKPIs";
+    const connectionNote=document.createElement("p");
+    connectionNote.id="olonSummaryConnectionNotice";
+    connectionNote.setAttribute("role","status");
+    connectionNote.className="metaapi-muted";
+    connectionNote.textContent="Comprobando conexión MT5…";
+    kpiBlock.append(connectionNote);
     const kpiGrid=document.createElement("div");
     kpiGrid.className="olSummaryKPIGrid";
     const kpiItems=[
@@ -191,7 +197,23 @@
     });
 
     window.olonStudentSummary={
-      refresh() {byId("olonSummaryKPIs")?.querySelectorAll("[data-kpi-source]").forEach(value=>{
+      setConnectionState(connected){
+        const hint=byId("olonSummaryConnectionNotice");
+        if(hint)hint.textContent=connected
+          ?"Datos obtenidos de una cuenta MT conectada."
+          :"Sin cuenta MT conectada. Los historiales antiguos se conservan en Account Vault, pero no se incluyen en Resumen.";
+        byId("dashboard")?.classList.toggle("olonSummaryDisconnected",!connected);
+        if(!connected){
+          byId("olonSummaryKPIs")?.querySelectorAll("[data-kpi-source]").forEach(value=>{
+            value.textContent="—";value.classList.remove("negative");
+          });
+        }else this.refresh();
+      },
+      refresh() {
+        if(!window.olonMtRecords?.linked?.()){
+          this.setConnectionState(false);return;
+        }
+        byId("olonSummaryKPIs")?.querySelectorAll("[data-kpi-source]").forEach(value=>{
         const origin=byId(value.dataset.kpiSource);
         if(!origin)return;
         value.textContent=value.dataset.kpiSource==="analyticsSample"
