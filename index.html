@@ -741,7 +741,7 @@ window.addEventListener("load", () => {
         <div class="metaapi-panel">
           <div class="olfxAccountManagementIntro">
             <div><strong>Mis conexiones MT5</strong><p class="metaapi-muted">Conecta varias cuentas MT5, consulta sus estadísticas reales y selecciona cuál mostrar en Resumen. Cada historial permanece separado.</p></div>
-            <button type="button" id="metaapiAddAccount" class="btn secondary" hidden>+ Conectar otra cuenta MT5</button>
+            <div class="metaapi-actions"><button type="button" id="metaapiRefreshAccounts" class="btn secondary">Actualizar estadísticas</button><button type="button" id="metaapiAddAccount" class="btn secondary" hidden>+ Conectar otra cuenta MT5</button></div>
           </div>
           <div id="metaapiAccountsList" class="olfxAccountsList" aria-live="polite"></div>
           <p id="olonOwnStudentReadiness" class="metaapi-muted" role="status" aria-live="polite">Comprobando si OLFX CONNECT ya tiene un equipo Windows configurado…</p>
