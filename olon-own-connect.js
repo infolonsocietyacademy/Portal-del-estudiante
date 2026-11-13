@@ -51,32 +51,93 @@ async function readiness(){
  if(btn)btn.disabled=!agentReady||clean($("metaapiPlatform")?.value)!=="mt5";
 }
 
-function render(account){
- currentAccount=account||null;
- const form=$("metaapiConnectForm"), area=$("metaapiConnected"), badge=$("metaapiConnectionBadge");
- if(!form||!area||!badge)return;
- const active=account?.status==="active";
- const waiting=account?.status==="waiting";
- form.hidden=!!account;
- area.hidden=!account;
- badge.dataset.status=active?"on":waiting?"wait":"off";
- badge.textContent=active?"Cuenta sincronizada":account?(waiting?"Esperando computadora":"Requiere atención"):"Sin vincular";
- if(!account)return;
- $("metaapiAccountPlatform").textContent=(account.platform||"mt5").toUpperCase();
- $("metaapiAccountBroker").textContent=account.broker_server||"—";
- $("metaapiAccountLogin").textContent=account.login_masked||"••••";
- $("metaapiAccountState").textContent=active?"Activa":waiting?"Pendiente de sincronización":"Revisar conexión";
- $("metaapiConnectedTitle").textContent=active?"Tu cuenta está sincronizada":"OLFX CONNECT está preparando tu cuenta";
- $("metaapiConnectedSubtitle").textContent=active?"Estadísticas disponibles en tu Portal del Trader.":"La computadora de la academia verificará tu cuenta MT5 cuando ejecute OLFX CONNECT.";
- $("metaapiConnectedIcon").textContent=active?"✓":"2";
- $("metaapiConnectedNext").hidden=false;
- $("metaapiConnectedNext").textContent=account.last_error?("Estado: "+account.last_error):(active?"Última actualización: "+(account.last_sync_at?new Date(account.last_sync_at).toLocaleString("es-PR"):"pendiente"):"Esperando que el administrador encienda la computadora y ejecute la sincronización.");
- $("metaapiDisconnect").textContent="Desvincular cuenta OLFX";
+let currentAccounts=[], addingAccount=false;
+function money(value,currency="USD"){
+ if(value==null)return "—";
+ const amount=Number(value);if(!Number.isFinite(amount))return "—";
+ return new Intl.NumberFormat("es-PR",{style:"currency",currency:currency==="USD"?"USD":"USD",maximumFractionDigits:2}).format(amount)+(currency!=="USD"?" "+currency:"");
+}
+function txt(tag,content,className){
+ const el=document.createElement(tag);el.textContent=String(content??"");if(className)el.className=className;return el;
+}
+function metric(name,value){
+ const cell=document.createElement("div");cell.className="olfxAccountMetric";
+ cell.append(txt("span",name),txt("strong",value));return cell;
+}
+function renderAccounts(accounts){
+ currentAccounts=Array.isArray(accounts)?accounts:[];
+ currentAccount=currentAccounts.find(a=>a.is_primary)||currentAccounts[0]||null;
+ const host=$("metaapiAccountsList"),form=$("metaapiConnectForm"),legacy=$("metaapiConnected");
+ const add=$("metaapiAddAccount"),badge=$("metaapiConnectionBadge");
+ if(!host||!form||!legacy||!badge)return;
+ host.replaceChildren();
+ legacy.hidden=true;
+ const hasAccounts=currentAccounts.length>0;
+ form.hidden=hasAccounts&&!addingAccount;
+ if(add){add.hidden=!hasAccounts;add.textContent=addingAccount?"Cancelar nueva conexión":"+ Conectar otra cuenta MT5";}
+ const active=currentAccounts.filter(a=>a.status==="active").length;
+ const pending=currentAccounts.filter(a=>a.status==="waiting").length;
+ badge.dataset.status=active?"on":pending?"wait":"off";
+ badge.textContent=!hasAccounts?"Sin vincular":active+" activa(s) · "+currentAccounts.length+" conectada(s)";
+ if(!hasAccounts){
+  host.append(txt("p","Todavía no tienes cuentas MT5. Conecta tu cuenta utilizando el formulario seguro.", "metaapi-muted"));
+  return;
+ }
+ host.append(txt("h4","Cuentas MT5 vinculadas · "+currentAccounts.length,"olfxAccountListTitle"));
+ for(const account of currentAccounts){
+  const card=document.createElement("article");card.className="olfxAccountCard";
+  if(account.is_primary)card.classList.add("olfxAccountPrimary");
+  const heading=document.createElement("div");heading.className="olfxAccountHeader";
+  const name=document.createElement("div");
+  name.append(txt("strong","MT5 · "+account.login_masked));
+  name.append(txt("small",account.broker_server,"metaapi-muted"));
+  const state=txt("span",account.status==="active"?"Sincronizada":account.status==="waiting"?"Esperando Windows":"Requiere revisión","olfxAccountState");
+  state.dataset.status=account.status;
+  heading.append(name,state);card.append(heading);
+  if(account.is_primary)card.append(txt("p","★ Cuenta principal para Resumen y estadísticas del portal","olfxPrimaryCaption"));
+  if(account.last_error)card.append(txt("p","Aviso: "+account.last_error,"olfxAccountError"));
+  if(account.status!=="active")card.append(txt("p","Las estadísticas aparecerán cuando Windows sincronice esta cuenta. No se muestran cifras inventadas.","metaapi-muted"));
+  const grid=document.createElement("div");grid.className="olfxAccountMetrics";
+  const ready=account.status==="active";
+  grid.append(
+   metric("Balance",ready?money(account.balance,account.currency):"—"),
+   metric("Equity",ready?money(account.equity,account.currency):"—"),
+   metric("WinRate",ready&&account.win_rate!=null?account.win_rate.toFixed(2)+"%":"—"),
+   metric("Trades cerrados",ready?account.closed_trades:"—"),
+   metric("P&L del mes",ready?money(account.month_net,account.currency):"—"),
+   metric("P&L histórico importado",ready?money(account.net_profit,account.currency):"—")
+  );card.append(grid);
+  card.append(txt("p",account.last_sync_at?"Última sincronización: "+new Date(account.last_sync_at).toLocaleString("es-PR",{timeZone:"America/Puerto_Rico"}):"Esperando primera sincronización","olfxAccountSync"));
+  const actions=document.createElement("div");actions.className="metaapi-actions olfxAccountActions";
+  const primary=txt("button",account.is_primary?"Cuenta principal":"Usar en mi Resumen","btn "+(account.is_primary?"secondary":"metaapi-primary"));
+  primary.type="button";primary.disabled=account.is_primary;
+  primary.addEventListener("click",()=>void changePrimary(account.id,primary));
+  const remove=txt("button","Desvincular","btn secondary");
+  remove.type="button";remove.addEventListener("click",()=>void unlink(account.id));
+  actions.append(primary,remove);card.append(actions);host.append(card);
+ }
 }
 async function status(force=false){
  if(busy||(!force&&Date.now()-lastStatus<15000))return;
  lastStatus=Date.now();
- try{const result=await invoke({action:"status"});render(result.account);}catch(err){notice(err.message,"error");}
+ try{
+  const result=await invoke({action:"status"});
+  renderAccounts(result.accounts|| (result.account?[result.account]:[]));
+ }catch(err){notice(err.message,"error");}
+}
+async function changePrimary(id,button){
+ if(busy)return;
+ busy=true;if(button)button.disabled=true;
+ try{
+  await invoke({action:"select-primary",accountId:id});
+  const result=await invoke({action:"status"});
+  renderAccounts(result.accounts||[]);
+  window.olonMtRecords?.invalidate?.();
+  await window.render?.();
+  window.olonStudentSummary?.refresh?.();
+  notice("Esta cuenta MT5 ahora alimenta tu Resumen, calendario y estadísticas.","success");
+ }catch(e){notice(e.message,"error");}
+ finally{busy=false;if(button)button.disabled=false;}
 }
 async function connect(){
  if(busy)return;
@@ -100,22 +161,24 @@ async function connect(){
   notice("Cuenta registrada en OLFX CONNECT, sin MetaApi. Se comprobará al iniciar el programa de Windows.","success");
   window.olonMtRecords?.invalidate?.();
   await window.render?.();
-  const result=await invoke({action:"status"});render(result.account);
+  addingAccount=false;
+  const result=await invoke({action:"status"});renderAccounts(result.accounts||[]);
  }catch(e){notice(e.message,"error");}finally{
   if(passwordEl)passwordEl.value="";
   busy=false;if(btn)btn.disabled=false;
  }
 }
-async function unlink(){
- if(busy||!confirm("¿Desvincular esta cuenta de OLFX CONNECT? Tus operaciones históricas quedarán guardadas."))return;
+async function unlink(accountId){
+ if(busy||!accountId||!confirm("¿Desvincular únicamente esta cuenta MT5? El historial sincronizado quedará conservado en Account Vault."))return;
  busy=true;
  try{
-    await invoke({action:"disconnect"});
-    render(null);
-    window.olonMtRecords?.invalidate?.();
-    await window.render?.();
-    notice("Cuenta desvinculada. Resumen se ha limpiado y el historial archivado permanece protegido.","success");
-  }catch(e){notice(e.message,"error");}
+  await invoke({action:"disconnect",accountId});
+  const result=await invoke({action:"status"});
+  renderAccounts(result.accounts||[]);
+  window.olonMtRecords?.invalidate?.();
+  await window.render?.();
+  notice("Cuenta desvinculada. Las demás conexiones siguen intactas.","success");
+ }catch(e){notice(e.message,"error");}
  finally{busy=false;}
 }
 
@@ -256,8 +319,10 @@ function init(){
  document.querySelectorAll("[data-metaapi-platform]").forEach(btn=>{if(btn.dataset.metaapiPlatform==="mt4"){btn.disabled=true;btn.setAttribute("aria-disabled","true");return;}btn.addEventListener("click",()=>selectPlatform(btn.dataset.metaapiPlatform));});
  $("metaapiPlatform")?.addEventListener("change",()=>selectPlatform("mt5"));
  $("metaapiRefresh")?.addEventListener("click",()=>void status(true));
- $("metaapiDisconnect")?.addEventListener("click",()=>void unlink());
- $("metaapiCancelPending")?.addEventListener("click",()=>void unlink());
+ $("metaapiDisconnect")?.addEventListener("click",()=>void unlink(currentAccount?.id));
+ $("metaapiAddAccount")?.addEventListener("click",()=>{addingAccount=!addingAccount;renderAccounts(currentAccounts);});
+ $("metaapiRefreshAccounts")?.addEventListener("click",()=>{lastStatus=0;void status(true);window.olonMtRecords?.invalidate?.();void window.render?.();});
+ $("metaapiCancelPending")?.addEventListener("click",()=>{addingAccount=false;renderAccounts(currentAccounts);});
  $("mtVaultRefresh")?.addEventListener("click",()=>void loadVault());
  $("metaapiTogglePassword")?.addEventListener("click",()=>{
   const field=$("metaapiInvestorPassword");field.type=field.type==="password"?"text":"password";

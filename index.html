@@ -56,7 +56,7 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 <link rel="stylesheet" href="./terminal-fluid.css?v=20261108-fluid-terminal-1">
 <link rel="stylesheet" href="./mobile-premium.css?v=20261109-mobile-premium-1">
 <link rel="stylesheet" href="./metaapi-accounts.css?v=20261113-mt4-disabled-1">
-<link rel="stylesheet" href="./olon-own-connect.css?v=20261112-native-1">
+<link rel="stylesheet" href="./olon-own-connect.css?v=20261113-multi-mt5-1">
 <link rel="stylesheet" href="./student-sidebar.css?v=20261110-student-rail-1">
 <link rel="stylesheet" href="./student-dashboard.css?v=20261110-navigation-fix-1">
 <link rel="stylesheet" href="./maintenance.css?v=20261113-1">
@@ -739,6 +739,11 @@ window.addEventListener("load", () => {
           <div class="metaapi-step"><span class="metaapi-number">3</span><span>Conecta de forma segura</span></div>
         </div>
         <div class="metaapi-panel">
+          <div class="olfxAccountManagementIntro">
+            <div><strong>Mis conexiones MT5</strong><p class="metaapi-muted">Conecta varias cuentas MT5, consulta sus estadísticas reales y selecciona cuál mostrar en Resumen. Cada historial permanece separado.</p></div>
+            <div class="metaapi-actions"><button type="button" id="metaapiRefreshAccounts" class="btn secondary">Actualizar estadísticas</button><button type="button" id="metaapiAddAccount" class="btn secondary" hidden>+ Conectar otra cuenta MT5</button></div>
+          </div>
+          <div id="metaapiAccountsList" class="olfxAccountsList" aria-live="polite"></div>
           <p id="olonOwnStudentReadiness" class="metaapi-muted" role="status" aria-live="polite">Comprobando si OLFX CONNECT ya tiene un equipo Windows configurado…</p>
           <form id="metaapiConnectForm" autocomplete="off">
             <div class="metaapi-form-section">
@@ -838,7 +843,7 @@ window.addEventListener("load", () => {
           <p id="mtVaultMessage" role="status" aria-live="polite" class="metaapi-muted">Consultando historial protegido…</p>
           <div id="mtVaultList" class="metaapi-vault-list"></div>
         </section>
-        <div class="metaapi-footnote"><strong>Tu privacidad primero.</strong> No introduzcas tu contraseña principal. OLFX CONNECT cifra tu contraseña de inversor para el equipo Windows emparejado. No se envía a MetaApi. La primera versión funciona con MT5 y una cuenta por estudiante; requiere el programa Python ejecutándose para actualizar estadísticas.</div>
+        <div class="metaapi-footnote"><strong>Tu privacidad primero.</strong> No introduzcas tu contraseña principal. OLFX CONNECT cifra tu contraseña de inversor para el equipo Windows emparejado. No se envía a MetaApi. Actualmente admite MT5 y hasta 10 cuentas por estudiante. Cada cuenta puede seleccionarse para Resumen; el agente Windows necesita ejecutarse para refrescar las estadísticas.</div>
       </div>
     </section>
     <section id="historial" class="page hidden" aria-labelledby="historyTitle">
@@ -1614,7 +1619,7 @@ window.addEventListener("load", () => {
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
 <script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script>
-<script src="./olon-own-connect.js?v=20261113-token-recovery-1" defer></script>
+<script src="./olon-own-connect.js?v=20261113-multi-mt5-1" defer></script>
 <script src="./student-dashboard.js?v=20261113-empty-summary-2" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
 </html>
 

@@ -14,3 +14,32 @@
 #olonOwnAdminPage .metaapi-primary:disabled{opacity:.6}
 #olonOwnAdminPage .metaapi-muted{opacity:.8}
 #olonOwnAdminPage code{overflow-wrap:anywhere}
+
+
+/* OLFX CONNECT: isolated multi-account dashboard, optimized for desktop/mobile */
+.olfxAccountManagementIntro{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.olfxAccountManagementIntro strong{font-size:1.06rem;letter-spacing:.02em}
+.olfxAccountManagementIntro p{margin:5px 0 0}
+.olfxAccountsList{display:grid;gap:14px;margin-bottom:18px}
+.olfxAccountListTitle{margin:0;font-size:.98rem}
+.olfxAccountCard{border:1px solid var(--border,rgba(160,182,210,.25));border-radius:14px;padding:16px;background:var(--card-bg,rgba(120,146,180,.045))}
+.olfxAccountPrimary{border-color:rgba(39,174,96,.64)}
+.olfxAccountHeader{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.olfxAccountHeader>div{display:grid;gap:4px}
+.olfxAccountHeader strong{font-size:1.05rem}
+.olfxAccountHeader small{font-size:.82rem}
+.olfxAccountState{font-size:.76rem;padding:5px 10px;border-radius:50px;border:1px solid rgba(160,182,210,.35)}
+.olfxAccountState[data-status="active"]{color:#20be81;border-color:rgba(32,190,129,.5)}
+.olfxAccountState[data-status="waiting"]{color:#c6a359;border-color:rgba(198,163,89,.5)}
+.olfxAccountState[data-status="error"]{color:#df7373;border-color:rgba(223,115,115,.5)}
+.olfxPrimaryCaption{margin:12px 0 4px;font-size:.82rem;color:#23be89}
+.olfxAccountError{color:#df7373;font-size:.82rem}
+.olfxAccountMetrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.olfxAccountMetric{border:1px solid rgba(160,182,210,.18);border-radius:9px;padding:11px;min-width:0;display:grid;gap:8px}
+.olfxAccountMetric span{font-size:.76rem;opacity:.72}
+.olfxAccountMetric strong{font-size:1.04rem;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.olfxAccountSync{font-size:.78rem;opacity:.76;margin:12px 0}
+.olfxAccountActions{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:700px){.olfxAccountMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}.olfxAccountCard{padding:12px}.olfxAccountManagementIntro{align-items:flex-start}}
+
+#metaapiAccountsPage [hidden]{display:none!important}
