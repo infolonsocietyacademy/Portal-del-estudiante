@@ -2028,11 +2028,12 @@ document.addEventListener("DOMContentLoaded", function(){
     }
   }
   window.olonSecureLogin = async function(){
+    await window.olonMaintenance.waitReady();
     if(authBusy) return;
     const identifier = String($auth("loginCode")?.value||"").trim().toLowerCase();
     // Alias de comodidad, no es un privilegio ni evita la autenticación real.
     // Supabase Auth sigue verificando la contraseña y el perfil del servidor.
-    const email = identifier === "admin" ? "erickinventus@gmail.com" : identifier;
+    const email = identifier === "admin" ? "nolotraderfx@gmail.com" : identifier;
     const password = String($auth("loginPass")?.value||"");
     if(!identifier || !password){ alert("Escribe tu usuario o correo y contraseña."); return; }
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
@@ -2060,6 +2061,7 @@ document.addEventListener("DOMContentLoaded", function(){
         }
         return;
       }
+      if(!(await window.olonMaintenance.guard(profile,data.user)))return;
       await openVerifiedProfile(profile,data.user);
     }catch(error){
       alert(showAuthError(error,"No se pudo iniciar sesión."));
@@ -2139,6 +2141,7 @@ document.addEventListener("DOMContentLoaded", function(){
   };
 
   async function restoreSupabaseSession(){
+    await window.olonMaintenance.waitReady();
     showPortalLoader("Comprobando tu sesión…");
     try{
       const {data,error} = await supabaseClient.auth.getUser();
@@ -2149,6 +2152,7 @@ document.addEventListener("DOMContentLoaded", function(){
         if(membershipExpired(profile))showMembershipExpiredNotice();
         return;
       }
+      if(!(await window.olonMaintenance.guard(profile,data.user)))return;
       await openVerifiedProfile(profile,data.user);
     }catch(error){
       console.warn("OLON: no se restauró la sesión Auth",error);

@@ -5,10 +5,11 @@
   const VIEW_IDS = [
     "adminOverviewBlock", "adminStudentsBlock", "adminRequestsBlock",
     "olonLicenseAdminBlock", "olonRankingAdmin", "olonPerformanceBlock",
-    "adminBillingBlock", "adminRebatesBlock", "adminReminderBlock"
+    "adminBillingBlock", "adminRebatesBlock", "adminReminderBlock", "olonMaintenanceAdminBlock"
   ];
   const MENU = [
     { group:"CENTRO DE CONTROL", id:"adminOverviewBlock", icon:"▦", name:"Resumen ejecutivo", desc:"Actividad y estado" },
+    { id:"olonMaintenanceAdminBlock", icon:"⚙", name:"Modo mantenimiento", desc:"Bloquear o abrir el portal" },
     { group:"GESTIÓN ACADÉMICA", id:"adminStudentsBlock", icon:"♙", name:"Estudiantes", desc:"Directorio y acceso" },
     { id:"adminRequestsBlock", icon:"✓", name:"Solicitudes", desc:"Pendientes de aprobación", counter:"adminRequestsNavCount" },
     { id:"olonLicenseAdminBlock", icon:"◇", name:"Licencias VIP", desc:"Renovación y vencimientos" },
