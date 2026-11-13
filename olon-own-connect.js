@@ -10,7 +10,7 @@ const clean=s=>String(s??"").trim();
 const b64=buf=>{const bytes=new Uint8Array(buf);let s="";for(let i=0;i<bytes.length;i+=8192)s+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(s);};
 function notice(msg,type="info"){const box=$("metaapiFeedback");if(!box)return;box.hidden=false;box.textContent=msg;box.dataset.type=type;}
 async function invoke(body){
- const client=window.supabaseClient;
+ const client=typeof supabaseClient!=="undefined"?supabaseClient:null;
  if(!client)throw Error("Inicia sesión en el portal.");
  const {data,error}=await client.functions.invoke(ENDPOINT,{body});
  if(error){
@@ -80,7 +80,7 @@ async function connect(){
   await invoke({action:"connect",platform:"mt5",brokerServer:server,login,encryptedPayload});
   notice("Cuenta registrada en OLFX CONNECT, sin MetaApi. Se comprobará al iniciar el programa de Windows.","success");
   window.olonMtRecords?.invalidate?.();
-  await status(true);
+  const result=await invoke({action:"status"});render(result.account);
  }catch(e){notice(e.message,"error");}finally{
   if(passwordEl)passwordEl.value="";
   busy=false;if(btn)btn.disabled=false;
@@ -93,7 +93,7 @@ async function unlink(){
  finally{busy=false;}
 }
 async function loadVault(){
- const target=$("mtVaultList"),message=$("mtVaultMessage"),client=window.supabaseClient;
+ const target=$("mtVaultList"),message=$("mtVaultMessage"),client=typeof supabaseClient!=="undefined"?supabaseClient:null;
  if(!target||!message||!client)return;
  target.replaceChildren();
  try{
