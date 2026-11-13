@@ -180,11 +180,44 @@ def one():
             except Exception as report:
                 print("  No se pudo informar el error:",report)
 
+
+def doctor():
+    """Diagnóstico local de MT5; no usa credenciales del portal ni ejecuta operaciones."""
+    try:
+        import MetaTrader5 as mt5
+    except ImportError as exc:
+        raise RuntimeError("Falta MetaTrader5. Instala Python 3.12 (64 bits) y requirements.txt.") from exc
+    connected = False
+    try:
+        connected = bool(mt5.initialize())
+        if not connected:
+            raise RuntimeError("No se pudo conectar a MT5 abierto. Revisa instalación y cuenta. "
+                               + str(mt5.last_error()))
+        account = mt5.account_info()
+        if account is None:
+            raise RuntimeError("MT5 está abierto, pero no tiene una cuenta conectada.")
+        now = datetime.now(timezone.utc)
+        history = mt5.history_deals_get(now - timedelta(days=7), now)
+        if history is None:
+            raise RuntimeError("MT5 no pudo leer el historial: " + str(mt5.last_error()))
+        login = str(account.login)
+        print("=== OLFX CONNECT · PRUEBA LOCAL SIN VPS ===")
+        print("Cuenta: ****" + login[-4:])
+        print("Servidor: " + str(account.server))
+        print("Balance y equity: disponibles")
+        print("Movimientos de los últimos 7 días:", len(history))
+        print("Resultado: lectura MT5 OK. No se han enviado datos a Supabase.")
+        print("No se ejecutan operaciones ni se guarda la contraseña.")
+    finally:
+        if connected:
+            mt5.shutdown()
+
 def main():
     parser=argparse.ArgumentParser(description="OLFX CONNECT - conector privado MT5, sin MetaApi")
-    parser.add_argument("command",choices=("init","configure","once","run"))
+    parser.add_argument("command",choices=("init","configure","once","run","doctor"))
     args=parser.parse_args()
-    if args.command=="init":init()
+    if args.command=="doctor":doctor()
+    elif args.command=="init":init()
     elif args.command=="configure":configure()
     elif args.command=="once":one()
     else:
