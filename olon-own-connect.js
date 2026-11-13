@@ -238,6 +238,8 @@ async function connect(){
  const login=clean($("metaapiLogin")?.value);
  const password=passwordEl?.value||"";
  if(platform!=="mt5")return notice("Por ahora solamente está disponible MetaTrader 5.","error");
+ if(["AXICORP","AXI"].includes($("metaapiBroker")?.value)&&!$("metaapiServerChoices")?.value)
+  return notice("Selecciona un servidor de Axi o elige «Mi servidor no aparece».","error");
  if(!/^[a-zA-Z0-9_. /+\\-]{2,120}$/.test(server))return notice("Escribe el servidor MT5 exacto de tu cuenta.","error");
  if(!/^[0-9]{4,20}$/.test(login))return notice("Escribe el número completo de tu cuenta MT5.","error");
  if(!password||password.length>256||!$("metaapiInvestorConfirm")?.checked)return notice("Escribe la contraseña de inversor (solo lectura) y marca la confirmación.","error");
@@ -354,6 +356,21 @@ async function loadVault(){
   }
  }catch{message.textContent="No se pudo consultar el historial de cuentas.";}
 }
+function configureMt5ServerOptions(){
+ const broker=$("metaapiBroker"),choices=$("metaapiServerChoices"),manual=$("metaapiServer"),wrap=$("metaapiServerManualWrap");
+ const hint=$("metaapiServerHint"),other=$("metaapiOtherBrokerWrap");
+ if(!broker||!choices||!manual||!wrap)return;
+ const isAxi=broker.value==="AXICORP"||broker.value==="AXI";
+ if(other)other.hidden=broker.value!=="OTHER";
+ choices.hidden=!isAxi;choices.disabled=!isAxi;choices.required=isAxi;
+ wrap.hidden=isAxi&&choices.value!=="__manual__";
+ manual.required=!wrap.hidden;
+ if(isAxi&&choices.value&&choices.value!=="__manual__")manual.value=choices.value;
+ if(!isAxi&&choices.value!=="__manual__")manual.value="";
+ if(hint)hint.textContent=isAxi
+   ?(choices.value==="__manual__"?"Escribe el nombre exacto de tu servidor en MT5.":"Selecciona tu servidor de Axi. Si no aparece, elige «Mi servidor no aparece».")
+   :"Escribe el servidor MT5 exacto que te asignó tu bróker.";
+}
 function selectPlatform(platform){
  // MT4 is not released: reject attempts from scripts, obsolete clicks or stale UI.
  if(platform!=="mt5")return;
@@ -413,11 +430,14 @@ async function adminPair(){
 function init(){
  const form=$("metaapiConnectForm");if(!form||form.dataset.olfxNativeInit)return;
  form.dataset.olfxNativeInit="1";
- const find=$("metaapiFindServers"),choices=$("metaapiServerChoices"),manual=$("metaapiServerManualWrap");
- if(find)find.hidden=true;
- if(choices){choices.disabled=true;choices.required=false;choices.hidden=true;}
- if(manual)manual.hidden=false;
- if($("metaapiServer"))$("metaapiServer").required=true;
+ const broker=$("metaapiBroker"),choices=$("metaapiServerChoices");
+ broker?.addEventListener("change",()=>{
+  if(choices)choices.value="";
+  if($("metaapiServer"))$("metaapiServer").value="";
+  configureMt5ServerOptions();
+ });
+ choices?.addEventListener("change",()=>configureMt5ServerOptions());
+ configureMt5ServerOptions();
  form.addEventListener("submit",e=>{e.preventDefault();void connect();});
  document.querySelectorAll("[data-metaapi-platform]").forEach(btn=>{if(btn.dataset.metaapiPlatform==="mt4"){btn.disabled=true;btn.setAttribute("aria-disabled","true");return;}btn.addEventListener("click",()=>selectPlatform(btn.dataset.metaapiPlatform));});
  $("metaapiPlatform")?.addEventListener("change",()=>selectPlatform("mt5"));
