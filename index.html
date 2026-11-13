@@ -718,7 +718,7 @@ window.addEventListener("load", () => {
 <p class="metaapi-muted">Ejecuta <code>py -3.12 olfx_agent.py init</code> y pega únicamente la CLAVE PÚBLICA que muestra tu computadora. Nunca compartas la clave privada.</p>
 <label for="olonOwnAdminKey">Clave pública RSA del equipo Windows</label>
 <textarea id="olonOwnAdminKey" rows="6" style="display:block;width:100%;max-width:720px;box-sizing:border-box;padding:12px;font-family:monospace" autocomplete="off" placeholder="-----BEGIN PUBLIC KEY-----"></textarea>
-<div class="metaapi-actions"><button type="button" id="olonOwnAdminPair" class="btn metaapi-primary">Emparejar equipo</button></div>
+<div class="metaapi-actions"><button type="button" id="olonOwnAdminPair" class="btn metaapi-primary">Emparejar equipo</button><button type="button" id="olonOwnAdminRotate" class="btn secondary" title="Recupera acceso sin borrar las cuentas ni la clave privada">Renovar token del equipo</button></div>
 <p id="olonOwnAdminPairHint" class="metaapi-muted" role="status">Solo un equipo emparejado en esta primera versión.</p>
 <label for="olonOwnAdminToken">Token privado de conexión — se muestra una sola vez</label>
 <textarea id="olonOwnAdminToken" rows="3" readonly hidden style="width:100%;max-width:720px;box-sizing:border-box;font-family:monospace"></textarea>
@@ -1614,7 +1614,7 @@ window.addEventListener("load", () => {
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
 <script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script>
-<script src="./olon-own-connect.js?v=20261113-mt4-disabled-1" defer></script>
+<script src="./olon-own-connect.js?v=20261113-token-recovery-1" defer></script>
 <script src="./student-dashboard.js?v=20261113-empty-summary-2" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
 </html>
 

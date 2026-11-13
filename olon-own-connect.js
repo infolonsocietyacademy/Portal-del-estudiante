@@ -213,6 +213,25 @@ async function adminStatus(){
   el.textContent=agent?("Equipo emparejado · última comunicación: "+(agent.last_seen_at?new Date(agent.last_seen_at).toLocaleString("es-PR"):"sin comunicación todavía")):"Equipo sin emparejar. Puedes realizar la prueba local sin VPS.";
  }catch(e){el.textContent=e.message;}
 }
+async function adminRotateToken(){
+ const out=$("olonOwnAdminToken"),btn=$("olonOwnAdminRotate"),pem=clean($("olonOwnAdminKey")?.value);
+ const hint=$("olonOwnAdminPairHint");
+ if(!out||!btn||!hint)return;
+ if(!pem.includes("-----BEGIN PUBLIC KEY-----")||!pem.includes("-----END PUBLIC KEY-----")){
+  hint.textContent="Para recuperar acceso pega la clave PUBLICA de tu equipo ya emparejado.";
+  return;
+ }
+ if(!confirm("Renovar el token anterior? El token viejo dejara de funcionar; las cuentas y claves locales se conservaran."))return;
+ btn.disabled=true;
+ try{
+  const result=await invoke({action:"admin-rotate-token",publicKeyPem:pem});
+  if(!result.agentToken)throw Error("El servidor no devolvio token.");
+  out.hidden=false;out.value=result.agentToken;
+  $("olonOwnAdminKey").value="";
+  hint.textContent="Token renovado. Copialo AHORA a la computadora Windows. Solo aparece una vez.";
+  await adminStatus();
+ }catch(e){hint.textContent=e.message;}finally{btn.disabled=false;}
+}
 async function adminPair(){
  const out=$("olonOwnAdminToken"),btn=$("olonOwnAdminPair"),pem=clean($("olonOwnAdminKey")?.value);
  if(!out||!btn)return;
@@ -245,6 +264,7 @@ function init(){
   $("metaapiTogglePassword").textContent=field.type==="password"?"Mostrar":"Ocultar";
  });
  $("olonOwnAdminPair")?.addEventListener("click",()=>void adminPair());
+ $("olonOwnAdminRotate")?.addEventListener("click",()=>void adminRotateToken());
  $("olonOwnAdminRefresh")?.addEventListener("click",()=>void adminStatus());
  const observer=new MutationObserver(()=>{
   if(!$(PAGE)?.classList.contains("hidden")){void status();void loadVault();void readiness();}
