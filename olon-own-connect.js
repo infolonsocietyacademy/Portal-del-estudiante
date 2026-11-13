@@ -64,26 +64,43 @@ function metric(name,value){
  const cell=document.createElement("div");cell.className="olfxAccountMetric";
  cell.append(txt("span",name),txt("strong",value));return cell;
 }
+let currentDealsRequest=0;
+function accountDate(value){
+ if(!value)return "Sin sincronizar";
+ const d=new Date(value);
+ return Number.isFinite(d.getTime())?d.toLocaleString("es-PR",{timeZone:"America/Puerto_Rico"}):"Sin sincronizar";
+}
+function accountValue(value,active,unit="money",currency="USD"){
+ if(!active)return "—";
+ if(unit==="money")return money(value,currency);
+ if(unit==="pct")return value==null?"—":Number(value).toFixed(2)+"%";
+ return String(value??"—");
+}
 function renderAccounts(accounts){
  currentAccounts=Array.isArray(accounts)?accounts:[];
  currentAccount=currentAccounts.find(a=>a.is_primary)||currentAccounts[0]||null;
  const host=$("metaapiAccountsList"),form=$("metaapiConnectForm"),legacy=$("metaapiConnected");
- const add=$("metaapiAddAccount"),badge=$("metaapiConnectionBadge");
+ const add=$("metaapiAddAccount"),badge=$("metaapiConnectionBadge"),steps=qs("#metaapiAccountsPage .metaapi-steps");
  if(!host||!form||!legacy||!badge)return;
+ currentDealsRequest++;
  host.replaceChildren();
  legacy.hidden=true;
  const hasAccounts=currentAccounts.length>0;
  form.hidden=hasAccounts&&!addingAccount;
+ if(steps)steps.hidden=form.hidden;
  if(add){add.hidden=!hasAccounts;add.textContent=addingAccount?"Cancelar nueva conexión":"+ Conectar otra cuenta MT5";}
  const active=currentAccounts.filter(a=>a.status==="active").length;
  const pending=currentAccounts.filter(a=>a.status==="waiting").length;
  badge.dataset.status=active?"on":pending?"wait":"off";
- badge.textContent=!hasAccounts?"Sin vincular":active+" activa(s) · "+currentAccounts.length+" conectada(s)";
+ badge.textContent=!hasAccounts?"Sin vincular":active+" sincronizada(s) de "+currentAccounts.length;
  if(!hasAccounts){
-  host.append(txt("p","Todavía no tienes cuentas MT5. Conecta tu cuenta utilizando el formulario seguro.", "metaapi-muted"));
+  const callout=document.createElement("div");callout.className="olfxConnectFirst";
+  callout.append(txt("strong","Conecta tu propia cuenta MetaTrader 5"));
+  callout.append(txt("p","No hay una cuenta predefinida. Escribe el servidor, número de cuenta y contraseña de inversor. La información y las estadísticas aparecerán cuando Windows sincronice el historial.","metaapi-muted"));
+  host.append(callout);
   return;
  }
- host.append(txt("h4","Cuentas MT5 vinculadas · "+currentAccounts.length,"olfxAccountListTitle"));
+ host.append(txt("h4","Mis cuentas de MetaTrader · "+currentAccounts.length,"olfxAccountListTitle"));
  for(const account of currentAccounts){
   const card=document.createElement("article");card.className="olfxAccountCard";
   if(account.is_primary)card.classList.add("olfxAccountPrimary");
@@ -91,31 +108,78 @@ function renderAccounts(accounts){
   const name=document.createElement("div");
   name.append(txt("strong","MT5 · "+account.login_masked));
   name.append(txt("small",account.broker_server,"metaapi-muted"));
-  const state=txt("span",account.status==="active"?"Sincronizada":account.status==="waiting"?"Esperando Windows":"Requiere revisión","olfxAccountState");
+  const ready=account.status==="active"&&Boolean(account.last_sync_at);
+  const state=txt("span",ready?"Datos sincronizados":account.status==="waiting"?"Pendiente de primera sincronización":account.status==="error"?"Error de conexión":"Esperando Windows","olfxAccountState");
   state.dataset.status=account.status;
   heading.append(name,state);card.append(heading);
-  if(account.is_primary)card.append(txt("p","★ Cuenta principal para Resumen y estadísticas del portal","olfxPrimaryCaption"));
-  if(account.last_error)card.append(txt("p","Aviso: "+account.last_error,"olfxAccountError"));
-  if(account.status!=="active")card.append(txt("p","Las estadísticas aparecerán cuando Windows sincronice esta cuenta. No se muestran cifras inventadas.","metaapi-muted"));
+  if(account.is_primary)card.append(txt("p","★ Esta cuenta alimenta tu Resumen, calendario y resultados","olfxPrimaryCaption"));
+  if(account.last_error)card.append(txt("p","Error: "+account.last_error,"olfxAccountError"));
+  if(!ready){
+   card.append(txt("p","Cuenta registrada. Para recibir balance, equity, operaciones y estadísticas reales, en la computadora ejecuta OLFX CONNECT → Sincronizar ahora. No se muestran datos de una cuenta archivada.","metaapi-muted"));
+  }
   const grid=document.createElement("div");grid.className="olfxAccountMetrics";
-  const ready=account.status==="active";
   grid.append(
-   metric("Balance",ready?money(account.balance,account.currency):"—"),
-   metric("Equity",ready?money(account.equity,account.currency):"—"),
-   metric("WinRate",ready&&account.win_rate!=null?account.win_rate.toFixed(2)+"%":"—"),
-   metric("Trades cerrados",ready?account.closed_trades:"—"),
-   metric("P&L del mes",ready?money(account.month_net,account.currency):"—"),
-   metric("P&L histórico importado",ready?money(account.net_profit,account.currency):"—")
+   metric("Balance actual",accountValue(account.balance,ready,"money",account.currency)),
+   metric("Equity actual",accountValue(account.equity,ready,"money",account.currency)),
+   metric("WinRate",accountValue(account.win_rate,ready,"pct")),
+   metric("Operaciones cerradas",accountValue(account.closed_trades,ready,"count")),
+   metric("Ganancia de hoy",accountValue(account.today_net,ready,"money",account.currency)),
+   metric("Resultado semanal",accountValue(account.week_net,ready,"money",account.currency)),
+   metric("Resultado mensual",accountValue(account.month_net,ready,"money",account.currency)),
+   metric("P&L histórico importado",accountValue(account.net_profit,ready,"money",account.currency)),
+   metric("Profit factor",ready&&account.profit_factor!=null?String(account.profit_factor):"—"),
+   metric("Operaciones ganadoras",accountValue(account.wins,ready,"count")),
+   metric("Operaciones perdedoras",accountValue(account.losses,ready,"count")),
+   metric("Empates / breakeven",accountValue(account.breakeven_trades,ready,"count")),
+   metric("Depósitos registrados",accountValue(account.deposits,ready,"money",account.currency)),
+   metric("Retiros registrados",accountValue(account.withdrawals,ready,"money",account.currency)),
+   metric("Comisiones, swaps y tasas",accountValue(account.fees,ready,"money",account.currency))
   );card.append(grid);
-  card.append(txt("p",account.last_sync_at?"Última sincronización: "+new Date(account.last_sync_at).toLocaleString("es-PR",{timeZone:"America/Puerto_Rico"}):"Esperando primera sincronización","olfxAccountSync"));
+  card.append(txt("p",ready?"Última actualización: "+accountDate(account.last_sync_at)+(account.backfill_done?" · Historial importado":" · Importación en curso"):"Sin datos sincronizados todavía","olfxAccountSync"));
+  if(ready){
+   const recent=document.createElement("details");recent.className="olfxRecentDeals";
+   const summary=txt("summary","Ver mis últimas operaciones cerradas");recent.append(summary);
+   const detail=txt("p","Abre esta sección para consultar los últimos 25 cierres de MT5.","metaapi-muted");
+   recent.append(detail);
+   let loaded=false;
+   recent.addEventListener("toggle",()=>{
+    if(recent.open&&!loaded){loaded=true;void loadRecentDeals(account.id,recent,detail);}
+   });
+   card.append(recent);
+  }
   const actions=document.createElement("div");actions.className="metaapi-actions olfxAccountActions";
-  const primary=txt("button",account.is_primary?"Cuenta principal":"Usar en mi Resumen","btn "+(account.is_primary?"secondary":"metaapi-primary"));
+  const primary=txt("button",account.is_primary?"Cuenta principal":"Mostrar en Resumen","btn "+(account.is_primary?"secondary":"metaapi-primary"));
   primary.type="button";primary.disabled=account.is_primary;
   primary.addEventListener("click",()=>void changePrimary(account.id,primary));
-  const remove=txt("button","Desvincular","btn secondary");
+  const remove=txt("button","Desconectar cuenta","btn secondary");
   remove.type="button";remove.addEventListener("click",()=>void unlink(account.id));
   actions.append(primary,remove);card.append(actions);host.append(card);
  }
+}
+async function loadRecentDeals(accountId,container,label){
+ const seq=currentDealsRequest;
+ try{
+  const result=await invoke({action:"recent-deals",accountId});
+  if(seq!==currentDealsRequest||!container.isConnected)return;
+  const deals=result.deals||[];
+  if(!deals.length){label.textContent="No hay operaciones cerradas en el período importado.";return;}
+  label.textContent="Últimos "+deals.length+" cierres de tu cuenta MT5";
+  const wrapper=document.createElement("div");wrapper.className="olfxRecentTableWrap";
+  const table=document.createElement("table");table.className="olfxRecentTable";
+  const header=document.createElement("tr");
+  ["Fecha PR","Símbolo","Volumen","Resultado neto"].forEach(c=>header.append(txt("th",c)));
+  const thead=document.createElement("thead");thead.append(header);table.append(thead);
+  const tbody=document.createElement("tbody");
+  deals.forEach(d=>{
+   const tr=document.createElement("tr");
+   const net=Number(d.profit||0)+Number(d.commission||0)+Number(d.swap||0)+Number(d.fee||0);
+   const date=new Date(d.occurred_at);
+   [Number.isFinite(date.getTime())?accountDate(d.occurred_at):"—",d.symbol||"—",String(d.volume??"—"),money(net)].forEach(v=>tr.append(txt("td",v)));
+   if(net<0)tr.classList.add("olfxLoss");
+   tbody.append(tr);
+  });
+  table.append(tbody);wrapper.append(table);container.append(wrapper);
+ }catch(e){if(seq===currentDealsRequest&&label.isConnected)label.textContent="No se pudo cargar el historial: "+e.message;}
 }
 async function status(force=false){
  if(busy||(!force&&Date.now()-lastStatus<15000))return;
