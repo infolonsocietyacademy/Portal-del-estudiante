@@ -569,7 +569,7 @@ let cachedUsers = [];
 
 
 function money(n){return "$" + Number(n||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}
-function pct(n){return Number(n||0).toFixed(2) + "%"}
+function pct(n){return n===null||n===undefined||!Number.isFinite(Number(n))?"—":Number(n).toFixed(2)+"%"}
 function showError(msg, error){ console.error(msg, error || ""); alert(msg + (error?.message ? "\n" + error.message : "")); }
 
 // ===== LOGIN / ROLE SAFE HELPERS =====
@@ -860,11 +860,14 @@ function netAmount(gain, loss){
 function summarizeTradingDays(records){
   const days = new Map();
   for(const record of window.olonAnalyticsCore.accountingRows(records)){
-    const day = days.get(record.date) || {deposit:0, withdrawal:0, gain:0, loss:0, tradeCount:0};
-    day.deposit += record.deposit;
-    day.withdrawal += record.withdrawal;
-    day.gain += record.gain;
-    day.loss += record.loss;
+    const day = days.get(record.date) || {deposit:0, withdrawal:0, transferIn:0, transferOut:0, adjustment:0, gain:0, loss:0, tradeCount:0};
+    day.deposit += Number(record.deposit)||0;
+    day.withdrawal += Number(record.withdrawal)||0;
+    day.transferIn += Number(record.transfer_in)||0;
+    day.transferOut += Number(record.transfer_out)||0;
+    day.adjustment += Number(record.balance_adjustment)||0;
+    day.gain += Number(record.gain)||0;
+    day.loss += Number(record.loss)||0;
     if(isTradingRecord(record)) day.tradeCount++;
     days.set(record.date, day);
   }
@@ -872,11 +875,14 @@ function summarizeTradingDays(records){
 }
 
 function totals(records=cachedRecords){
-  let deposit = 0, withdrawal = 0, gain = 0, loss = 0;
+  let deposit = 0, withdrawal = 0, transferIn = 0, transferOut = 0, adjustment = 0, gain = 0, loss = 0;
   let positiveDays = 0, negativeDays = 0, days = 0;
   for(const day of summarizeTradingDays(records).values()){
     deposit += day.deposit;
     withdrawal += day.withdrawal;
+    transferIn += day.transferIn;
+    transferOut += day.transferOut;
+    adjustment += day.adjustment;
     gain += day.gain;
     loss += day.loss;
     if(!day.tradeCount) continue;
@@ -886,9 +892,12 @@ function totals(records=cachedRecords){
     if(dayNet < 0) negativeDays++;
   }
   const net = netAmount(gain, loss);
-  const balance = deposit - withdrawal + net;
-  const growth = deposit > 0 ? (net / deposit) * 100 : 0;
-  return {deposit, withdrawal, gain, loss, net, balance, growth, positiveDays, negativeDays,
+  const balance = deposit - withdrawal + transferIn - transferOut + adjustment + net;
+  // Multiple external deposits and internal transfers do not establish a reliable
+  // investment-return denominator; never show net / cumulative deposits as ROI.
+  const growth = null;
+  return {deposit, withdrawal, transferIn, transferOut, adjustment, gain, loss,
+    net, balance, growth, positiveDays, negativeDays,
     avgDaily:days ? net / days : 0, days};
 }
 
@@ -1099,20 +1108,20 @@ function renderV3Performance(){
   if(!currentUser || isAdminUser(currentUser)) return;
   const records = cachedRecords || [];
   const all = totals(records);
-  const returnPct = all.deposit > 0 ? (all.net / all.deposit) * 100 : 0;
+  const returnPct = null; // Accurate ROI needs time-weighted account capital, not gross deposits.
 
   const depositReturn = document.getElementById("depositReturn");
   if(depositReturn){
     depositReturn.innerText = pct(returnPct);
-    depositReturn.className = returnPct >= 0 ? "good" : "bad";
+    depositReturn.className = "";
   }
 
   const dd = maxDrawdownFromRecords(records);
   const maxDD = document.getElementById("maxDrawdown");
   if(maxDD) maxDD.innerText = money(dd);
-  const ddPct = all.deposit > 0 ? (dd / all.deposit) * 100 : 0;
+  const ddPct = null; // Do not divide P&L drawdown by cumulative deposits.
   const drawdownPct = document.getElementById("drawdownPct");
-  if(drawdownPct) drawdownPct.innerText = pct(ddPct) + " del depósito";
+  if(drawdownPct) drawdownPct.innerText = "Solo caída histórica de P&L (no drawdown de equity)";
 
   const ytd = yearRecords();
   const ywr = window.olonAnalyticsCore.days(ytd);
@@ -1300,6 +1309,8 @@ async function render(){
   }
   document.getElementById("mLoss").innerText = money(t.loss);
   document.getElementById("mGrowth").innerText = pct(t.growth);
+  const growthHint=document.getElementById("mGrowth")?.nextElementSibling;
+  if(growthHint)growthHint.textContent="No calcular ROI sobre depósitos acumulados";
   window.olonMtRecords?.afterRender();
   window.olonHistory?.render(records);
   window.olonAnalytics?.render(records, studentId);
@@ -1326,7 +1337,7 @@ function changeBadge(value, inverse=false){
 }
 function renderCompare(){
   const cur = totals(monthRecords(0)), prev = totals(monthRecords(-1));
-  const rows = [["Profit Neto", money(cur.net), money(prev.net), changeBadge(cur.net-prev.net)], ["Ganancias", money(cur.gain), money(prev.gain), changeBadge(cur.gain-prev.gain)], ["Pérdidas", money(cur.loss), money(prev.loss), changeBadge(cur.loss-prev.loss, true)], ["Crecimiento %", pct(cur.growth), pct(prev.growth), changeBadge(cur.growth-prev.growth)], ["Días positivos", cur.positiveDays, prev.positiveDays, changeBadge(cur.positiveDays-prev.positiveDays)], ["Días negativos", cur.negativeDays, prev.negativeDays, changeBadge(cur.negativeDays-prev.negativeDays, true)], ["Promedio diario", money(cur.avgDaily), money(prev.avgDaily), changeBadge(cur.avgDaily-prev.avgDaily)]];
+  const rows = [["Profit Neto", money(cur.net), money(prev.net), changeBadge(cur.net-prev.net)], ["Ganancias", money(cur.gain), money(prev.gain), changeBadge(cur.gain-prev.gain)], ["Pérdidas", money(cur.loss), money(prev.loss), changeBadge(cur.loss-prev.loss, true)], ["Crecimiento %", "—", "—", "No calculable con depósitos"], ["Días positivos", cur.positiveDays, prev.positiveDays, changeBadge(cur.positiveDays-prev.positiveDays)], ["Días negativos", cur.negativeDays, prev.negativeDays, changeBadge(cur.negativeDays-prev.negativeDays, true)], ["Promedio diario", money(cur.avgDaily), money(prev.avgDaily), changeBadge(cur.avgDaily-prev.avgDaily)]];
   document.getElementById("compareBody").innerHTML = rows.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("");
 }
 function renderChart(){
@@ -1350,7 +1361,7 @@ function renderChart(){
   let running = 0;
   const sorted = window.olonAnalyticsCore.accountingRows(cachedRecords).sort((a,b)=>a.date.localeCompare(b.date));
   const labels = sorted.map(r=>r.date);
-  const data = sorted.map(r=>{ running += r.deposit - r.withdrawal + r.gain - r.loss; return running; });
+  const data = sorted.map(r=>{ running += (Number(r.deposit)||0) -(Number(r.withdrawal)||0)+(Number(r.transfer_in)||0)-(Number(r.transfer_out)||0)+(Number(r.balance_adjustment)||0)+(Number(r.gain)||0)-(Number(r.loss)||0); return running; });
   if(chart) chart.destroy();
   const theme = getComputedStyle(document.body);
   const accent = theme.getPropertyValue("--trader-accent").trim() || "#335fa8";
