@@ -503,9 +503,9 @@ window.addEventListener("load", () => {
           <span>Ganancia neta ÷ total depositado</span>
         </div>
         <div class="card v3Card">
-          <small>Caída de resultados · histórico</small>
+          <small>Caída acumulada del P&amp;L histórico</small>
           <h3 id="maxDrawdown">$0</h3>
-          <span id="drawdownPct">0% del depósito</span>
+          <span id="drawdownPct">No equivale a drawdown de equity</span>
         </div>
         <div class="card v3Card">
           <small>Días positivos · año</small>
@@ -638,12 +638,12 @@ window.addEventListener("load", () => {
       </div>
 
       <div class="grid4 ledgerMetrics">
-        <div class="card metric"><small>Total Depositado</small><h3 id="mDeposited">$0</h3><span class="good">Capital registrado</span></div>
-        <div class="card metric"><small>Total retirado</small><h3 id="mWithdrawn">$0</h3><span>Capital retirado</span></div>
-        <div class="card metric"><small>Saldo registrado</small><h3 id="mBalance">$0</h3><span>Depósitos − retiros + neto</span></div>
+        <div class="card metric"><small>Depósitos externos históricos (DEP)</small><h3 id="mDeposited">$0</h3><span class="good">Capital registrado</span></div>
+        <div class="card metric"><small>Retiros externos históricos</small><h3 id="mWithdrawn">$0</h3><span>Capital retirado</span></div>
+        <div class="card metric"><small>Balance de cuenta MT5</small><h3 id="mBalance">$0</h3><span>Balance sincronizado de MetaTrader</span></div>
         <div class="card metric"><small>Resultado neto de trading</small><h3 id="mNet">$0</h3><span id="mNetLabel" class="good">Ganancias menos pérdidas</span></div>
         <div class="card metric"><small>Pérdidas Total</small><h3 id="mLoss">$0</h3><span class="bad">Control de riesgo</span></div>
-        <div class="card metric"><small>Crecimiento</small><h3 id="mGrowth">0%</h3><span class="warn">Basado en depósito</span></div>
+        <div class="card metric"><small>ROI de la cuenta</small><h3 id="mGrowth">—</h3><span class="warn">No calculable con depósitos históricos acumulados</span></div>
       </div>
 
       <div class="layout">
@@ -1479,7 +1479,7 @@ window.addEventListener("load", () => {
 </dialog>
 
 <script src="./analytics-core.js?v=20261108-performance-1" defer></script>
-<script src="./olon-mt-records.js?v=20261113-strict-selected-account-1" defer></script>
+<script src="./olon-mt-records.js?v=20261113-cashflow-audit-1" defer></script>
 <script src="./maintenance.js?v=20261113-role-fix-2" defer></script>
 <script src="./script.js?v=20261113-role-fix-2" defer></script>
 <script src="./interior-typewriter.js?v=20261107-profile-nickname-fix" defer></script>
@@ -1633,7 +1633,7 @@ window.addEventListener("load", () => {
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
 <script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script>
-<script src="./olon-own-connect.js?v=20261113-parse-repair-1" defer></script>
+<script src="./olon-own-connect.js?v=20261113-cashflow-audit-1" defer></script>
 <script src="./student-dashboard.js?v=20261113-unified-summary-1" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
 </html>
 
