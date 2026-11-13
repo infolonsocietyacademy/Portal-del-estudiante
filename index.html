@@ -766,29 +766,31 @@ window.addEventListener("load", () => {
                 <label for="metaapiOtherBroker">Nombre de tu bróker</label>
                 <input id="metaapiOtherBroker" maxlength="60" placeholder="Escribe el nombre para buscar" autocomplete="off">
               </div>
-              <label for="metaapiServerChoices">Servidor de tu cuenta MT5</label>
-              <select id="metaapiServerChoices" class="metaapi-broker-select" required>
-                <option value="">Selecciona el servidor de tu cuenta</option>
-                <optgroup label="AXI · Cuenta real (Live)">
-                  <option value="Axi-UK55-Live">Axi-UK55-Live</option>
-                  <option value="Axi-US50-Live">Axi-US50-Live</option>
-                  <option value="Axi-US51-Live">Axi-US51-Live</option>
-                  <option value="Axi-US52-Live">Axi-US52-Live</option>
-                  <option value="Axi-US53-Live">Axi-US53-Live</option>
-                  <option value="Axi-US54-Live">Axi-US54-Live</option>
-                  <option value="Axi-US88-Live">Axi-US88-Live</option>
-                </optgroup>
-                <optgroup label="AXI · Cuenta demo">
-                  <option value="Axi-US50-Demo">Axi-US50-Demo</option>
-                </optgroup>
-                <option value="__manual__">Mi servidor no aparece · Escribir otro</option>
-              </select>
-              <div id="metaapiServerManualWrap" hidden>
-                <label for="metaapiServer">Servidor exacto que aparece en tu MT5</label>
-                <input id="metaapiServer" maxlength="120" placeholder="Ejemplo: Axi-US51-Live" spellcheck="false" autocapitalize="none" autocomplete="off">
+              <div id="metaapiServerSelectWrap">
+                <label for="metaapiServer">Escoge el servidor de tu cuenta MT5</label>
+                <select id="metaapiServer" class="metaapi-broker-select" required>
+                  <option value="" selected>Escoge tu servidor MT5</option>
+                  <optgroup label="AXI · Servidores Live">
+                    <option value="Axi-UK55-Live">Axi-UK55-Live</option>
+                    <option value="Axi-US50-Live">Axi-US50-Live</option>
+                    <option value="Axi-US51-Live">Axi-US51-Live</option>
+                    <option value="Axi-US52-Live">Axi-US52-Live</option>
+                    <option value="Axi-US53-Live">Axi-US53-Live</option>
+                    <option value="Axi-US54-Live">Axi-US54-Live</option>
+                    <option value="Axi-US88-Live">Axi-US88-Live</option>
+                  </optgroup>
+                  <optgroup label="AXI · Servidores Demo">
+                    <option value="Axi-US50-Demo">Axi-US50-Demo</option>
+                  </optgroup>
+                  <option value="__manual__">Otro servidor · Escribir manualmente</option>
+                </select>
               </div>
-              <p id="metaapiServerHint" class="metaapi-muted" role="status">Los nombres de la lista son referencias recopiladas de directorios MetaTrader; verifica siempre el servidor exacto en MT5 o con Axi. Si no está, selecciona «Mi servidor no aparece».</p>
-              <p class="metaapi-muted">El servidor depende de la cuenta concreta y puede ser diferente del nombre legal del bróker. Elegir un servidor de la lista no confirma que sea el de tu cuenta.</p>
+              <div id="metaapiServerManualWrap" hidden>
+                <label for="metaapiServerCustom">Escribe el servidor exacto que aparece en tu MT5</label>
+                <input id="metaapiServerCustom" maxlength="120" placeholder="Ejemplo: Axi-US51-Live" spellcheck="false" autocapitalize="none" autocomplete="off">
+              </div>
+              <p id="metaapiServerHint" class="metaapi-muted" role="status">Escoge el servidor que aparece en tu MT5. Si no aparece en la lista, selecciona «Otro servidor».</p>
+              <p class="metaapi-muted">Estos servidores son referencias de directorios MetaTrader, no un catálogo oficial completo de Axi. Verifica el nombre exacto asignado a tu cuenta.</p>
               <details class="metaapi-help">
                 <summary>¿Dónde encuentro mi servidor?</summary>
                 <div>En MT4 o MT5, abre <strong>Gestionar cuentas</strong> (o Ajustes → Cuentas), selecciona la cuenta de trading y busca el servidor que aparece en sus detalles. También puede aparecer en el correo de bienvenida de tu bróker.</div>
@@ -1631,7 +1633,7 @@ window.addEventListener("load", () => {
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
 <script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script>
-<script src="./olon-own-connect.js?v=20261113-axi-servers-1" defer></script>
+<script src="./olon-own-connect.js?v=20261113-exact-dropdown-2" defer></script>
 <script src="./student-dashboard.js?v=20261113-empty-summary-2" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
 </html>
 
