@@ -60,9 +60,7 @@
     body?.classList.toggle("olonMtLinked",linked);
     const heading=$("mtSyncStatus");
     if(heading)heading.hidden=!linked;
-    if(linked && document.querySelector("#portal .page:not(.hidden)")?.id==="registro"){
-      window.showPageById?.("historial");
-    }
+    // Never navigate away automatically when a MetaTrader account connects or refreshes.
   }
   function showStatus() {
     const box=$("mtSyncStatus");
@@ -86,7 +84,7 @@
   }
   async function loadData(id) {
     const results=[];
-    const limit=750;
+    const limit=900; // Paginar toda la cuenta para no superar límites de PostgREST.
     for(let offset=0;offset<200000;offset+=limit){
       let query=supabaseClient.from("olon_mt_deals")
         .select("id,deal_id,position_id,order_id,occurred_at,deal_type,entry_type,symbol,volume,profit,commission,swap,fee,comment");
