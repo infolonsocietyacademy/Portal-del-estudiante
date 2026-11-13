@@ -119,8 +119,8 @@
     let balance=0,peak=0,max=0,maxPct=null,nav=1,navPeak=1,funded=false;
     for(const r of accountingRows(records).sort(compare)){
       if(date(r)>bounds.end) continue;
-      const flow=cents(r.deposit)-cents(r.withdrawal);
-      if(cents(r.deposit)>0) funded=true;
+      const flow=cents(r.deposit)-cents(r.withdrawal)+cents(r.transfer_in)-cents(r.transfer_out)+cents(r.balance_adjustment);
+      if(cents(r.deposit)>0||cents(r.transfer_in)>0) funded=true;
       balance+=flow;peak+=flow;
       if(bounds.start && date(r)<bounds.start){ balance+=trading(r) ? cents(r.gain)-cents(r.loss) : 0;peak=balance;continue; }
       if(trading(r)){

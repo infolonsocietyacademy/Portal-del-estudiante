@@ -32,9 +32,23 @@
       const id="mt-"+safeText(deal.id);
       if(type==="DEAL_TYPE_BALANCE"||type==="BALANCE"){
         if(profit===0)continue;
-        rows.push({id,date:when.date,created_at:deal.occurred_at,mt_record:true,kind:profit>0?"deposit":"withdrawal",
-          entry_scope:"daily",deposit:Math.max(0,profit),withdrawal:Math.max(0,-profit),gain:0,loss:0,
-          note:"Movimiento MT · "+(deal.comment?safeText(deal.comment):"balance")+" · #"+safeText(deal.deal_id)});
+        // Axi reports transfers and credit adjustments as DEAL_TYPE_BALANCE.
+        // They alter account cash but must NOT count as fresh external deposits.
+        const comment=String(deal.comment||"").trim();
+        const externalDeposit=/^(DEP|DEPOSIT)\s/i.test(comment);
+        const externalWithdrawal=/^(WDL|WDR|WITHDRAWAL)\s/i.test(comment);
+        const transferIn=/^Transfer from\b/i.test(comment);
+        const transferOut=/^Transfer to\b/i.test(comment);
+        const deposit=externalDeposit&&profit>0?profit:0;
+        const withdrawal=externalWithdrawal&&profit<0?-profit:0;
+        const transferInAmount=transferIn&&profit>0?profit:0;
+        const transferOutAmount=transferOut&&profit<0?-profit:0;
+        const adjustment=profit-deposit+withdrawal-transferInAmount+transferOutAmount;
+        rows.push({id,date:when.date,created_at:deal.occurred_at,mt_record:true,
+          kind:deposit?"deposit":withdrawal?"withdrawal":transferInAmount?"transfer_in":transferOutAmount?"transfer_out":"balance_adjustment",
+          entry_scope:"daily",deposit,withdrawal,transfer_in:transferInAmount,
+          transfer_out:transferOutAmount,balance_adjustment:adjustment,gain:0,loss:0,
+          note:"Movimiento MT · "+(comment?safeText(comment):"balance")+" · #"+safeText(deal.deal_id)});
         continue;
       }
       if(!isTradeType(type))continue; // Credit, bonus, and broker adjustments are not trading results.

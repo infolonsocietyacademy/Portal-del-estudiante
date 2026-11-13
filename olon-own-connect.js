@@ -159,8 +159,11 @@ function renderAccounts(accounts){
    metric("Operaciones ganadoras",accountValue(account.wins,ready,"count")),
    metric("Operaciones perdedoras",accountValue(account.losses,ready,"count")),
    metric("Empates / breakeven",accountValue(account.breakeven_trades,ready,"count")),
-   metric("Depósitos registrados",accountValue(account.deposits,ready,"money",account.currency)),
-   metric("Retiros registrados",accountValue(account.withdrawals,ready,"money",account.currency)),
+   metric("Depósitos externos históricos (DEP)",accountValue(account.deposits,ready,"money",account.currency)),
+   metric("Retiros externos históricos",accountValue(account.withdrawals,ready,"money",account.currency)),
+   metric("Transferencias recibidas",accountValue(account.transfer_in,ready,"money",account.currency)),
+   metric("Transferencias enviadas",accountValue(account.transfer_out,ready,"money",account.currency)),
+   metric("Otros ajustes de balance",accountValue(account.balance_adjustments,ready,"money",account.currency)),
    metric("Comisiones, swaps y tasas",accountValue(account.fees,ready,"money",account.currency))
   );card.append(grid);
   card.append(txt("p",ready?"Última actualización: "+accountDate(account.last_sync_at)+(account.backfill_done?" · Historial importado":" · Importación en curso"):"Sin datos sincronizados todavía","olfxAccountSync"));
