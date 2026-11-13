@@ -489,5 +489,5 @@ function init(){
  selectPlatform("mt5");
  if(!$("metaapiAccountsPage").classList.contains("hidden")){void status(true);void loadVault();void readiness();}
 }
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+// Read-only, authenticated status for the lightweight Portal Resumen. Never exposes investor passwords.\nwindow.olonOwnAccountStatus=()=>invoke({action:"status"});\nif(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
