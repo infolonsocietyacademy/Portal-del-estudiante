@@ -55,7 +55,7 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 <link rel="stylesheet" href="./terminal-workspace.css?v=20261109-clean-summary-1">
 <link rel="stylesheet" href="./terminal-fluid.css?v=20261108-fluid-terminal-1">
 <link rel="stylesheet" href="./mobile-premium.css?v=20261109-mobile-premium-1">
-<link rel="stylesheet" href="./metaapi-accounts.css?v=20261111-vault-7">
+<link rel="stylesheet" href="./metaapi-accounts.css?v=20261113-mt4-disabled-1">
 <link rel="stylesheet" href="./olon-own-connect.css?v=20261112-native-1">
 <link rel="stylesheet" href="./student-sidebar.css?v=20261110-student-rail-1">
 <link rel="stylesheet" href="./student-dashboard.css?v=20261110-navigation-fix-1">
@@ -743,12 +743,12 @@ window.addEventListener("load", () => {
           <form id="metaapiConnectForm" autocomplete="off">
             <div class="metaapi-form-section">
               <h4>1. ¿Qué plataforma utilizas?</h4>
-              <p class="metaapi-muted">OLFX CONNECT V1 sincroniza MT5. Las cuentas MT4 tendrán su conector separado.</p>
+              <p class="metaapi-muted">MT5 disponible para conexión. MT4 estará disponible próximamente y por ahora no se puede seleccionar.</p>
               <div class="metaapi-platform-buttons" role="group" aria-label="Plataforma MetaTrader">
-                <button type="button" data-metaapi-platform="mt4" aria-pressed="false"><strong>MT4</strong><span>MetaTrader 4</span></button>
+                <button type="button" data-metaapi-platform="mt4" aria-pressed="false" aria-disabled="true" disabled title="MT4 próximamente disponible"><strong>MT4</strong><span>Próximamente</span></button>
                 <button type="button" data-metaapi-platform="mt5" class="selected" aria-pressed="true"><strong>MT5</strong><span>MetaTrader 5</span></button>
               </div>
-              <select id="metaapiPlatform" aria-label="Plataforma elegida" class="metaapi-hidden-select"><option value="mt5">MT5</option><option value="mt4">MT4</option></select>
+              <select id="metaapiPlatform" aria-label="Plataforma elegida" class="metaapi-hidden-select"><option value="mt5">MT5</option><option value="mt4" disabled>MT4 · Próximamente</option></select>
             </div>
             <div class="metaapi-form-section">
               <h4>2. ¿Cuál es tu servidor?</h4>
@@ -1614,7 +1614,7 @@ window.addEventListener("load", () => {
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
 <script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script>
-<script src="./olon-own-connect.js?v=20261113-empty-summary-2" defer></script>
+<script src="./olon-own-connect.js?v=20261113-mt4-disabled-1" defer></script>
 <script src="./student-dashboard.js?v=20261113-empty-summary-2" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
 </html>
 
