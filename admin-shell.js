@@ -10,6 +10,7 @@
   const MENU = [
     { group:"CENTRO DE CONTROL", id:"adminOverviewBlock", icon:"▦", name:"Resumen ejecutivo", desc:"Actividad y estado" },
     { id:"olonMaintenanceAdminBlock", icon:"⚙", name:"Modo mantenimiento", desc:"Bloquear o abrir el portal" },
+    { group:"CONEXIONES DE TRADING", route:"olonOwnAdminPage", icon:"⌁", name:"OLFX CONNECT · MT5", desc:"Emparejar Windows y sincronizar MT5" },
     { group:"GESTIÓN ACADÉMICA", id:"adminStudentsBlock", icon:"♙", name:"Estudiantes", desc:"Directorio y acceso" },
     { id:"adminRequestsBlock", icon:"✓", name:"Solicitudes", desc:"Pendientes de aprobación", counter:"adminRequestsNavCount" },
     { id:"olonLicenseAdminBlock", icon:"◇", name:"Licencias VIP", desc:"Renovación y vencimientos" },
