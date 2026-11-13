@@ -321,7 +321,8 @@ function init(){
  $("metaapiRefresh")?.addEventListener("click",()=>void status(true));
  $("metaapiDisconnect")?.addEventListener("click",()=>void unlink(currentAccount?.id));
  $("metaapiAddAccount")?.addEventListener("click",()=>{addingAccount=!addingAccount;renderAccounts(currentAccounts);});
- $("metaapiCancelPending")?.addEventListener("click",()=>void unlink());
+ $("metaapiRefreshAccounts")?.addEventListener("click",()=>{lastStatus=0;void status(true);window.olonMtRecords?.invalidate?.();void window.render?.();});
+ $("metaapiCancelPending")?.addEventListener("click",()=>{addingAccount=false;renderAccounts(currentAccounts);});
  $("mtVaultRefresh")?.addEventListener("click",()=>void loadVault());
  $("metaapiTogglePassword")?.addEventListener("click",()=>{
   const field=$("metaapiInvestorPassword");field.type=field.type==="password"?"text":"password";
