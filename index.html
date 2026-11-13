@@ -56,7 +56,7 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 <link rel="stylesheet" href="./terminal-fluid.css?v=20261108-fluid-terminal-1">
 <link rel="stylesheet" href="./mobile-premium.css?v=20261109-mobile-premium-1">
 <link rel="stylesheet" href="./metaapi-accounts.css?v=20261113-mt4-disabled-1">
-<link rel="stylesheet" href="./olon-own-connect.css?v=20261113-dynamic-real-stats-2">
+<link rel="stylesheet" href="./olon-own-connect.css?v=20261113-auth-submit-fix-1">
 <link rel="stylesheet" href="./student-sidebar.css?v=20261110-student-rail-1">
 <link rel="stylesheet" href="./student-dashboard.css?v=20261110-navigation-fix-1">
 <link rel="stylesheet" href="./maintenance.css?v=20261113-1">
@@ -745,6 +745,7 @@ window.addEventListener("load", () => {
           </div>
           <div id="metaapiAccountsList" class="olfxAccountsList" aria-live="polite"></div>
           <p id="olonOwnStudentReadiness" class="metaapi-muted" role="status" aria-live="polite">Comprobando si OLFX CONNECT ya tiene un equipo Windows configurado…</p>
+          <button type="button" id="metaapiRetryConnection" class="btn secondary" hidden>Reintentar conexión segura</button>
           <form id="metaapiConnectForm" autocomplete="off">
             <div class="metaapi-form-section">
               <h4>1. ¿Qué plataforma utilizas?</h4>
@@ -831,7 +832,7 @@ window.addEventListener("load", () => {
             <p class="metaapi-muted metaapi-disconnect-note">Al desconectar, se detiene la sincronización de esta cuenta con el portal. Los movimientos que ya se guardaron en Supabase no se eliminan; dejarán de mostrarse hasta que se conecte una cuenta compatible. No se afecta la cuenta del bróker.</p>
             <div id="metaapiUnlinkPending" hidden></div>
           </div>
-          <p id="metaapiFeedback" role="status" aria-live="polite" hidden></p>
+          <p id="metaapiFeedback" class="olfxFormFeedback" role="status" aria-live="assertive" hidden></p>
         </div>
         <details id="mtVaultSection" class="metaapi-vault-panel olfxVaultCollapsed" aria-labelledby="mtVaultTitle">
           <summary class="olfxVaultSummary">Ver historiales archivados (no son cuentas conectadas)</summary>
@@ -1620,7 +1621,7 @@ window.addEventListener("load", () => {
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
 <script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script>
-<script src="./olon-own-connect.js?v=20261113-dynamic-real-stats-2" defer></script>
+<script src="./olon-own-connect.js?v=20261113-auth-submit-fix-1" defer></script>
 <script src="./student-dashboard.js?v=20261113-empty-summary-2" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
 </html>
 
