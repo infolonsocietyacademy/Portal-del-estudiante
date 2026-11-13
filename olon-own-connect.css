@@ -1,0 +1,16 @@
+#olonOwnAdminPage{max-width:1100px;margin:0 auto}
+#olonOwnAdminPage .metaapi-shell{display:grid;gap:18px}
+#olonOwnAdminPage .metaapi-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+#olonOwnAdminPage .metaapi-head h3{font-size:clamp(1.2rem,2.5vw,1.7rem);margin:8px 0}
+#olonOwnAdminPage .metaapi-head p{opacity:.8;line-height:1.6}
+#olonOwnAdminPage .metaapi-panel{border:1px solid rgba(148,163,184,.25);background:var(--card,rgba(20,27,38,.75));border-radius:16px;padding:clamp(18px,3vw,32px)}
+#olonOwnAdminPage .metaapi-panel h4{margin:12px 0 8px}
+#olonOwnAdminPage .metaapi-panel p{max-width:760px;line-height:1.65}
+#olonOwnAdminPage label{display:block;font-weight:700;margin:16px 0 8px}
+#olonOwnAdminPage textarea{background:var(--input-bg,rgba(15,23,42,.13));color:inherit;border:1px solid rgba(148,163,184,.45);border-radius:10px;resize:vertical;font-size:.85rem;min-width:0}
+#olonOwnAdminPage .metaapi-kicker{font-size:.7rem;letter-spacing:.12em;font-weight:700}
+#olonOwnAdminPage .metaapi-actions{display:flex;gap:12px;margin:16px 0}
+#olonOwnAdminPage .metaapi-primary{background:#0c87c3;color:white;border:1px solid #0c87c3;border-radius:10px;padding:12px 20px;cursor:pointer;font:inherit}
+#olonOwnAdminPage .metaapi-primary:disabled{opacity:.6}
+#olonOwnAdminPage .metaapi-muted{opacity:.8}
+#olonOwnAdminPage code{overflow-wrap:anywhere}

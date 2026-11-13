@@ -56,6 +56,7 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 <link rel="stylesheet" href="./terminal-fluid.css?v=20261108-fluid-terminal-1">
 <link rel="stylesheet" href="./mobile-premium.css?v=20261109-mobile-premium-1">
 <link rel="stylesheet" href="./metaapi-accounts.css?v=20261111-vault-7">
+<link rel="stylesheet" href="./olon-own-connect.css?v=20261112-native-1">
 <link rel="stylesheet" href="./student-sidebar.css?v=20261110-student-rail-1">
 <link rel="stylesheet" href="./student-dashboard.css?v=20261110-navigation-fix-1">
 </head>
@@ -237,6 +238,7 @@ window.addEventListener("load", () => {
       <button type="button" class="portalNavLink studentNav" data-page="newsProPage" onclick="showPage('newsProPage',this)" aria-label="Noticias"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10M7 11h4M13 11h4M7 15h10M7 18h7"/></svg></span><span class="portalNavText">Noticias</span></button>
       <button type="button" class="portalNavLink" data-page="notificationsPage" onclick="showPage('notificationsPage',this)" aria-label="Notificaciones"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></span><span class="portalNavText">Notificaciones</span></button>
       <div class="portalNavGroup adminNav hidden">ADMINISTRACIÓN</div>
+      <button type="button" class="portalNavLink terminalPrimaryLink adminNav hidden" data-page="olonOwnAdminPage" onclick="showPage('olonOwnAdminPage',this)" aria-label="OLFX CONNECT"><span class="portalNavText">OLFX CONNECT · MT5</span></button>
       <button type="button" class="portalNavLink terminalPrimaryLink adminNav hidden" data-page="admin" onclick="showPage('admin',this)" aria-label="Centro administrativo"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4M9 15h6M12 15v3"/></svg></span><span class="portalNavText">Centro administrativo</span></button>
       <button type="button" class="portalNavLink terminalPrimaryLink adminNav hidden" data-page="academyAdminClassesPage" onclick="showPage('academyAdminClassesPage',this)" aria-label="Gestionar clases"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h8"/></svg></span><span class="portalNavText">Gestionar clases</span></button>
       <button type="button" class="portalNavLink terminalPrimaryLink adminNav hidden" data-page="academyAdminVipPage" onclick="showPage('academyAdminVipPage',this)" aria-label="Comprobantes VIP"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg></span><span class="portalNavText">Comprobantes VIP</span></button>
@@ -688,12 +690,27 @@ window.addEventListener("load", () => {
       </div>
     </section>
 
+    <section id="olonOwnAdminPage" class="page hidden" aria-labelledby="olonOwnAdminTitle">
+<div class="metaapi-shell">
+<header class="metaapi-head"><div><span class="metaapi-kicker">OLFX / SISTEMA PROPIO</span><h3 id="olonOwnAdminTitle">OLFX CONNECT · Equipo Windows</h3><p>Empareja tu computadora Windows para sincronizar cuentas MT5 sin MetaApi.</p></div></header>
+<div class="metaapi-panel"><h4>Estado de sincronización</h4>
+<p id="olonOwnAdminStatus" class="metaapi-muted" role="status">Consultando equipo…</p>
+<h4>Emparejar computadora</h4>
+<p class="metaapi-muted">Ejecuta <code>python olfx_agent.py init</code> y pega únicamente la CLAVE PÚBLICA que muestra tu computadora. Nunca compartas la clave privada.</p>
+<label for="olonOwnAdminKey">Clave pública RSA del equipo Windows</label>
+<textarea id="olonOwnAdminKey" rows="6" style="display:block;width:100%;max-width:720px;box-sizing:border-box;padding:12px;font-family:monospace" autocomplete="off" placeholder="-----BEGIN PUBLIC KEY-----"></textarea>
+<div class="metaapi-actions"><button type="button" id="olonOwnAdminPair" class="btn metaapi-primary">Emparejar equipo</button></div>
+<p id="olonOwnAdminPairHint" class="metaapi-muted" role="status">Solo un equipo emparejado en esta primera versión.</p>
+<label for="olonOwnAdminToken">Token privado de conexión — se muestra una sola vez</label>
+<textarea id="olonOwnAdminToken" rows="3" readonly hidden style="width:100%;max-width:720px;box-sizing:border-box;font-family:monospace"></textarea>
+<p class="metaapi-muted">Guarda este token en la computadora Windows mediante <code>python olfx_agent.py configure</code>. No lo envíes por chat ni lo subas a GitHub.</p>
+</div></div></section>
     <section id="metaapiAccountsPage" class="page hidden" aria-labelledby="metaapiAccountsTitle">
       <div class="metaapi-shell">
         <header class="metaapi-head">
           <div><span class="metaapi-kicker">OLFX / CUENTAS VERIFICADAS</span>
-            <h3 id="metaapiAccountsTitle">Conecta tu cuenta MT4 o MT5</h3>
-            <p>Una conexión sencilla y privada, sin configurar APIs ni compartir tu contraseña principal.</p>
+            <h3 id="metaapiAccountsTitle">Conecta tu cuenta MT5 con OLFX</h3>
+            <p>Conexión propia OLFX para MT5, sin MetaApi. La computadora de la academia sincroniza los resultados.</p>
           </div>
           <span id="metaapiConnectionBadge" class="metaapi-badge" data-status="off">Sin vincular</span>
         </header>
@@ -706,7 +723,7 @@ window.addEventListener("load", () => {
           <form id="metaapiConnectForm" autocomplete="off">
             <div class="metaapi-form-section">
               <h4>1. ¿Qué plataforma utilizas?</h4>
-              <p class="metaapi-muted">Selecciona la aplicación donde operas.</p>
+              <p class="metaapi-muted">OLFX CONNECT V1 sincroniza MT5. Las cuentas MT4 tendrán su conector separado.</p>
               <div class="metaapi-platform-buttons" role="group" aria-label="Plataforma MetaTrader">
                 <button type="button" data-metaapi-platform="mt4" aria-pressed="false"><strong>MT4</strong><span>MetaTrader 4</span></button>
                 <button type="button" data-metaapi-platform="mt5" class="selected" aria-pressed="true"><strong>MT5</strong><span>MetaTrader 5</span></button>
@@ -731,11 +748,11 @@ window.addEventListener("load", () => {
                 <option value="">Primero busca los servidores</option>
               </select>
               <div id="metaapiServerManualWrap" hidden>
-                <label for="metaapiServer">Servidor exacto (si no aparece en la lista)</label>
+                <label for="metaapiServer">Servidor exacto que aparece en tu MT5</label>
                 <input id="metaapiServer" maxlength="120" placeholder="Tal como aparece en tu MT4/MT5" spellcheck="false" autocapitalize="none" autocomplete="off">
               </div>
-              <p id="metaapiServerHint" class="metaapi-muted" role="status">AxiCorp Financial Services Pty Ltd está seleccionado. Pulsa Buscar servidores y elige el mismo servidor que muestra tu cuenta MT4/MT5.</p>
-              <p class="metaapi-muted">Es importante elegir el <strong>servidor exacto</strong> de tu cuenta; AxiCorp Financial Services Pty Ltd identifica a la empresa, no al servidor. Si no aparece en la lista, comprueba el nombre en MetaTrader o en el Portal del Cliente de AXI.</p>
+              <p id="metaapiServerHint" class="metaapi-muted" role="status">Escribe manualmente el nombre exacto del servidor MT5 que aparece en Axi.</p>
+              <p class="metaapi-muted">Es importante elegir el <strong>servidor exacto</strong> de tu cuenta; AxiCorp Financial Services Pty Ltd identifica a la empresa, no al servidor. Comprueba el nombre de tu servidor en MetaTrader o en el Portal del Cliente de AXI.</p>
               <details class="metaapi-help">
                 <summary>¿Dónde encuentro mi servidor?</summary>
                 <div>En MT4 o MT5, abre <strong>Gestionar cuentas</strong> (o Ajustes → Cuentas), selecciona la cuenta de trading y busca el servidor que aparece en sus detalles. También puede aparecer en el correo de bienvenida de tu bróker.</div>
@@ -743,7 +760,7 @@ window.addEventListener("load", () => {
             </div>
             <div class="metaapi-form-section metaapi-last">
               <h4>3. Conecta tu cuenta aquí mismo</h4>
-              <p class="metaapi-muted">Introduce el número de cuenta y la <strong>contraseña de inversor</strong> (solo lectura). No necesitas abrir la página de MetaApi.</p>
+              <p class="metaapi-muted">Introduce el número de cuenta y la <strong>contraseña de inversor</strong> (solo lectura). OLFX cifra estos datos para tu computadora de sincronización.</p>
               <div class="metaapi-credential-grid">
                 <div>
                   <label for="metaapiLogin">Número de cuenta MT4/MT5</label>
@@ -761,7 +778,7 @@ window.addEventListener("load", () => {
                 <input id="metaapiInvestorConfirm" type="checkbox" required>
                 <span>Confirmo que uso una contraseña de <strong>inversor</strong>, no mi contraseña principal de trading.</span>
               </label>
-              <p class="metaapi-muted metaapi-privacy-note">La contraseña se transmite por HTTPS al servidor de OLFX y después a MetaApi para realizar la conexión. No se guarda en la base de datos del portal, pero MetaApi necesita conservarla para mantener la conexión.</p>
+              <p class="metaapi-muted metaapi-privacy-note">La contraseña se cifra en tu navegador para la computadora autorizada de OLFX. El servidor guarda solamente el contenido cifrado; no se envía a MetaApi.</p>
               <div class="metaapi-actions">
                 <button id="metaapiConnect" type="submit" class="btn metaapi-primary">Conectar cuenta desde el portal</button>
                 <button id="metaapiCancelPending" type="button" class="btn secondary" hidden>Cancelar intento y cambiar servidor</button>
@@ -780,7 +797,7 @@ window.addEventListener("load", () => {
               <div><span>Conexión</span><strong id="metaapiAccountState">—</strong></div>
             </div>
             <div id="metaapiConnectedNext">
-              <p class="metaapi-muted">MetaApi está preparando la conexión. Pulsa «Actualizar estado» para comprobar si ya está disponible. Si necesitas corregir los datos, utiliza «Reiniciar conexión» más abajo.</p>
+              <p class="metaapi-muted">OLFX CONNECT esperará a que el administrador ejecute el programa Python en su computadora Windows.</p>
             </div>
             <div class="metaapi-actions metaapi-account-actions">
               <button id="metaapiRefresh" type="button" class="btn secondary">Actualizar estado</button>
@@ -801,7 +818,7 @@ window.addEventListener("load", () => {
           <p id="mtVaultMessage" role="status" aria-live="polite" class="metaapi-muted">Consultando historial protegido…</p>
           <div id="mtVaultList" class="metaapi-vault-list"></div>
         </section>
-        <div class="metaapi-footnote"><strong>Tu privacidad primero.</strong> No introduzcas tu contraseña principal. El portal recibe temporalmente tu contraseña de inversor por HTTPS y la envía directamente a MetaApi, donde se utiliza para la conexión. La primera versión admite una cuenta por estudiante y MetaApi puede cobrar por conexión. Las estadísticas automáticas se habilitarán por separado.</div>
+        <div class="metaapi-footnote"><strong>Tu privacidad primero.</strong> No introduzcas tu contraseña principal. OLFX CONNECT cifra tu contraseña de inversor para el equipo Windows emparejado. No se envía a MetaApi. La primera versión funciona con MT5 y una cuenta por estudiante; requiere el programa Python ejecutándose para actualizar estadísticas.</div>
       </div>
     </section>
     <section id="historial" class="page hidden" aria-labelledby="historyTitle">
@@ -1568,7 +1585,7 @@ window.addEventListener("load", () => {
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
 <script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script>
-<script src="./metaapi-accounts.js?v=20261111-vault-7" defer></script>
+<script src="./olon-own-connect.js?v=20261112-native-1" defer></script>
 <script src="./student-dashboard.js?v=20261110-vip-renewal-only-2" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
 </html>
 
