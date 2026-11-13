@@ -59,8 +59,9 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 <link rel="stylesheet" href="./olon-own-connect.css?v=20261112-native-1">
 <link rel="stylesheet" href="./student-sidebar.css?v=20261110-student-rail-1">
 <link rel="stylesheet" href="./student-dashboard.css?v=20261110-navigation-fix-1">
+<link rel="stylesheet" href="./maintenance.css?v=20261113-1">
 </head>
-<body class="trader-themed">
+<body class="trader-themed olonMaintenancePending">
 
 <div id="olonLoader" class="portalLoader" role="status" aria-live="polite" aria-atomic="true">
   <div class="portalLoaderGrid" aria-hidden="true"></div>
@@ -85,6 +86,21 @@ window.addEventListener("load", () => {
 </script>
 
 
+<section id="olonMaintenanceGate" hidden role="main" aria-labelledby="olonMaintenanceHeading">
+ <div class="olfxMaintenanceFrame">
+  <div class="olfxMaintenanceTop"><img src="./assets/favicon.png" alt="OLON Society Academy"><span>OLON SOCIETY ACADEMY</span><span class="olfxMaintenancePill">SYSTEM UPDATE</span></div>
+  <div class="olfxMaintenanceGlyph" aria-hidden="true">⚙</div>
+  <p class="olfxMaintenanceEyebrow">OLFX / PORTAL DEL TRADER</p>
+  <h1 id="olonMaintenanceHeading">Estamos mejorando tu experiencia</h1>
+  <p class="olfxMaintenanceText">Nuestro portal se encuentra temporalmente en mantenimiento para implementar mejoras de rendimiento, estabilidad y seguridad. Tu información, operaciones e historial permanecen protegidos. Pronto estaremos de regreso.</p>
+  <div class="olfxMaintenanceStatus"><span class="olfxMaintenancePulse"></span><span id="olonMaintenanceStatus" role="status">Actualizando nuestros sistemas...</span></div>
+  <div class="olfxMaintenanceActions">
+   <button type="button" id="olonMaintenanceRetry">Comprobar disponibilidad</button>
+   <button type="button" id="olonMaintenanceAdminLogin" class="olfxMaintenanceSecondary">Acceso administrativo</button>
+  </div>
+  <div class="olfxMaintenanceFoot">OLON SOCIETY ACADEMY · PUERTO RICO · OLFX SECURE TERMINAL</div>
+ </div>
+</section>
 <section id="auth" class="auth authFullScreenPro homePremium">
   <div class="homeCyberAmbient" aria-hidden="true"><div class="homeOrbitalGlobe"></div></div>
   <header class="homeTopbar">
@@ -1016,6 +1032,14 @@ window.addEventListener("load", () => {
 
 
     <section id="admin" class="page hidden adminProPage" aria-label="Centro de administración de OLON">
+<section id="olonMaintenanceAdminBlock" class="adminWorkspaceCard" aria-labelledby="olonMaintenanceAdminTitle">
+ <div class="adminWorkspaceCardHead"><div><span class="adminSectionEyebrow">OLFX / SYSTEM CONTROL</span><h3 id="olonMaintenanceAdminTitle">Modo mantenimiento</h3><p>Controla el acceso al Portal del Trader durante las actualizaciones. Ningún historial ni cuenta se elimina.</p></div></div>
+ <div class="olfxMaintAdminBadge" id="olonMaintenanceAdminBadge" data-enabled="false">COMPROBANDO</div>
+ <p class="olfxMaintenanceHelp" id="olonMaintenanceAdminHelp">Consultando estado de Supabase…</p>
+ <div class="olfxMaintAdminActions"><button type="button" class="btn" id="olonMaintenanceToggle">Activar mantenimiento</button><button type="button" class="btn secondary" id="olonMaintenanceRefresh">Actualizar estado</button></div>
+ <p id="olonMaintenanceAdminMessage" class="metaapi-muted" role="status" aria-live="polite"></p>
+ <p class="olfxMaintenanceHelp">En mantenimiento, solamente tu cuenta de prueba autorizada puede acceder. Los alumnos verán el aviso hasta que desactives este modo.</p>
+</section>
       <header class="adminWorkspaceHero profileHero">
         <img class="profileHeroCover" data-profile-photo="cover" alt="" hidden>
         <div class="adminWorkspaceIdentity"><span class="adminLiveDot"></span> OLON SOCIETY ACADEMY <span class="adminIdentityDivider">/</span> ADMINISTRACIÓN</div>
@@ -1437,7 +1461,8 @@ window.addEventListener("load", () => {
 
 <script src="./analytics-core.js?v=20261108-performance-1" defer></script>
 <script src="./olon-mt-records.js?v=20261113-live-only-1" defer></script>
-<script src="./script.js?v=20261113-empty-summary-2" defer></script>
+<script src="./maintenance.js?v=20261113-1" defer></script>
+<script src="./script.js?v=20261113-maintenance-1" defer></script>
 <script src="./interior-typewriter.js?v=20261107-profile-nickname-fix" defer></script>
 <script src="./appearance.js?v=20261109-terminal-1" defer></script>
 <script src="./trade-history.js?v=20261108-performance-1" defer></script>
@@ -1451,7 +1476,7 @@ window.addEventListener("load", () => {
 <script src="./premium-report.js?v=20261108-performance-1" defer></script>
 <script src="./academy-tools.js?v=20261108-admin-class-delete-1" defer></script>
 <script src="./admin-workspace.js?v=20261110-student-billing-nav-1" defer></script>
-<script src="./admin-shell.js?v=20261110-executive-ui-2" defer></script>
+<script src="./admin-shell.js?v=20261113-maintenance-1" defer></script>
 <script src="./admin-billing.js?v=20261110-student-billing-nav-1" defer></script>
 <script src="./admin-rebates.js?v=20261111-axi-exact-precision-4" defer></script>
 <script src="./leaderboard.js?v=20261108-top3-avatar-colors-4" defer></script>
