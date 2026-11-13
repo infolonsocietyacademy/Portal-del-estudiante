@@ -111,9 +111,57 @@ async function unlink(){
  try{await invoke({action:"disconnect"});render(null);window.olonMtRecords?.invalidate?.();notice("Cuenta desvinculada. El historial guardado permanece protegido.","success");}catch(e){notice(e.message,"error");}
  finally{busy=false;}
 }
+
+let vaultPreviewRequest=0, vaultPreviewItems=[];
+async function showVaultPreview(item,page=0){
+ const client=typeof supabaseClient!=="undefined"?supabaseClient:null,host=$("mtVaultSection");
+ if(!client||!host)return;
+ const seq=++vaultPreviewRequest;
+ let panel=$("mtVaultPreview");
+ if(!panel){panel=document.createElement("section");panel.id="mtVaultPreview";panel.className="metaapi-panel";host.append(panel);}
+ panel.replaceChildren();panel.hidden=false;
+ const h=document.createElement("h4");h.textContent="Historial archivado · "+item.platform.toUpperCase()+" · "+item.login_masked;
+ const status=document.createElement("p");status.className="metaapi-muted";status.textContent="Cargando historial (no afecta Resumen)…";
+ const close=document.createElement("button");close.type="button";close.className="btn secondary";close.textContent="Cerrar";
+ close.addEventListener("click",()=>{vaultPreviewRequest++;panel.replaceChildren();panel.hidden=true;});
+ panel.append(h,status,close);
+ try{
+  const size=50;
+  const {data,count,error}=await client.from("olon_mt_deals")
+    .select("occurred_at,symbol,deal_type,profit,commission,swap,fee",{count:"exact"})
+    .eq("vault_account_id",item.id).order("occurred_at",{ascending:false}).range(page*size,(page+1)*size-1);
+  if(seq!==vaultPreviewRequest)return;
+  if(error)throw error;
+  const total=count??(data||[]).length;
+  status.textContent="Archivo de solo lectura · "+total+" movimientos · página "+(page+1);
+  const list=document.createElement("div");list.style.overflowX="auto";
+  const table=document.createElement("table");table.style.width="100%";
+  const head=document.createElement("tr");
+  for(const name of ["Fecha PR","Símbolo","Tipo","Importe neto"]){const th=document.createElement("th");th.textContent=name;th.style.textAlign="left";th.style.padding="8px";head.append(th);}
+  table.append(head);
+  const money=new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"});
+  for(const d of data||[]){
+   const tr=document.createElement("tr");
+   const net=Number(d.profit||0)+Number(d.commission||0)+Number(d.swap||0)+Number(d.fee||0);
+   const date=new Date(d.occurred_at).toLocaleString("es-PR",{timeZone:"America/Puerto_Rico"});
+   for(const value of [date,String(d.symbol||"—"),String(d.deal_type||"—").replace("DEAL_TYPE_",""),money.format(net)]){
+    const td=document.createElement("td");td.textContent=value;td.style.padding="8px";tr.append(td);
+   }table.append(tr);
+  }
+  list.append(table);panel.append(list);
+  const nav=document.createElement("div");nav.className="metaapi-actions";
+  const add=(label,num)=>{const btn=document.createElement("button");btn.type="button";btn.className="btn secondary";btn.textContent=label;btn.addEventListener("click",()=>void showVaultPreview(item,num));nav.append(btn);};
+  if(page>0)add("Anterior",page-1);
+  if((page+1)*size<total)add("Siguiente",page+1);
+  panel.append(nav);
+ }catch{if(seq===vaultPreviewRequest)status.textContent="No se pudo consultar el historial guardado.";}
+}
+window.olonOwnVaultOpen=id=>{const item=vaultPreviewItems.find(x=>x.id===id);if(item)void showVaultPreview(item,0);};
+
 async function loadVault(){
  const target=$("mtVaultList"),message=$("mtVaultMessage"),client=typeof supabaseClient!=="undefined"?supabaseClient:null;
  if(!target||!message||!client)return;
+ vaultPreviewRequest++;vaultPreviewItems=[];const old=$("mtVaultPreview");if(old){old.hidden=true;old.replaceChildren();}
  target.replaceChildren();
  try{
   const {data:{user}}=await client.auth.getUser();if(!user)return;
@@ -121,13 +169,14 @@ async function loadVault(){
    .select("id,platform,broker_server,login_masked,last_connected_at,active_provider_account_id")
    .eq("student_id",user.id).order("last_connected_at",{ascending:false}).limit(30);
   if(error)throw error;
-  message.textContent=(data||[]).length+" cuenta(s) con historial guardado.";
+  vaultPreviewItems=data||[];
+  message.textContent=(data||[]).length+" cuenta(s) con historial guardado. Estas operaciones no se incluyen en Resumen sin conexión activa.";
   for(const item of data||[]){
    const card=document.createElement("article");card.className="metaapi-vault-card";
    const title=document.createElement("strong");
    title.textContent=item.platform.toUpperCase()+" · "+item.broker_server+" · "+item.login_masked;
    const button=document.createElement("button");button.type="button";button.className="btn secondary";
-   button.textContent="Ver historial";button.addEventListener("click",()=>window.olonMtRecords?.selectVault(item.id));
+   button.textContent="Ver historial guardado";button.addEventListener("click",()=>void showVaultPreview(item,0));
    card.append(title,button);target.append(card);
   }
  }catch{message.textContent="No se pudo consultar el historial de cuentas.";}
