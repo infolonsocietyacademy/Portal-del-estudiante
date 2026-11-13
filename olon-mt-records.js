@@ -7,7 +7,7 @@
   const $ = id => document.getElementById(id);
   const dateParts = new Intl.DateTimeFormat("en-US", {timeZone:PR,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
   let owner=null,linked=false,account=null,syncState=null,lastSync=0,syncing=false,lastRows=[],error=null;
-  let requestNumber=0,selectedVaultId=null,viewingArchive=false,currentVault=null;
+  let requestNumber=0,viewingArchive=false,currentVault=null;
   let fetchedAt=0;
   function invalidate(){fetchedAt=0;}
   function prDate(value) {
@@ -104,12 +104,12 @@
     return results;
   }
   async function fetch(id) {
-    if(!id||!core){setLinked(false);return null;}
+    if(!id||!core){lastRows=[];account=null;setLinked(false);return [];}
     // Avoid repeating thousands of trade rows on every dashboard goal/theme redraw.
     if(id===owner&&fetchedAt&&Date.now()-fetchedAt<45000)return lastRows.slice();
     if(id!==owner){
       owner=id;account=null;syncState=null;lastRows=[];lastSync=0;error=null;
-      selectedVaultId=null;viewingArchive=false;currentVault=null;
+      viewingArchive=false;currentVault=null;
       fetchedAt=0;setLinked(false);requestNumber++;
     }
     const request=++requestNumber;
@@ -128,30 +128,30 @@
     if(request!==requestNumber)return [];
     if(linkResult.error||vaultResult.error||ownResult.error){
       error="No se pudo comprobar el historial protegido.";
-      setLinked(false);return null;
+      lastRows=[];account=null;syncState=null;setLinked(false);return [];
     }
     const link=linkResult.data;
     const own=ownResult.data?.[0]||null;
     const vaults=vaultResult.data||[];
-    const selected=selectedVaultId?vaults.find(v=>v.id===selectedVaultId):null;
-    const ownVault=own?.vault_account_id?vaults.find(v=>v.id===own.vault_account_id):null;
-    const oldVault=vaults.find(v=>v.active_provider_account_id&&v.active_provider_account_id===link?.provider_account_id);
-    const target=selected||ownVault||oldVault||vaults[0]||null;
-    currentVault=target;
-    const providerId=target?.id===ownVault?.id?own?.provider_account_id:
-       target?.id===oldVault?.id?link?.provider_account_id:
-       target?.active_provider_account_id||null;
-    viewingArchive=!!target&&!providerId;
-    const legacyUsable=!!link?.provider_account_id
-      &&!["DRAFT","PENDING"].includes(String(link.provider_state||"").toUpperCase());
-    if(!target&&!legacyUsable){
-      account=null;lastRows=[];syncState=null;setLinked(false);fetchedAt=Date.now();return null;
+    // Dashboard: do not use archived or disconnected accounts as live performance.
+    const ownActive=own?.status==="active" && Boolean(own.last_sync_at) && Boolean(own.provider_account_id);
+    const legacyActive=!!link?.provider_account_id
+      &&String(link.connection_status||"").toUpperCase()==="CONNECTED"
+      &&String(link.provider_state||"").toUpperCase()==="DEPLOYED";
+    const ownVault=ownActive&&own.vault_account_id?vaults.find(v=>v.id===own.vault_account_id):null;
+    const oldVault=legacyActive?vaults.find(v=>v.active_provider_account_id===link.provider_account_id):null;
+    const target=ownVault||oldVault||null;
+    currentVault=target;viewingArchive=false;
+    if(!ownActive&&!legacyActive){
+      account=null;lastRows=[];syncState=null;setLinked(false);fetchedAt=Date.now();return [];
     }
-    account={...(link||{}),
-      source:ownVault&&target?.id===ownVault.id?"olfx-own":"historical",
-      vault_account_id:target?.id||null,
-      provider_account_id:providerId||(!target&&legacyUsable?link.provider_account_id:null),
-      archived:viewingArchive};
+    account={
+      source:ownActive?"olfx-own":"metaapi",
+      vault_account_id:ownActive?(own.vault_account_id||null):(target?.id||null),
+      provider_account_id:ownActive?own.provider_account_id:link.provider_account_id,
+      broker_server:ownActive?own.broker_server:link.broker_server,
+      archived:false
+    };
     setLinked(true);
     try{
       let state=null;
@@ -176,10 +176,9 @@
     return lastRows.slice();
   }
   function selectVault(id=null){
-    if(id!==null && (!/^[0-9a-f-]{36}$/i.test(String(id))))return;
-    selectedVaultId=id;
-    invalidate();
-    void window.render?.();
+    if(id!==null&&!/^[0-9a-f-]{36}$/i.test(String(id)))return;
+    if(id)window.olonOwnVaultOpen?.(id);
+    else{invalidate();void window.render?.();}
   }
   function selectedAccount(){return currentVault?.id??null;}
   async function refresh(id=owner) {
