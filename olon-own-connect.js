@@ -208,13 +208,27 @@ async function loadRecentDeals(accountId,container,label){
   table.append(tbody);wrapper.append(table);container.append(wrapper);
  }catch(e){if(seq===currentDealsRequest&&label.isConnected)label.textContent="No se pudo cargar el historial: "+e.message;}
 }
+let statusInFlight=false;
 async function status(force=false){
- if(busy||(!force&&Date.now()-lastStatus<15000))return;
+ if(busy||statusInFlight||(!force&&Date.now()-lastStatus<12000))return;
  lastStatus=Date.now();
+ statusInFlight=true;
  try{
   const result=await invoke({action:"status"});
-  renderAccounts(result.accounts|| (result.account?[result.account]:[]));
+  const previous=currentAccounts.map(a=>({id:a.id,status:a.status,last_sync_at:a.last_sync_at}));
+  const next=result.accounts|| (result.account?[result.account]:[]);
+  const newlySynced=next.some(a=>a.status==="active"&&a.last_sync_at
+   &&!previous.some(p=>p.id===a.id&&p.last_sync_at===a.last_sync_at));
+  // Keep expanded trade history and avoid rebuilding 15 statistic cards if nothing changed.
+  const changed=JSON.stringify(next)!==JSON.stringify(currentAccounts);
+  if(changed)renderAccounts(next);
+  if(newlySynced){
+   window.olonMtRecords?.invalidate?.();
+   Promise.resolve().then(()=>window.render?.()).catch(()=>{});
+   notice("OLFX CONNECT: los datos MT5 ya llegaron. Balance, operaciones y rendimiento actualizados.","success");
+  }
  }catch(err){notice(err.message,"error");}
+ finally{statusInFlight=false;}
 }
 async function changePrimary(id,button){
  if(busy)return;
@@ -460,6 +474,15 @@ function init(){
   if(!$("olonOwnAdminPage")?.classList.contains("hidden"))void adminStatus();
  });
  observer.observe($(PAGE),{attributes:true,attributeFilter:["class"]});
+ // Refresh only while the MT5 screen is visible and the browser tab is active.
+ // The polling only reads Supabase; MT5 is accessed exclusively by the Windows agent.
+ const screenTimer=setInterval(()=>{
+  if(document.visibilityState==="visible"&&!$(PAGE)?.classList.contains("hidden")
+      &&currentAccounts.some(a=>a.status==="waiting"||a.status==="active")){
+   void status();
+  }
+ },12000);
+ window.addEventListener("pagehide",()=>clearInterval(screenTimer),{once:true});
  const adminPage=$("olonOwnAdminPage");
  if(adminPage)observer.observe(adminPage,{attributes:true,attributeFilter:["class"]});
  window.addEventListener("pagehide",()=>{if($("metaapiInvestorPassword"))$("metaapiInvestorPassword").value="";});
