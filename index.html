@@ -56,6 +56,7 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 <link rel="stylesheet" href="./terminal-fluid.css?v=20261108-fluid-terminal-1">
 <link rel="stylesheet" href="./mobile-premium.css?v=20261109-mobile-premium-1">
 <link rel="stylesheet" href="./metaapi-accounts.css?v=20261111-vault-7">
+<link rel="stylesheet" href="./olon-own-connect.css?v=20261112-native-1">
 <link rel="stylesheet" href="./student-sidebar.css?v=20261110-student-rail-1">
 <link rel="stylesheet" href="./student-dashboard.css?v=20261110-navigation-fix-1">
 </head>
@@ -708,7 +709,7 @@ window.addEventListener("load", () => {
       <div class="metaapi-shell">
         <header class="metaapi-head">
           <div><span class="metaapi-kicker">OLFX / CUENTAS VERIFICADAS</span>
-            <h3 id="metaapiAccountsTitle">Conecta tu cuenta MT4 o MT5</h3>
+            <h3 id="metaapiAccountsTitle">Conecta tu cuenta MT5 con OLFX</h3>
             <p>Conexión propia OLFX para MT5, sin MetaApi. La computadora de la academia sincroniza los resultados.</p>
           </div>
           <span id="metaapiConnectionBadge" class="metaapi-badge" data-status="off">Sin vincular</span>
@@ -747,11 +748,11 @@ window.addEventListener("load", () => {
                 <option value="">Primero busca los servidores</option>
               </select>
               <div id="metaapiServerManualWrap" hidden>
-                <label for="metaapiServer">Servidor exacto (si no aparece en la lista)</label>
+                <label for="metaapiServer">Servidor exacto que aparece en tu MT5</label>
                 <input id="metaapiServer" maxlength="120" placeholder="Tal como aparece en tu MT4/MT5" spellcheck="false" autocapitalize="none" autocomplete="off">
               </div>
               <p id="metaapiServerHint" class="metaapi-muted" role="status">Escribe manualmente el nombre exacto del servidor MT5 que aparece en Axi.</p>
-              <p class="metaapi-muted">Es importante elegir el <strong>servidor exacto</strong> de tu cuenta; AxiCorp Financial Services Pty Ltd identifica a la empresa, no al servidor. Si no aparece en la lista, comprueba el nombre en MetaTrader o en el Portal del Cliente de AXI.</p>
+              <p class="metaapi-muted">Es importante elegir el <strong>servidor exacto</strong> de tu cuenta; AxiCorp Financial Services Pty Ltd identifica a la empresa, no al servidor. Comprueba el nombre de tu servidor en MetaTrader o en el Portal del Cliente de AXI.</p>
               <details class="metaapi-help">
                 <summary>¿Dónde encuentro mi servidor?</summary>
                 <div>En MT4 o MT5, abre <strong>Gestionar cuentas</strong> (o Ajustes → Cuentas), selecciona la cuenta de trading y busca el servidor que aparece en sus detalles. También puede aparecer en el correo de bienvenida de tu bróker.</div>
