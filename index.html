@@ -398,7 +398,7 @@ window.addEventListener("load", () => {
         </div>
         <div class="olonLeaderboardMeta">
           <span id="olonLeaderboardPeriod">Período actual</span>
-          <span class="olonLeaderboardPrivacy">Clasificación automática · Datos registrados por estudiantes</span>
+          <span class="olonLeaderboardPrivacy">Clasificación automática · Cuentas MT activas y sincronizadas</span>
         </div>
         <div class="olonPodium" aria-live="polite" aria-atomic="true">
           <div class="olonPodiumEntry isEmpty" data-leaderboard-rank="2" style="--olon-rank:#bbc5d4">
@@ -421,7 +421,7 @@ window.addEventListener("load", () => {
           </div>
         </div>
         <p id="olonLeaderboardLoading" class="olonLeaderboardNotice" role="status">Cargando ranking...</p>
-        <p id="olonLeaderboardEmpty" class="olonLeaderboardNotice" hidden>No hay suficientes trades registrados con depósito para este período.</p>
+        <p id="olonLeaderboardEmpty" class="olonLeaderboardNotice" hidden>Aún no hay cuentas MT conectadas y sincronizadas con operaciones para este período.</p>
         <p id="olonLeaderboardError" class="olonLeaderboardNotice" role="status" hidden></p>
       </section>
 
@@ -1208,8 +1208,8 @@ window.addEventListener("load", () => {
       <section id="olonRankingAdmin" class="adminWorkspaceCard olonRankingAdmin" aria-labelledby="olonRankingAdminTitle">
         <span class="adminSectionEyebrow">RECONOCIMIENTO AUTOMÁTICO / OLON SOCIETY</span>
         <h4 id="olonRankingAdminTitle">🏆 TOP 3 automático</h4>
-        <p>Los resultados se calculan desde los trades que registra cada estudiante. No tienes que asignar, aprobar ni publicar puestos.</p>
-        <p class="olonRankingExplain">El rendimiento se calcula como ganancia neta del período ÷ depósitos totales registrados × 100. Se requiere al menos una operación y un depósito. Los nombres de estudiantes se muestran solo cuando ellos lo autorizan; de lo contrario aparece un alias.</p>
+        <p>Clasificación automática con operaciones cerradas de cuentas MT activas y sincronizadas. No requiere aprobaciones ni publicaciones.</p>
+        <p class="olonRankingExplain">El rendimiento se calcula como resultado neto del período ÷ depósitos registrados × 100. Se necesita al menos una operación cerrada y capital positivo en una cuenta conectada. Los historiales desconectados permanecen archivados y no entran al ranking. Los nombres respetan la configuración de privacidad de cada estudiante.</p>
         <div class="olonRankingAdminControls">
           <label>Tipo de ranking
             <select id="olonRankPeriod">
@@ -1227,7 +1227,7 @@ window.addEventListener("load", () => {
           <div class="olonRankPreviewHead"><strong>CLASIFICACIÓN ACTUAL / TOP 3</strong><span id="olonRankPreviewStatus">Calculando…</span></div>
           <div class="olonRankPreviewRows" id="olonRankPreviewRows"><div class="olonRankPreviewItem">Consultando registros de trading…</div></div>
         </div>
-        <p id="olonRankFeedback" class="olonRankingFeedback" role="status" aria-live="polite">El ranking se actualiza automáticamente con los resultados registrados.</p>
+        <p id="olonRankFeedback" class="olonRankingFeedback" role="status" aria-live="polite">El ranking se calcula automáticamente desde cuentas MT conectadas y sincronizadas.</p>
       </section>
 
       <div id="adminOverviewBlock" class="adminSectionIntro">
@@ -1479,10 +1479,10 @@ window.addEventListener("load", () => {
 <script src="./admin-shell.js?v=20261113-maintenance-1" defer></script>
 <script src="./admin-billing.js?v=20261110-student-billing-nav-1" defer></script>
 <script src="./admin-rebates.js?v=20261111-axi-exact-precision-4" defer></script>
-<script src="./leaderboard.js?v=20261108-top3-avatar-colors-4" defer></script>
+<script src="./leaderboard.js?v=20261113-verified-top3-1" defer></script>
 <link rel="stylesheet" href="./olon-myfxbook.css?v=20261111-1">
 <script src="./olon-myfxbook.js?v=20261111-1" defer></script>
-<script src="./admin-performance.js?v=20261108-auto-ranking-2" defer></script>
+<script src="./admin-performance.js?v=20261113-verified-top3-1" defer></script>
 <script src="./admin-registration.js?v=20261110-admin-sections-1" defer></script><script src="./license-ui.js?v=20261110-restore-original-5" defer></script>
 <script src="./password-settings.js?v=20261107-security-hardening" defer></script>
 
