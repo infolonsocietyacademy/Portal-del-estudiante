@@ -11,12 +11,36 @@ const b64=buf=>{const bytes=new Uint8Array(buf);let s="";for(let i=0;i<bytes.len
 function notice(msg,type="info"){const box=$("metaapiFeedback");if(!box)return;box.hidden=false;box.textContent=msg;box.dataset.type=type;}
 async function invoke(body){
  const client=typeof supabaseClient!=="undefined"?supabaseClient:null;
- if(!client)throw Error("Inicia sesión en el portal.");
- const {data,error}=await client.functions.invoke(ENDPOINT,{body});
+ if(!client)throw Error("No se encontró la sesión del Portal del Trader. Inicia sesión otra vez.");
+ const {data:sessionData,error:sessionErr}=await client.auth.getSession();
+ if(sessionErr||!sessionData?.session?.access_token)throw Error("Tu sesión del portal expiró. Cierra sesión y vuelve a entrar antes de conectar MT5.");
+ let session=sessionData.session;
+ async function request(){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),22000);
+  try{
+   return await client.functions.invoke(ENDPOINT,{body,headers:{Authorization:"Bearer "+session.access_token},signal:controller.signal});
+  }finally{clearTimeout(timer);}
+ }
+ let data,error;
+ try{
+  ({data,error}=await request());
+  const code=error?.context?.status;
+  if(error&&(code===401||code===403)){
+   const refreshed=await client.auth.refreshSession();
+   if(refreshed.error||!refreshed.data?.session?.access_token)throw Error("Tu sesión expiró. Sal del Portal del Trader y entra de nuevo.");
+   session=refreshed.data.session;
+   ({data,error}=await request());
+  }
+ }catch(e){
+  if(e?.name==="AbortError")throw Error("El servidor tardó demasiado. Revisa tu conexión y presiona Actualizar estadísticas antes de intentar nuevamente.");
+  throw e;
+ }
  if(error){
   let detail=data?.error;
   if(!detail&&error.context?.clone){try{detail=(await error.context.clone().json())?.error;}catch{}}
-  throw Error(detail||"No se pudo comunicar con OLFX CONNECT.");
+  if(error.context?.status===401)throw Error("La sesión del portal no está autorizada. Cierra sesión y vuelve a entrar con tu cuenta de estudiante.");
+  throw Error(detail||"OLFX CONNECT no pudo completar la solicitud. "+(error.message||"").slice(0,120));
  }
  if(data?.error)throw Error(data.error);
  return data;
@@ -36,19 +60,22 @@ async function securePayload(pem,payload){
 
 async function readiness(){
  const el=$("olonOwnStudentReadiness");
- if(!el)return;
+ const retry=$("metaapiRetryConnection");
+ if(!el)return false;
  try{
   const result=await invoke({action:"agent-ready"});
   agentReady=!!result.publicKeyPem;
   el.textContent=agentReady
-   ?"OLFX CONNECT preparado para registrar cuentas MT5. La sincronización se hará cuando el equipo Windows ejecute el agente."
-   :"OLFX CONNECT todavía no está configurado por administración.";
+   ?"Conexión segura OLFX disponible. Puedes vincular tu propia cuenta MT5."
+   :"OLFX CONNECT no tiene equipo emparejado todavía.";
  }catch(e){
   agentReady=false;
-  el.textContent="Conexión en preparación: falta emparejar una computadora Windows. No introduzcas la contraseña de inversor todavía.";
+  el.textContent="No se pudo comprobar OLFX: "+e.message;
  }
+ if(retry)retry.hidden=agentReady;
  const btn=$("metaapiConnect");
- if(btn)btn.disabled=!agentReady||clean($("metaapiPlatform")?.value)!=="mt5";
+ if(btn&&!busy)btn.disabled=!agentReady||clean($("metaapiPlatform")?.value)!=="mt5";
+ return agentReady;
 }
 
 let currentAccounts=[], addingAccount=false;
@@ -205,31 +232,43 @@ async function changePrimary(id,button){
 }
 async function connect(){
  if(busy)return;
+ const btn=$("metaapiConnect"),passwordEl=$("metaapiInvestorPassword");
  const platform=clean($("metaapiPlatform")?.value).toLowerCase();
  const server=clean($("metaapiServer")?.value);
  const login=clean($("metaapiLogin")?.value);
- const passwordEl=$("metaapiInvestorPassword");
  const password=passwordEl?.value||"";
- if(platform!=="mt5")return notice("OLFX CONNECT V1 funciona con MT5. No conectes cuentas MT4 aquí: se integrarán en otra fase.","error");
- if(!agentReady)return notice("Primero hay que emparejar el equipo Windows desde administración. No es necesario comprar una VPS para hacerlo.","error");
- if(!/^[a-zA-Z0-9_. /+\-]{2,120}$/.test(server))return notice("Escribe el nombre exacto del servidor de Axi.","error");
- if(!/^[0-9]{4,20}$/.test(login))return notice("Escribe un número de cuenta válido.","error");
- if(!password||password.length>256||!$("metaapiInvestorConfirm")?.checked)return notice("Necesitas la contraseña de inversor de solo lectura y confirmar su uso.","error");
+ if(platform!=="mt5")return notice("Por ahora solamente está disponible MetaTrader 5.","error");
+ if(!/^[a-zA-Z0-9_. /+\\-]{2,120}$/.test(server))return notice("Escribe el servidor MT5 exacto de tu cuenta.","error");
+ if(!/^[0-9]{4,20}$/.test(login))return notice("Escribe el número completo de tu cuenta MT5.","error");
+ if(!password||password.length>256||!$("metaapiInvestorConfirm")?.checked)return notice("Escribe la contraseña de inversor (solo lectura) y marca la confirmación.","error");
  busy=true;
- const btn=$("metaapiConnect");if(btn)btn.disabled=true;
+ if(btn){btn.disabled=true;btn.textContent="Verificando sesión y conectando…";}
+ notice("Verificando la sesión y la conexión segura. No cierres esta página.","info");
  try{
   const ready=await invoke({action:"agent-ready"});
+  agentReady=Boolean(ready.publicKeyPem);
+  if(!agentReady)throw Error("No se encontró el equipo Windows emparejado. Comprueba OLFX CONNECT en Admin.");
+  notice("Cifrando las credenciales de inversor en este navegador…","info");
   const encryptedPayload=await securePayload(ready.publicKeyPem,{login,investorPassword:password,platform:"mt5",brokerServer:server});
   if(passwordEl)passwordEl.value="";
+  notice("Registrando la cuenta MT5 en Supabase…","info");
   await invoke({action:"connect",platform:"mt5",brokerServer:server,login,encryptedPayload});
-  notice("Cuenta registrada en OLFX CONNECT, sin MetaApi. Se comprobará al iniciar el programa de Windows.","success");
-  window.olonMtRecords?.invalidate?.();
-  await window.render?.();
   addingAccount=false;
-  const result=await invoke({action:"status"});renderAccounts(result.accounts||[]);
- }catch(e){notice(e.message,"error");}finally{
+  notice("Cuenta MT5 registrada. Ahora ejecuta OLFX CONNECT → Sincronizar ahora en Windows para importar las estadísticas.","success");
+  window.olonMtRecords?.invalidate?.();
+  try{
+   const result=await invoke({action:"status"});
+   renderAccounts(result.accounts||[]);
+  }catch(e){
+   notice("La cuenta se registró, pero no se pudo actualizar la pantalla: "+e.message+" Presiona Actualizar estadísticas.","info");
+  }
+  Promise.resolve().then(()=>window.render?.()).catch(()=>{});
+ }catch(e){
+  notice("No se conectó la cuenta: "+(e?.message||"Error desconocido")+". Revisa el mensaje y vuelve a intentarlo.","error");
+ }finally{
   if(passwordEl)passwordEl.value="";
-  busy=false;if(btn)btn.disabled=false;
+  busy=false;
+  if(btn){btn.textContent="Conectar mi cuenta MetaTrader 5";btn.disabled=!agentReady;}
  }
 }
 async function unlink(accountId){
@@ -386,6 +425,7 @@ function init(){
  $("metaapiDisconnect")?.addEventListener("click",()=>void unlink(currentAccount?.id));
  $("metaapiAddAccount")?.addEventListener("click",()=>{addingAccount=!addingAccount;renderAccounts(currentAccounts);});
  $("metaapiRefreshAccounts")?.addEventListener("click",()=>{lastStatus=0;void status(true);window.olonMtRecords?.invalidate?.();void window.render?.();});
+ $("metaapiRetryConnection")?.addEventListener("click",()=>void readiness());
  $("metaapiCancelPending")?.addEventListener("click",()=>{addingAccount=false;renderAccounts(currentAccounts);});
  $("mtVaultRefresh")?.addEventListener("click",()=>void loadVault());
  $("metaapiTogglePassword")?.addEventListener("click",()=>{
