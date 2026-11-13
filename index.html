@@ -695,15 +695,18 @@ window.addEventListener("load", () => {
 <header class="metaapi-head"><div><span class="metaapi-kicker">OLFX / SISTEMA PROPIO</span><h3 id="olonOwnAdminTitle">OLFX CONNECT · Equipo Windows</h3><p>Empareja tu computadora Windows para sincronizar cuentas MT5 sin MetaApi.</p></div></header>
 <div class="metaapi-panel"><h4>Estado de sincronización</h4>
 <p id="olonOwnAdminStatus" class="metaapi-muted" role="status">Consultando equipo…</p>
+<p id="olonOwnAdminCounters" class="metaapi-muted" role="status">Cuentas sincronizadas: — · pendientes: — · con error: —</p>
+<div class="metaapi-actions"><button type="button" id="olonOwnAdminRefresh" class="btn secondary">Actualizar diagnóstico</button></div>
+<p class="metaapi-muted">No necesitas comprar una VPS para preparar OLFX. Primero prueba una cuenta MT5 real en tu Windows con <code>01_PROBAR_SIN_VPS.bat</code>. Las cuentas se sincronizan únicamente cuando el agente está encendido.</p>
 <h4>Emparejar computadora</h4>
-<p class="metaapi-muted">Ejecuta <code>python olfx_agent.py init</code> y pega únicamente la CLAVE PÚBLICA que muestra tu computadora. Nunca compartas la clave privada.</p>
+<p class="metaapi-muted">Ejecuta <code>py -3.12 olfx_agent.py init</code> y pega únicamente la CLAVE PÚBLICA que muestra tu computadora. Nunca compartas la clave privada.</p>
 <label for="olonOwnAdminKey">Clave pública RSA del equipo Windows</label>
 <textarea id="olonOwnAdminKey" rows="6" style="display:block;width:100%;max-width:720px;box-sizing:border-box;padding:12px;font-family:monospace" autocomplete="off" placeholder="-----BEGIN PUBLIC KEY-----"></textarea>
 <div class="metaapi-actions"><button type="button" id="olonOwnAdminPair" class="btn metaapi-primary">Emparejar equipo</button></div>
 <p id="olonOwnAdminPairHint" class="metaapi-muted" role="status">Solo un equipo emparejado en esta primera versión.</p>
 <label for="olonOwnAdminToken">Token privado de conexión — se muestra una sola vez</label>
 <textarea id="olonOwnAdminToken" rows="3" readonly hidden style="width:100%;max-width:720px;box-sizing:border-box;font-family:monospace"></textarea>
-<p class="metaapi-muted">Guarda este token en la computadora Windows mediante <code>python olfx_agent.py configure</code>. No lo envíes por chat ni lo subas a GitHub.</p>
+<p class="metaapi-muted">Guarda este token en la computadora Windows mediante <code>py -3.12 olfx_agent.py configure</code>. No lo envíes por chat ni lo subas a GitHub.</p>
 </div></div></section>
     <section id="metaapiAccountsPage" class="page hidden" aria-labelledby="metaapiAccountsTitle">
       <div class="metaapi-shell">
@@ -720,6 +723,7 @@ window.addEventListener("load", () => {
           <div class="metaapi-step"><span class="metaapi-number">3</span><span>Conecta de forma segura</span></div>
         </div>
         <div class="metaapi-panel">
+          <p id="olonOwnStudentReadiness" class="metaapi-muted" role="status" aria-live="polite">Comprobando si OLFX CONNECT ya tiene un equipo Windows configurado…</p>
           <form id="metaapiConnectForm" autocomplete="off">
             <div class="metaapi-form-section">
               <h4>1. ¿Qué plataforma utilizas?</h4>
@@ -1585,7 +1589,7 @@ window.addEventListener("load", () => {
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
 <script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script>
-<script src="./olon-own-connect.js?v=20261112-native-1" defer></script>
+<script src="./olon-own-connect.js?v=20261113-pre-vps-2" defer></script>
 <script src="./student-dashboard.js?v=20261110-vip-renewal-only-2" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
 </html>
 

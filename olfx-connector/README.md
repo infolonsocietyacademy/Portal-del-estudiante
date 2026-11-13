@@ -2,6 +2,21 @@
 
 **Primera versión de prueba**: conexiones desde el Portal del Trader para MT5, agente Windows privado, con respaldo de historiales existentes. El nuevo botón de conexión no llama a MetaApi.
 
+## Prueba local antes de comprar una VPS
+
+Puedes validar **una cuenta real de Axi MT5**, sin cargar contraseñas ni transferir historiales al portal. En una computadora Windows con MT5 abierto y con la cuenta iniciada:
+
+1. Instala Python 3.12 de 64 bits (no Python 3.15).
+2. Descarga la carpeta `olfx-connector`.
+3. Ejecuta `01_PROBAR_SIN_VPS.bat`, o en PowerShell:
+   ```powershell
+   py -3.12 -m pip install -r requirements.txt
+   py -3.12 olfx_agent.py doctor
+   ```
+4. El diagnóstico confirma lectura de cuenta e historial de 7 días; **no comprueba todavía la sincronización con Supabase**. No envíes claves ni capturas con credenciales.
+
+**Para conectar estudiantes desde el portal hay que emparejar primero el agente Windows.** Si no existe un agente emparejado, el formulario indicará que el servicio está en preparación. La computadora Windows puede sustituir a la VPS durante las pruebas.
+
 ## Instalación en tu computadora Windows (no requiere VPS)
 1. Instala Python 3.11 o 3.12 (64 bits), y MetaTrader 5 de Axi. Recomendado: Python 3.12 64-bit. **No uses Python 3.15 para la librería MetaTrader5**: no existe un paquete compatible publicado para esa versión.
 2. Descarga el directorio `olfx-connector` del repositorio y descomprímelo.

@@ -5,7 +5,7 @@ const $=id=>document.getElementById(id);
 const PAGE="metaapiAccountsPage";
 const ENDPOINT="olon-own-connect";
 const qs=s=>document.querySelector(s);
-let busy=false, currentAccount=null, lastStatus=0;
+let busy=false, currentAccount=null, lastStatus=0, agentReady=false;
 const clean=s=>String(s??"").trim();
 const b64=buf=>{const bytes=new Uint8Array(buf);let s="";for(let i=0;i<bytes.length;i+=8192)s+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(s);};
 function notice(msg,type="info"){const box=$("metaapiFeedback");if(!box)return;box.hidden=false;box.textContent=msg;box.dataset.type=type;}
@@ -33,6 +33,24 @@ async function securePayload(pem,payload){
  const wrapped=await crypto.subtle.wrapKey("raw",aes,pub,{name:"RSA-OAEP"});
  return {wrappedKey:b64(wrapped),iv:b64(iv),ciphertext:b64(cipher)};
 }
+
+async function readiness(){
+ const el=$("olonOwnStudentReadiness");
+ if(!el)return;
+ try{
+  const result=await invoke({action:"agent-ready"});
+  agentReady=!!result.publicKeyPem;
+  el.textContent=agentReady
+   ?"OLFX CONNECT preparado para registrar cuentas MT5. La sincronización se hará cuando el equipo Windows ejecute el agente."
+   :"OLFX CONNECT todavía no está configurado por administración.";
+ }catch(e){
+  agentReady=false;
+  el.textContent="Conexión en preparación: falta emparejar una computadora Windows. No introduzcas la contraseña de inversor todavía.";
+ }
+ const btn=$("metaapiConnect");
+ if(btn)btn.disabled=!agentReady||clean($("metaapiPlatform")?.value)!=="mt5";
+}
+
 function render(account){
  currentAccount=account||null;
  const form=$("metaapiConnectForm"), area=$("metaapiConnected"), badge=$("metaapiConnectionBadge");
@@ -68,6 +86,7 @@ async function connect(){
  const passwordEl=$("metaapiInvestorPassword");
  const password=passwordEl?.value||"";
  if(platform!=="mt5")return notice("OLFX CONNECT V1 funciona con MT5. No conectes cuentas MT4 aquí: se integrarán en otra fase.","error");
+ if(!agentReady)return notice("Primero hay que emparejar el equipo Windows desde administración. No es necesario comprar una VPS para hacerlo.","error");
  if(!/^[a-zA-Z0-9_. /+\-]{2,120}$/.test(server))return notice("Escribe el nombre exacto del servidor de Axi.","error");
  if(!/^[0-9]{4,20}$/.test(login))return notice("Escribe un número de cuenta válido.","error");
  if(!password||password.length>256||!$("metaapiInvestorConfirm")?.checked)return notice("Necesitas la contraseña de inversor de solo lectura y confirmar su uso.","error");
@@ -121,14 +140,19 @@ function selectPlatform(platform){
  });
  const hint=$("metaapiServerHint");
  if(hint)hint.textContent=platform==="mt5"?"Escribe manualmente el servidor exacto que muestra tu cuenta MT5.":"Las cuentas MT4 todavía no se admiten en OLFX CONNECT V1.";
- if($("metaapiConnect"))$("metaapiConnect").disabled=platform!=="mt5";
+ if($("metaapiConnect"))$("metaapiConnect").disabled=platform!=="mt5"||!agentReady;
 }
 async function adminStatus(){
  const el=$("olonOwnAdminStatus");if(!el)return;
  try{const data=await invoke({action:"admin-status"});
   const agent=data.agents?.find(x=>x.status==="paired");
-  const active=(data.accounts||[]).filter(x=>x.status==="active").length;
-  el.textContent=agent?("Equipo emparejado · última comunicación: "+(agent.last_seen_at?new Date(agent.last_seen_at).toLocaleString("es-PR"):"todavía no") +" · Cuentas sincronizadas: "+active):"Aún no hay equipo Windows emparejado.";
+  const accounts=data.accounts||[];
+  const active=accounts.filter(x=>x.status==="active").length;
+  const waiting=accounts.filter(x=>x.status==="waiting").length;
+  const errors=accounts.filter(x=>x.status==="error").length;
+  const counters=$("olonOwnAdminCounters");
+  if(counters)counters.textContent="Cuentas sincronizadas: "+active+" · pendientes: "+waiting+" · con error: "+errors;
+  el.textContent=agent?("Equipo emparejado · última comunicación: "+(agent.last_seen_at?new Date(agent.last_seen_at).toLocaleString("es-PR"):"sin comunicación todavía")):"Equipo sin emparejar. Puedes realizar la prueba local sin VPS.";
  }catch(e){el.textContent=e.message;}
 }
 async function adminPair(){
@@ -162,8 +186,9 @@ function init(){
   $("metaapiTogglePassword").textContent=field.type==="password"?"Mostrar":"Ocultar";
  });
  $("olonOwnAdminPair")?.addEventListener("click",()=>void adminPair());
+ $("olonOwnAdminRefresh")?.addEventListener("click",()=>void adminStatus());
  const observer=new MutationObserver(()=>{
-  if(!$(PAGE)?.classList.contains("hidden")){void status();void loadVault();}
+  if(!$(PAGE)?.classList.contains("hidden")){void status();void loadVault();void readiness();}
   if(!$("olonOwnAdminPage")?.classList.contains("hidden"))void adminStatus();
  });
  observer.observe($(PAGE),{attributes:true,attributeFilter:["class"]});
@@ -171,7 +196,7 @@ function init(){
  if(adminPage)observer.observe(adminPage,{attributes:true,attributeFilter:["class"]});
  window.addEventListener("pagehide",()=>{if($("metaapiInvestorPassword"))$("metaapiInvestorPassword").value="";});
  selectPlatform("mt5");
- if(!$("metaapiAccountsPage").classList.contains("hidden")){void status(true);void loadVault();}
+ if(!$("metaapiAccountsPage").classList.contains("hidden")){void status(true);void loadVault();void readiness();}
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
