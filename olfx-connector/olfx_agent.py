@@ -127,8 +127,9 @@ def sync_account(mt5, item: dict, cfg: dict):
     password = str(info["investorPassword"])
     if server.casefold() != item["broker_server"].casefold():
         raise RuntimeError("El servidor descifrado no coincide con la conexión registrada.")
-    if not mt5.initialize(path=cfg["mt5_path"], login=int(login), password=password,
+    if not mt5.initialize(cfg["mt5_path"], login=int(login), password=password,
                          server=server, timeout=60000, portable=False):
+        mt5.shutdown()
         raise RuntimeError("MT5 no pudo iniciar sesión. Verifica servidor y contraseña de inversor.")
     try:
         account = mt5.account_info()
@@ -149,7 +150,7 @@ def sync_account(mt5, item: dict, cfg: dict):
                 "accountId":item["id"], "login":login,"server":server,
                 "balance":float(account.balance),"equity":float(account.equity),
                 "currency":str(account.currency or "USD").upper()[:3],
-                "deals":batch, "finished":True
+                "deals":batch, "finished":offset+MAX_DEALS_PER_BATCH>=len(raw)
             },cfg["agent_token"])
             print("  Lote sincronizado:",result.get("synced",0),"operaciones; almacenadas:",result.get("stored",0))
     finally:
