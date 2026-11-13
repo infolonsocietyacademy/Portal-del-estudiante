@@ -32,7 +32,9 @@ Puedes validar **una cuenta real de Axi MT5**, sin cargar contraseñas ni transf
 
 **Acceso desde iPad:** Los estudiantes y el administrador abren el Portal del Trader en Safari. No necesitan instalar Python ni conectarse por Escritorio Remoto para ver las estadísticas; el agente sí debe ejecutarse en un Windows/VPS encendido para sincronizar.
 
-**Sincronización una vez al día:** Usa el Programador de tareas de Windows para ejecutar `py -3.12 olfx_agent.py once` a la hora deseada. El comando `run` ejecuta una sincronización por hora mientras permanece abierto.
+**Sincronización rápida al conectar una cuenta nueva:** Desde Windows descarga `OLFX_SINCRONIZACION_RAPIDA_WINDOWS.cmd` en la raíz del repositorio y ejecútalo una sola vez. Utiliza la configuración ya guardada en `%LOCALAPPDATA%\\OLFXConnect` y actualiza el agente, sin volver a emparejar ni compartir el token. Mantén la ventana abierta y la computadora encendida. El agente consulta cada **15 segundos** si se han registrado nuevas cuentas MT5. Cuando encuentre una en estado `waiting`, importa su historial de hasta 365 días en lotes de 150; las cuentas ya activas se actualizan una vez cada 24 horas. Si la contraseña de inversor es incorrecta, registra error y no reintenta indefinidamente.
+
+**Actualización manual:** `py -3.12 olfx_agent.py once` fuerza una sincronización incluso de cuentas activas. **Modo continuo:** `py -3.12 olfx_agent.py watch` o `py -3.12 olfx_agent.py run`; ambos ahora detectan conexiones nuevas rápidamente y refrescan las ya sincronizadas una vez cada 24 horas. Si Windows se apaga, la sincronización se interrumpe. `watch` no instala por sí mismo un servicio de Windows ni crea una tarea programada.
 
 ## Instrucciones para estudiantes
 1. En el Portal del Trader, abre **Mis cuentas MT4/MT5**.
