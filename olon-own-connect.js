@@ -149,6 +149,7 @@ function renderAccounts(accounts){
    metric("Balance actual",accountValue(account.balance,ready,"money",account.currency)),
    metric("Equity actual",accountValue(account.equity,ready,"money",account.currency)),
    metric("WinRate",accountValue(account.win_rate,ready,"pct")),
+   metric("Movimientos totales (historial completo)",accountValue(account.total_deals,ready,"count")),
    metric("Operaciones cerradas",accountValue(account.closed_trades,ready,"count")),
    metric("Ganancia de hoy",accountValue(account.today_net,ready,"money",account.currency)),
    metric("Resultado semanal",accountValue(account.week_net,ready,"money",account.currency)),
