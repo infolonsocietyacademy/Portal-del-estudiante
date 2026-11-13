@@ -1,0 +1,29 @@
+/* OLFX PORTAL MAINTENANCE · isolated from regular portal */
+body.olonMaintenancePending #auth,body.olonMaintenancePending #portal,
+body.olonMaintenanceBlocked #auth,body.olonMaintenanceBlocked #portal,
+body.olonMaintenanceAdminLogin #portal{display:none!important;visibility:hidden!important}
+#olonMaintenanceGate[hidden]{display:none!important}
+#olonMaintenanceGate{position:fixed;inset:0;z-index:2147483600;overflow:auto;display:grid;place-items:center;min-height:100dvh;padding:30px 18px;background:radial-gradient(ellipse at 20% 14%,rgba(54,125,166,.26),transparent 50%),radial-gradient(ellipse at 90% 87%,rgba(108,81,161,.17),transparent 50%),#090f19;color:#edf5ff;font-family:JetBrains Mono,monospace;box-sizing:border-box}
+#olonMaintenanceGate *{box-sizing:border-box}
+.olfxMaintenanceFrame{width:min(100%,760px);border:1px solid #30435e;background:linear-gradient(145deg,rgba(25,35,51,.96),rgba(12,20,31,.98));border-radius:22px;box-shadow:0 30px 85px #0009;padding:clamp(24px,5vw,52px);text-align:center}
+.olfxMaintenanceTop{display:flex;align-items:center;justify-content:space-between;gap:16px;letter-spacing:.11em;font-size:11px;color:#91abc6;text-align:left;margin-bottom:45px}
+.olfxMaintenanceTop img{width:44px;height:44px;object-fit:contain}
+.olfxMaintenancePill{border:1px solid #517293;border-radius:99px;color:#a9d7fa;padding:8px 12px;font-size:10px;letter-spacing:.12em}
+.olfxMaintenanceGlyph{display:grid;place-items:center;margin:0 auto 26px;width:82px;height:82px;border:1px solid #547da8;border-radius:22px;background:#162e46;box-shadow:0 0 30px #256fa537;font-size:34px;color:#89caff}
+.olfxMaintenanceEyebrow{color:#91c8f1;font-size:11px;letter-spacing:.24em;font-weight:700;margin:0 0 16px}
+.olfxMaintenanceFrame h1{font-size:clamp(28px,5vw,46px);line-height:1.12;letter-spacing:-.035em;margin:0 0 20px;color:#fff}
+.olfxMaintenanceText{color:#b0bfd1;max-width:560px;margin:0 auto 34px;font-family:Inter,sans-serif;font-size:16px;line-height:1.8}
+.olfxMaintenanceStatus{display:flex;gap:12px;align-items:center;justify-content:center;border:1px solid #384d67;background:#111e2f;padding:16px;border-radius:12px;font-size:12px;color:#c6e0f1;margin:0 0 28px}
+.olfxMaintenancePulse{width:9px;height:9px;border-radius:50%;background:#ffbc69;box-shadow:0 0 0 4px #ffbc6920;flex-shrink:0}
+.olfxMaintenanceActions{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+.olfxMaintenanceActions button{cursor:pointer;border:1px solid #577b9e;background:#173954;color:#fff;padding:13px 19px;border-radius:10px;font:600 12px JetBrains Mono,monospace}
+.olfxMaintenanceActions button:hover{background:#215476}
+.olfxMaintenanceActions .olfxMaintenanceSecondary{background:transparent;color:#a5bed4}
+.olfxMaintenanceFoot{font-size:10px;color:#8199af;letter-spacing:.08em;margin-top:38px}
+.olfxMaintAdminBadge{display:inline-flex;padding:8px 12px;background:#163626;color:#9bdeae;border:1px solid #38734a;border-radius:8px;font:700 11px JetBrains Mono,monospace}
+.olfxMaintAdminBadge[data-enabled="true"]{background:#43291a;color:#ffca94;border-color:#905b30}
+.olfxMaintAdminActions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:15px}
+#olonMaintenanceToggle{min-width:220px}
+#olonMaintenanceToggle:disabled{opacity:.45;cursor:wait}
+.olfxMaintenanceHelp{color:var(--muted,#a6b3c2);font-size:13px;line-height:1.7}
+@media(max-width:600px){.olfxMaintenanceTop{flex-wrap:wrap;justify-content:center;text-align:center;margin-bottom:25px}.olfxMaintenanceStatus{font-size:11px}.olfxMaintenanceFrame{padding:26px 19px}}
