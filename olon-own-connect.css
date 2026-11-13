@@ -43,3 +43,23 @@
 @media(max-width:700px){.olfxAccountMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}.olfxAccountCard{padding:12px}.olfxAccountManagementIntro{align-items:flex-start}}
 
 #metaapiAccountsPage [hidden]{display:none!important}
+
+/* Connect-first layout: old vault is available only when requested. */
+#metaapiAccountsPage .olfxVaultCollapsed{display:block;margin-top:20px}
+#metaapiAccountsPage .olfxVaultSummary{cursor:pointer;list-style:revert;padding:18px;font-weight:700;letter-spacing:.01em}
+#metaapiAccountsPage .olfxVaultCollapsed:not([open])>.metaapi-vault-heading,
+#metaapiAccountsPage .olfxVaultCollapsed:not([open])>.metaapi-vault-list,
+#metaapiAccountsPage .olfxVaultCollapsed:not([open])>#mtVaultMessage,
+#metaapiAccountsPage .olfxVaultCollapsed:not([open])>#mtVaultPreview{display:none}
+#metaapiAccountsPage .metaapi-steps[hidden],
+#metaapiAccountsPage #metaapiConnectForm[hidden],
+#metaapiAccountsPage #metaapiConnected[hidden]{display:none!important}
+#metaapiAccountsPage .olfxConnectFirst{border:1px dashed rgba(102,181,201,.4);border-radius:12px;padding:20px;margin:8px 0 18px}
+#metaapiAccountsPage .olfxConnectFirst strong{font-size:1.1rem}
+#metaapiAccountsPage .olfxConnectFirst p{margin:8px 0 0;line-height:1.55}
+#metaapiAccountsPage .olfxRecentDeals{margin:14px 0;border:1px solid rgba(160,182,210,.26);border-radius:10px;padding:12px}
+#metaapiAccountsPage .olfxRecentDeals>summary{cursor:pointer;font-weight:700}
+#metaapiAccountsPage .olfxRecentTableWrap{overflow-x:auto;max-width:100%}
+#metaapiAccountsPage .olfxRecentTable{width:100%;border-collapse:collapse;min-width:500px;font-variant-numeric:tabular-nums}
+#metaapiAccountsPage .olfxRecentTable th,#metaapiAccountsPage .olfxRecentTable td{text-align:left;border-bottom:1px solid rgba(160,182,210,.18);padding:9px;font-size:.82rem}
+#metaapiAccountsPage .olfxRecentTable .olfxLoss td:last-child{color:#e78080}
