@@ -89,7 +89,7 @@
     const key=periodKey(period);
     reload.disabled=true;
     status.textContent="Consultando trades y calculando porcentajes…";
-    periodNote.textContent=period==="all"?"Histórico: neto total ÷ depósitos totales. El TOP 3 se clasifica automáticamente.":
+    periodNote.textContent=period==="all"?"Histórico de cuentas conectadas: neto total ÷ depósitos totales. Las cuentas archivadas no se clasifican.":
       "Neto de "+key+" ÷ depósitos totales registrados × 100.";
     try{
       const {data,error}=await supabaseClient.rpc("olon_admin_student_performance",{
@@ -99,7 +99,7 @@
       if(current!==token||!open())return;
       cache=data||[];lastPeriod=period;lastKey=key;
       paint(cache,period,key);
-      status.textContent="Ranking automático · "+cache.length+" estudiantes · "+cache.filter(r=>Number(r.trade_count)>0).length+" con trades registrados.";
+      status.textContent="Ranking MT verificado · "+cache.length+" estudiantes · "+cache.filter(r=>Number(r.trade_count)>0&&Number(r.deposited)>0).length+" con cuentas elegibles.";
       if(period==="all")window.olonAdmin?.setPerformance(cache);
       else if(window.olonAdmin?.setPerformance){
         // Historical figures stay in the directory, independent of the ranking period.
