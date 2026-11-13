@@ -18,7 +18,9 @@ HOME = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "OLFXConnect"
 KEY_FILE = HOME / "private_key.pem"
 SETTINGS = HOME / "settings.json"
 SERVER_URL = "https://xanhhfashgkyrvphprts.supabase.co/functions/v1/olon-own-connect"
-INTERVAL_SECONDS = 3600
+POLL_SECONDS = 15  # Detecta nuevas conexiones rápidamente, sin sincronizar todo cada 15 s.
+DAILY_SECONDS = 86400  # Refrescar cuentas ya sincronizadas una vez al día.
+ERROR_RETRY_SECONDS = 1800  # Los errores no se reintentan automáticamente sin control.
 MAX_DEALS_PER_BATCH = 150
 
 def config():
@@ -156,29 +158,55 @@ def sync_account(mt5, item: dict, cfg: dict):
     finally:
         mt5.shutdown()
 
-def one():
+def _due_for_sync(item: dict, automatic: bool = False) -> bool:
+    """En modo automático prioriza cuentas nuevas y evita duplicar históricos."""
+    if not automatic:
+        return True
+    status = str(item.get("status") or "")
+    if status == "waiting":
+        return True
+    if status != "active":
+        # Una contraseña equivocada requiere revisión, no intentos cada 15 segundos.
+        return False
+    last = item.get("last_sync_at")
+    if not last:
+        return True
+    try:
+        previous = datetime.fromisoformat(str(last).replace("Z", "+00:00"))
+        if previous.tzinfo is None:
+            previous = previous.replace(tzinfo=timezone.utc)
+    except (ValueError, TypeError):
+        return True
+    return (datetime.now(timezone.utc) - previous).total_seconds() >= DAILY_SECONDS
+
+
+def one(automatic: bool = False) -> int:
     if not KEY_FILE.exists():
         raise RuntimeError("Ejecuta python olfx_agent.py init primero")
-    cfg=config()
+    cfg = config()
     try:
         import MetaTrader5 as mt5
     except ImportError as exc:
-        raise RuntimeError("Instala la librería oficial: py -m pip install MetaTrader5") from exc
-    response=api("agent-queue",token=cfg["agent_token"])
-    accounts=response.get("accounts",[])
-    print(f"OLFX CONNECT - {len(accounts)} cuenta(s) pendientes o activas.")
-    for account in accounts:
-        if account.get("platform")!="mt5":
-            print("  Saltando plataforma no compatible")
-            continue
+        raise RuntimeError("Instala MetaTrader5 para Python 3.12 x64") from exc
+    response = api("agent-queue", token=cfg["agent_token"])
+    accounts = response.get("accounts", [])
+    pending = [account for account in accounts if account.get("platform") == "mt5"
+               and _due_for_sync(account, automatic=automatic)]
+    if not automatic or pending:
+        print(f"OLFX CONNECT - {len(accounts)} cuenta(s) en el servidor, "
+              f"{len(pending)} lista(s) para sincronizar.", flush=True)
+    for account in pending:
         try:
-            sync_account(mt5,account,cfg)
+            sync_account(mt5, account, cfg)
         except Exception as exc:
-            print("  ERROR cuenta",str(account["id"])[:8],str(exc)[:180])
+            print("  ERROR en cuenta", str(account.get("id", ""))[:8],
+                  str(exc)[:180], flush=True)
             try:
-                api("agent-error",{"accountId":account["id"],"message":str(exc)[:160]},cfg["agent_token"])
+                api("agent-error", {"accountId":account["id"],
+                                    "message":str(exc)[:160]}, cfg["agent_token"])
             except Exception as report:
-                print("  No se pudo informar el error:",report)
+                print("  No se pudo informar el error:", report, flush=True)
+    return len(pending)
 
 
 def doctor():
@@ -214,18 +242,25 @@ def doctor():
 
 def main():
     parser=argparse.ArgumentParser(description="OLFX CONNECT - conector privado MT5, sin MetaApi")
-    parser.add_argument("command",choices=("init","configure","once","run","doctor"))
+    parser.add_argument("command",choices=("init","configure","once","run","watch","doctor"))
     args=parser.parse_args()
     if args.command=="doctor":doctor()
     elif args.command=="init":init()
     elif args.command=="configure":configure()
-    elif args.command=="once":one()
+    elif args.command=="once":
+        one(automatic=False)
     else:
-        print("OLFX CONNECT - sincronización por turnos; CTRL+C para detener.")
+        print("OLFX CONNECT - Sincronizacion automatica activa.", flush=True)
+        print("Busca cuentas nuevas cada 15 segundos y actualiza "
+              "las cuentas existentes una vez al dia.", flush=True)
+        print("No cierres esta ventana. CTRL+C para detener.", flush=True)
         while True:
-            try:one()
-            except Exception as exc:print("Error general:",exc)
-            time.sleep(INTERVAL_SECONDS)
+            try:
+                one(automatic=True)
+                time.sleep(POLL_SECONDS)
+            except Exception as exc:
+                print("Error de comunicacion; reintentando:", str(exc)[:180], flush=True)
+                time.sleep(60)
 
 if __name__=="__main__":
     try: main()
