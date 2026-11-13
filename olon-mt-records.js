@@ -72,7 +72,7 @@
       ?(syncState?.backfill_done?"OLFX CONNECT · historial disponible (hasta 365 días)":"OLFX CONNECT · sincronización pendiente")
       :syncState?.backfill_done?"Historial importado":"Importando historial antiguo por etapas";
     const extras=!viewingArchive&&syncState?.last_error?" · Error de sincronización: "+safeText(syncState.last_error):"";
-    box.textContent="OLFX Account Vault · "+coverage+(viewingArchive?"":" · Última actualización: "+synced+(account?.source==="olfx-own"?" · Próxima sincronización: cuando Python se ejecute en Windows":" · Próxima sincronización: después del cierre NY, días hábiles"))+" · "+lastRows.length+" movimientos visibles"+extras;
+    box.textContent="Cuenta MT5 seleccionada: "+safeText(account?.login_masked||"") +" · "+safeText(account?.broker_server||"") +" · "+coverage+(viewingArchive?"":" · Última actualización: "+synced+(account?.source==="olfx-own"?" · Próxima sincronización: cuando Python se ejecute en Windows":" · Próxima sincronización: después del cierre NY, días hábiles"))+" · "+lastRows.length+" movimientos visibles"+extras;
     const button=document.createElement("button");
     button.type="button";
     button.className="btn secondary mtManualRefresh";
@@ -87,7 +87,8 @@
     const limit=900; // Paginar toda la cuenta para no superar límites de PostgREST.
     for(let offset=0;offset<200000;offset+=limit){
       let query=supabaseClient.from("olon_mt_deals")
-        .select("id,deal_id,position_id,order_id,occurred_at,deal_type,entry_type,symbol,volume,profit,commission,swap,fee,comment");
+        .select("id,deal_id,position_id,order_id,occurred_at,deal_type,entry_type,symbol,volume,profit,commission,swap,fee,comment")
+        .eq("student_id",id);
       query=account.vault_account_id
         ? query.eq("vault_account_id",account.vault_account_id)
         : query.eq("provider_account_id",account.provider_account_id);
@@ -111,44 +112,45 @@
       fetchedAt=0;setLinked(false);requestNumber++;
     }
     const request=++requestNumber;
-    const [linkResult,vaultResult,ownResult]=await Promise.all([
-      supabaseClient.from("olon_metaapi_accounts")
-        .select("provider_account_id,provider_state,connection_status,platform,broker_server")
-        .eq("student_id",id).maybeSingle(),
-      supabaseClient.from("olon_mt_vault_accounts")
-        .select("id,platform,broker_server,login_masked,active_provider_account_id,archived_at,last_connected_at")
-        .eq("student_id",id).order("last_connected_at",{ascending:false}),
-      supabaseClient.from("olon_own_accounts")
-        .select("provider_account_id,vault_account_id,platform,broker_server,status,last_sync_at,is_primary")
-        .eq("student_id",id).neq("status","revoked")
-        .order("is_primary",{ascending:false}).order("created_at",{ascending:false}).limit(1)
-    ]);
+    // ONLY the MT5 account explicitly selected in OLFX CONNECT may populate
+    // Resumen / Resultados / Calendario / Historial. Never fall back to other
+    // Axi accounts or disconnected legacy MetaApi accounts.
+    const {data:chosen,error:chosenError}=await supabaseClient.from("olon_own_accounts")
+      .select("id,provider_account_id,vault_account_id,platform,broker_server,status,last_sync_at,is_primary")
+      .eq("student_id",id).neq("status","revoked")
+      .order("is_primary",{ascending:false}).order("created_at",{ascending:false}).limit(1);
     if(request!==requestNumber)return [];
-    if(linkResult.error||vaultResult.error||ownResult.error){
-      error="No se pudo comprobar el historial protegido.";
+    if(chosenError){
+      error="No se pudo comprobar tu cuenta MT5 seleccionada.";
       lastRows=[];account=null;syncState=null;setLinked(false);return [];
     }
-    const link=linkResult.data;
-    const own=ownResult.data?.[0]||null;
-    const vaults=vaultResult.data||[];
-    // Dashboard: do not use archived or disconnected accounts as live performance.
-    const ownActive=own?.status==="active" && Boolean(own.last_sync_at) && Boolean(own.provider_account_id);
-    const legacyActive=!!link?.provider_account_id
-      &&String(link.connection_status||"").toUpperCase()==="CONNECTED"
-      &&String(link.provider_state||"").toUpperCase()==="DEPLOYED";
-    const ownVault=ownActive&&own.vault_account_id?vaults.find(v=>v.id===own.vault_account_id):null;
-    const oldVault=legacyActive?vaults.find(v=>v.active_provider_account_id===link.provider_account_id):null;
-    const target=ownVault||oldVault||null;
-    currentVault=target;viewingArchive=false;
-    if(!ownActive&&!legacyActive){
-      account=null;lastRows=[];syncState=null;setLinked(false);fetchedAt=Date.now();return [];
+    const own=chosen?.[0]||null;
+    const ownActive=own?.platform==="mt5"&&own.status==="active"&&
+      Boolean(own.last_sync_at)&&Boolean(own.provider_account_id);
+    if(!ownActive){
+      account=null;lastRows=[];syncState=null;currentVault=null;
+      setLinked(false);fetchedAt=Date.now();return [];
     }
+    let verifiedVault=null;
+    if(own.vault_account_id){
+      const {data:vault,error:vaultErr}=await supabaseClient.from("olon_mt_vault_accounts")
+        .select("id,student_id,platform,broker_server,login_masked,active_provider_account_id")
+        .eq("id",own.vault_account_id).eq("student_id",id).eq("platform","mt5").maybeSingle();
+      if(request!==requestNumber)return [];
+      if(vaultErr||!vault||String(vault.broker_server).toLowerCase()!==String(own.broker_server).toLowerCase()
+        ||vault.active_provider_account_id!==own.provider_account_id){
+        error="La identidad de la cuenta MT5 no coincide con el historial guardado.";
+        lastRows=[];account=null;syncState=null;currentVault=null;setLinked(false);return [];
+      }
+      verifiedVault=vault;
+    }
+    currentVault=verifiedVault;viewingArchive=false;
     account={
-      source:ownActive?"olfx-own":"metaapi",
-      vault_account_id:ownActive?(own.vault_account_id||null):(target?.id||null),
-      provider_account_id:ownActive?own.provider_account_id:link.provider_account_id,
-      broker_server:ownActive?own.broker_server:link.broker_server,
-      archived:false
+      source:"olfx-own",account_id:own.id,
+      vault_account_id:verifiedVault?.id||null,
+      provider_account_id:own.provider_account_id,
+      broker_server:own.broker_server,
+      login_masked:verifiedVault?.login_masked||"MT5",archived:false
     };
     setLinked(true);
     try{
