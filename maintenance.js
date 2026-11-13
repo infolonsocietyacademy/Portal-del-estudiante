@@ -71,8 +71,12 @@ async function check(){
    if(!result.error)p=result.data;
   }
   if(current.enabled&&!permitted(p,user)){
-   block("El Portal del Trader está temporalmente en mantenimiento. Tu información permanece protegida.");
-   if(user)try{await db.auth.signOut({scope:"local"});}catch{}
+   if(!user&&document.body.classList.contains("olonMaintenanceAdminLogin")){
+    // Keep login visible to the designated admin; auth and profile checks still apply.
+   }else{
+    block("El Portal del Trader está temporalmente en mantenimiento. Tu información permanece protegida.");
+    if(user)try{await db.auth.signOut({scope:"local"});}catch{}
+   }
   }else clear();
   updateAdmin();
  }catch{block("No pudimos verificar el estado del portal. Pulsa Reintentar.");}
