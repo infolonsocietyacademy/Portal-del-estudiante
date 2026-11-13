@@ -219,7 +219,9 @@ async function status(force=false){
   const next=result.accounts|| (result.account?[result.account]:[]);
   const newlySynced=next.some(a=>a.status==="active"&&a.last_sync_at
    &&!previous.some(p=>p.id===a.id&&p.last_sync_at===a.last_sync_at));
-  renderAccounts(next);
+  // Keep expanded trade history and avoid rebuilding 15 statistic cards if nothing changed.
+  const changed=JSON.stringify(next)!==JSON.stringify(currentAccounts);
+  if(changed)renderAccounts(next);
   if(newlySynced){
    window.olonMtRecords?.invalidate?.();
    Promise.resolve().then(()=>window.render?.()).catch(()=>{});
