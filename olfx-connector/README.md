@@ -3,17 +3,21 @@
 **Primera versión de prueba**: conexiones desde el Portal del Trader para MT5, agente Windows privado, con respaldo de historiales existentes. El nuevo botón de conexión no llama a MetaApi.
 
 ## Instalación en tu computadora Windows (no requiere VPS)
-1. Instala Python 3.11 o 3.12 (64 bits), y MetaTrader 5 de Axi. Recomendado: Python 3.12 64-bit.
+1. Instala Python 3.11 o 3.12 (64 bits), y MetaTrader 5 de Axi. Recomendado: Python 3.12 64-bit. **No uses Python 3.15 para la librería MetaTrader5**: no existe un paquete compatible publicado para esa versión.
 2. Descarga el directorio `olfx-connector` del repositorio y descomprímelo.
 3. Abre PowerShell dentro del directorio y ejecuta:
    ```powershell
-   py -m pip install -r requirements.txt
-   py olfx_agent.py init
+   py -3.12 -m pip install -r requirements.txt
+   py -3.12 olfx_agent.py init
    ```
 4. Copia **solamente la clave pública** mostrada entre BEGIN/END PUBLIC KEY.
 5. En tu Portal del Trader entra como administrador a **OLFX CONNECT · MT5**, pega la clave pública y pulsa **Emparejar equipo**.
-6. El portal mostrará **una sola vez** un token privado. No lo compartas por WhatsApp, capturas ni GitHub. En la computadora ejecuta `py olfx_agent.py configure` y pega el token cuando lo pida. Introduce la ruta del archivo `terminal64.exe` de MT5.
-7. Prueba `py olfx_agent.py once`. Para actualizaciones mientras la PC está encendida ejecuta `py olfx_agent.py run`; también puedes usar el Programador de tareas de Windows para ejecutarlo al iniciar sesión.
+6. El portal mostrará **una sola vez** un token privado. No lo compartas por WhatsApp, capturas ni GitHub. En la computadora ejecuta `py -3.12 olfx_agent.py configure` y pega el token cuando lo pida. Introduce la ruta del archivo `terminal64.exe` de MT5.
+7. Prueba `py -3.12 olfx_agent.py once`. Para actualizaciones mientras la PC está encendida ejecuta `py -3.12 olfx_agent.py run`; también puedes usar el Programador de tareas de Windows para ejecutarlo al iniciar sesión.
+
+**Acceso desde iPad:** Los estudiantes y el administrador abren el Portal del Trader en Safari. No necesitan instalar Python ni conectarse por Escritorio Remoto para ver las estadísticas; el agente sí debe ejecutarse en un Windows/VPS encendido para sincronizar.
+
+**Sincronización una vez al día:** Usa el Programador de tareas de Windows para ejecutar `py -3.12 olfx_agent.py once` a la hora deseada. El comando `run` ejecuta una sincronización por hora mientras permanece abierto.
 
 ## Instrucciones para estudiantes
 1. En el Portal del Trader, abre **Mis cuentas MT4/MT5**.
