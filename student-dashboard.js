@@ -33,6 +33,144 @@
 
   function move(node,where) {if(node&&where)where.append(node);return node;}
 
+  function textEl(tag,value,className="") {
+    const node=document.createElement(tag);
+    node.textContent=String(value??"");
+    if(className)node.className=className;
+    return node;
+  }
+  function money(value, currency="USD"){
+    if(value===null||value===undefined||value==="")return "—";
+    const n=Number(value);
+    if(!Number.isFinite(n))return "—";
+    const iso=/^[A-Z]{3}$/.test(String(currency||""))?currency:"USD";
+    try{return new Intl.NumberFormat("es-PR",{style:"currency",currency:iso,maximumFractionDigits:2}).format(n)}
+    catch{return n.toFixed(2)+" "+iso}
+  }
+  function mt5Overview(){
+    const block=section("olSummaryMT5Block","Mi cuenta MetaTrader 5","Balance, rendimiento y conexión de tu cuenta principal. Datos importados de MT5; sin cifras simuladas.","metaapiAccountsPage");
+    block.id="olonSummaryMT5";
+    const top=document.createElement("div");
+    top.className="olSummaryMT5Top";
+    const state=textEl("div","Consultando cuentas vinculadas…","olSummaryMT5Status");
+    state.id="olonSummaryMT5Status";
+    state.setAttribute("role","status");
+    top.append(state);
+    const refresh=document.createElement("button");
+    refresh.type="button";
+    refresh.textContent="Actualizar datos";
+    refresh.className="olSummaryMT5Refresh";
+    refresh.addEventListener("click",()=>void load(true));
+    top.append(refresh);block.append(top);
+    const grid=document.createElement("div");
+    grid.className="olSummaryMT5Metrics";
+    const fields=[
+      ["balance","Balance"],["equity","Equity"],["winrate","WinRate"],
+      ["trades","Operaciones cerradas"],["month","Resultado mensual"],["today","Resultado de hoy"],
+      ["week","Resultado semanal"],["net","P&L importado"]
+    ];
+    const nodes={};
+    fields.forEach(([key,label])=>{
+      const cell=document.createElement("div");cell.className="olSummaryMT5Metric";
+      cell.append(textEl("span",label));
+      const value=textEl("strong","—");value.dataset.mtMetric=key;
+      nodes[key]=value;cell.append(value);grid.append(cell);
+    });
+    block.append(grid);
+    const foot=textEl("p","Selecciona una cuenta MT5 para que sus estadísticas aparezcan aquí.","olSummaryMT5Foot");
+    block.append(foot);
+    let loading=false,lastRequest=0;
+    function clear(){
+      Object.values(nodes).forEach(node=>{node.textContent="—";node.classList.remove("negative")});
+    }
+    function set(key,value,negative=false){
+      const node=nodes[key];if(!node)return;
+      node.textContent=String(value??"—");
+      node.classList.toggle("negative",Boolean(negative));
+    }
+    async function load(force=false){
+      if(loading||document.visibilityState==="hidden")return;
+      if(!force&&Date.now()-lastRequest<25000)return;
+      if(!window.olonOwnAccountStatus){
+        state.textContent="Conector no disponible. Abre Mis cuentas MT4/MT5.";
+        return;
+      }
+      loading=true;lastRequest=Date.now();refresh.disabled=true;
+      try{
+        const result=await window.olonOwnAccountStatus();
+        const accounts=Array.isArray(result?.accounts)?result.accounts:[];
+        const primary=accounts.find(a=>a.is_primary)||accounts[0];
+        if(!primary){
+          clear();
+          state.textContent="Sin cuenta MT5 vinculada";
+          foot.textContent="Conecta tu propia cuenta en Mis cuentas MT4/MT5. Los historiales antiguos no se incluyen.";
+          return;
+        }
+        const ready=primary.status==="active"&&Boolean(primary.last_sync_at);
+        state.textContent=(primary.broker_server||"MT5")+" · "+(primary.login_masked||"Cuenta")
+          +(ready?" · Sincronizada":primary.status==="error"?" · Requiere revisión":" · Pendiente de primera sincronización");
+        if(!ready){
+          clear();
+          foot.textContent=primary.status==="error"
+            ?"La sincronización presentó un error. Abre Mis cuentas MT4/MT5 para ver el detalle."
+            :"La cuenta ya está vinculada. Abre el agente OLFX CONNECT en Windows para importar el balance y las operaciones.";
+          return;
+        }
+        const currency=primary.currency||"USD";
+        set("balance",money(primary.balance,currency));
+        set("equity",money(primary.equity,currency));
+        set("winrate",primary.win_rate==null?"—":Number(primary.win_rate).toFixed(2)+"%");
+        set("trades",String(primary.closed_trades??"—"));
+        for(const [key,field] of [["month","month_net"],["today","today_net"],["week","week_net"],["net","net_profit"]]){
+          const val=primary[field];
+          set(key,money(val,currency),Number(val)<0);
+        }
+        const updated=new Date(primary.last_sync_at);
+        foot.textContent="Última sincronización: "+(Number.isFinite(updated.getTime())
+          ?updated.toLocaleString("es-PR",{timeZone:"America/Puerto_Rico"}):"—")
+          +" · Solo datos reales. Para detalles y otras cuentas, abre Mis cuentas MT4/MT5.";
+      }catch(e){
+        state.textContent="No se pudieron consultar las estadísticas de MT5";
+        foot.textContent="Comprueba tu sesión o abre Mis cuentas MT4/MT5. "+String(e?.message||"Error").slice(0,110);
+      }finally{loading=false;refresh.disabled=false;}
+    }
+    // Poll only the lightweight status endpoint when the student visits Resumen.
+    const timer=setInterval(()=>{
+      if(!byId("dashboard")?.classList.contains("hidden"))void load();
+    },30000);
+    window.addEventListener("pagehide",()=>clearInterval(timer),{once:true});
+    document.addEventListener("visibilitychange",()=>{
+      if(document.visibilityState==="visible"&&!byId("dashboard")?.classList.contains("hidden"))void load();
+    });
+    window.olonSummaryMt5Refresh=()=>load(true);
+    return {block,load};
+  }
+  function quickLinks(){
+    const block=section("olSummaryQuickBlock","Todo tu portal en un lugar","Abre cualquiera de tus herramientas sin sobrecargar el Resumen.");
+    block.id="olonSummaryQuickLinks";
+    const links=[
+      ["Mis cuentas MT4/MT5","metaapiAccountsPage","Conecta y revisa cuentas"],
+      ["Resultados","comparacion","Estadísticas y reportes"],
+      ["Historial","historial","Operaciones y calendario"],
+      ["Checklist","academyChecklistPage","Rutina y disciplina"],
+      ["Clases","academyClassesPage","Contenido educativo"],
+      ["Renovación VIP","academyVipPage","Acceso y pagos"],
+      ["Noticias","newsProPage","Eventos del mercado"],
+      ["Notificaciones","notificationsPage","Mensajes importantes"],
+      ["Institutional Flow","institutionalFlowPage","Herramientas institucionales"]
+    ];
+    const grid=document.createElement("div");grid.className="olSummaryQuickGrid";
+    links.forEach(([label,page,description])=>{
+      const button=document.createElement("button");
+      button.type="button";button.dataset.summaryGoto=page;
+      button.className="olSummaryQuickLink";
+      button.append(textEl("strong",label),textEl("span",description));
+      grid.append(button);
+    });
+    block.append(grid);
+    return block;
+  }
+
   function init() {
     const dashboard=byId("dashboard"), results=byId("comparacion"), register=byId("registro");
     if(!dashboard||!results||!register||byId("olonSummaryKPIs"))return;
@@ -153,6 +291,9 @@
     }
     kpiBlock.append(kpiGrid);
 
+    const mtOverview=mt5Overview();
+    const shortcutPanel=quickLinks();
+
     const growth=section("olSummaryGrowthBlock","Evolución de tu cuenta","Gráfica del balance registrado.","comparacion");
     growth.id="olonSummaryGrowth";
     move(equity,growth);
@@ -182,9 +323,9 @@
       }
     }
 
-    // Six predictable dashboard sections. Welcome remains the existing VIP profile.
+    // Cohesive dashboard: VIP profile, KPIs, MT5, chart, goals, calendar, Top 3 and shortcuts.
     const layout=document.createDocumentFragment();
-    layout.append(welcome,kpiBlock,growth,goalBlock,calendarBlock,top);
+    layout.append(welcome,kpiBlock,mtOverview.block,growth,goalBlock,calendarBlock,top,shortcutPanel);
     dashboard.replaceChildren(layout);
     dashboard.classList.add("olSummaryFocused");
 
@@ -221,6 +362,7 @@
           :origin.textContent.trim();
       });}
     };
+    void mtOverview.load(true);
     requestAnimationFrame(()=>window.dispatchEvent(new Event("resize")));
   }
 
