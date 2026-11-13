@@ -74,7 +74,7 @@ async function readiness(){
  }
  if(retry)retry.hidden=agentReady;
  const btn=$("metaapiConnect");
- if(btn&&!busy)btn.disabled=!agentReady||clean($("metaapiPlatform")?.value)!=="mt5";
+ if(btn&&!busy){btn.disabled=clean($("metaapiPlatform")?.value)!=="mt5";btn.removeAttribute("aria-busy");}
  return agentReady;
 }
 
@@ -242,7 +242,7 @@ async function connect(){
  if(!/^[0-9]{4,20}$/.test(login))return notice("Escribe el número completo de tu cuenta MT5.","error");
  if(!password||password.length>256||!$("metaapiInvestorConfirm")?.checked)return notice("Escribe la contraseña de inversor (solo lectura) y marca la confirmación.","error");
  busy=true;
- if(btn){btn.disabled=true;btn.textContent="Verificando sesión y conectando…";}
+ if(btn){btn.disabled=true;btn.setAttribute("aria-busy","true");btn.textContent="Verificando sesión y conectando…";}
  notice("Verificando la sesión y la conexión segura. No cierres esta página.","info");
  try{
   const ready=await invoke({action:"agent-ready"});
@@ -268,7 +268,7 @@ async function connect(){
  }finally{
   if(passwordEl)passwordEl.value="";
   busy=false;
-  if(btn){btn.textContent="Conectar mi cuenta MetaTrader 5";btn.disabled=!agentReady;}
+  if(btn){btn.textContent="Conectar mi cuenta MetaTrader 5";btn.disabled=false;btn.removeAttribute("aria-busy");}
  }
 }
 async function unlink(accountId){
@@ -364,7 +364,7 @@ function selectPlatform(platform){
  });
  const hint=$("metaapiServerHint");
  if(hint)hint.textContent=platform==="mt5"?"Escribe manualmente el servidor exacto que muestra tu cuenta MT5.":"Las cuentas MT4 todavía no se admiten en OLFX CONNECT V1.";
- if($("metaapiConnect"))$("metaapiConnect").disabled=platform!=="mt5"||!agentReady;
+ if($("metaapiConnect"))$("metaapiConnect").disabled=platform!=="mt5";
 }
 async function adminStatus(){
  const el=$("olonOwnAdminStatus");if(!el)return;
