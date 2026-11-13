@@ -1,6 +1,6 @@
-/* OLON Society Academy — TOP 3 automático a partir de la bitácora.
-   Los registros privados permanecen en Supabase. Participación automática,
-   nombres reales visibles por defecto; el estudiante puede ocultar el suyo. */
+/* OLON Society Academy — TOP 3 automático con cuentas MT conectadas y sincronizadas.
+   Los historiales antiguos permanecen archivados; no influyen en el podio activo.
+   Los nombres se muestran según la preferencia de privacidad existente. */
 (function(){
   "use strict";
   const $=id=>document.getElementById(id);
@@ -68,6 +68,7 @@
     }
     $("olonLeaderboardPeriod").textContent=label(period,key);
     $("olonLeaderboardEmpty").hidden=records.length>0;
+    if(records.length===0)$("olonLeaderboardEmpty").textContent="Aún no hay cuentas MT conectadas, sincronizadas y elegibles para este período.";
   }
   async function loadPodiumPhotos(records,request){
     // Fetch only uploaded photos belonging to real-name, currently ranked students.
@@ -134,7 +135,10 @@
       void loadPodiumPhotos(rows,request);
     }catch(error){
       if(request!==state.publicRequest)return;
-      $("olonLeaderboardError").textContent="No se pudo actualizar el TOP 3. Intenta de nuevo.";
+      // Never keep previously displayed ranks if a new period fails to load.
+      renderPodium([],period,key);
+      $("olonLeaderboardEmpty").hidden=true;
+      $("olonLeaderboardError").textContent="No fue posible verificar el TOP 3. Reintenta la consulta.";
       $("olonLeaderboardError").hidden=false;
       console.warn("[OLON Auto TOP3] Podio",error?.message);
     }finally{
@@ -184,17 +188,18 @@
       if(msg)msg.textContent="Selecciona un período válido.";
       return;
     }
-    if(msg)msg.textContent="Calculando posiciones con los resultados de la bitácora…";
+    if(msg)msg.textContent="Calculando el TOP 3 con cuentas MT verificadas y sincronizadas…";
     try{
       const rows=await getTop(period,key);
       if(request!==state.adminRequest||!admin())return;
       renderAdmin(rows,period,key);
       if(msg)msg.textContent=rows.length?
         "Clasificación automática: "+rows.length+" puesto(s). No requiere aprobación ni publicación.":
-        "No hay estudiantes elegibles en este período. Se requieren trades registrados y capital depositado.";
+        "No hay cuentas MT activas y sincronizadas con operaciones cerradas y capital válido en este período.";
     }catch(error){
       if(request!==state.adminRequest)return;
-      if(msg)msg.textContent="No se pudo calcular el TOP 3: "+String(error?.message||"Revisa tu conexión.");
+      renderAdmin([],period,key);
+      if(msg)msg.textContent="No se pudo verificar el TOP 3: "+String(error?.message||"Revisa tu conexión.");
       console.warn("[OLON Auto TOP3] Administración",error?.message);
     }
   }
