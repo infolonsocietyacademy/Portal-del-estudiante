@@ -1284,6 +1284,10 @@ async function render(){
   const studentId = currentUser.id;
   await fetchRecords();
   if(currentUser?.id !== studentId) return;
+  // Defensive guard: even if a historical cache persists, disconnected accounts
+  // must never populate the live Resumen or its graphs.
+  const mtConnected=Boolean(window.olonMtRecords?.linked?.());
+  if(!mtConnected) cachedRecords=[];
   const records = cachedRecords, t = totals(records);
   document.getElementById("mDeposited").innerText = money(t.deposit);
   document.getElementById("mWithdrawn").innerText = money(t.withdrawal);
@@ -1300,6 +1304,7 @@ async function render(){
   window.olonHistory?.render(records);
   window.olonAnalytics?.render(records, studentId);
   renderCompare(); renderChart(); renderProDashboard();
+  window.olonStudentSummary?.setConnectionState?.(mtConnected);
 }
 
 function recordHistoryActions(record){
@@ -1327,6 +1332,21 @@ function renderCompare(){
 function renderChart(){
   const ctx = document.getElementById("balanceChart");
   if(!ctx || !window.Chart) return;
+  // Reset any previously rendered balance chart after disconnect.
+  if(!window.olonMtRecords?.linked?.()){
+    if(chart){chart.destroy();chart=null;}
+    const old=document.getElementById("olonDisconnectedChart");
+    if(!old){
+      const hint=document.createElement("p");
+      hint.id="olonDisconnectedChart";hint.className="metaapi-muted";
+      hint.textContent="Sin datos de cuenta MT conectada. Vincula MT5 para ver la evolución real.";
+      ctx.parentElement?.append(hint);
+    }
+    ctx.hidden=true;
+    return;
+  }
+  ctx.hidden=false;
+  document.getElementById("olonDisconnectedChart")?.remove();
   let running = 0;
   const sorted = window.olonAnalyticsCore.accountingRows(cachedRecords).sort((a,b)=>a.date.localeCompare(b.date));
   const labels = sorted.map(r=>r.date);
