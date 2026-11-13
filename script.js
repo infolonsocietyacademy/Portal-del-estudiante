@@ -2033,7 +2033,7 @@ document.addEventListener("DOMContentLoaded", function(){
     const identifier = String($auth("loginCode")?.value||"").trim().toLowerCase();
     // Alias de comodidad, no es un privilegio ni evita la autenticación real.
     // Supabase Auth sigue verificando la contraseña y el perfil del servidor.
-    const email = identifier === "admin" ? "nolotraderfx@gmail.com" : identifier;
+    const email = identifier === "admin" ? "erickinventus@gmail.com" : identifier;
     const password = String($auth("loginPass")?.value||"");
     if(!identifier || !password){ alert("Escribe tu usuario o correo y contraseña."); return; }
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){

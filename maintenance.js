@@ -6,8 +6,12 @@ let state=null,busy=false,lastRead=0;
 let ready;const readyPromise=new Promise(resolve=>ready=resolve);
 const client=()=>typeof supabaseClient!=="undefined"?supabaseClient:null;
 const profile=()=>typeof currentUser!=="undefined"?currentUser:null;
-const permitted=(p,u)=>!!p&&!!u&&p.role==="admin"&&p.status==="active"&&
- String(u.email||"").toLowerCase()==="nolotraderfx@gmail.com"&&!!u.email_confirmed_at;
+const permitted=(p,u)=>{
+ if(!p||!u||p.status!=="active"||!u.email_confirmed_at)return false;
+ const email=String(u.email||"").trim().toLowerCase();
+ return (email==="erickinventus@gmail.com"&&p.role==="admin")
+   || (email==="nolotraderfx@gmail.com"&&p.role==="student");
+};
 function block(reason){
  document.body.classList.remove("olonMaintenancePending","olonMaintenanceAdminLogin");
  document.body.classList.add("olonMaintenanceBlocked");
@@ -56,7 +60,7 @@ function updateAdmin(){
  status.dataset.enabled=String(!!state?.enabled);
  button.textContent=state?.enabled?"Desactivar mantenimiento · Abrir portal":"Activar mantenimiento · Bloquear estudiantes";
  if(help)help.textContent=state?.enabled
-  ?"Los estudiantes ven el aviso de mantenimiento. Solo tu cuenta autorizada puede entrar."
+  ?"El administrador principal y la cuenta de estudiante de prueba pueden entrar. El resto verá el aviso de mantenimiento."
   :"El acceso funciona normalmente según los permisos y licencias de cada estudiante.";
 }
 async function check(){
@@ -86,8 +90,15 @@ async function toggle(){
  if(busy||!state)return;
  const enable=!state.enabled;
  if(!confirm(enable
-  ?"¿Activar mantenimiento? El acceso estudiantil se suspenderá temporalmente."
+  ?"¿Activar mantenimiento? Solo Admin y la cuenta de estudiante de prueba tendrán acceso."
   :"¿Desactivar mantenimiento? Los estudiantes podrán entrar con sus accesos vigentes."))return;
+ const db=client();
+ const {data:{user},error:authError}=await db.auth.getUser();
+ if(authError||!user||String(user.email||"").toLowerCase()!=="erickinventus@gmail.com"||profile()?.role!=="admin"){
+  const errorBox=$("olonMaintenanceAdminMessage");
+  if(errorBox)errorBox.textContent="Solo el administrador principal puede cambiar este ajuste.";
+  return;
+ }
  const button=$("olonMaintenanceToggle"),status=$("olonMaintenanceAdminMessage");
  if(button)button.disabled=true;
  if(status)status.textContent="Actualizando estado…";
