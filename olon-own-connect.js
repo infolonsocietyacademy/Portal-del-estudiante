@@ -165,8 +165,8 @@ function renderAccounts(accounts){
   card.append(txt("p",ready?"Última actualización: "+accountDate(account.last_sync_at)+(account.backfill_done?" · Historial importado":" · Importación en curso"):"Sin datos sincronizados todavía","olfxAccountSync"));
   if(ready){
    const recent=document.createElement("details");recent.className="olfxRecentDeals";
-   const summary=txt("summary","Ver mis últimas operaciones cerradas");recent.append(summary);
-   const detail=txt("p","Abre esta sección para consultar los últimos 25 cierres de MT5.","metaapi-muted");
+   const summary=txt("summary","Ver TODOS mis movimientos MT5 (historial completo)");recent.append(summary);
+   const detail=txt("p","Historial completo en páginas de 50 movimientos, incluyendo depósitos y retiros.","metaapi-muted");
    recent.append(detail);
    let loaded=false;
    recent.addEventListener("toggle",()=>{
@@ -183,29 +183,42 @@ function renderAccounts(accounts){
   actions.append(primary,remove);card.append(actions);host.append(card);
  }
 }
-async function loadRecentDeals(accountId,container,label){
+async function loadRecentDeals(accountId,container,label,page=0){
  const seq=currentDealsRequest;
+ const old=container.querySelector(".olfxRecentTableWrap");
+ if(old)old.remove();
+ label.textContent="Cargando el historial completo de MetaTrader…";
  try{
-  const result=await invoke({action:"recent-deals",accountId});
+  const result=await invoke({action:"recent-deals",accountId,page});
   if(seq!==currentDealsRequest||!container.isConnected)return;
   const deals=result.deals||[];
-  if(!deals.length){label.textContent="No hay operaciones cerradas en el período importado.";return;}
-  label.textContent="Últimos "+deals.length+" cierres de tu cuenta MT5";
+  const total=Number(result.total||0),size=Number(result.pageSize||50);
+  if(!deals.length){label.textContent="No hay más movimientos guardados para esta cuenta.";return;}
+  label.textContent="Movimientos "+(page*size+1)+"–"+(page*size+deals.length)+" de "+total.toLocaleString("es-PR")+" · historial completo de esta cuenta";
   const wrapper=document.createElement("div");wrapper.className="olfxRecentTableWrap";
   const table=document.createElement("table");table.className="olfxRecentTable";
   const header=document.createElement("tr");
-  ["Fecha PR","Símbolo","Volumen","Resultado neto"].forEach(c=>header.append(txt("th",c)));
+  ["Fecha PR","Tipo","Símbolo","Volumen","Resultado neto"].forEach(c=>header.append(txt("th",c)));
   const thead=document.createElement("thead");thead.append(header);table.append(thead);
   const tbody=document.createElement("tbody");
   deals.forEach(d=>{
    const tr=document.createElement("tr");
    const net=Number(d.profit||0)+Number(d.commission||0)+Number(d.swap||0)+Number(d.fee||0);
+   const type=String(d.deal_type||"").replace("DEAL_TYPE_","");
+   const entry=String(d.entry_type||"").replace("DEAL_ENTRY_","");
    const date=new Date(d.occurred_at);
-   [Number.isFinite(date.getTime())?accountDate(d.occurred_at):"—",d.symbol||"—",String(d.volume??"—"),money(net)].forEach(v=>tr.append(txt("td",v)));
+   [Number.isFinite(date.getTime())?accountDate(d.occurred_at):"—",type+(entry?" / "+entry:""),d.symbol||"—",String(d.volume??"—"),money(net)].forEach(v=>tr.append(txt("td",v)));
    if(net<0)tr.classList.add("olfxLoss");
    tbody.append(tr);
   });
-  table.append(tbody);wrapper.append(table);container.append(wrapper);
+  table.append(tbody);wrapper.append(table);
+  const nav=document.createElement("div");nav.className="metaapi-actions olfxAccountActions";
+  const prev=txt("button","← Anterior","btn secondary"),next=txt("button","Siguiente →","btn secondary");
+  prev.type="button";next.type="button";prev.disabled=page<=0;next.disabled=(page+1)*size>=total;
+  prev.addEventListener("click",()=>void loadRecentDeals(accountId,container,label,page-1));
+  next.addEventListener("click",()=>void loadRecentDeals(accountId,container,label,page+1));
+  nav.append(prev,txt("span","Página "+(page+1)+" de "+Math.ceil(total/size)),next);
+  wrapper.append(nav);container.append(wrapper);
  }catch(e){if(seq===currentDealsRequest&&label.isConnected)label.textContent="No se pudo cargar el historial: "+e.message;}
 }
 let statusInFlight=false;
@@ -224,7 +237,7 @@ async function status(force=false){
   if(changed)renderAccounts(next);
   if(newlySynced){
    window.olonMtRecords?.invalidate?.();
-   Promise.resolve().then(()=>window.render?.()).catch(()=>{});
+   // Mantener al estudiante en la página de conexión. El Resumen se actualiza por su propio lector.
    notice("OLFX CONNECT: los datos MT5 ya llegaron. Balance, operaciones y rendimiento actualizados.","success");
   }
  }catch(err){notice(err.message,"error");}
