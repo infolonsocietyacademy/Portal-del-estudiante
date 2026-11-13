@@ -189,7 +189,9 @@ async function loadVault(){
  }catch{message.textContent="No se pudo consultar el historial de cuentas.";}
 }
 function selectPlatform(platform){
- $("metaapiPlatform").value=platform;
+ // MT4 is not released: reject attempts from scripts, obsolete clicks or stale UI.
+ if(platform!=="mt5")return;
+ $("metaapiPlatform").value="mt5";
  document.querySelectorAll("[data-metaapi-platform]").forEach(btn=>{
   const selected=btn.dataset.metaapiPlatform===platform;
   btn.classList.toggle("selected",selected);btn.setAttribute("aria-pressed",String(selected));
@@ -232,7 +234,8 @@ function init(){
  if(manual)manual.hidden=false;
  if($("metaapiServer"))$("metaapiServer").required=true;
  form.addEventListener("submit",e=>{e.preventDefault();void connect();});
- document.querySelectorAll("[data-metaapi-platform]").forEach(btn=>btn.addEventListener("click",()=>selectPlatform(btn.dataset.metaapiPlatform)));
+ document.querySelectorAll("[data-metaapi-platform]").forEach(btn=>{if(btn.dataset.metaapiPlatform==="mt4"){btn.disabled=true;btn.setAttribute("aria-disabled","true");return;}btn.addEventListener("click",()=>selectPlatform(btn.dataset.metaapiPlatform));});
+ $("metaapiPlatform")?.addEventListener("change",()=>selectPlatform("mt5"));
  $("metaapiRefresh")?.addEventListener("click",()=>void status(true));
  $("metaapiDisconnect")?.addEventListener("click",()=>void unlink());
  $("metaapiCancelPending")?.addEventListener("click",()=>void unlink());
