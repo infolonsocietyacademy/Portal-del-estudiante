@@ -293,7 +293,7 @@ async function connect(){
   }catch(e){
    notice("La cuenta se registró, pero no se pudo actualizar la pantalla: "+e.message+" Presiona Actualizar estadísticas.","info");
   }
-  Promise.resolve().then(()=>window.render?.()).catch(()=>{});
+  // No redibujar toda la aplicación al conectar; la sección permanece abierta.
  }catch(e){
   notice("No se conectó la cuenta: "+(e?.message||"Error desconocido")+". Revisa el mensaje y vuelve a intentarlo.","error");
  }finally{
@@ -472,7 +472,7 @@ function init(){
  $("metaapiRefresh")?.addEventListener("click",()=>void status(true));
  $("metaapiDisconnect")?.addEventListener("click",()=>void unlink(currentAccount?.id));
  $("metaapiAddAccount")?.addEventListener("click",()=>{addingAccount=!addingAccount;renderAccounts(currentAccounts);});
- $("metaapiRefreshAccounts")?.addEventListener("click",()=>{lastStatus=0;void status(true);window.olonMtRecords?.invalidate?.();void window.render?.();});
+ $("metaapiRefreshAccounts")?.addEventListener("click",()=>{lastStatus=0;void status(true);window.olonMtRecords?.invalidate?.();});
  $("metaapiRetryConnection")?.addEventListener("click",()=>void readiness());
  $("metaapiCancelPending")?.addEventListener("click",()=>{addingAccount=false;renderAccounts(currentAccounts);});
  $("mtVaultRefresh")?.addEventListener("click",()=>void loadVault());
