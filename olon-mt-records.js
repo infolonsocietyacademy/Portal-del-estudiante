@@ -70,9 +70,11 @@
     box.hidden=!linked;
     if(!linked)return;
     const synced=syncState?.last_success_at?new Date(syncState.last_success_at).toLocaleString("es-PR",{timeZone:PR}):"sin sincronizar";
-    const coverage=viewingArchive?"Cuenta archivada · solo lectura":syncState?.backfill_done?"Historial importado":"Importando historial antiguo por etapas";
+    const coverage=viewingArchive?"Cuenta archivada · solo lectura":account?.source==="olfx-own"
+      ?(syncState?.backfill_done?"OLFX CONNECT · historial disponible (hasta 365 días)":"OLFX CONNECT · sincronización pendiente")
+      :syncState?.backfill_done?"Historial importado":"Importando historial antiguo por etapas";
     const extras=!viewingArchive&&syncState?.last_error?" · Error de sincronización: "+safeText(syncState.last_error):"";
-    box.textContent="OLFX Account Vault · "+coverage+(viewingArchive?"":" · Última actualización: "+synced+" · Próxima sincronización: después del cierre NY, días hábiles")+" · "+lastRows.length+" movimientos visibles"+extras;
+    box.textContent="OLFX Account Vault · "+coverage+(viewingArchive?"":" · Última actualización: "+synced+(account?.source==="olfx-own"?" · Próxima sincronización: cuando Python se ejecute en Windows":" · Próxima sincronización: después del cierre NY, días hábiles"))+" · "+lastRows.length+" movimientos visibles"+extras;
     const button=document.createElement("button");
     button.type="button";
     button.className="btn secondary mtManualRefresh";
@@ -111,34 +113,44 @@
       fetchedAt=0;setLinked(false);requestNumber++;
     }
     const request=++requestNumber;
-    const [linkResult,vaultResult]=await Promise.all([
+    const [linkResult,vaultResult,ownResult]=await Promise.all([
       supabaseClient.from("olon_metaapi_accounts")
         .select("provider_account_id,provider_state,connection_status,platform,broker_server")
         .eq("student_id",id).maybeSingle(),
       supabaseClient.from("olon_mt_vault_accounts")
         .select("id,platform,broker_server,login_masked,active_provider_account_id,archived_at,last_connected_at")
-        .eq("student_id",id).order("last_connected_at",{ascending:false})
+        .eq("student_id",id).order("last_connected_at",{ascending:false}),
+      supabaseClient.from("olon_own_accounts")
+        .select("provider_account_id,vault_account_id,platform,broker_server,status,last_sync_at")
+        .eq("student_id",id).neq("status","revoked")
+        .order("created_at",{ascending:false}).limit(1)
     ]);
     if(request!==requestNumber)return [];
-    if(linkResult.error||vaultResult.error){
+    if(linkResult.error||vaultResult.error||ownResult.error){
       error="No se pudo comprobar el historial protegido.";
       setLinked(false);return null;
     }
     const link=linkResult.data;
+    const own=ownResult.data?.[0]||null;
     const vaults=vaultResult.data||[];
-    const active=vaults.find(v=>v.active_provider_account_id&&v.active_provider_account_id===link?.provider_account_id);
     const selected=selectedVaultId?vaults.find(v=>v.id===selectedVaultId):null;
-    const target=selected||active||(!link?.provider_account_id?vaults[0]:null);
-    currentVault=target||null;
-    viewingArchive=!!target&&!target.active_provider_account_id;
+    const ownVault=own?.vault_account_id?vaults.find(v=>v.id===own.vault_account_id):null;
+    const oldVault=vaults.find(v=>v.active_provider_account_id&&v.active_provider_account_id===link?.provider_account_id);
+    const target=selected||ownVault||oldVault||vaults[0]||null;
+    currentVault=target;
+    const providerId=target?.id===ownVault?.id?own?.provider_account_id:
+       target?.id===oldVault?.id?link?.provider_account_id:
+       target?.active_provider_account_id||null;
+    viewingArchive=!!target&&!providerId;
     const legacyUsable=!!link?.provider_account_id
       &&!["DRAFT","PENDING"].includes(String(link.provider_state||"").toUpperCase());
     if(!target&&!legacyUsable){
       account=null;lastRows=[];syncState=null;setLinked(false);fetchedAt=Date.now();return null;
     }
     account={...(link||{}),
+      source:ownVault&&target?.id===ownVault.id?"olfx-own":"historical",
       vault_account_id:target?.id||null,
-      provider_account_id:target?.active_provider_account_id||(!target?link?.provider_account_id:null),
+      provider_account_id:providerId||(!target&&legacyUsable?link.provider_account_id:null),
       archived:viewingArchive};
     setLinked(true);
     try{
