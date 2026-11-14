@@ -2184,33 +2184,43 @@ document.addEventListener("DOMContentLoaded", function(){
   // iPadOS occasionally synthesizes a click while a sticky toolbar is moving
   // beneath the user's finger. Only an actual stationary tap on the same
   // logout button is accepted; scrolling or dragging never triggers sign-out.
-  let logoutTouch=null;
+  let logoutTouch=null,lastTouchDragAt=0,touchOrigin=null;
   document.addEventListener("touchstart",event=>{
     const touch=event.touches?.[0];
     const button=event.target?.closest?.("[data-olon-logout]");
-    logoutTouch=touch&&event.touches.length===1&&button
+    touchOrigin=touch&&event.touches.length===1
+      ? {x:touch.clientX,y:touch.clientY,dragged:false}:null;
+    logoutTouch=touchOrigin&&button
       ? {button,x:touch.clientX,y:touch.clientY,moved:false,endedAt:0}
       : null;
   },{passive:true,capture:true});
   document.addEventListener("touchmove",event=>{
-    if(!logoutTouch)return;
     const touch=event.touches?.[0];
+    if(touchOrigin&&(!touch||Math.abs(touch.clientX-touchOrigin.x)>10||
+       Math.abs(touch.clientY-touchOrigin.y)>10)){
+      touchOrigin.dragged=true;
+      lastTouchDragAt=Date.now();
+    }
+    if(!logoutTouch)return;
     if(!touch||Math.abs(touch.clientX-logoutTouch.x)>10||
        Math.abs(touch.clientY-logoutTouch.y)>10)logoutTouch.moved=true;
   },{passive:true,capture:true});
   document.addEventListener("touchend",event=>{
+    if(touchOrigin?.dragged)lastTouchDragAt=Date.now();
+    touchOrigin=null;
     if(!logoutTouch)return;
     const touch=event.changedTouches?.[0];
     if(!touch||Math.abs(touch.clientX-logoutTouch.x)>10||
        Math.abs(touch.clientY-logoutTouch.y)>10)logoutTouch.moved=true;
     logoutTouch.endedAt=Date.now();
   },{passive:true,capture:true});
-  document.addEventListener("touchcancel",()=>{logoutTouch=null;},{passive:true,capture:true});
+  document.addEventListener("touchcancel",()=>{logoutTouch=null;touchOrigin=null;lastTouchDragAt=Date.now();},{passive:true,capture:true});
   window.logout = async function(event){
     // A logout requires a trusted click on an actual logout control, not a
     // synthetic click produced by scrolling an iPad.
     if(!event || event.type!=='click' || !event.isTrusted ||
        !event.currentTarget?.matches?.('[data-olon-logout]'))return;
+    if(Date.now()-lastTouchDragAt<1200)return;
     if(logoutTouch && Date.now()-logoutTouch.endedAt<1200){
       const valid=!logoutTouch.moved &&
         logoutTouch.button===event.currentTarget &&
