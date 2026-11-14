@@ -496,7 +496,7 @@ window.addEventListener("load", () => {
         <div class="analyticsDetailGrid">
           <section class="analyticsPanel" aria-labelledby="analyticsBreakdownTitle">
             <div class="analyticsPanelHead"><h4 id="analyticsBreakdownTitle">Dónde rindes mejor</h4><span id="analyticsGroupCount">Sin operaciones</span></div>
-            <div class="analyticsDimensions" role="group" aria-label="Agrupar operaciones"><button type="button" data-analytics-dimension="instrument" aria-pressed="true">Activo</button><button type="button" data-analytics-dimension="strategy" aria-pressed="false">Estrategia</button><button type="button" data-analytics-dimension="session" aria-pressed="false">Sesión</button><button type="button" data-analytics-dimension="hour" aria-pressed="false">Hora PR</button></div>
+            <div class="analyticsDimensions" role="group" aria-label="Agrupar operaciones"><button type="button" data-analytics-dimension="instrument" aria-pressed="true">Activo</button><button type="button" data-analytics-dimension="strategy" aria-pressed="false">Estrategia</button><button type="button" data-analytics-dimension="session" aria-pressed="false">Sesión</button><button type="button" data-analytics-dimension="hour" aria-pressed="false">Hora MT5</button></div>
             <div class="analyticsTableWrap" tabindex="0" role="region" aria-label="Desglose de operaciones"><table class="analyticsTable"><caption>Resultados agrupados por activo, estrategia, sesión u hora; ordenados por resultado neto.</caption><thead><tr><th scope="col" id="analyticsGroupHeading">Activo</th><th scope="col">Trades</th><th scope="col">Win Rate</th><th scope="col">Neto</th><th scope="col">R medio</th></tr></thead><tbody id="analyticsBreakdownBody"></tbody></table></div>
             <button type="button" id="analyticsMoreGroups" class="analyticsShowMore" hidden>Ver todos los grupos</button>
           </section>
@@ -508,8 +508,8 @@ window.addEventListener("load", () => {
             <p id="analyticsAccountDDLabel" class="analyticsDailyNote">Saldo cerrado ajustado por capital</p><p id="analyticsDailyNote" class="analyticsDailyNote">Resultados agrupados por fecha.</p>
           </section>
         </div>
-        <div class="analyticsCoverage"><span id="analyticsTimeCoverage">0 operaciones con hora PR</span><span id="analyticsLegacyCoverage">0 resúmenes diarios conservados</span><span>Resultados registrados · USD</span></div>
-        <details class="analyticsMethod"><summary>Cómo se calculan tus estadísticas</summary><p>Win Rate = operaciones ganadoras ÷ (ganadoras + perdedoras). Los break even se muestran por separado. Profit Factor = suma de ganancias netas de operaciones ÷ valor absoluto de sus pérdidas netas; ∞ indica ganancias sin pérdidas y — indica que faltan datos. Expectativa = resultado neto ÷ todas las operaciones, incluidos los BE.</p><p>RR real promedio = promedio del resultado neto dividido entre el riesgo inicial de cada operación que tenga ese dato. Un valor de 1 R equivale a una unidad del riesgo inicial. El tamaño de la muestra siempre se muestra. Registra ganancias o pérdidas después de comisiones y otros costos.</p><p>El drawdown en dólares mide la caída desde un máximo de resultados de las operaciones seleccionadas. El porcentaje de cuenta usa el saldo cerrado registrado, ajusta depósitos y retiros y requiere una base de capital positiva; se muestra sin filtros de activo, estrategia, dirección o sesión. No mide pérdidas flotantes. Las rachas siguen fecha y hora PR; sin hora se usa el orden de registro. Un BE interrumpe la racha.</p><p>Los resúmenes diarios anteriores conservan su clasificación: no se convierten en operaciones. Usa una operación por registro o un resumen diario para cada fecha y evita duplicar los mismos resultados. Las sesiones son las que selecciones al registrar; los horarios se agrupan en hora de Puerto Rico. La semana comienza el lunes.</p></details>
+        <div class="analyticsCoverage"><span id="analyticsTimeCoverage">0 operaciones con hora MT5</span><span id="analyticsLegacyCoverage">0 resúmenes diarios conservados</span><span>Resultados registrados · USD</span></div>
+        <details class="analyticsMethod"><summary>Cómo se calculan tus estadísticas</summary><p>Win Rate = operaciones ganadoras ÷ (ganadoras + perdedoras). Los break even se muestran por separado. Profit Factor = suma de ganancias netas de operaciones ÷ valor absoluto de sus pérdidas netas; ∞ indica ganancias sin pérdidas y — indica que faltan datos. Expectativa = resultado neto ÷ todas las operaciones, incluidos los BE.</p><p>RR real promedio = promedio del resultado neto dividido entre el riesgo inicial de cada operación que tenga ese dato. Un valor de 1 R equivale a una unidad del riesgo inicial. El tamaño de la muestra siempre se muestra. Registra ganancias o pérdidas después de comisiones y otros costos.</p><p>El drawdown en dólares mide la caída desde un máximo de resultados de las operaciones seleccionadas. El porcentaje de cuenta usa el saldo cerrado registrado, ajusta depósitos y retiros y requiere una base de capital positiva; se muestra sin filtros de activo, estrategia, dirección o sesión. No mide pérdidas flotantes. Las rachas siguen la fecha y hora originales de MT5; sin hora se usa el orden de registro. Un BE interrumpe la racha.</p><p>Los resúmenes diarios anteriores conservan su clasificación: no se convierten en operaciones. Usa una operación por registro o un resumen diario para cada fecha y evita duplicar los mismos resultados. Las sesiones son las que selecciones al registrar; los horarios se agrupan según el servidor MT5. La semana comienza el lunes.</p></details>
       </section>
 
       <div class="v3Grid">
@@ -658,12 +658,16 @@ window.addEventListener("load", () => {
 
       </div>
 
+      <div class="card ledgerPeriod"><label for="mtLedgerPeriod">Período de movimientos MT5</label><select id="mtLedgerPeriod" onchange="render()"><option value="month">Este mes</option><option value="week">Esta semana</option><option value="all">Todo el historial MT5</option></select><p id="mtLedgerPeriodLabel" class="metaapi-muted">Fechas del servidor MT5. El balance y la equity muestran la última lectura de la cuenta.</p></div>
       <div class="grid4 ledgerMetrics">
-        <div class="card metric"><small>Depósitos externos históricos (DEP)</small><h3 id="mDeposited">$0</h3><span class="good">Capital registrado</span></div>
-        <div class="card metric"><small>Retiros externos históricos</small><h3 id="mWithdrawn">$0</h3><span>Capital retirado</span></div>
+        <div class="card metric"><small>Depósitos externos del período</small><h3 id="mDeposited">$0</h3><span class="good">Solo movimientos DEP / DEPOSIT de MT5</span></div>
+        <div class="card metric"><small>Retiros externos del período</small><h3 id="mWithdrawn">$0</h3><span>Movimientos de retiro de MT5</span></div>
+        <div class="card metric"><small>Transferencias recibidas del período</small><h3 id="mTransferIn">$0</h3><span>Entre cuentas; separadas de los depósitos externos</span></div>
+        <div class="card metric"><small>Transferencias enviadas del período</small><h3 id="mTransferOut">$0</h3><span>Entre cuentas; separadas de los retiros externos</span></div>
+        <div class="card metric"><small>Ajustes de balance del período</small><h3 id="mAdjustments">$0</h3><span>Ajustes originales de MT5</span></div>
         <div class="card metric"><small>Balance de cuenta MT5</small><h3 id="mBalance">$0</h3><span>Balance sincronizado de MetaTrader</span></div>
         <div class="card metric"><small>Resultado neto de trading</small><h3 id="mNet">$0</h3><span id="mNetLabel" class="good">Ganancias menos pérdidas</span></div>
-        <div class="card metric"><small>Pérdidas Total</small><h3 id="mLoss">$0</h3><span class="bad">Control de riesgo</span></div>
+        <div class="card metric"><small>Pérdidas del período</small><h3 id="mLoss">$0</h3><span class="bad">Resultados cerrados de MT5</span></div>
         <div class="card metric"><small>ROI de la cuenta</small><h3 id="mGrowth">—</h3><span class="warn">No calculable con depósitos históricos acumulados</span></div>
       </div>
 
@@ -890,6 +894,9 @@ window.addEventListener("load", () => {
         <div><dt>Resultado neto</dt><dd id="historyNet">—</dd></div>
         <div><dt>Depósitos</dt><dd id="historyDeposits">—</dd></div>
         <div><dt>Retiros</dt><dd id="historyWithdrawals">—</dd></div>
+        <div><dt>Transferencias recibidas</dt><dd id="historyTransferIn">—</dd></div>
+        <div><dt>Transferencias enviadas</dt><dd id="historyTransferOut">—</dd></div>
+        <div><dt>Ajustes de balance</dt><dd id="historyAdjustments">—</dd></div>
         <div><dt>Registros</dt><dd id="historyTotal">—</dd></div>
       </dl>
       <section class="card historyDirectory" aria-labelledby="historyMovements">
@@ -897,7 +904,7 @@ window.addEventListener("load", () => {
           <div><h4 id="historyMovements">Movimientos</h4><p id="historyRange" role="status">Cargando historial…</p></div>
           <div class="historyFilters">
             <label>Período<select id="historyMonth"><option value="">Todo el historial</option></select></label>
-            <label>Tipo<select id="historyKind"><option value="">Todos los tipos</option><option value="trading">Resultados</option><option value="deposit">Depósitos</option><option value="withdrawal">Retiros</option></select></label>
+            <label>Tipo<select id="historyKind"><option value="">Todos los tipos</option><option value="trading">Resultados</option><option value="deposit">Depósitos externos</option><option value="withdrawal">Retiros externos</option><option value="transfer_in">Transferencias recibidas</option><option value="transfer_out">Transferencias enviadas</option><option value="balance_adjustment">Ajustes de balance</option><option value="credit">Créditos</option></select></label>
           </div>
         </div>
         <p id="ledgerHistoryNotice" class="ledgerFeedback" role="status" hidden></p>
@@ -1518,19 +1525,20 @@ window.addEventListener("load", () => {
   <p id="adminAccountFeedback" class="profileFeedback" role="status" hidden></p>
 </dialog>
 
-<script src="./analytics-core.js?v=20261113-accounting-audit-1" defer></script>
-<script src="./olon-mt-records.js?v=20261113-cashflow-audit-1" defer></script>
+<script src="./analytics-core.js?v=20261114-mt5-server-clock-2" defer></script>
+<script src="./mt5-ledger.js?v=20261114-source-ledger-1" defer></script>
+<script src="./olon-mt-records.js?v=20261114-source-ledger-2" defer></script>
 <script src="./session-diagnostics.js?v=20261114-ipad-trace-1" defer></script>
 <script src="./maintenance.js?v=20261114-maintenance-startup-12" defer></script>
-<script src="./script.js?v=20261114-native-scroll-17" defer></script>
+<script src="./script.js?v=20261114-mt5-calendar-18" defer></script>
 <script src="./interior-typewriter.js?v=20261107-profile-nickname-fix" defer></script>
 <script src="./appearance.js?v=20261109-terminal-1" defer></script>
-<script src="./trade-history.js?v=20261108-performance-1" defer></script>
+<script src="./trade-history.js?v=20261114-mt5-cashflow-2" defer></script>
 
 
 <script src="./profile-settings.js?v=20261109-billboard-cover-1" defer></script>
 <script src="./student-records.js?v=20261108-auto-ranking-2" defer></script>
-<script src="./trader-analytics.js?v=20261108-performance-1" defer></script>
+<script src="./trader-analytics.js?v=20261114-mt5-server-clock-2" defer></script>
 <script src="./market-tape.js?v=20261108-public-tape-1" defer></script>
 <script src="./mobile-notifications.js?v=20261108-push-1" defer></script>
 <script src="./premium-report.js?v=20261108-performance-1" defer></script>
@@ -1610,7 +1618,8 @@ window.addEventListener("load", () => {
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
 <script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script>
-<script src="./olon-own-connect.js?v=20261114-mt5-scroll-stable-8" defer></script>
-<script src="./student-dashboard.js?v=20261113-unified-summary-1" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
+<script src="./olon-own-connect.js?v=20261114-mt5-live-9" defer></script>
+<script src="./mt5-live.js?v=20261114-live-calendar-1" defer></script>
+<script src="./student-dashboard.js?v=20261114-mt5-live-summary-2" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
 </html>
 

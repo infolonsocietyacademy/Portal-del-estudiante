@@ -873,12 +873,13 @@ function netAmount(gain, loss){
 function summarizeTradingDays(records){
   const days = new Map();
   for(const record of window.olonAnalyticsCore.accountingRows(records)){
-    const day = days.get(record.date) || {deposit:0, withdrawal:0, transferIn:0, transferOut:0, adjustment:0, gain:0, loss:0, tradeCount:0};
+    const day = days.get(record.date) || {deposit:0, withdrawal:0, transferIn:0, transferOut:0, adjustment:0, credit:0, gain:0, loss:0, tradeCount:0};
     day.deposit += Number(record.deposit)||0;
     day.withdrawal += Number(record.withdrawal)||0;
     day.transferIn += Number(record.transfer_in)||0;
     day.transferOut += Number(record.transfer_out)||0;
     day.adjustment += Number(record.balance_adjustment)||0;
+    day.credit += Number(record.credit)||0;
     day.gain += Number(record.gain)||0;
     day.loss += Number(record.loss)||0;
     if(isTradingRecord(record)) day.tradeCount++;
@@ -1225,15 +1226,16 @@ function renderTradingCalendar(records){
   const box = document.getElementById("tradingCalendar");
   const detail = document.getElementById("calendarDayDetail");
   if(!box || !detail) return;
-  const now = new Date(), year = now.getFullYear(), month = now.getMonth();
-  const days = new Date(year, month + 1, 0).getDate();
-  const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7;
-  const monthName = new Intl.DateTimeFormat("es-PR", {month:"long"}).format(now);
+  const today=window.olonAnalyticsCore.today();
+  const now = new Date(today+"T12:00:00Z"), year = now.getUTCFullYear(), month = now.getUTCMonth();
+  const days = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  const firstWeekday = (new Date(Date.UTC(year, month, 1)).getUTCDay() + 6) % 7;
+  const monthName = new Intl.DateTimeFormat("es-PR", {month:"long",timeZone:"UTC"}).format(now);
   const monthKey = year + "-" + String(month + 1).padStart(2, "0") + "-";
   const results = summarizeTradingDays(records);
   const total = totals(records).net;
   const monthNet = document.getElementById("calendarMonthNet");
-  document.getElementById("calendarMonthLabel").textContent = monthName + " " + year;
+  document.getElementById("calendarMonthLabel").textContent = monthName + " " + year + " · MT5";
   monthNet.textContent = signedTradeMoney(total);
   monthNet.className = total > 0 ? "positive" : total < 0 ? "negative" : "neutral";
 
@@ -1253,17 +1255,18 @@ function renderTradingCalendar(records){
   for(let day = 1; day <= days; day++){
     const result = results.get(monthKey + String(day).padStart(2, "0"));
     const cell = document.createElement(result ? "button" : "div");
-    cell.className = "calDay" + (day === now.getDate() ? " isToday" : "");
+    cell.className = "calDay" + (day === now.getUTCDate() ? " isToday" : "");
     const date = document.createElement("span");
     date.className = "calendarDate";
     date.textContent = String(day);
     const amount = document.createElement("span");
     amount.className = "calendarAmount";
-    amount.textContent = day > now.getDate() ? "" : "—";
+    amount.textContent = day > now.getUTCDate() ? "" : "—";
     cell.append(date, amount);
     if(result){
       const net = netAmount(result.gain, result.loss);
-      const capitalLabel = result.deposit && result.withdrawal ? "Capital" : result.deposit ? "Depósito" : "Retiro";
+      const capitalLabel = result.deposit ? "Depósito" : result.withdrawal ? "Retiro" :
+        result.transferIn ? "Transferencia recibida" : result.transferOut ? "Transferencia enviada" : result.credit ? "Crédito MT5" : "Ajuste de balance";
       const label = result.tradeCount ? "Trading " + signedTradeMoney(net) : capitalLabel;
       cell.type = "button";
       cell.classList.add(!result.tradeCount ? "cashDay" : net > 0 ? "goodDay" : net < 0 ? "badDay" : "flatDay");
@@ -1280,6 +1283,11 @@ function renderTradingCalendar(records){
         if(result.tradeCount) values.push(["Resultado de trading", signedTradeMoney(net)]);
         if(result.deposit) values.push(["Depósitos", money(result.deposit)]);
         if(result.withdrawal) values.push(["Retiros", money(result.withdrawal)]);
+        if(result.transferIn) values.push(["Transferencias recibidas", money(result.transferIn)]);
+        if(result.transferOut) values.push(["Transferencias enviadas", money(result.transferOut)]);
+        if(result.adjustment) values.push(["Ajustes de balance", signedTradeMoney(result.adjustment)]);
+        if(result.credit) values.push(["Créditos MT5", signedTradeMoney(result.credit)]);
+        values.push(["Fecha de origen", "Servidor MT5"]);
         for(const [label, value] of values){
           const line = document.createElement("div");
           const title = document.createElement("span");
@@ -1310,15 +1318,24 @@ async function render(){
   // must never populate the live Resumen or its graphs.
   const mtConnected=Boolean(window.olonMtRecords?.linked?.());
   if(!mtConnected) cachedRecords=[];
-  const records = cachedRecords, t = totals(records);
+  const records = cachedRecords;
+  const period=document.getElementById("mtLedgerPeriod")?.value||"month";
+  const bounds=window.olonAnalyticsCore.range(period);
+  const periodRecords=records.filter(r=>(!bounds.start||r.date>=bounds.start)&&r.date<=bounds.end);
+  const t = totals(periodRecords);
+  const periodLabel=document.getElementById("mtLedgerPeriodLabel");
+  if(periodLabel)periodLabel.textContent=(bounds.start||"Inicio del historial MT5")+" → "+bounds.end+" · Servidor MT5. Balance: última lectura de la cuenta.";
   document.getElementById("mDeposited").innerText = money(t.deposit);
   document.getElementById("mWithdrawn").innerText = money(t.withdrawal);
+  for(const [id,value] of [["mTransferIn",t.transferIn],["mTransferOut",t.transferOut],["mAdjustments",t.adjustment]]){
+    const cell=document.getElementById(id);if(cell)cell.innerText=money(value);
+  }
   document.getElementById("mBalance").innerText = money(t.balance);
   document.getElementById("mNet").innerText = money(t.net);
   const netLabel = document.getElementById("mNetLabel");
   if(netLabel){
     netLabel.className = t.net >= 0 ? "good" : "bad";
-    netLabel.innerText = t.net > 0 ? "Ganancia neta total" : t.net < 0 ? "Pérdida neta total" : "Ganancias menos pérdidas";
+    netLabel.innerText = t.net > 0 ? "Ganancia neta del período" : t.net < 0 ? "Pérdida neta del período" : "Ganancias menos pérdidas del período";
   }
   document.getElementById("mLoss").innerText = money(t.loss);
   document.getElementById("mGrowth").innerText = pct(t.growth);

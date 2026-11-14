@@ -51,6 +51,8 @@
       ? {...r,gain:0,loss:0,kind:r.deposit?"deposit":r.withdrawal?"withdrawal":"excluded",excluded_summary:true} : r);
   }
   function today(){
+    const server=typeof window!=="undefined"?window.olonMtRecords?.today?.():null;
+    if(server&&validDate(server))return server;
     const p = new Intl.DateTimeFormat("en-US",{timeZone:"America/Puerto_Rico",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
     const v = t => p.find(x => x.type === t).value;
     return `${v("year")}-${v("month")}-${v("day")}`;
