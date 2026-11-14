@@ -5,7 +5,7 @@
 const $=id=>document.getElementById(id);
 const client=()=>typeof supabaseClient!=="undefined"?supabaseClient:null;
 const profile=()=>typeof currentUser!=="undefined"?currentUser:null;
-let state=null,verified=false,lastError="",changing=false,checkPromise=null,lastRead=0;
+let state=null,verified=false,lastError="",changing=false,checkPromise=null,lastRead=0,lastAllowedDuringMaintenance=false;
 let resolveReady;
 const readyPromise=new Promise(resolve=>{resolveReady=resolve;});
 const authorized=(p,u)=>{
@@ -26,6 +26,7 @@ function displayMaintenance(message){
 function displayConnectionError(){
  // A database/network failure is NOT a maintenance announcement.
  if(state?.enabled){
+  if(lastAllowedDuringMaintenance)return; // Keep a previously verified admin session visible during a transient outage.
   displayMaintenance("El mantenimiento sigue activo. Reintenta la conexión para verificar el estado.");
   return;
  }
@@ -89,7 +90,7 @@ async function check(){
  checkPromise=(async()=>{
   try{
    const current=await read();
-   if(!current.enabled){allowPortal();return;}
+   if(!current.enabled){lastAllowedDuringMaintenance=false;allowPortal();return;}
    const db=client();
    const {data,error}=await db.auth.getUser();
    const user=!error?data?.user:null;
@@ -99,11 +100,19 @@ async function check(){
     if(!result.error)p=result.data;
    }
    if(authorized(p,user)){
+    lastAllowedDuringMaintenance=true;
     allowPortal();
    }else if(!user&&document.body.classList.contains("olonMaintenanceAdminLogin")){
     // An explicit admin-login attempt remains available; guard() validates the signed-in user.
    }else{
+    lastAllowedDuringMaintenance=false;
     displayMaintenance("El Portal del Trader está en mantenimiento. Tu información permanece protegida.");
+    if(user){
+     try{await db.auth.signOut({scope:"local"});}catch{}
+     if(typeof currentUser!=="undefined")currentUser=null;
+     try{localStorage.removeItem("olon_current_user");}catch{}
+     $("portal")?.classList.add("hidden");$("auth")?.classList.remove("hidden");
+    }
    }
   }catch(error){
    verified=false;
@@ -121,10 +130,13 @@ async function guard(p,u){
  try{
   const current=await read();
   if(current.enabled&&!authorized(p,u)){
+   lastAllowedDuringMaintenance=false;
    displayMaintenance("El Portal del Trader está en mantenimiento. Tu información permanece protegida.");
+   try{await client()?.auth.signOut({scope:"local"});}catch{}
    updateAdmin();
    return false;
   }
+  lastAllowedDuringMaintenance=!!current.enabled;
   allowPortal();updateAdmin();return true;
  }catch(error){
   verified=false;
