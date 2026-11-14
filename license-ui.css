@@ -139,3 +139,9 @@ body.olonLicenseChecking #olonLicenseRedeem{opacity:.7}
 #olonLicenseAdminBlock .olonLicenseFeedback[data-error="true"]{background:rgba(155,53,68,.12);border-color:#81454e}
 @media(max-width:1150px){#olonLicenseAdminBlock .olonLicenseForm{grid-template-columns:1fr 1fr}#olonLicenseAdminBlock .olonLicenseGenerateBtn{width:100%}#olonLicenseAdminBlock .olonLicenseColumns{grid-template-columns:1fr}}
 @media(max-width:680px){#olonLicenseAdminBlock .olonLicenseHero{padding:20px 16px}#olonLicenseAdminBlock .olonLicenseHeroTitle{align-items:stretch;flex-direction:column}#olonLicenseAdminBlock .olonLicenseStats{grid-template-columns:repeat(2,minmax(0,1fr));padding:15px 16px}#olonLicenseAdminBlock .olonLicenseCreate{margin:0 16px 18px;padding:16px}#olonLicenseAdminBlock .olonLicenseForm{grid-template-columns:1fr}#olonLicenseAdminBlock .olonLicenseColumns{padding:0 16px 20px}#olonLicenseAdminBlock .olonLicenseFilters{flex-direction:column}#olonLicenseAdminBlock .olonLicenseRow{flex-direction:column}#olonLicenseAdminBlock .olonLicenseRowActions{max-width:none;justify-content:flex-start}#olonLicenseAdminBlock .olonLicenseFooterNote{padding:0 16px 20px}}
+
+/* Admin-only temporary display of individual VIP code */
+.olonLicenseRevealDialog{width:min(95vw,600px)}
+.olonLicenseRevealCode{box-sizing:border-box;display:block;width:100%;min-height:100px;resize:vertical;padding:15px 12px;color:#ecf7ff;background:#07121f;border:1px solid #4a6d8a;border-radius:10px;font:600 13px/1.7 'JetBrains Mono',monospace;overflow-wrap:anywhere}
+.olonLicenseRevealDialog .olonLicenseCalendarActions{margin-top:16px}
+.olonLicenseRevealDialog .olonLicenseCalendarError{color:#acdbef}
