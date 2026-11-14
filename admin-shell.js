@@ -43,7 +43,7 @@
     sidebar.setAttribute("aria-label","Navegación administrativa");
     const brand=document.createElement("div");
     brand.className="olAdminBrand";
-    brand.innerHTML='<span class="olAdminBrandMark" aria-hidden="true">OL</span><span class="olAdminBrandText"><strong>OLON / ADMIN</strong><small>EXECUTIVE MANAGEMENT</small></span><span class="olAdminBrandLive" title="Centro administrativo">●</span>';
+    brand.innerHTML='<span class="olAdminBrandMark" aria-hidden="true">OL</span><span class="olAdminBrandText"><strong>OLON SOCIETY</strong><small>ADMIN / PORTAL DEL TRADER</small></span><span class="olAdminBrandLive" title="Acceso administrativo activo">●</span>';
     const content=document.createElement("main");
     content.className="olAdminMain";
     content.id="olAdminMain";
@@ -58,13 +58,13 @@
     content.append(mobileBar,topbar,viewContainer);
     const sidebarIntro=document.createElement("div");
     sidebarIntro.className="olAdminSidebarIntro";
-    sidebarIntro.innerHTML='<span>ESPACIO ADMINISTRATIVO</span><strong>Centro de gestión</strong><small>Acceso privado · OLON Society Academy</small>';
+    sidebarIntro.innerHTML='<span>ADMINISTRACIÓN</span><strong>Explorador</strong><small>Selecciona un módulo para gestionarlo</small>';
     const finder=document.createElement("div");
     finder.className="olAdminFinder";
-    finder.innerHTML='<span aria-hidden="true">⌕</span><input id="olAdminMenuSearch" type="search" placeholder="Buscar módulo..." autocomplete="off" aria-label="Buscar secciones administrativas" maxlength="80"><kbd>/</kbd>';
+    finder.innerHTML='<span aria-hidden="true">⌕</span><input id="olAdminMenuSearch" type="search" placeholder="Filtrar secciones…" autocomplete="off" aria-label="Buscar secciones administrativas" maxlength="80"><kbd>/</kbd>';
     const footer=document.createElement("div");
     footer.className="olAdminSidebarFooter";
-    footer.innerHTML='<span>OLON SOCIETY ACADEMY</span><small>ADMIN TERMINAL · 2026</small>';
+    footer.innerHTML='<span>OLON SOCIETY ACADEMY</span><small>SECURE ADMIN WORKSPACE</small>';
     sidebar.append(brand,sidebarIntro,finder,nav,footer);
     shell.append(sidebar,content);
 
@@ -99,6 +99,7 @@
     if(quickBar)quickBar.hidden=true;
 
     nav.replaceChildren();
+    nav.classList.add("olAdminRepoNav");
     nav.setAttribute("aria-label","Páginas del Centro de Administración");
     const menuButtons=new Map();
     for(const item of MENU) {
@@ -110,13 +111,14 @@
       }
       const button=document.createElement("button");
       button.type="button";
-      button.className="olAdminNavItem";
+      button.className="olAdminNavItem olAdminRepoItem";
       button.dataset.adminOpen=item.id||"";
       if(item.route)button.dataset.adminRoute=item.route;
       button.innerHTML='<span class="olAdminNavIcon" aria-hidden="true"></span><span class="olAdminNavLabel"><span class="olAdminNavName"></span><small class="olAdminNavDesc"></small></span><span class="olAdminNavArrow" aria-hidden="true">›</span>';
       button.querySelector(".olAdminNavIcon").textContent=item.icon;
       button.querySelector(".olAdminNavName").textContent=item.name;
       button.querySelector(".olAdminNavDesc").textContent=item.desc||"";
+      button.title=item.desc?item.name+" · "+item.desc:item.name;
       if(item.counter) {
         const counter=document.createElement("span");
         counter.className="olAdminNavCounter";
@@ -227,6 +229,13 @@
       current:()=>selected,
       closeMenu
     };
+    // Initialize after login, too: on first DOM load currentUser may not exist yet.
+    // Retains the selected admin view and prevents an empty workspace on re-entry.
+    const ensureAdminView=()=>{
+      if(admin.classList.contains("hidden")||!isAdmin())return;
+      if(views.get(selected)?.hidden)open(selected,{scroll:false});
+    };
+    new MutationObserver(ensureAdminView).observe(admin,{attributes:true,attributeFilter:["class"]});
     open(selected,{scroll:false});
   }
 
