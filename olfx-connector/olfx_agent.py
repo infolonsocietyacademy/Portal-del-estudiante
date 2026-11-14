@@ -180,6 +180,18 @@ def _due_for_sync(item: dict, automatic: bool = False) -> bool:
             return True
     if status != "active":
         return False
+    # Las cuentas ya validadas siguen registradas: un fallo posterior se reintenta con pausa.
+    if item.get("last_error"):
+        previous = item.get("updated_at")
+        if not previous:
+            return True
+        try:
+            last_error_at = datetime.fromisoformat(str(previous).replace("Z", "+00:00"))
+            if last_error_at.tzinfo is None:
+                last_error_at = last_error_at.replace(tzinfo=timezone.utc)
+            return (datetime.now(timezone.utc) - last_error_at).total_seconds() >= ERROR_RETRY_SECONDS
+        except (ValueError, TypeError):
+            return True
     last = item.get("last_sync_at")
     if not last:
         return True
