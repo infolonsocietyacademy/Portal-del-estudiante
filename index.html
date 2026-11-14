@@ -42,6 +42,7 @@ html,body{max-width:100%!important;overflow-x:clip!important}
 html{overflow-y:auto!important;overscroll-behavior-y:contain}
 body{overflow-y:visible!important;-webkit-overflow-scrolling:touch;touch-action:pan-y pan-x}
 #portal:not(.hidden){display:grid!important;position:relative!important;z-index:50!important}
+@media(max-width:980px){#portal:not(.hidden){display:block!important}}
 #auth.hidden,#codeResult.hidden{display:none!important;pointer-events:none!important;visibility:hidden!important}
 .authBgArt,.authOrb,.authMesh,.authBigText,.auth:before,.authHero:before{pointer-events:none!important}
 .page.hidden{display:none!important}
