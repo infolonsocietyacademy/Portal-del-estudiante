@@ -223,7 +223,15 @@
     toggle.addEventListener("click",toggleMenu);
     backdrop.addEventListener("click",closeMenu);
     document.addEventListener("keydown",event=>{if(event.key==="Escape")closeMenu();});
-    window.addEventListener("resize",()=>{if(window.innerWidth>780)closeMenu();});
+    // iPad Safari changes the visual viewport while its address bar expands
+    // and collapses on scroll. Only close for actual breakpoint transitions.
+    let previousWidth=window.innerWidth;
+    window.addEventListener("resize",()=>{
+      const nextWidth=window.innerWidth;
+      if(nextWidth===previousWidth)return;
+      previousWidth=nextWidth;
+      if(nextWidth>780)closeMenu();
+    },{passive:true});
 
     window.olonAdminSections={
       open,
