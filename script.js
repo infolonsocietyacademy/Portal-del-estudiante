@@ -2164,15 +2164,24 @@ document.addEventListener("DOMContentLoaded", function(){
     }
   };
 
+  let restoreInFlight=null;
   async function restoreSupabaseSession(){
+    // A background or repeated request must never restart an active session.
+    if(currentUser || !document.getElementById("portal")?.classList.contains("hidden"))return;
+    if(restoreInFlight)return restoreInFlight;
+    restoreInFlight=restoreOnce().finally(()=>{restoreInFlight=null;});
+    return restoreInFlight;
+  }
+  async function restoreOnce(){
     await window.olonMaintenance.waitReady();
-    // The login form remains usable even if maintenance verification is offline.
+    if(currentUser || !document.getElementById("portal")?.classList.contains("hidden"))return;
     if(window.olonMaintenance.needsConnection?.())return;
     showPortalLoader("Comprobando tu sesión…");
     try{
       const {data,error} = await window.olonMaintenance.withDeadline(supabaseClient.auth.getUser());
-      if(error || !data?.user) return;
+      if(error || !data?.user || currentUser)return;
       const profile = await window.olonMaintenance.withDeadline(profileForAuthenticatedUser(data.user));
+      if(currentUser)return;
       if(!canUsePortal(profile)){
         await supabaseClient.auth.signOut();
         if(membershipExpired(profile))showMembershipExpiredNotice();
@@ -2181,34 +2190,41 @@ document.addEventListener("DOMContentLoaded", function(){
       if(!(await window.olonMaintenance.withDeadline(window.olonMaintenance.guard(profile,data.user),10000)))return;
       await openVerifiedProfile(profile,data.user);
     }catch(error){
-      console.warn("OLON: no se restauró la sesión Auth",error);
-      currentUser=null;
-      localStorage.removeItem("olon_current_user");
+      // A failed restore is not a logout. Do not destroy a profile opened in parallel.
+      console.warn("OLON: la restauración automática no terminó",error);
     }finally{
       hidePortalLoader();
     }
   }
   window.olonRestoreSession=restoreSupabaseSession;
-  let lastMembershipCheck=0;
+  // Periodic membership checks run without changing routes on browser focus/scroll.
+  // License Manager remains the authority for VIP expiration and renewal.
+  let lastMembershipCheck=0,membershipInFlight=false;
   async function recheckMembership(){
-    if(!currentUser || String(currentUser.role||"").toLowerCase()==="admin" ||
-      document.getElementById("portal")?.classList.contains("hidden"))return;
-    if(Date.now()-lastMembershipCheck<30000)return;
+    const user=currentUser;
+    if(!user || membershipInFlight || String(user.role||"").toLowerCase()==="admin" ||
+       document.getElementById("portal")?.classList.contains("hidden"))return;
+    if(Date.now()-lastMembershipCheck<120000)return;
     lastMembershipCheck=Date.now();
-    const {data,error}=await supabaseClient.auth.getUser();
-    if(error||!data?.user)return;
-    const profile=await profileForAuthenticatedUser(data.user);
-    if(canUsePortal(profile)){currentUser.next_payment_date=profile.next_payment_date;renderVipPayment(currentUser);return;}
-    await supabaseClient.auth.signOut().catch(()=>{});
-    localStorage.removeItem("olon_current_user");
-    currentUser=null;
-    document.getElementById("portal")?.classList.add("hidden");
-    document.getElementById("auth")?.classList.remove("hidden");
-    if(membershipExpired(profile))showMembershipExpiredNotice();
+    membershipInFlight=true;
+    try{
+      const {data,error}=await window.olonMaintenance.withDeadline(supabaseClient.auth.getUser());
+      if(error||!data?.user||data.user.id!==user.id)return;
+      const profile=await window.olonMaintenance.withDeadline(profileForAuthenticatedUser(data.user));
+      if(currentUser?.id!==user.id)return;
+      if(canUsePortal(profile)){
+        currentUser.next_payment_date=profile.next_payment_date;
+        renderVipPayment(currentUser);
+        return;
+      }
+      // Never sign out on a transient or stale profile read. A confirmed
+      // account restriction should be handled by the authoritative auth/access flow.
+      console.warn("OLON: el estado de cuenta requiere comprobación administrativa.");
+    }catch(error){
+      console.warn("OLON: comprobación periódica omitida; se conserva la sesión",error);
+    }finally{membershipInFlight=false;}
   }
-  document.addEventListener("visibilitychange",()=>{if(!document.hidden)void recheckMembership().catch(console.warn);});
-  window.addEventListener("focus",()=>void recheckMembership().catch(console.warn));
-  setInterval(()=>{if(!document.hidden)void recheckMembership().catch(console.warn);},60000);
+  setInterval(()=>{if(!document.hidden)void recheckMembership();},120000);
   // DOMContentLoaded se dispara después de los módulos del portal cargados con defer.
   if(document.readyState === "complete") void restoreSupabaseSession();
   else document.addEventListener("DOMContentLoaded",restoreSupabaseSession,{once:true});
