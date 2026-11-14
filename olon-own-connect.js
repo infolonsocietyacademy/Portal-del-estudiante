@@ -6,6 +6,7 @@ const PAGE="metaapiAccountsPage";
 const ENDPOINT="olon-own-connect";
 const qs=s=>document.querySelector(s);
 let busy=false, currentAccount=null, lastStatus=0, agentReady=false;
+let pageWasVisible=false;
 const clean=s=>String(s??"").trim();
 const b64=buf=>{const bytes=new Uint8Array(buf);let s="";for(let i=0;i<bytes.length;i+=8192)s+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(s);};
 function notice(msg,type="info"){const box=$("metaapiFeedback");if(!box)return;box.hidden=false;box.textContent=msg;box.dataset.type=type;}
@@ -104,7 +105,8 @@ function accountValue(value,active,unit="money",currency="USD"){
  return String(value??"—");
 }
 function renderAccounts(accounts){
- currentAccounts=Array.isArray(accounts)?accounts:[];
+ if(!Array.isArray(accounts))throw Error("La respuesta de cuentas MT5 no es válida.");
+ currentAccounts=accounts;
  currentAccount=currentAccounts.find(a=>a.is_primary)||currentAccounts[0]||null;
  const host=$("metaapiAccountsList"),form=$("metaapiConnectForm"),legacy=$("metaapiConnected");
  const add=$("metaapiAddAccount"),badge=$("metaapiConnectionBadge"),steps=qs("#metaapiAccountsPage .metaapi-steps");
@@ -234,17 +236,21 @@ async function status(force=false){
  statusInFlight=true;
  try{
   const result=await invoke({action:"status"});
+  if(!Array.isArray(result?.accounts))throw Error("Respuesta de cuentas no válida. Se mantiene la lista anterior.");
+  const next=result.accounts;
+  if(currentAccounts.length>0&&!next.length){
+   // An empty status reply must not send an already-linked student back to onboarding.
+   // Explicit disconnect handles actual removal.
+   notice("No se pudo confirmar la lista MT5. Se conservan las cuentas mostradas; pulsa Actualizar estadísticas para reintentar.","info");
+   return;
+  }
   const previous=currentAccounts.map(a=>({id:a.id,status:a.status,last_sync_at:a.last_sync_at}));
-  const next=result.accounts|| (result.account?[result.account]:[]);
   const newlySynced=next.some(a=>a.status==="active"&&a.last_sync_at
    &&!previous.some(p=>p.id===a.id&&p.last_sync_at===a.last_sync_at));
-  // Keep expanded trade history and avoid rebuilding 15 statistic cards if nothing changed.
-  const changed=JSON.stringify(next)!==JSON.stringify(currentAccounts);
-  if(changed)renderAccounts(next);
+  if(JSON.stringify(next)!==JSON.stringify(currentAccounts))renderAccounts(next);
   if(newlySynced){
    window.olonMtRecords?.invalidate?.();
-   // Mantener al estudiante en la página de conexión. El Resumen se actualiza por su propio lector.
-   notice("OLFX CONNECT: los datos MT5 ya llegaron. Balance, operaciones y rendimiento actualizados.","success");
+   notice("OLFX CONNECT: tus datos MT5 se sincronizaron.","success");
   }
  }catch(err){notice(err.message,"error");}
  finally{statusInFlight=false;}
@@ -288,15 +294,25 @@ async function connect(){
   const encryptedPayload=await securePayload(ready.publicKeyPem,{login,investorPassword:password,platform:"mt5",brokerServer:server});
   if(passwordEl)passwordEl.value="";
   notice("Registrando la cuenta MT5 en Supabase…","info");
-  await invoke({action:"connect",platform:"mt5",brokerServer:server,login,encryptedPayload});
+  const saved=await invoke({action:"connect",platform:"mt5",brokerServer:server,login,encryptedPayload});
+  if(saved?.ok!==true||!saved.accountId)throw Error("El servidor no confirmó el registro MT5.");
   addingAccount=false;
-  notice("Cuenta MT5 guardada. Pulsa «Actualizar estadísticas» para solicitar la primera importación; no se sincronizará automáticamente.","success");
+  // Server confirmed persistence. Display this linked account immediately, even
+  // if the subsequent statistics read is unavailable or delayed.
+  const linked={
+   id:saved.accountId,platform:"mt5",broker_server:server,login_masked:"••••"+login.slice(-4),
+   status:"registered",is_primary:currentAccounts.length===0,last_sync_at:null,last_error:null
+  };
+  renderAccounts([...currentAccounts.filter(a=>a.id!==saved.accountId),linked]);
+  notice("Cuenta MT5 guardada. Pulsa «Actualizar estadísticas» para solicitar la importación.","success");
   window.olonMtRecords?.invalidate?.();
   try{
    const result=await invoke({action:"status"});
-   renderAccounts(result.accounts||[]);
+   if(Array.isArray(result?.accounts)&&result.accounts.some(a=>a.id===saved.accountId))
+    renderAccounts(result.accounts);
+   else notice("La cuenta quedó guardada. No se pudo confirmar su información actualizada todavía.","info");
   }catch(e){
-   notice("La cuenta se registró, pero no se pudo actualizar la pantalla: "+e.message+" Presiona Actualizar estadísticas.","info");
+   notice("Tu cuenta está guardada. No se pudieron leer las estadísticas: "+e.message,"info");
   }
   // No redibujar toda la aplicación al conectar; la sección permanece abierta.
  }catch(e){
@@ -537,25 +553,27 @@ function init(){
  $("olonOwnAdminPair")?.addEventListener("click",()=>void adminPair());
  $("olonOwnAdminRotate")?.addEventListener("click",()=>void adminRotateToken());
  $("olonOwnAdminRefresh")?.addEventListener("click",()=>void adminStatus());
- const observer=new MutationObserver(()=>{
-  if(!$(PAGE)?.classList.contains("hidden")){void status();void loadVault();void readiness();}
-  if(!$("olonOwnAdminPage")?.classList.contains("hidden"))void adminStatus();
- });
- observer.observe($(PAGE),{attributes:true,attributeFilter:["class"]});
- // Refresh only while the MT5 screen is visible and the browser tab is active.
- // The polling only reads Supabase; MT5 is accessed exclusively by the Windows agent.
- const screenTimer=setInterval(()=>{
-  if(document.visibilityState==="visible"&&!$(PAGE)?.classList.contains("hidden")
-      &&currentAccounts.some(a=>a.status==="waiting"||a.status==="active")){
-   void status();
-  }
- },12000);
- window.addEventListener("pagehide",()=>clearInterval(screenTimer),{once:true});
- const adminPage=$("olonOwnAdminPage");
- if(adminPage)observer.observe(adminPage,{attributes:true,attributeFilter:["class"]});
+ const page=$(PAGE),adminPage=$("olonOwnAdminPage");
+ const onPageVisibility=()=>{
+  const visible=!page?.classList.contains("hidden");
+  if(visible===pageWasVisible)return; // Ignore visual class changes while scrolling.
+  pageWasVisible=visible;
+  if(visible){void status(true);void loadVault();void readiness();}
+ };
+ if(page)new MutationObserver(onPageVisibility).observe(page,{attributes:true,attributeFilter:["class"]});
+ if(adminPage){
+  let adminWasVisible=!adminPage.classList.contains("hidden");
+  new MutationObserver(()=>{
+   const visible=!adminPage.classList.contains("hidden");
+   if(visible===adminWasVisible)return;
+   adminWasVisible=visible;
+   if(visible)void adminStatus();
+  }).observe(adminPage,{attributes:true,attributeFilter:["class"]});
+ }
+ // MT5 account cards are stable while scrolling. No background 12-second rerender.
  window.addEventListener("pagehide",()=>{if($("metaapiInvestorPassword"))$("metaapiInvestorPassword").value="";});
  selectPlatform("mt5");
- if(!$("metaapiAccountsPage").classList.contains("hidden")){void status(true);void loadVault();void readiness();}
+ onPageVisibility();
 }
 // Read-only, authenticated status for the lightweight Portal Resumen. Never exposes investor passwords.
 window.olonOwnAccountStatus=()=>invoke({action:"status"});
