@@ -21,6 +21,43 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<script id="olon-ipados-scroll-guard">
+/* Keep iPad Safari native pull-to-refresh from remounting an authenticated
+   portal after a downward gesture at the very top of the page. */
+(()=>{
+  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||
+    (navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  if(!isIOS)return;
+  let origin=null;
+  document.addEventListener("touchstart",event=>{
+    if(event.touches.length!==1){origin=null;return;}
+    const t=event.touches[0];
+    origin={x:t.clientX,y:t.clientY};
+  },{passive:true});
+  document.addEventListener("touchmove",event=>{
+    if(!origin||event.touches.length!==1||!event.cancelable)return;
+    const portal=document.getElementById("portal");
+    if(!portal||portal.classList.contains("hidden"))return;
+    const touch=event.touches[0],dy=touch.clientY-origin.y,dx=touch.clientX-origin.x;
+    if(dy<=7||Math.abs(dy)<=Math.abs(dx)||window.scrollY>1)return;
+    // Do not interfere with independently scrollable menus, inputs or dialogs.
+    const target=event.target;
+    if(target instanceof Element){
+      if(target.closest("#sidebar,.olAdminSidebar,dialog,.tableWrap,.chatMessages,textarea,[contenteditable]"))return;
+      let ancestor=target.parentElement;
+      while(ancestor&&ancestor!==document.body){
+        const css=getComputedStyle(ancestor);
+        if(/auto|scroll/.test(css.overflowY)&&ancestor.scrollHeight>ancestor.clientHeight+2)return;
+        ancestor=ancestor.parentElement;
+      }
+    }
+    event.preventDefault();
+  },{passive:false});
+  document.addEventListener("touchend",()=>{origin=null;},{passive:true});
+  document.addEventListener("touchcancel",()=>{origin=null;},{passive:true});
+})();
+</script>
+
 <!-- jsPDF is loaded on demand by premium-report.js. -->
 
 
@@ -1522,7 +1559,7 @@ window.addEventListener("load", () => {
 <script src="./premium-report.js?v=20261108-performance-1" defer></script>
 <script src="./academy-tools.js?v=20261108-admin-class-delete-1" defer></script>
 <script src="./admin-workspace.js?v=20261110-student-billing-nav-1" defer></script>
-<script src="./admin-shell.js?v=20261114-admin-explorer-3" defer></script>
+<script src="./admin-shell.js?v=20261114-ipados-viewport-4" defer></script>
 <script src="./admin-billing.js?v=20261110-student-billing-nav-1" defer></script>
 <script src="./admin-rebates.js?v=20261111-axi-exact-precision-4" defer></script>
 <script src="./leaderboard.js?v=20261113-verified-top3-1" defer></script>
