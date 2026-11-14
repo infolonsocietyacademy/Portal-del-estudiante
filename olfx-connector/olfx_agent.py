@@ -165,49 +165,8 @@ def sync_account(mt5, item: dict, cfg: dict):
         mt5.shutdown()
 
 def _due_for_sync(item: dict, automatic: bool = False) -> bool:
-    """En modo automático prioriza cuentas nuevas y evita duplicar históricos."""
-    if not automatic:
-        return True
-    status = str(item.get("status") or "")
-    if status == "waiting":
-        # Para una cuenta ya sincronizada, reintento manual sin esperar 24 horas.
-        return True
-    if status == "error":
-        # Fallas de primera conexión se reintentan con pausa de 30 minutos.
-        previous = item.get("updated_at")
-        if not previous:
-            return True
-        try:
-            last_error_at = datetime.fromisoformat(str(previous).replace("Z", "+00:00"))
-            if last_error_at.tzinfo is None:
-                last_error_at = last_error_at.replace(tzinfo=timezone.utc)
-            return (datetime.now(timezone.utc) - last_error_at).total_seconds() >= ERROR_RETRY_SECONDS
-        except (ValueError, TypeError):
-            return True
-    if status != "active":
-        return False
-    # Las cuentas ya validadas siguen registradas: un fallo posterior se reintenta con pausa.
-    if item.get("last_error"):
-        previous = item.get("updated_at")
-        if not previous:
-            return True
-        try:
-            last_error_at = datetime.fromisoformat(str(previous).replace("Z", "+00:00"))
-            if last_error_at.tzinfo is None:
-                last_error_at = last_error_at.replace(tzinfo=timezone.utc)
-            return (datetime.now(timezone.utc) - last_error_at).total_seconds() >= ERROR_RETRY_SECONDS
-        except (ValueError, TypeError):
-            return True
-    last = item.get("last_sync_at")
-    if not last:
-        return True
-    try:
-        previous = datetime.fromisoformat(str(last).replace("Z", "+00:00"))
-        if previous.tzinfo is None:
-            previous = previous.replace(tzinfo=timezone.utc)
-    except (ValueError, TypeError):
-        return True
-    return (datetime.now(timezone.utc) - previous).total_seconds() >= DAILY_SECONDS
+    """Solo procesa solicitudes explicitas del estudiante, no por calendario."""
+    return item.get("platform") == "mt5" and item.get("status") == "waiting"
 
 
 def one(automatic: bool = False) -> int:
@@ -220,8 +179,7 @@ def one(automatic: bool = False) -> int:
         raise RuntimeError("Instala MetaTrader5 para Python 3.12 x64") from exc
     response = api("agent-queue", token=cfg["agent_token"])
     accounts = response.get("accounts", [])
-    pending = [account for account in accounts if account.get("platform") == "mt5"
-               and _due_for_sync(account, automatic=automatic)]
+    pending = [account for account in accounts if _due_for_sync(account, automatic=automatic)]
     if not automatic or pending:
         print(f"OLFX CONNECT - {len(accounts)} cuenta(s) en el servidor, "
               f"{len(pending)} lista(s) para sincronizar.", flush=True)
@@ -326,8 +284,8 @@ def main():
         one(automatic=False)
     else:
         print("OLFX CONNECT - Sincronizacion automatica activa.", flush=True)
-        print("Busca cuentas nuevas cada 15 segundos y actualiza "
-              "las cuentas existentes una vez al dia.", flush=True)
+        print("Revisa cada 15 segundos las solicitudes de los estudiantes.", flush=True)
+        print("No refresca automaticamente por tiempo; solo cuando pulsan Actualizar.", flush=True)
         print("No cierres esta ventana. CTRL+C para detener.", flush=True)
         print("Autoactualizacion: " + ("GitHub main cada 5 minutos" if os.environ.get("OLFX_AUTOUPDATE_SUPERVISED") == "1" else "usa OLFX_VPS_AUTOACTUALIZABLE.cmd para activarla"), flush=True)
         next_update_check = 0.0

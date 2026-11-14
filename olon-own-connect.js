@@ -136,13 +136,13 @@ function renderAccounts(accounts){
   name.append(txt("strong","MT5 · "+account.login_masked));
   name.append(txt("small",account.broker_server,"metaapi-muted"));
   const ready=Boolean(account.last_sync_at)&&account.status!=="revoked";
-  const state=txt("span",ready?(account.last_error?"Vinculada · actualización pendiente":account.status==="waiting"?"Vinculada · actualizando":"Datos sincronizados"):account.status==="waiting"?"Pendiente de primera sincronización":account.status==="error"?"Revisar acceso de inversor":"Esperando Windows","olfxAccountState");
+  const state=txt("span",ready?(account.last_error?"Vinculada · última actualización falló":account.status==="waiting"?"Vinculada · actualizando a solicitud":"Datos sincronizados · actualización manual"):account.status==="waiting"?"Actualización solicitada · esperando VPS":account.status==="registered"?"Cuenta registrada · pulsa Actualizar estadísticas":account.status==="error"?"Revisar acceso de inversor":"Esperando solicitud","olfxAccountState");
   state.dataset.status=account.status;
   heading.append(name,state);card.append(heading);
   if(account.is_primary)card.append(txt("p","★ Esta cuenta alimenta tu Resumen, calendario y resultados","olfxPrimaryCaption"));
   if(account.last_error)card.append(txt("p",(ready?"Aviso de actualización: ":"Error de conexión: ")+account.last_error+" La cuenta sigue registrada.","olfxAccountError"));
   if(!ready){
-   card.append(txt("p","Cuenta registrada. Para recibir balance, equity, operaciones y estadísticas reales, en la computadora ejecuta OLFX CONNECT → Sincronizar ahora. No se muestran datos de una cuenta archivada.","metaapi-muted"));
+   card.append(txt("p","La cuenta se conserva guardada. Pulsa «Actualizar estadísticas» para solicitar una sincronización MT5 desde la VPS. Hasta entonces no se consultan nuevos movimientos.","metaapi-muted"));
   }
   const grid=document.createElement("div");grid.className="olfxAccountMetrics";
   grid.append(
@@ -290,7 +290,7 @@ async function connect(){
   notice("Registrando la cuenta MT5 en Supabase…","info");
   await invoke({action:"connect",platform:"mt5",brokerServer:server,login,encryptedPayload});
   addingAccount=false;
-  notice("Cuenta MT5 registrada. Ahora ejecuta OLFX CONNECT → Sincronizar ahora en Windows para importar las estadísticas.","success");
+  notice("Cuenta MT5 guardada. Pulsa «Actualizar estadísticas» para solicitar la primera importación; no se sincronizará automáticamente.","success");
   window.olonMtRecords?.invalidate?.();
   try{
    const result=await invoke({action:"status"});
@@ -306,6 +306,20 @@ async function connect(){
   busy=false;
   if(btn){btn.textContent="Conectar mi cuenta MetaTrader 5";btn.disabled=false;btn.removeAttribute("aria-busy");}
  }
+}
+async function requestStudentRefresh(){
+ if(busy)return;
+ const button=$("metaapiRefreshAccounts");
+ busy=true;if(button){button.disabled=true;button.textContent="Solicitando actualización…";}
+ try{
+  const result=await invoke({action:"refresh-my-accounts"});
+  lastStatus=0;
+  const state=await invoke({action:"status"});
+  renderAccounts(state.accounts||[]);
+  const queued=Number(result.queued||0),waiting=Number(result.alreadyWaiting||0);
+  notice(queued?("Actualización solicitada para "+queued+" cuenta(s). La VPS procesará solamente estas solicitudes."):waiting?"Ya hay una actualización pendiente en la VPS.":"No hay cuentas nuevas para actualizar.","success");
+ }catch(e){notice("No se pudo solicitar la actualización: "+e.message,"error");}
+ finally{busy=false;if(button){button.disabled=false;button.textContent="Actualizar estadísticas";}}
 }
 async function retrySync(accountId,button){
  if(busy)return;
@@ -337,7 +351,7 @@ function showAccessUpdate(account,card){
    const encryptedPayload=await securePayload(ready.publicKeyPem,{login:number,investorPassword:secret,platform:"mt5",brokerServer:account.broker_server});
    await invoke({action:"update-credentials",accountId:account.id,brokerServer:account.broker_server,login:number,encryptedPayload});
    const result=await invoke({action:"status"});renderAccounts(result.accounts||[]);
-   notice("Credenciales actualizadas de forma segura. Cuenta conservada y en espera de sincronización.","success");
+   notice("Credenciales guardadas de forma segura. Cuenta conservada; pulsa «Actualizar estadísticas» cuando quieras sincronizar.","success");
   }catch(e){notice(e.message,"error");}finally{pass.value="";busy=false;send.disabled=false;}
  });
  card.append(form);login.focus();
@@ -512,7 +526,7 @@ function init(){
  $("metaapiRefresh")?.addEventListener("click",()=>void status(true));
  $("metaapiDisconnect")?.addEventListener("click",()=>void unlink(currentAccount?.id));
  $("metaapiAddAccount")?.addEventListener("click",()=>{addingAccount=!addingAccount;renderAccounts(currentAccounts);});
- $("metaapiRefreshAccounts")?.addEventListener("click",()=>{lastStatus=0;void status(true);window.olonMtRecords?.invalidate?.();});
+ $("metaapiRefreshAccounts")?.addEventListener("click",()=>void requestStudentRefresh());
  $("metaapiRetryConnection")?.addEventListener("click",()=>void readiness());
  $("metaapiCancelPending")?.addEventListener("click",()=>{addingAccount=false;renderAccounts(currentAccounts);});
  $("mtVaultRefresh")?.addEventListener("click",()=>void loadVault());

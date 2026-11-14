@@ -13,9 +13,10 @@ echo ======================================================
 echo  OLFX CONNECT - VPS / ACTUALIZACION AUTOMATICA
 echo ======================================================
 echo.
-echo Nuevas cuentas: comprobacion cada 15 segundos.
+echo Solicitudes del estudiante: comprobacion cada 15 segundos.
+echo Los movimientos MT5 solo se actualizan cuando el estudiante pulsa Actualizar.
 echo Codigo Python: actualizacion desde GitHub cada 5 min.
-echo Las sincronizaciones MT5 terminan antes de actualizar.
+echo Sincronizaciones MT5 a peticion del estudiante, sin refresco diario.
 echo Configuracion y claves privadas: nunca se reemplazan.
 echo.
 py -3.12 --version >nul 2>&1
