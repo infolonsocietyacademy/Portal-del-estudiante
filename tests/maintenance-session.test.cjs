@@ -17,7 +17,7 @@ function harness({enabled=true,verifiedUser=true,profileStatus="active"}={}){
           contains:name=>classes.has(name),
           add:(...names)=>names.forEach(name=>classes.add(name)),
           remove:(...names)=>names.forEach(name=>classes.delete(name)),
-          toggle(name,force)=>{if(force===false)classes.delete(name);else classes.add(name);}
+          toggle:(name,force)=>{if(force===false)classes.delete(name);else classes.add(name);}
         },
         addEventListener(){},remove(){},scrollIntoView(){},focus(){}
       });
