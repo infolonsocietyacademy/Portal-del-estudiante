@@ -184,6 +184,7 @@
         window.showPage("admin",link);
       }
       selected=id;
+      try{if(currentUser?.id)sessionStorage.setItem('olon_admin_view_'+currentUser.id,id);}catch{}
       views.forEach((view,key)=>{view.hidden=key!==id;});
       menuButtons.forEach((button,key)=>{
         const active=key===id;
@@ -231,8 +232,16 @@
     };
     // Initialize after login, too: on first DOM load currentUser may not exist yet.
     // Retains the selected admin view and prevents an empty workspace on re-entry.
+    let restoredFor=null;
     const ensureAdminView=()=>{
       if(admin.classList.contains("hidden")||!isAdmin())return;
+      if(restoredFor!==currentUser.id){
+        restoredFor=currentUser.id;
+        try{
+          const saved=sessionStorage.getItem('olon_admin_view_'+currentUser.id);
+          if(views.has(saved))selected=saved;
+        }catch{}
+      }
       if(views.get(selected)?.hidden)open(selected,{scroll:false});
     };
     new MutationObserver(ensureAdminView).observe(admin,{attributes:true,attributeFilter:["class"]});
