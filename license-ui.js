@@ -40,6 +40,19 @@ function setLicenseMode(phase){
 function showState(state){
  current=state;
  setLicenseMode(state.phase);
+ // Restore a saved private section only after the authenticated student's
+ // server-issued license status confirms access. Never bypass the VIP gate.
+ const pending=window.olonPendingLandingPage;
+ if(pending&&typeof currentUser!=="undefined"&&pending.userId===currentUser?.id){
+  window.olonPendingLandingPage=null;
+  if(["active","legacy"].includes(state.phase)&&typeof window.showPage==="function"){
+   const target=document.getElementById(pending.page);
+   const link=[...document.querySelectorAll('#sidebar .portalNavLink[data-page]')]
+     .find(item=>item.dataset.page===pending.page&&!item.classList.contains("adminNav"));
+   if(target?.classList.contains("page")&&link&&window.olonAcademy?.allows?.(pending.page)!==false)
+    window.showPage(pending.page,link);
+  }
+ }
  if($("olonLicenseMyStatus"))$("olonLicenseMyStatus").textContent=phase(state.phase);
  if($("olonLicenseMyDate"))$("olonLicenseMyDate").textContent=state.expires_at?(state.managed?date(state.expires_at):state.expires_at):"No asignada";
  if($("olonLicenseMyGrace"))$("olonLicenseMyGrace").textContent=state.phase==="grace"?"Período de gracia: "+state.grace_days_remaining+" días":state.phase==="eligible"?"Revisión administrativa pendiente":"";
