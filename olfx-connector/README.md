@@ -58,3 +58,18 @@ Balance y equity, historial (primera sincronización: últimos 365 días; poster
 - Si la misma cuenta ya estaba enlazada en MetaApi, el historial se conserva mediante Account Vault y no se mezcla con otros números de cuenta.
 - Las operaciones se insertan de forma idempotente (por vault_account_id y deal_id). Sincroniza solamente cuentas autorizadas.
 - El agente inicia sesión sucesivamente. No se ha probado todavía con una cuenta real de Axi; requiere prueba supervisada antes de hacer un cambio general.
+
+## VPS Windows: autoactualizacion permanente del agente Python
+
+**Usa el nuevo lanzador** [OLFX_VPS_AUTOACTUALIZABLE.cmd](../OLFX_VPS_AUTOACTUALIZABLE.cmd), ubicado en la raiz de GitHub, una sola vez para reemplazar la ventana antigua del paso 6.
+
+1. En la VPS, detén el CMD anterior de OLFX CONNECT con `Ctrl+C` (solo una ventana/agente activo).
+2. Descarga `OLFX_VPS_AUTOACTUALIZABLE.cmd` desde GitHub a la VPS y haz doble clic.
+3. El lanzador utiliza los archivos ya existentes en `%LOCALAPPDATA%\\OLFXConnect`: `settings.json`, `private_key.pem` y `olfx_agent.py`.
+4. Valida el codigo nuevo descargado de la rama `main` y ejecuta `py -3.12 -u olfx_agent.py watch`.
+5. Cada **5 minutos** revisa si el archivo Python de la rama `main` ha cambiado. Al terminar cualquier sincronizacion de MT5, valida sintaxis y componentes esperados, guarda un respaldo `olfx_agent.py.previous` y reemplaza el agente de forma atomica.
+6. El lanzador detecta el codigo de salida **75**, inicia la nueva version y, si esa version falla inmediatamente, restaura el respaldo y desactiva temporalmente las actualizaciones para evitar bucles.
+
+**Limites y precauciones:** No modifica ni sube al repositorio `settings.json`, `private_key.pem`, contraseñas, tokens ni datos de estudiantes. La descarga de codigo tiene como origen fijo el propio repositorio de OLON y usa HTTPS. No actualiza automaticamente Python, MetaTrader 5 ni las dependencias de `requirements.txt`. Para funcionar tras reinicios completos de Windows sigue siendo necesaria una tarea de inicio de sesion y que MT5 sea accesible. El CMD viejo puede sincronizar, pero **no** reinicia las nuevas versiones sin el lanzador supervisado.
+
+**Si hay un error de GitHub:** se conserva el agente instalado y vuelve a intentarlo en cinco minutos. Si un cambio nuevo se instala pero falla en su inicio, el lanzador restaura el codigo previo.

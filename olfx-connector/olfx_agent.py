@@ -7,6 +7,8 @@ import json
 import os
 import sys
 import time
+import shutil
+import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import httpx
@@ -22,6 +24,10 @@ POLL_SECONDS = 15  # Detecta nuevas conexiones rápidamente, sin sincronizar tod
 DAILY_SECONDS = 86400  # Refrescar cuentas ya sincronizadas una vez al día.
 ERROR_RETRY_SECONDS = 1800  # Los errores no se reintentan automáticamente sin control.
 MAX_DEALS_PER_BATCH = 150
+AUTOUPDATE_SECONDS = 300  # Comprueba GitHub cada 5 min, sin interrumpir lotes MT5.
+AUTOUPDATE_RESTART_CODE = 75
+AUTOUPDATE_MAX_BYTES = 250_000
+AUTOUPDATE_URL = "https://raw.githubusercontent.com/infolonsocietyacademy/Portal-del-estudiante/main/olfx-connector/olfx_agent.py"
 
 def config():
     if not SETTINGS.exists():
@@ -235,6 +241,49 @@ def one(automatic: bool = False) -> int:
     return len(pending)
 
 
+
+def check_auto_update() -> bool:
+    """Actualiza solo este agente desde main. Nunca modifica claves, token ni ajustes."""
+    # Solo el lanzador supervisado puede reiniciar el proceso tras una actualizacion.
+    if os.environ.get("OLFX_AUTOUPDATE_SUPERVISED") != "1" or os.environ.get("OLFX_DISABLE_AUTOUPDATE") == "1":
+        return False
+    agent_file = Path(__file__).resolve()
+    if agent_file.name != "olfx_agent.py":
+        raise RuntimeError("El archivo del agente tiene un nombre inesperado")
+    request = urllib.request.Request(
+        AUTOUPDATE_URL,
+        headers={"User-Agent": "OLFXConnect-Windows-Agent/1", "Cache-Control": "no-cache"},
+        method="GET",
+    )
+    with urllib.request.urlopen(request, timeout=15) as response:
+        if response.status != 200:
+            raise RuntimeError("GitHub devolvio HTTP " + str(response.status))
+        remote = response.read(AUTOUPDATE_MAX_BYTES + 1)
+    if not (4_000 <= len(remote) <= AUTOUPDATE_MAX_BYTES):
+        raise RuntimeError("Descarga rechazada: tamano del agente no valido")
+    existing = agent_file.read_bytes()
+    if remote == existing:
+        return False
+    source = remote.decode("utf-8")
+    compile(source, str(agent_file), "exec")  # Nunca instala un archivo con errores de sintaxis.
+    required = (
+        "OLFX CONNECT", "def sync_account(", "def one(", "def main():",
+        "olon-own-connect", 'private_key.pem', 'settings.json',
+    )
+    if not all(marker in source for marker in required):
+        raise RuntimeError("Descarga rechazada: faltan componentes obligatorios de OLFX")
+    backup = agent_file.with_name("olfx_agent.py.previous")
+    temporary = agent_file.with_name("olfx_agent.py." + str(os.getpid()) + ".download")
+    try:
+        temporary.write_bytes(remote)
+        shutil.copy2(agent_file, backup)  # Respaldo del codigo, NO de las credenciales.
+        os.replace(temporary, agent_file)  # Cambio atomico, sin tocar la configuracion.
+    finally:
+        if temporary.exists():
+            temporary.unlink()
+    print("OLFX AUTOUPDATE: nueva version verificada y guardada; reiniciando lector...", flush=True)
+    return True
+
 def doctor():
     """Diagnóstico local de MT5; no usa credenciales del portal ni ejecuta operaciones."""
     try:
@@ -280,13 +329,25 @@ def main():
         print("Busca cuentas nuevas cada 15 segundos y actualiza "
               "las cuentas existentes una vez al dia.", flush=True)
         print("No cierres esta ventana. CTRL+C para detener.", flush=True)
+        print("Autoactualizacion: " + ("GitHub main cada 5 minutos" if os.environ.get("OLFX_AUTOUPDATE_SUPERVISED") == "1" else "usa OLFX_VPS_AUTOACTUALIZABLE.cmd para activarla"), flush=True)
+        next_update_check = 0.0
         while True:
             try:
                 one(automatic=True)
-                time.sleep(POLL_SECONDS)
             except Exception as exc:
                 print("Error de comunicacion; reintentando:", str(exc)[:180], flush=True)
                 time.sleep(60)
+            # Comprobar actualizaciones DESPUES de sincronizar las cuentas pendientes.
+            if time.monotonic() >= next_update_check:
+                next_update_check = time.monotonic() + AUTOUPDATE_SECONDS
+                try:
+                    if check_auto_update():
+                        # El lanzador OLFX_VPS_AUTOMATICO.cmd reinicia en la misma ventana.
+                        sys.exit(AUTOUPDATE_RESTART_CODE)
+                except Exception as exc:
+                    print("OLFX AUTOUPDATE: comprobacion fallida; el agente actual sigue funcionando:",
+                          str(exc)[:180], flush=True)
+            time.sleep(POLL_SECONDS)
 
 if __name__=="__main__":
     try: main()
