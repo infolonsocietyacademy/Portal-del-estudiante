@@ -1,125 +1,197 @@
-/* OLFX MAINTENANCE: state persisted in Supabase; toggle authorized server-side. */
+/* OLFX MAINTENANCE — separate the normal loader, confirmed maintenance, and connectivity errors.
+   The maintenance flag lives in Supabase and only the privileged Edge Function may change it. */
 (()=>{
 "use strict";
 const $=id=>document.getElementById(id);
-let state=null,busy=false,lastRead=0;
-let ready;const readyPromise=new Promise(resolve=>ready=resolve);
 const client=()=>typeof supabaseClient!=="undefined"?supabaseClient:null;
 const profile=()=>typeof currentUser!=="undefined"?currentUser:null;
-const permitted=(p,u)=>{
+let state=null,verified=false,lastError="",changing=false,checkPromise=null,lastRead=0;
+let resolveReady;
+const readyPromise=new Promise(resolve=>{resolveReady=resolve;});
+const authorized=(p,u)=>{
  if(!p||!u||p.status!=="active"||!u.email_confirmed_at)return false;
  const email=String(u.email||"").trim().toLowerCase();
- return (email==="erickinventus@gmail.com"&&p.role==="admin")
-   || (email==="nolotraderfx@gmail.com"&&p.role==="student");
+ return (email==="erickinventus@gmail.com"&&p.role==="admin") ||
+        (email==="nolotraderfx@gmail.com"&&p.role==="student");
 };
-function block(reason){
- document.body.classList.remove("olonMaintenancePending","olonMaintenanceAdminLogin");
+const setHidden=(id,value)=>{const element=$(id);if(element)element.hidden=value;};
+function displayMaintenance(message){
+ document.body.classList.remove("olonMaintenancePending","olonMaintenanceOffline","olonMaintenanceAdminLogin");
  document.body.classList.add("olonMaintenanceBlocked");
- $("portal")?.classList.add("hidden");$("auth")?.classList.add("hidden");
- const gate=$("olonMaintenanceGate");if(gate)gate.hidden=false;
- const label=$("olonMaintenanceStatus");if(label)label.textContent=reason||"Acceso temporalmente suspendido por mantenimiento.";
+ setHidden("olonConnectionGate",true);
+ setHidden("olonMaintenanceGate",false);
+ const label=$("olonMaintenanceStatus");
+ if(label)label.textContent=message||"El Portal del Trader está temporalmente en mantenimiento.";
 }
-function clear(){
+function displayConnectionError(){
+ // A database/network failure is NOT a maintenance announcement.
+ if(state?.enabled){
+  displayMaintenance("El mantenimiento sigue activo. Reintenta la conexión para verificar el estado.");
+  return;
+ }
+ if(state && !document.body.classList.contains("olonMaintenancePending") &&
+    !document.body.classList.contains("olonMaintenanceOffline")){
+  // Keep a previously verified, open portal visible during transient network failures.
+  // Refreshing after connectivity returns will enforce any subsequently enabled maintenance.
+  return;
+ }
  document.body.classList.remove("olonMaintenancePending","olonMaintenanceBlocked","olonMaintenanceAdminLogin");
- const gate=$("olonMaintenanceGate");if(gate)gate.hidden=true;
+ document.body.classList.add("olonMaintenanceOffline");
+ setHidden("olonMaintenanceGate",true);
+ setHidden("olonConnectionGate",false);
+}
+function allowPortal(){
+ document.body.classList.remove("olonMaintenancePending","olonMaintenanceBlocked","olonMaintenanceOffline","olonMaintenanceAdminLogin");
+ setHidden("olonMaintenanceGate",true);
+ setHidden("olonConnectionGate",true);
  if(!profile())$("auth")?.classList.remove("hidden");
 }
 function adminLogin(){
- $("olonMaintenanceGate").hidden=true;
- document.body.classList.remove("olonMaintenancePending","olonMaintenanceBlocked");
+ if(!state?.enabled)return;
+ document.body.classList.remove("olonMaintenancePending","olonMaintenanceBlocked","olonMaintenanceOffline");
  document.body.classList.add("olonMaintenanceAdminLogin");
- $("auth")?.classList.remove("hidden");$("portal")?.classList.add("hidden");
+ setHidden("olonMaintenanceGate",true);
+ setHidden("olonConnectionGate",true);
+ $("auth")?.classList.remove("hidden");
+ $("portal")?.classList.add("hidden");
  $("homeAccess")?.scrollIntoView({behavior:"smooth",block:"center"});
  $("loginCode")?.focus();
 }
-async function read(force=false){
- if(!force&&state&&Date.now()-lastRead<6000)return state;
- const db=client();if(!db)throw Error("Sin conexión con Supabase");
- const {data,error}=await db.from("olon_portal_maintenance").select("enabled,updated_at").eq("id",true).single();
- if(error||typeof data?.enabled!=="boolean")throw Error("Estado de mantenimiento no disponible");
- state=data;lastRead=Date.now();return state;
+async function read(){
+ const db=client();
+ if(!db)throw Error("No está disponible la conexión con Supabase.");
+ const {data,error}=await db.from("olon_portal_maintenance")
+   .select("enabled,updated_at").eq("id",true).single();
+ if(error||typeof data?.enabled!=="boolean")throw Error("No se pudo consultar el estado de mantenimiento.");
+ state={enabled:data.enabled,updated_at:data.updated_at};
+ verified=true;lastError="";lastRead=Date.now();
+ return state;
+}
+function updateAdmin(){
+ const badge=$("olonMaintenanceAdminBadge"),button=$("olonMaintenanceToggle");
+ const help=$("olonMaintenanceAdminHelp"),feedback=$("olonMaintenanceAdminMessage");
+ if(!badge||!button)return;
+ badge.textContent=!state?"SIN VERIFICAR":!verified?"SIN CONEXIÓN":state.enabled?"MANTENIMIENTO ACTIVO":"PORTAL ABIERTO";
+ badge.dataset.enabled=String(!!state?.enabled);
+ badge.dataset.verified=String(verified);
+ button.textContent=state?.enabled?"Desactivar mantenimiento · Abrir portal":"Activar mantenimiento · Bloquear estudiantes";
+ button.disabled=changing||!verified||!state;
+ if(help)help.textContent=!verified
+  ?"No se pudo confirmar el estado actual. Usa Actualizar estado cuando vuelva la conexión; no se harán cambios sin confirmación."
+  :state.enabled
+  ?"Mantenimiento activado en Supabase: solo el administrador principal y la cuenta de prueba autorizada pueden iniciar sesión."
+  :"Mantenimiento desactivado en Supabase: el portal permite accesos según sus licencias y permisos.";
+ if(lastError&&feedback)feedback.textContent=lastError;
+}
+async function check(){
+ if(changing)return;
+ if(checkPromise)return checkPromise;
+ checkPromise=(async()=>{
+  try{
+   const current=await read();
+   if(!current.enabled){allowPortal();return;}
+   const db=client();
+   const {data,error}=await db.auth.getUser();
+   const user=!error?data?.user:null;
+   let p=null;
+   if(user){
+    const result=await db.from("profiles").select("role,status").eq("id",user.id).maybeSingle();
+    if(!result.error)p=result.data;
+   }
+   if(authorized(p,user)){
+    allowPortal();
+   }else if(!user&&document.body.classList.contains("olonMaintenanceAdminLogin")){
+    // An explicit admin-login attempt remains available; guard() validates the signed-in user.
+   }else{
+    displayMaintenance("El Portal del Trader está en mantenimiento. Tu información permanece protegida.");
+   }
+  }catch(error){
+   verified=false;
+   lastError="No se pudo actualizar el estado del portal. Comprueba tu conexión y pulsa Actualizar estado.";
+   console.warn("[OLFX mantenimiento] Falló la consulta:",error);
+   displayConnectionError();
+  }finally{
+   document.body.classList.remove("olonMaintenancePending");
+   updateAdmin();
+  }
+ })().finally(()=>{checkPromise=null;});
+ return checkPromise;
 }
 async function guard(p,u){
  try{
-  const current=await read(true);
-  if(current.enabled&&!permitted(p,u)){
-   block("Acceso temporalmente suspendido durante las mejoras del portal.");
-   try{await client()?.auth.signOut({scope:"local"});}catch{}
+  const current=await read();
+  if(current.enabled&&!authorized(p,u)){
+   displayMaintenance("El Portal del Trader está en mantenimiento. Tu información permanece protegida.");
+   updateAdmin();
    return false;
   }
-  clear();return true;
- }catch{
-  block("No se pudo verificar el acceso. Comprueba internet y pulsa Reintentar.");
+  allowPortal();updateAdmin();return true;
+ }catch(error){
+  verified=false;
+  lastError="No se pudo comprobar el acceso. Revisa tu conexión e inténtalo nuevamente.";
+  console.warn("[OLFX mantenimiento] No se pudo validar el acceso:",error);
+  // Do not label failed verification as maintenance.
+  if(state?.enabled)displayMaintenance("El mantenimiento sigue activo. Reintenta la conexión.");
+  else {
+   document.body.classList.add("olonMaintenanceOffline");
+   document.body.classList.remove("olonMaintenancePending","olonMaintenanceBlocked","olonMaintenanceAdminLogin");
+   setHidden("olonMaintenanceGate",true);setHidden("olonConnectionGate",false);
+  }
+  updateAdmin();
   return false;
  }
 }
-function updateAdmin(){
- const status=$("olonMaintenanceAdminBadge"),button=$("olonMaintenanceToggle"),help=$("olonMaintenanceAdminHelp");
- if(!status||!button)return;
- status.textContent=!state?"COMPROBANDO":state.enabled?"MANTENIMIENTO ACTIVO":"PORTAL ABIERTO";
- status.dataset.enabled=String(!!state?.enabled);
- button.textContent=state?.enabled?"Desactivar mantenimiento · Abrir portal":"Activar mantenimiento · Bloquear estudiantes";
- if(help)help.textContent=state?.enabled
-  ?"El administrador principal y la cuenta de estudiante de prueba pueden entrar. El resto verá el aviso de mantenimiento."
-  :"El acceso funciona normalmente según los permisos y licencias de cada estudiante.";
-}
-async function check(){
- if(busy)return;
- busy=true;
- try{
-  const current=await read(true),db=client();
-  const {data:{user},error}=await db.auth.getUser();
-  let p=null;
-  if(!error&&user){
-   const result=await db.from("profiles").select("role,status").eq("id",user.id).maybeSingle();
-   if(!result.error)p=result.data;
-  }
-  if(current.enabled&&!permitted(p,user)){
-   if(!user&&document.body.classList.contains("olonMaintenanceAdminLogin")){
-    // Keep login visible to the designated admin; auth and profile checks still apply.
-   }else{
-    block("El Portal del Trader está temporalmente en mantenimiento. Tu información permanece protegida.");
-    if(user)try{await db.auth.signOut({scope:"local"});}catch{}
-   }
-  }else clear();
-  updateAdmin();
- }catch{block("No pudimos verificar el estado del portal. Pulsa Reintentar.");}
- finally{document.body.classList.remove("olonMaintenancePending");busy=false;}
-}
 async function toggle(){
- if(busy||!state)return;
+ if(changing)return;
+ if(checkPromise)await checkPromise;
+ if(!verified||!state){lastError="Actualiza el estado antes de cambiar el mantenimiento.";updateAdmin();return;}
  const enable=!state.enabled;
  if(!confirm(enable
-  ?"¿Activar mantenimiento? Solo Admin y la cuenta de estudiante de prueba tendrán acceso."
-  :"¿Desactivar mantenimiento? Los estudiantes podrán entrar con sus accesos vigentes."))return;
- const db=client();
- const {data:{user},error:authError}=await db.auth.getUser();
- if(authError||!user||String(user.email||"").toLowerCase()!=="erickinventus@gmail.com"||profile()?.role!=="admin"){
-  const errorBox=$("olonMaintenanceAdminMessage");
-  if(errorBox)errorBox.textContent="Solo el administrador principal puede cambiar este ajuste.";
-  return;
- }
- const button=$("olonMaintenanceToggle"),status=$("olonMaintenanceAdminMessage");
- if(button)button.disabled=true;
- if(status)status.textContent="Actualizando estado…";
+  ?"¿Activar mantenimiento en todo el portal? Los estudiantes verán el aviso hasta que lo desactives."
+  :"¿Desactivar mantenimiento? El portal volverá a abrir para estudiantes con acceso vigente."))return;
+ changing=true;lastError="";updateAdmin();
+ const feedback=$("olonMaintenanceAdminMessage");
+ if(feedback)feedback.textContent="Guardando y verificando en Supabase…";
  try{
-  const {data,error}=await client().functions.invoke("olon-maintenance-control",{body:{action:"set-maintenance",enabled:enable}});
-  if(error||!data?.ok)throw Error(data?.error||"El servidor no confirmó el cambio.");
-  state={enabled:data.enabled,updated_at:data.updatedAt};lastRead=Date.now();
-  updateAdmin();
-  if(status)status.textContent=enable?"Modo mantenimiento activado.":"Portal abierto nuevamente para los estudiantes.";
- }catch(e){
-  if(status)status.textContent=String(e.message||e);
-  try{await read(true);}catch{}
-  updateAdmin();
- }finally{if(button)button.disabled=false;}
+  const db=client();
+  const {data:{user},error:authError}=await db.auth.getUser();
+  if(authError||!user||String(user.email||"").trim().toLowerCase()!=="erickinventus@gmail.com"||profile()?.role!=="admin")
+   throw Error("Solo el administrador principal puede cambiar este ajuste.");
+  const {data,error}=await db.functions.invoke("olon-maintenance-control",
+   {body:{action:"set-maintenance",enabled:enable}});
+  if(error||data?.ok!==true||data?.enabled!==enable)
+   throw Error(data?.error||"El servidor no confirmó el cambio. No se actualizó el indicador.");
+  state={enabled:data.enabled,updated_at:data.updatedAt};verified=true;lastRead=Date.now();
+  // Check the stored value again so a stale UI never pretends a change succeeded.
+  const persisted=await read();
+  if(persisted.enabled!==enable)throw Error("Supabase devolvió un estado diferente. Pulsa Actualizar estado.");
+  if(feedback)feedback.textContent=enable
+   ?"Mantenimiento ACTIVADO y confirmado en Supabase."
+   :"Mantenimiento DESACTIVADO y confirmado. Portal abierto para accesos vigentes.";
+  if(!enable)allowPortal();
+ }catch(error){
+  lastError=String(error?.message||"No se pudo cambiar el mantenimiento.");
+  if(feedback)feedback.textContent="Cambio no confirmado: "+lastError;
+  try{await read();}catch{verified=false;}
+ }finally{
+  changing=false;updateAdmin();
+  // Reapply the state to the current session without changing the ordinary loading screen.
+  if(verified)void check();
+ }
 }
 async function init(){
  $("olonMaintenanceRetry")?.addEventListener("click",()=>void check());
+ $("olonConnectionRetry")?.addEventListener("click",()=>void check());
  $("olonMaintenanceAdminLogin")?.addEventListener("click",adminLogin);
  $("olonMaintenanceToggle")?.addEventListener("click",()=>void toggle());
  $("olonMaintenanceRefresh")?.addEventListener("click",()=>void check());
- await check();ready();
+ try{await check();}
+ finally{
+  resolveReady();
+  // The boot loader belongs to the portal, not the maintenance banner.
+  const loader=$("olonLoader");
+  if(loader&&!loader.dataset.managed)loader.hidden=true;
+ }
  window.addEventListener("focus",()=>void check());
  document.addEventListener("visibilitychange",()=>{if(!document.hidden)void check();});
  setInterval(()=>{if(!document.hidden)void check();},15000);
