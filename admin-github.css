@@ -646,3 +646,49 @@
 #portal #admin #olonLicenseAdminBlock .olonLicenseResultActions .adminSmallButton:hover{
   background:#21262d!important
 }
+
+/* Unified GitHub-style portal drawer for administrators on every admin page. */
+#portal.admin-mode > #sidebar.portalSidebar{
+  background:#0d1117!important;color:#e6edf3!important;
+  border-color:#30363d!important;box-shadow:none!important
+}
+#portal.admin-mode > #sidebar .portalSidebarTop{
+  background:transparent!important;border-bottom:1px solid #30363d!important
+}
+#portal.admin-mode > #sidebar .terminalToolsTitle{
+  font:800 13px/1.4 "JetBrains Mono",monospace!important;color:#e6edf3!important
+}
+#portal.admin-mode > #sidebar .portalNav{
+  display:flex!important;flex-direction:column!important;align-items:stretch!important;
+  gap:2px!important;padding:8px 0!important;background:transparent!important;
+  border:0!important;box-shadow:none!important
+}
+#portal.admin-mode > #sidebar .portalNavGroup:not(.hidden){
+  display:block!important;padding:11px 9px 6px!important;margin:6px 0 0!important;
+  border-bottom:1px solid #21262d!important;background:transparent!important;
+  font:700 9px/1.35 "JetBrains Mono",monospace!important;color:#8b949e!important;
+  letter-spacing:.07em!important
+}
+#portal.admin-mode > #sidebar .portalNavLink:not(.hidden){
+  display:flex!important;align-items:center!important;gap:9px!important;
+  min-height:38px!important;padding:8px 10px!important;margin:0!important;
+  background:transparent!important;border:0!important;
+  border-left:2px solid transparent!important;border-radius:5px!important;
+  color:#c9d1d9!important;box-shadow:none!important;
+  font:600 11px/1.45 "JetBrains Mono",monospace!important;text-align:left!important
+}
+#portal.admin-mode > #sidebar .portalNavLink:not(.hidden):hover{
+  background:#161b22!important;color:#e6edf3!important
+}
+#portal.admin-mode > #sidebar .portalNavLink.active:not(.hidden){
+  background:#21262d!important;color:#e6edf3!important;
+  border-left-color:#58a6ff!important
+}
+#portal.admin-mode > #sidebar .portalNavLink .portalNavIcon{
+  width:18px!important;height:18px!important;min-width:18px!important;
+  background:transparent!important;border:0!important;
+  border-radius:0!important;box-shadow:none!important;color:#8b949e!important
+}
+#portal.admin-mode > #sidebar .portalNavLink.active .portalNavIcon{
+  color:#58a6ff!important
+}
