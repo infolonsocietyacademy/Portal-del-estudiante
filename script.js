@@ -1512,10 +1512,15 @@ function showWelcome(user){
     document.querySelectorAll('.adminNav').forEach(x=>x.classList.toggle('hidden', !isAdmin));
     document.querySelectorAll('.studentOnly').forEach(x=>x.classList.toggle('hidden', isAdmin));
 
-    activatePage(isAdmin ? 'admin' : 'dashboard');
-    window.olonProfile?.start();
-    window.olonAcademy?.startClassNotifications();
-    await safeBackgroundRender(isAdmin);
+    // Optional UI modules must NEVER cancel a verified login.
+    try{activatePage(isAdmin ? 'admin' : 'dashboard');}
+    catch(error){console.error('[OLON] Navegación inicial falló; se conserva la sesión',error);}
+    try{window.olonProfile?.start();}
+    catch(error){console.error('[OLON] Perfil no inició; se conserva la sesión',error);}
+    try{window.olonAcademy?.startClassNotifications();}
+    catch(error){console.error('[OLON] Clases no iniciaron; se conserva la sesión',error);}
+    try{await safeBackgroundRender(isAdmin);}
+    catch(error){console.error('[OLON] Render secundario no inició; se conserva la sesión',error);}
   }
 
   window.enterPortal = async function(){
@@ -2065,6 +2070,7 @@ document.addEventListener("DOMContentLoaded", function(){
       return;
     }
     setBusy(true);
+    let serverAuthorized=false;
     showPortalLoader("Verificando tu acceso…");
     if(typeof window.playPortalLoadingSound === "function") window.playPortalLoadingSound();
     try{
@@ -2086,10 +2092,25 @@ document.addEventListener("DOMContentLoaded", function(){
         return;
       }
       if(!(await window.olonMaintenance.guard(profile,data.user)))return;
+      serverAuthorized=true;
       await openVerifiedProfile(profile,data.user);
     }catch(error){
-      alert(showAuthError(error,"No se pudo iniciar sesión."));
-      await supabaseClient.auth.signOut().catch(()=>{});
+      if(serverAuthorized){
+        // Authentication and maintenance already succeeded. A UI error is NOT
+        // a reason to revoke the user's authenticated Supabase session.
+        console.error("[OLON] Error de interfaz después del acceso confirmado",error);
+        const portal=$auth("portal");
+        if(portal&&currentUser){
+          $auth("auth")?.classList.add("hidden");
+          portal.classList.remove("hidden");
+          portal.classList.add("portalReady");
+        }
+        // Any failed optional module can be retried without losing the login.
+      }else{
+        alert(showAuthError(error,"No se pudo iniciar sesión."));
+        // Do not log out a previously valid Supabase session because of a
+        // transient network/auth transport error. Authorization was NOT granted.
+      }
     }finally{
       setBusy(false);
       hidePortalLoader();
