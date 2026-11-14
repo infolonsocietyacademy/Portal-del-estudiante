@@ -43,7 +43,7 @@ html{overflow-y:auto!important;overscroll-behavior-y:none!important}
 body{overflow-y:visible!important;overscroll-behavior-y:none!important;-webkit-overflow-scrolling:touch}
 /* Native Safari pull-to-refresh may be mistaken for logout while scrolling.
    Keep normal vertical scrolling but prevent scroll chaining/reload gestures. */
-#portal:not(.hidden){overscroll-behavior-y:none!important;touch-action:pan-y pinch-zoom}
+#portal:not(.hidden){overscroll-behavior-y:none!important}
 #portal:not(.hidden){display:grid!important;position:relative!important;z-index:50!important}
 @media(max-width:980px){#portal:not(.hidden){display:block!important}}
 #auth.hidden,#codeResult.hidden{display:none!important;pointer-events:none!important;visibility:hidden!important}
