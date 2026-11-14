@@ -2184,7 +2184,7 @@ document.addEventListener("DOMContentLoaded", function(){
   // iPadOS occasionally synthesizes a click while a sticky toolbar is moving
   // beneath the user's finger. Only an actual stationary tap on the same
   // logout button is accepted; scrolling or dragging never triggers sign-out.
-  let logoutTouch=null,lastTouchDragAt=0,touchOrigin=null;
+  let logoutTouch=null,lastTouchDragAt=0,lastTouchEndAt=0,touchOrigin=null;
   document.addEventListener("touchstart",event=>{
     const touch=event.touches?.[0];
     const button=event.target?.closest?.("[data-olon-logout]");
@@ -2206,7 +2206,8 @@ document.addEventListener("DOMContentLoaded", function(){
        Math.abs(touch.clientY-logoutTouch.y)>10)logoutTouch.moved=true;
   },{passive:true,capture:true});
   document.addEventListener("touchend",event=>{
-    if(touchOrigin?.dragged)lastTouchDragAt=Date.now();
+    lastTouchEndAt=Date.now();
+    if(touchOrigin?.dragged)lastTouchDragAt=lastTouchEndAt;
     touchOrigin=null;
     if(!logoutTouch)return;
     const touch=event.changedTouches?.[0];
@@ -2221,10 +2222,12 @@ document.addEventListener("DOMContentLoaded", function(){
     if(!event || event.type!=='click' || !event.isTrusted ||
        !event.currentTarget?.matches?.('[data-olon-logout]'))return;
     if(Date.now()-lastTouchDragAt<1200)return;
-    if(logoutTouch && Date.now()-logoutTouch.endedAt<1200){
-      const valid=!logoutTouch.moved &&
+    // A click emitted after a recent touch must be tied to the same button's
+    // stationary touchstart AND touchend; otherwise it is a ghost click.
+    if(Date.now()-lastTouchEndAt<1200){
+      const valid=logoutTouch&&!logoutTouch.moved &&
         logoutTouch.button===event.currentTarget &&
-        logoutTouch.endedAt>0;
+        logoutTouch.endedAt===lastTouchEndAt;
       logoutTouch=null;
       if(!valid)return;
     }
