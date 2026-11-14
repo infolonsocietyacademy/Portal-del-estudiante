@@ -27,20 +27,15 @@ body.olonMaintenanceAdminLogin #portal{display:none!important;visibility:hidden!
 #olonMaintenanceToggle:disabled{opacity:.45;cursor:wait}
 .olfxMaintenanceHelp{color:var(--muted,#a6b3c2);font-size:13px;line-height:1.7}
 @media(max-width:600px){.olfxMaintenanceTop{flex-wrap:wrap;justify-content:center;text-align:center;margin-bottom:25px}.olfxMaintenanceStatus{font-size:11px}.olfxMaintenanceFrame{padding:26px 19px}}
-/* A failed maintenance-status request is a connectivity issue, NEVER a maintenance notice. */
-body.olonMaintenanceOffline #auth,
-body.olonMaintenanceOffline #portal{display:none!important;visibility:hidden!important}
-#olonConnectionGate[hidden]{display:none!important}
-#olonConnectionGate{
-  position:fixed;inset:0;z-index:2147483600;display:grid;place-items:center;
-  overflow:auto;min-height:100dvh;padding:24px;background:#0d1117;color:#e6edf3;
-  font-family:"JetBrains Mono",monospace;text-align:center;box-sizing:border-box
+/* The regular Portal del Trader loader remains visible while the first
+   maintenance check is unavailable. Never replace it with an error overlay. */
+#olonLoader #olonLoaderRetry[hidden]{display:none!important}
+#olonLoader #olonLoaderRetry{
+  display:inline-flex;align-items:center;justify-content:center;
+  margin:18px auto 0;padding:10px 18px;min-height:38px;
+  cursor:pointer;color:#e6edf3;background:#1f6feb;
+  border:1px solid #388bfd;border-radius:6px;
+  font:700 12px "JetBrains Mono",monospace;
 }
-#olonConnectionGate *{box-sizing:border-box}
-.olfxConnectionFrame{width:min(100%,540px);padding:34px 26px;border:1px solid #30363d;background:#161b22;border-radius:8px}
-.olfxConnectionOverline{color:#8b949e;font-size:11px;letter-spacing:.13em;font-weight:700}
-.olfxConnectionFrame h1{margin:17px 0;color:#e6edf3;font-size:clamp(22px,4vw,32px)}
-.olfxConnectionFrame p{margin:0 0 27px;color:#aab5c0;font:400 14px/1.7 Inter,sans-serif}
-#olonConnectionRetry{cursor:pointer;padding:11px 18px;color:#fff;background:#238636;border:1px solid #2ea043;border-radius:6px;font:700 12px "JetBrains Mono",monospace}
-#olonConnectionRetry:hover{background:#2ea043}
-#olonConnectionRetry:focus-visible{outline:2px solid #58a6ff;outline-offset:3px}
+#olonLoader #olonLoaderRetry:hover{background:#388bfd}
+#olonLoader #olonLoaderRetry:focus-visible{outline:2px solid #8bc8ff;outline-offset:3px}
