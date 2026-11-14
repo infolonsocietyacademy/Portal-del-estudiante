@@ -137,7 +137,7 @@ Deno.serve(async(req:Request)=>{
      const brokerTime=String(d.broker_time||"").replace("T"," ");
      const brokerISO=iso(brokerTime.replace(" ","T")+"Z");
      if(sourceVersion===2&&(!/^(\d{4}-\d{2}-\d{2}) \d{2}:\d{2}:\d{2}(\.\d{1,6})?$/.test(brokerTime)||!brokerISO||brokerISO.slice(0,10)!==brokerTime.slice(0,10)))return fail("Fecha original MT5 inválida");
-     if(!["DEAL_TYPE_BUY","DEAL_TYPE_SELL","DEAL_TYPE_BALANCE","DEAL_TYPE_CREDIT","DEAL_TYPE_CHARGE","DEAL_TYPE_CORRECTION","DEAL_TYPE_BONUS","DEAL_TYPE_COMMISSION","DEAL_TYPE_COMMISSION_DAILY","DEAL_TYPE_COMMISSION_MONTHLY","DEAL_TYPE_INTEREST","DEAL_TYPE_DIVIDEND","DEAL_TYPE_DIVIDEND_FRANKED","DEAL_TYPE_TAX"].includes(type))return fail("Tipo de operación inválido");
+     if(!["DEAL_TYPE_BUY","DEAL_TYPE_SELL","DEAL_TYPE_BALANCE","DEAL_TYPE_CREDIT","DEAL_TYPE_CHARGE","DEAL_TYPE_CORRECTION","DEAL_TYPE_BONUS","DEAL_TYPE_COMMISSION","DEAL_TYPE_COMMISSION_DAILY","DEAL_TYPE_COMMISSION_MONTHLY","DEAL_TYPE_COMMISSION_AGENT_DAILY","DEAL_TYPE_COMMISSION_AGENT_MONTHLY","DEAL_TYPE_INTEREST","DEAL_TYPE_BUY_CANCELED","DEAL_TYPE_SELL_CANCELED","DEAL_TYPE_DIVIDEND","DEAL_TYPE_DIVIDEND_FRANKED","DEAL_TYPE_TAX"].includes(type))return fail("Tipo de operación inválido");
      if(!["","DEAL_ENTRY_IN","DEAL_ENTRY_OUT","DEAL_ENTRY_INOUT","DEAL_ENTRY_OUT_BY"].includes(entry))return fail("Entrada inválida");
      for(const k of ["volume","profit","commission","swap","fee"])if(!safeNum(d[k]??0))return fail("Valor de operación inválido");
      deals.push({

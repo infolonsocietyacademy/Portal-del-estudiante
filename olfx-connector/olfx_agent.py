@@ -139,22 +139,26 @@ def source_clock(deals, references, server, previous_mode=None):
     return mode, axi_rule
 
 
-def deals_payload(deals, references=(), server="", clock_mode=None):
+def deal_types(mt5=None):
+    names=("BUY","SELL","BALANCE","CREDIT","CHARGE","CORRECTION","BONUS",
+           "COMMISSION","COMMISSION_DAILY","COMMISSION_MONTHLY","COMMISSION_AGENT_DAILY",
+           "COMMISSION_AGENT_MONTHLY","INTEREST","BUY_CANCELED","SELL_CANCELED",
+           "DIVIDEND","DIVIDEND_FRANKED","TAX")
+    return {int(getattr(mt5,"DEAL_TYPE_"+name,getattr(mt5,"DEAL_"+name,index))):"DEAL_TYPE_"+name
+            for index,name in enumerate(names)}
+
+
+def deals_payload(deals, references=(), server="", clock_mode=None, type_map=None):
     values_list = [d._asdict() if hasattr(d, "_asdict") else dict(d) for d in deals]
     mode, axi_rule = source_clock(values_list, references, server, clock_mode)
+    typemap = type_map if type_map is not None else deal_types()
     out=[]
     # MetaTrader deals may include multiple entries per position.
     for values in values_list:
-        typemap = {
-            0: "DEAL_TYPE_BUY", 1: "DEAL_TYPE_SELL", 2:"DEAL_TYPE_BALANCE",
-            3:"DEAL_TYPE_CREDIT",4:"DEAL_TYPE_CHARGE",5:"DEAL_TYPE_CORRECTION",
-            6:"DEAL_TYPE_BONUS",7:"DEAL_TYPE_COMMISSION",8:"DEAL_TYPE_COMMISSION_DAILY",
-            9:"DEAL_TYPE_COMMISSION_MONTHLY",10:"DEAL_TYPE_INTEREST",11:"DEAL_TYPE_BUY_CANCELED",
-            12:"DEAL_TYPE_SELL_CANCELED",13:"DEAL_TYPE_DIVIDEND",14:"DEAL_TYPE_DIVIDEND_FRANKED",15:"DEAL_TYPE_TAX"}
         entrymap={0:"DEAL_ENTRY_IN",1:"DEAL_ENTRY_OUT",2:"DEAL_ENTRY_INOUT",3:"DEAL_ENTRY_OUT_BY"}
         dtype=typemap.get(int(values.get("type",-1)))
-        if dtype is None or dtype in ("DEAL_TYPE_BUY_CANCELED","DEAL_TYPE_SELL_CANCELED"):
-            continue
+        if dtype is None:
+            raise RuntimeError("MT5 devolvió un tipo de movimiento no reconocido; historial no publicado.")
         entry=entrymap.get(int(values.get("entry",-1)),"")
         raw = _stamp(values)
         if mode == "utc":
@@ -218,7 +222,7 @@ def sync_account(mt5, item: dict, cfg: dict):
             raise RuntimeError("MT5 no pudo consultar el historial de operaciones.")
         history_values=[d._asdict() if hasattr(d,"_asdict") else dict(d) for d in history]
         clock_mode,_=source_clock(history_values,item.get("clock_references") or (),server,item.get("source_clock_mode"))
-        raw=deals_payload(history_values,item.get("clock_references") or (),server,clock_mode)
+        raw=deals_payload(history_values,item.get("clock_references") or (),server,clock_mode,deal_types(mt5))
         revision=hashlib.sha256(json.dumps(raw,sort_keys=True,separators=(",",":"),ensure_ascii=True).encode()).hexdigest()
         print(f"  Cuenta ****{login[-4:]} · {len(raw)} movimientos disponibles")
         for offset in range(0,max(len(raw),1),MAX_DEALS_PER_BATCH):

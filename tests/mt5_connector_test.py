@@ -13,7 +13,7 @@ SOURCE = Path(__file__).resolve().parents[1] / 'olfx-connector/olfx_agent.py'
 
 
 def connector():
-    wanted = {'_stamp', '_axi_offset', 'source_clock', 'deals_payload', 'sync_account'}
+    wanted = {'_stamp', '_axi_offset', 'source_clock', 'deal_types', 'deals_payload', 'sync_account'}
     parsed = ast.parse(SOURCE.read_text())
     module = ast.Module(body=[n for n in parsed.body if isinstance(n, ast.FunctionDef) and n.name in wanted], type_ignores=[])
     context = {'datetime': datetime, 'timedelta': timedelta, 'timezone': timezone,
@@ -66,6 +66,15 @@ class MT5ConnectorTests(unittest.TestCase):
         values = [deal(9007199254740994), deal(9007199254740993), deal(9007199254740994)]
         result = self.api['deals_payload'](values)
         self.assertEqual([d['deal_id'] for d in result], ['9007199254740993', '9007199254740994'])
+
+    def test_broker_commissions_interest_and_cancelled_tickets_keep_their_sdk_types(self):
+        result=self.api['deals_payload']([deal(i+1,type=i,profit=0) for i in range(10,18)])
+        self.assertEqual([d['deal_type'] for d in result],[
+            'DEAL_TYPE_COMMISSION_AGENT_DAILY','DEAL_TYPE_COMMISSION_AGENT_MONTHLY','DEAL_TYPE_INTEREST',
+            'DEAL_TYPE_BUY_CANCELED','DEAL_TYPE_SELL_CANCELED','DEAL_TYPE_DIVIDEND','DEAL_TYPE_DIVIDEND_FRANKED','DEAL_TYPE_TAX'])
+        sdk=SimpleNamespace(DEAL_TYPE_TAX=99)
+        values=self.api['deals_payload']([deal(type=99,profit=-1)],type_map=self.api['deal_types'](sdk))
+        self.assertEqual(values[0]['deal_type'],'DEAL_TYPE_TAX')
 
     def run_sync(self, item=None, connected=True, history=None):
         sent, windows = [], []
