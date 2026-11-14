@@ -4,6 +4,7 @@ import argparse
 import base64
 import getpass
 import json
+import hashlib
 import os
 import sys
 import time
@@ -96,25 +97,79 @@ def decrypt(payload: dict):
         base64.b64decode(payload["ciphertext"]), None)
     return json.loads(plain.decode("utf-8"))
 
-def deals_payload(deals):
+def _stamp(values):
+    milliseconds = int(values.get("time_msc") or int(values["time"]) * 1000)
+    return datetime.fromtimestamp(milliseconds / 1000, timezone.utc)
+
+
+def _axi_offset(moment):
+    """Axi's recorded server clock follows New York DST plus seven hours."""
+    year = moment.year
+    march = datetime(year, 3, 1, 7, tzinfo=timezone.utc)
+    start = march + timedelta(days=(6 - march.weekday()) % 7 + 7)
+    november = datetime(year, 11, 1, 6, tzinfo=timezone.utc)
+    end = november + timedelta(days=(6 - november.weekday()) % 7)
+    return timedelta(hours=3 if start <= moment < end else 2)
+
+
+def source_clock(deals, references, server, previous_mode=None):
+    """Calibrate against saved MT5 UTC/server pairs instead of the PC timezone."""
+    by_ticket = {str(d["ticket"]): d for d in deals}
+    modes = set()
+    axi_rule = bool(references) and str(server).casefold().startswith("axi-")
+    for reference in references:
+        original = by_ticket.get(str(reference.get("deal_id")))
+        utc = datetime.fromisoformat(str(reference["occurred_at"]).replace("Z", "+00:00"))
+        wall = datetime.fromisoformat(str(reference["broker_time"])).replace(tzinfo=timezone.utc)
+        axi_rule = axi_rule and abs((wall - utc - _axi_offset(utc)).total_seconds()) < 1
+        if original is None:
+            continue
+        raw = _stamp(original)
+        if abs((raw - wall).total_seconds()) < 1:
+            modes.add("server")
+        elif abs((raw - utc).total_seconds()) < 1:
+            modes.add("utc")
+        else:
+            raise RuntimeError("La hora del historial MT5 no coincide con sus referencias verificadas.")
+    if len(modes) > 1:
+        raise RuntimeError("El historial MT5 mezcla bases horarias diferentes; no se publica.")
+    mode = next(iter(modes), previous_mode if previous_mode in ("server", "utc") else "server")
+    if mode == "utc" and not axi_rule:
+        raise RuntimeError("No se pudo verificar el reloj del servidor MT5.")
+    return mode, axi_rule
+
+
+def deal_types(mt5=None):
+    names=("BUY","SELL","BALANCE","CREDIT","CHARGE","CORRECTION","BONUS",
+           "COMMISSION","COMMISSION_DAILY","COMMISSION_MONTHLY","COMMISSION_AGENT_DAILY",
+           "COMMISSION_AGENT_MONTHLY","INTEREST","BUY_CANCELED","SELL_CANCELED",
+           "DIVIDEND","DIVIDEND_FRANKED","TAX")
+    return {int(getattr(mt5,"DEAL_TYPE_"+name,getattr(mt5,"DEAL_"+name,index))):"DEAL_TYPE_"+name
+            for index,name in enumerate(names)}
+
+
+def deals_payload(deals, references=(), server="", clock_mode=None, type_map=None):
+    values_list = [d._asdict() if hasattr(d, "_asdict") else dict(d) for d in deals]
+    mode, axi_rule = source_clock(values_list, references, server, clock_mode)
+    typemap = type_map if type_map is not None else deal_types()
     out=[]
     # MetaTrader deals may include multiple entries per position.
-    for d in deals:
-        values = d._asdict() if hasattr(d, "_asdict") else dict(d)
-        typemap = {
-            0: "DEAL_TYPE_BUY", 1: "DEAL_TYPE_SELL", 2:"DEAL_TYPE_BALANCE",
-            3:"DEAL_TYPE_CREDIT",4:"DEAL_TYPE_CHARGE",5:"DEAL_TYPE_CORRECTION",
-            6:"DEAL_TYPE_BONUS",7:"DEAL_TYPE_COMMISSION",8:"DEAL_TYPE_COMMISSION_DAILY",
-            9:"DEAL_TYPE_COMMISSION_MONTHLY",10:"DEAL_TYPE_INTEREST",11:"DEAL_TYPE_BUY_CANCELED",
-            12:"DEAL_TYPE_SELL_CANCELED",13:"DEAL_TYPE_DIVIDEND",14:"DEAL_TYPE_DIVIDEND_FRANKED",15:"DEAL_TYPE_TAX"}
+    for values in values_list:
         entrymap={0:"DEAL_ENTRY_IN",1:"DEAL_ENTRY_OUT",2:"DEAL_ENTRY_INOUT",3:"DEAL_ENTRY_OUT_BY"}
         dtype=typemap.get(int(values.get("type",-1)))
-        if dtype is None or dtype in ("DEAL_TYPE_BUY_CANCELED","DEAL_TYPE_SELL_CANCELED"):
-            continue
+        if dtype is None:
+            raise RuntimeError("MT5 devolvió un tipo de movimiento no reconocido; historial no publicado.")
         entry=entrymap.get(int(values.get("entry",-1)),"")
-        stamp=datetime.fromtimestamp(int(values["time"]), timezone.utc).isoformat()
+        raw = _stamp(values)
+        if mode == "utc":
+            occurred = raw
+            wall = raw + _axi_offset(raw)
+        else:
+            wall = raw
+            occurred = wall - _axi_offset(wall) if axi_rule else raw
         out.append({
-            "deal_id":str(values["ticket"]), "occurred_at":stamp,
+            "deal_id":str(values["ticket"]), "occurred_at":occurred.isoformat(),
+            "broker_time":wall.replace(tzinfo=None).isoformat(timespec="milliseconds"),
             "position_id":str(values.get("position_id") or "") or None,
             "order_id":str(values.get("order") or "") or None,
             "deal_type":dtype, "entry_type":entry,
@@ -126,7 +181,13 @@ def deals_payload(deals):
             "fee":float(values.get("fee",0)),
             "comment":(values.get("comment") or "")[:180]
         })
-    return out
+    unique = {}
+    for deal in out:
+        ticket = deal["deal_id"]
+        if ticket in unique and unique[ticket] != deal:
+            raise RuntimeError("MT5 devolvió dos valores distintos para el mismo ticket.")
+        unique[ticket] = deal
+    return sorted(unique.values(), key=lambda d:(d["broker_time"], int(d["deal_id"])))
 
 def sync_account(mt5, item: dict, cfg: dict):
     info = decrypt(item["encrypted_payload"])
@@ -140,17 +201,29 @@ def sync_account(mt5, item: dict, cfg: dict):
         mt5.shutdown()
         raise RuntimeError("MT5 no pudo iniciar sesión. Verifica servidor y contraseña de inversor.")
     try:
+        terminal = mt5.terminal_info()
+        if terminal is None or not terminal.connected:
+            raise RuntimeError("MT5 no está conectado al bróker; no se publica un balance en caché.")
         account = mt5.account_info()
         if account is None or str(account.login) != login or str(account.server).casefold()!=server.casefold():
             raise RuntimeError("MT5 devolvió otra cuenta o un servidor diferente; datos rechazados.")
         now = datetime.now(timezone.utc)
-        # Primer piloto: importar 365 días. Después, recuperar 7 días por seguridad
-        # para no omitir operaciones si se apaga la computadora.
-        since = now-timedelta(days=7 if item.get("last_sync_at") else 365)
-        history = mt5.history_deals_get(since, now)
+        # First v2 reconciliation reads the source's complete available history.
+        # Later requests overlap the last successful checkpoint, even after outages.
+        full_history = int(item.get("source_version") or 1) < 2
+        checkpoint = item.get("last_success_at") or item.get("last_sync_at")
+        since = datetime(1970, 1, 1, tzinfo=timezone.utc)
+        if not full_history and checkpoint:
+            since = datetime.fromisoformat(str(checkpoint).replace("Z", "+00:00")) - timedelta(days=7)
+        # Some terminals expose their server clock as epoch seconds. Include the
+        # entire current server day instead of silently excluding the last hours.
+        history = mt5.history_deals_get(since, now + timedelta(days=1))
         if history is None:
             raise RuntimeError("MT5 no pudo consultar el historial de operaciones.")
-        raw=deals_payload(history)
+        history_values=[d._asdict() if hasattr(d,"_asdict") else dict(d) for d in history]
+        clock_mode,_=source_clock(history_values,item.get("clock_references") or (),server,item.get("source_clock_mode"))
+        raw=deals_payload(history_values,item.get("clock_references") or (),server,clock_mode,deal_types(mt5))
+        revision=hashlib.sha256(json.dumps(raw,sort_keys=True,separators=(",",":"),ensure_ascii=True).encode()).hexdigest()
         print(f"  Cuenta ****{login[-4:]} · {len(raw)} movimientos disponibles")
         for offset in range(0,max(len(raw),1),MAX_DEALS_PER_BATCH):
             batch=raw[offset:offset+MAX_DEALS_PER_BATCH]
@@ -158,7 +231,9 @@ def sync_account(mt5, item: dict, cfg: dict):
                 "accountId":item["id"], "login":login,"server":server,
                 "balance":float(account.balance),"equity":float(account.equity),
                 "currency":str(account.currency or "USD").upper()[:3],
-                "deals":batch, "finished":offset+MAX_DEALS_PER_BATCH>=len(raw)
+                "deals":batch, "finished":offset+MAX_DEALS_PER_BATCH>=len(raw),
+                "sourceVersion":2,"expectedTotal":len(raw) if full_history else None,
+                "clockMode":clock_mode,"historyRevision":revision
             },cfg["agent_token"])
             print("  Lote sincronizado:",result.get("synced",0),"operaciones; almacenadas:",result.get("stored",0))
     finally:
