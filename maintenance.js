@@ -23,19 +23,10 @@ function withDeadline(promise,ms=8000){
   new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error("Tiempo de conexión agotado.")),ms);})
  ]).finally(()=>clearTimeout(timer));
 }
-function connectionNotice(show){
- const form=$("loginForm");
- if(!form)return;
- let note=$("olonMaintenanceConnectionNotice");
- if(!note){
-  note=document.createElement("div");
-  note.id="olonMaintenanceConnectionNotice";
-  note.setAttribute("role","status");
-  note.innerHTML='<span>No se pudo comprobar la conexión con el portal. Tu acceso permanece protegido.</span> <button type="button">Reintentar conexión</button>';
-  note.querySelector("button")?.addEventListener("click",()=>void check());
-  form.prepend(note);
- }
- note.hidden=!show;
+function connectionNotice(){
+ // Remove the legacy false-alarm banner. Connectivity issues are logged and
+ // displayed only when a real user action requires a network request.
+ $("olonMaintenanceConnectionNotice")?.remove();
 }
 function displayMaintenance(message){
  const loader=$("olonLoader");if(loader){delete loader.dataset.maintenanceHold;loader.hidden=true;}
@@ -86,11 +77,38 @@ function adminLogin(){
  $("loginCode")?.focus();
 }
 async function read(){
+ // This is a PUBLIC boolean status endpoint. Fetch it without acquiring the
+ // Supabase Auth session lock, which can be busy during login/MT5 operations.
  const db=client();
- if(!db)throw Error("No está disponible la conexión con Supabase.");
- const {data,error}=await withDeadline(db.from("olon_portal_maintenance")
-   .select("enabled,updated_at").eq("id",true).single());
- if(error||typeof data?.enabled!=="boolean")throw Error("No se pudo consultar el estado de mantenimiento.");
+ if(!db)throw Error("El cliente de Supabase todavía no está disponible.");
+ const base=typeof SUPABASE_URL!=="undefined"?SUPABASE_URL:db.supabaseUrl;
+ const key=typeof SUPABASE_KEY!=="undefined"?SUPABASE_KEY:db.supabaseKey;
+ if(!base||!key)throw Error("Falta la configuración de conexión.");
+ let data=null,primaryError=null;
+ const controller=new AbortController();
+ const timer=setTimeout(()=>controller.abort(),7000);
+ try{
+  const response=await fetch(base+"/rest/v1/olon_portal_maintenance?select=enabled%2Cupdated_at&id=eq.true&limit=1",{
+   method:"GET",headers:{"apikey":key,"Accept":"application/json"},cache:"no-store",signal:controller.signal
+  });
+  if(!response.ok)throw Error("Estado HTTP "+response.status);
+  const rows=await response.json();
+  data=Array.isArray(rows)?rows[0]:null;
+ }catch(e){primaryError=e;}
+ finally{clearTimeout(timer);}
+ if(typeof data?.enabled!=="boolean"){
+  // Compatibility fallback for old browsers or a REST transport interruption.
+  try{
+   const result=await withDeadline(db.from("olon_portal_maintenance")
+    .select("enabled,updated_at").eq("id",true).single(),5000);
+   if(result.error)throw result.error;
+   data=result.data;
+  }catch(e){
+   console.warn("[OLFX mantenimiento] Lectura pública no disponible",primaryError?.message||"fetch",e?.message||"fallback");
+   throw Error("No se pudo consultar el estado del portal.");
+  }
+ }
+ if(typeof data?.enabled!=="boolean")throw Error("Respuesta de mantenimiento inválida.");
  state={enabled:data.enabled,updated_at:data.updated_at};
  verified=true;lastError="";lastRead=Date.now();
  return state;
@@ -118,11 +136,16 @@ async function check(){
   try{
    const current=await read();
    if(!current.enabled){
+    const recoveredFromStartupError=startupConnectionFailed;
     lastAllowedDuringMaintenance=false;
     allowPortal();
     startupConnectionFailed=false;
-    // Status polling must not restart authentication or show a full-screen loader.
-    // Supabase Auth restores the session once during initial page startup.
+    // If the initial status read failed, session restoration was deferred.
+    // Retry it ONCE after a confirmed open status, never after scroll/focus.
+    if(recoveredFromStartupError&&initialized&&!profile()&&
+       $("portal")?.classList.contains("hidden")&&typeof window.olonRestoreSession==="function"){
+       void window.olonRestoreSession();
+    }
     return;
    }
    const db=client();
@@ -239,7 +262,7 @@ async function init(){
  }
  // Poll independently of scrolling, browser toolbar changes or focus events.
  // Admin toggles still apply immediately, and other sessions see changes shortly.
- setInterval(()=>{if(!document.hidden)void check();},20000);
+ setInterval(()=>{if(!document.hidden)void check();},30000);
 }
 window.olonMaintenance={guard,refresh:check,waitReady:()=>readyPromise,updateAdmin,needsConnection:()=>startupConnectionFailed&&!state,withDeadline};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>void init(),{once:true});
