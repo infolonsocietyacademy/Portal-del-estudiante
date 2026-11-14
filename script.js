@@ -1512,14 +1512,27 @@ function showWelcome(user){
     document.querySelectorAll('.adminNav').forEach(x=>x.classList.toggle('hidden', !isAdmin));
     document.querySelectorAll('.studentOnly').forEach(x=>x.classList.toggle('hidden', isAdmin));
 
-    // Preserve the MT5 page after a Safari tab reload. Access is still
-    // validated by Supabase Auth, the profile and License Manager.
+    // Reopen the last verified section after a Safari refresh. Never trust
+    // sessionStorage for authorization: it is only an optional navigation hint.
     let landingPage=isAdmin?'admin':'dashboard';
-    if(!isAdmin){
-      try{
-        if(sessionStorage.getItem('olon_open_page_'+currentUser.id)==='metaapiAccountsPage')
-          landingPage='metaapiAccountsPage';
-      }catch{}
+    let rememberedPage=null;
+    try{
+      const saved=sessionStorage.getItem('olon_open_page_'+currentUser.id);
+      const page=saved?document.getElementById(saved):null;
+      const link=[...document.querySelectorAll('#sidebar .portalNavLink[data-page]')]
+        .find(item=>item.dataset.page===saved &&
+          !item.classList.contains(isAdmin?'studentNav':'adminNav'));
+      if(page?.classList.contains('page')&&link&&window.olonAcademy?.allows?.(saved)!==false)
+        rememberedPage=saved;
+    }catch(error){console.warn('[OLON] No se pudo restaurar la sección anterior',error);}
+    if(isAdmin){
+      landingPage=rememberedPage||'admin';
+      window.olonPendingLandingPage=null;
+    }else{
+      // Students remain on the gated dashboard until License Manager confirms
+      // VIP access. Restoring private pages before that check would be unsafe.
+      window.olonPendingLandingPage=rememberedPage&&rememberedPage!=='dashboard'
+        ? {userId:currentUser.id,page:rememberedPage} : null;
     }
     // Optional UI modules must NEVER cancel a verified login.
     try{activatePage(landingPage);}
@@ -2180,6 +2193,13 @@ document.addEventListener("DOMContentLoaded", function(){
       const {error}=await supabaseClient.auth.signOut({scope:"local"});
       if(error)throw error;
       window.olonInstitutionalFlow?.stop();
+      if(currentUser?.id){
+        try{
+          sessionStorage.removeItem('olon_open_page_'+currentUser.id);
+          sessionStorage.removeItem('olon_admin_view_'+currentUser.id);
+        }catch{}
+      }
+      window.olonPendingLandingPage=null;
       localStorage.removeItem("olon_current_user");
       currentUser=null;cachedRecords=[];cachedUsers=[];
       window.olonCommunity?.clear();
@@ -2247,11 +2267,17 @@ document.addEventListener("DOMContentLoaded", function(){
     return restoreInFlight;
   }
   async function restoreOnce(){
-    await window.olonMaintenance.waitReady();
-    if(currentUser || authBusy || logoutInProgress || !document.getElementById("portal")?.classList.contains("hidden"))return;
-    if(window.olonMaintenance.needsConnection?.())return;
+    // Mark the initial loader as managed BEFORE waiting for maintenance.
+    // Otherwise its startup cleanup can expose the login page during refresh.
     if(!restorePending)showPortalLoader("Recuperando tu sesión del Portal del Trader…");
     try{
+      await window.olonMaintenance.waitReady();
+      if(currentUser || authBusy || logoutInProgress ||
+         !document.getElementById("portal")?.classList.contains("hidden"))return;
+      if(window.olonMaintenance.needsConnection?.()){
+        retrySessionRecovery();
+        return;
+      }
       // A stored session survives a Safari refresh; a transient getUser timeout
       // does not mean the user logged out or should lose the connected MT5 page.
       const snapshot=await window.olonMaintenance.withDeadline(supabaseClient.auth.getSession(),10000);
@@ -2484,9 +2510,8 @@ function installPortalNavigation(){
     syncPortalNavigation(id);
     if(currentUser?.id){
       try{
-        const key='olon_open_page_'+currentUser.id;
-        if(id==='metaapiAccountsPage')sessionStorage.setItem(key,id);
-        else sessionStorage.removeItem(key);
+        // Keep each user's active section across reloads, not just MT5.
+        sessionStorage.setItem('olon_open_page_'+currentUser.id,id);
       }catch{}
     }
     closeMenu();
