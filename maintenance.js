@@ -152,6 +152,15 @@ async function check(){
    const {data,error}=await withDeadline(db.auth.getUser());
    if(error)throw error;
    const user=data?.user||null;
+   // Safari and other browsers can briefly return no user while an auth token
+   // is being restored/refreshed. A background maintenance poll must NEVER
+   // replace an already verified administrator's or test student's workspace
+   // with the public landing page merely because of that temporary gap.
+   // Supabase still enforces permissions on every private server operation.
+   if(!user&&profile()&&lastAllowedDuringMaintenance){
+    console.warn("[OLFX mantenimiento] Verificación temporalmente vacía; se conserva la vista autenticada.");
+    return;
+   }
    let p=null;
    if(user){
     const result=await withDeadline(db.from("profiles").select("role,status").eq("id",user.id).maybeSingle());
