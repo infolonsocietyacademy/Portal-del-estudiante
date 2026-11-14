@@ -478,3 +478,149 @@
 #portal :is(#academyAdminClassesPage,#academyAdminVipPage,#adminChat) .btn{
   border-radius:6px!important;box-shadow:none!important
 }
+
+
+/* OLFX / REPOSITORY EXPLORER — ONE NAVIGATION STYLE ON EVERY ADMIN MODULE */
+#portal #admin .adminWorkspaceNav.olAdminRepoNav{
+  display:block!important;width:100%;padding:4px 0 10px!important;margin:0!important;
+  border:0!important;border-radius:0!important;background:none!important;
+  box-shadow:none!important;overflow:visible!important
+}
+#portal #admin .adminWorkspaceNav.olAdminRepoNav .olAdminNavGroup{
+  display:block;margin:16px 9px 7px!important;padding:0 0 7px!important;
+  color:#8b949e!important;border-bottom:1px solid #21262d!important;
+  font:700 9px/1.35 "JetBrains Mono",monospace!important;letter-spacing:.075em!important
+}
+#portal #admin .adminWorkspaceNav.olAdminRepoNav .olAdminRepoItem{
+  display:flex!important;flex-direction:row!important;align-items:center!important;
+  width:100%!important;min-height:36px!important;margin:1px 0!important;padding:7px 9px!important;
+  border:0!important;border-left:2px solid transparent!important;border-radius:5px!important;
+  background:transparent!important;color:#c9d1d9!important;
+  font:600 11px/1.45 "JetBrains Mono",monospace!important;
+  box-shadow:none!important;text-align:left!important;white-space:nowrap!important
+}
+#portal #admin .adminWorkspaceNav.olAdminRepoNav .olAdminRepoItem[hidden],
+#portal #admin .adminWorkspaceNav.olAdminRepoNav .olAdminNavGroup[hidden]{display:none!important}
+#portal #admin .adminWorkspaceNav.olAdminRepoNav .olAdminRepoItem:hover{
+  background:#161b22!important;color:#e6edf3!important
+}
+#portal #admin .adminWorkspaceNav.olAdminRepoNav .olAdminRepoItem.active{
+  background:#21262d!important;color:#e6edf3!important;
+  border:0!important;border-left:2px solid #58a6ff!important;
+  box-shadow:none!important
+}
+#portal #admin .adminWorkspaceNav.olAdminRepoNav .olAdminNavIcon,
+#portal #admin .adminWorkspaceNav.olAdminRepoNav .olAdminRepoItem.active .olAdminNavIcon{
+  display:grid!important;place-items:center!important;width:18px!important;min-width:18px!important;
+  height:18px!important;padding:0!important;margin-right:1px!important;
+  border:0!important;border-radius:0!important;
+  background:transparent!important;color:#8b949e!important;box-shadow:none!important;
+  font:600 14px/1 "JetBrains Mono",monospace!important
+}
+#portal #admin .adminWorkspaceNav.olAdminRepoNav .olAdminRepoItem.active .olAdminNavIcon{color:#58a6ff!important}
+#portal #admin .adminWorkspaceNav.olAdminRepoNav .olAdminNavLabel{
+  display:flex!important;min-width:0;flex:1;flex-direction:row!important;gap:0!important
+}
+#portal #admin .adminWorkspaceNav.olAdminRepoNav .olAdminNavName{
+  display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap!important;
+  color:inherit!important;font:650 11px/1.45 "JetBrains Mono",monospace!important
+}
+#portal #admin .adminWorkspaceNav.olAdminRepoNav .olAdminNavDesc,
+#portal #admin .adminWorkspaceNav.olAdminRepoNav .olAdminNavArrow{display:none!important}
+#portal #admin .adminWorkspaceNav.olAdminRepoNav .olAdminNavCounter{
+  flex:none;min-width:20px;margin-left:auto!important;padding:2px 6px!important;
+  border:0!important;border-radius:10px!important;background:#30363d!important;
+  color:#c9d1d9!important;font:600 9px/1.5 "JetBrains Mono",monospace!important
+}
+#portal #admin .olAdminSidebarIntro{padding:11px 9px!important}
+#portal #admin .olAdminSidebarIntro>span{font-size:9px!important;color:#8b949e!important}
+#portal #admin .olAdminSidebarIntro strong{font-size:14px!important;letter-spacing:-.03em}
+#portal #admin .olAdminSidebarIntro small{font-size:9px!important;color:#8b949e!important}
+#portal #admin .olAdminSidebar{gap:0!important}
+#portal #admin .olAdminFinder{margin-top:5px!important}
+
+/* FLAT MODULE LAYOUT — SAME HEADERS, FORM FIELDS AND DIVIDERS EVERYWHERE */
+#portal #admin .olAdminViewContainer{width:100%;min-width:0;background:#0d1117}
+#portal #admin .olAdminView>.adminWorkspaceCard:not(#olonLicenseAdminBlock),
+#portal #admin .olAdminView>.adminWorkspaceHero,
+#portal #admin .olAdminView>.adminWorkspacePanels,
+#portal #admin .olAdminView>.adminSectionIntro{
+  background:transparent!important;box-shadow:none!important;border-radius:0!important;
+}
+#portal #admin .olAdminView .adminWorkspaceCardHead,
+#portal #admin .olAdminView :is(.billingHeading,.rebateHead,.olonReminderAdminHeader){
+  display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:16px;
+  color:#e6edf3!important;background:transparent!important;border-radius:0!important
+}
+#portal #admin .olAdminView .adminWorkspaceCardHead h4,
+#portal #admin .olAdminView .billingHeading h4,
+#portal #admin .olAdminView .rebateHead h4{font-size:18px!important;line-height:1.4!important}
+#portal #admin .olAdminView .adminWorkspaceCardHead p,
+#portal #admin .olAdminView :is(.billingHeading,.rebateHead,.olonReminderAdminHeader) p{
+  color:#8b949e!important;font-size:11px!important;line-height:1.75!important
+}
+#portal #admin .olAdminView :is(.adminDirectoryTable,.adminWorkspacePanels,.adminRequestList,.adminAlertList,.olonReminderAdminList),
+#portal #admin .olAdminView :is(.billingMetrics,.rebateMetrics,.billingRows,.rebateClientRows),
+#portal #admin .olAdminView :is(.billingTableLabels,.rebatePeriodSelectors,.rebateMonths){
+  min-width:0;max-width:100%;box-shadow:none!important
+}
+#portal #admin .olAdminView :is(.adminAlertList,.adminRequestList,.olonReminderAdminList)>*{
+  border-radius:0!important;box-shadow:none!important
+}
+#portal #admin .olAdminView :is(.adminQuickFilters,.billingFilters,.rebateFilters) button{
+  box-shadow:none!important;border-radius:6px!important
+}
+#portal #admin .olAdminView :is(.adminWorkspaceCard,.adminWorkspaceHero,.adminSectionIntro,.adminWorkspacePanels,.adminWorkspaceMetrics) [class*="Glow"],
+#portal #admin .olAdminView [class*="Decorative"]{box-shadow:none!important}
+
+/* Admin-specific connections, classes, VIP receipts and direct messages share the same visual language. */
+#portal #olonOwnAdminPage{
+  max-width:none!important;margin:0!important;padding:0!important;
+  --panel:#0d1117;--panel2:#161b22;--card:#0d1117;--card-bg:transparent;
+  --text:#e6edf3;--muted:#8b949e;--line:#30363d;
+  color:#e6edf3!important;background:#0d1117!important;color-scheme:dark
+}
+#portal #olonOwnAdminPage :is(.metaapi-shell,.metaapi-panel,.olfxAccountCard,.olfxAccountMetric){
+  background:transparent!important;border:0!important;border-bottom:1px solid #30363d!important;
+  box-shadow:none!important;border-radius:0!important;color:#e6edf3!important
+}
+#portal #olonOwnAdminPage .metaapi-panel{padding:22px 25px!important}
+#portal #olonOwnAdminPage :is(.metaapi-head,.olfxAccountHeader){
+  background:transparent!important;border-bottom:1px solid #30363d!important
+}
+#portal #olonOwnAdminPage :is(input,textarea,select){
+  background:#0d1117!important;border:1px solid #484f58!important;
+  border-radius:6px!important;color:#e6edf3!important
+}
+#portal #olonOwnAdminPage :is(button,.metaapi-primary){
+  border-radius:6px!important;box-shadow:none!important
+}
+#portal #olonOwnAdminPage :is(h3,h4,strong){color:#e6edf3}
+#portal #olonOwnAdminPage :is(p,small){color:#8b949e}
+#portal #adminChat .adminHero{
+  padding:22px 26px!important;background:transparent!important;
+  border:0!important;border-bottom:1px solid #30363d!important;
+  border-radius:0!important;box-shadow:none!important
+}
+#portal #adminChat .adminChatLayout{gap:0!important}
+#portal #adminChat .adminChatLayout>div:first-child{
+  padding:16px!important;border-right:1px solid #30363d!important
+}
+#portal #adminChat .adminChatBox{padding:16px!important}
+#portal #adminChat :is(.adminReplyArea button,.adminActions button,.deleteConversationBtn){
+  border:1px solid #484f58!important;border-radius:6px!important;
+  box-shadow:none!important
+}
+#portal :is(#academyAdminClassesPage,#academyAdminVipPage) :is(.academyList,.academyItem,.academyListItem){
+  background:transparent!important;border-radius:0!important;box-shadow:none!important
+}
+#portal :is(#academyAdminClassesPage,#academyAdminVipPage) :is(.academyList>*,.academyItem){
+  border:0!important;border-bottom:1px solid #30363d!important
+}
+@media(max-width:780px){
+  #portal #admin .olAdminRepoNav .olAdminRepoItem{min-height:41px!important}
+  #portal #admin .adminWorkspaceNav.olAdminRepoNav .olAdminNavGroup{margin-top:16px!important}
+  #portal #admin .olAdminSidebar{overflow-y:auto!important;overscroll-behavior:contain}
+  #portal #admin .olAdminMobileBar{display:flex!important}
+  #portal #adminChat .adminChatLayout>div:first-child{border-right:0!important;border-bottom:1px solid #30363d!important}
+}
