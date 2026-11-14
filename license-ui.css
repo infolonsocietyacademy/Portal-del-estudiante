@@ -85,60 +85,264 @@ body.olonLicenseChecking #olonLicenseRedeem{opacity:.7}
 #olonLicenseAdminBlock .olonLicenseDateTrigger svg{flex-shrink:0;color:#b8cfe0}
 
 
-/* OLFX VIP license manager — premium administrative workspace */
-#olonLicenseAdminBlock.olonLicensePanel{--lic-bg:#0b121c;--lic-line:rgba(156,183,213,.2);border:1px solid var(--lic-line);border-radius:20px;background:linear-gradient(155deg,#101d2b 0%,#0c1520 40%,#0b121c 100%);padding:0;overflow:hidden;color:#ecf3fa;box-shadow:0 20px 54px rgba(0,0,0,.15);font-family:'JetBrains Mono',monospace}
-#olonLicenseAdminBlock .olonLicenseHero{padding:26px 28px 22px;background:radial-gradient(circle at 85% -20%,rgba(80,142,201,.21),transparent 55%);border-bottom:1px solid var(--lic-line)}
-#olonLicenseAdminBlock .olonLicenseHeroTop,#olonLicenseAdminBlock .olonLicenseHeroTitle,#olonLicenseAdminBlock .olonLicenseResultHead,#olonLicenseAdminBlock .olonLicenseRowTop{display:flex;justify-content:space-between;align-items:center;gap:12px}
-#olonLicenseAdminBlock .olonLicenseHeroKicker,#olonLicenseAdminBlock .olonLicenseSectionTitle span{font-size:10px;letter-spacing:.15em;font-weight:800;color:#8eacc7}
-#olonLicenseAdminBlock .olonLicenseSecureTag{font-size:10px;font-weight:750;letter-spacing:.04em;color:#a4e6c9;border:1px solid rgba(90,185,141,.35);border-radius:999px;padding:6px 10px;background:rgba(67,145,109,.08)}
-#olonLicenseAdminBlock .olonLicenseHeroTitle{align-items:flex-end;margin-top:16px}
-#olonLicenseAdminBlock .olonLicenseHero h3{font-size:clamp(21px,2.5vw,30px);margin:0 0 8px;letter-spacing:-.04em;color:#f6faff}
-#olonLicenseAdminBlock .olonLicenseHero p,#olonLicenseAdminBlock .olonLicenseSectionTitle p{font-size:12px;line-height:1.8;color:#a2b4c8;margin:0;max-width:690px}
-#olonLicenseAdminBlock .olonLicenseStats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:20px 28px;gap:12px}
-#olonLicenseAdminBlock .olonLicenseStats>div{min-width:0;padding:16px;background:rgba(22,37,53,.7);border:1px solid var(--lic-line);border-radius:13px}
-#olonLicenseAdminBlock .olonLicenseStats small{font-size:11px;color:#b3c2d2}
-#olonLicenseAdminBlock .olonLicenseStats b{font-size:clamp(23px,3vw,30px);font-weight:800;margin:8px 0 4px;color:#f5f9ff}
-#olonLicenseAdminBlock .olonLicenseStats span{display:block;font-size:10px;color:#8197af}
-#olonLicenseAdminBlock .olonLicenseCreate{margin:4px 28px 24px;padding:22px;background:#111e2c;border:1px solid var(--lic-line);border-radius:15px}
-#olonLicenseAdminBlock .olonLicenseSectionTitle h4{font-size:16px;margin:7px 0;color:#eef5fe}
-#olonLicenseAdminBlock .olonLicenseForm{display:grid;grid-template-columns:minmax(170px,2fr) minmax(165px,1.5fr) minmax(90px,.65fr) auto;gap:12px;align-items:end;margin-top:20px}
-#olonLicenseAdminBlock .olonLicenseForm label,#olonLicenseAdminBlock .olonLicenseDurationLabel{font-size:11px;font-weight:700;line-height:1.5;color:#bdd0e2}
-#olonLicenseAdminBlock .olonLicenseForm input,#olonLicenseAdminBlock .olonLicenseForm select{min-height:48px;border-color:#42576b;background:#0b1622;color:#ecf5ff;font-family:'JetBrains Mono',monospace;font-size:12px}
-#olonLicenseAdminBlock .olonLicenseGenerateBtn{min-height:48px;border-radius:9px;white-space:nowrap;padding:11px 16px}
-#olonLicenseAdminBlock .olonLicenseResult{margin-top:18px;padding:17px;background:linear-gradient(145deg,#182e3f,#0e2230);border:1px solid #456a82;border-radius:13px}
+/* OLFX LICENSE MANAGER · GitHub-inspired, flat administrative layout
+   No floating cards or nested dashboard boxes. The entire interface is a
+   clean workspace with thin separators, readable rows and restrained actions. */
+#portal #admin #olonLicenseAdminBlock.olonLicensePanel{
+  --lic-bg:#0d1117;--lic-text:#e6edf3;--lic-muted:#8b949e;--lic-border:#30363d;
+  --lic-hover:#161b22;--lic-blue:#58a6ff;
+  background:var(--lic-bg)!important;color:var(--lic-text)!important;
+  padding:0!important;margin:0!important;border:0!important;border-radius:0!important;
+  box-shadow:none!important;overflow:visible;font-family:"JetBrains Mono",monospace;
+  min-width:0;width:100%;
+}
+#olonLicenseAdminBlock *{box-sizing:border-box}
+#olonLicenseAdminBlock .olonLicenseHero{
+  padding:25px 30px 23px;background:transparent;border:0;
+  border-bottom:1px solid var(--lic-border);border-radius:0
+}
+#olonLicenseAdminBlock .olonLicenseHeroTop{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  margin:0 0 13px
+}
+#olonLicenseAdminBlock .olonLicenseHeroKicker,
+#olonLicenseAdminBlock .olonLicenseSectionTitle span{
+  font:700 10px/1.5 "JetBrains Mono",monospace;letter-spacing:.11em;color:var(--lic-muted)
+}
+#olonLicenseAdminBlock .olonLicenseSecureTag{
+  padding:0;background:transparent;border:0;border-radius:0;
+  font-size:10px;font-weight:700;letter-spacing:.035em;color:#3fb950
+}
+#olonLicenseAdminBlock .olonLicenseHeroTitle{
+  display:flex;align-items:center;justify-content:space-between;gap:16px
+}
+#olonLicenseAdminBlock .olonLicenseHeroTitle>div{min-width:0}
+#olonLicenseAdminBlock .olonLicenseHero h3{
+  margin:0 0 8px;font-size:clamp(21px,2.3vw,27px);letter-spacing:-.035em;
+  line-height:1.3;color:var(--lic-text);font-weight:750
+}
+#olonLicenseAdminBlock .olonLicenseHero p,
+#olonLicenseAdminBlock .olonLicenseSectionTitle p{
+  max-width:740px;margin:0;color:var(--lic-muted);font-size:12px;line-height:1.8
+}
+#olonLicenseAdminBlock #olonLicenseRefresh{
+  flex:none;min-height:34px;padding:7px 12px;border:1px solid var(--lic-border);
+  border-radius:6px;background:#21262d;color:var(--lic-text);
+  font:600 11px "JetBrains Mono",monospace;cursor:pointer
+}
+#olonLicenseAdminBlock #olonLicenseRefresh:hover{background:#30363d}
+#olonLicenseAdminBlock .olonLicenseStats{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;
+  padding:0 30px;margin:0;border-bottom:1px solid var(--lic-border)
+}
+#olonLicenseAdminBlock .olonLicenseStats>div{
+  min-width:0;padding:18px 16px 18px 0;margin-right:16px;
+  border:0;border-right:1px solid var(--lic-border);
+  border-radius:0;background:none;box-shadow:none
+}
+#olonLicenseAdminBlock .olonLicenseStats>div:last-child{border-right:0;margin-right:0}
+#olonLicenseAdminBlock .olonLicenseStats small{
+  display:block;font-size:10px;color:var(--lic-muted);font-weight:650;white-space:normal
+}
+#olonLicenseAdminBlock .olonLicenseStats b{
+  display:block;margin:6px 0 3px;font-size:clamp(22px,2.7vw,27px);
+  color:var(--lic-text);line-height:1.2;letter-spacing:-.035em;font-variant-numeric:tabular-nums
+}
+#olonLicenseAdminBlock .olonLicenseStats span{
+  display:block;font-size:10px;line-height:1.5;color:var(--lic-muted)
+}
+#olonLicenseAdminBlock .olonLicenseCreate{
+  padding:28px 30px;margin:0;border:0;border-bottom:1px solid var(--lic-border);
+  border-radius:0;background:transparent;box-shadow:none
+}
+#olonLicenseAdminBlock .olonLicenseSectionTitle h4{
+  margin:5px 0 7px;color:var(--lic-text);font-size:16px;letter-spacing:-.02em;
+  line-height:1.35;font-weight:750
+}
+#olonLicenseAdminBlock .olonLicenseForm{
+  display:grid;grid-template-columns:minmax(190px,2fr) minmax(170px,1.4fr) minmax(84px,.65fr) auto;
+  gap:12px;align-items:end;margin:21px 0 0
+}
+#olonLicenseAdminBlock .olonLicenseForm label,
+#olonLicenseAdminBlock .olonLicenseDurationLabel{
+  display:grid;gap:7px;min-width:0;color:#c9d1d9;
+  font:600 11px/1.5 "JetBrains Mono",monospace
+}
+#olonLicenseAdminBlock .olonLicenseDurationSelect{
+  display:flex;flex-direction:column;gap:7px;min-width:0;flex:unset
+}
+#olonLicenseAdminBlock .olonLicenseForm input,
+#olonLicenseAdminBlock .olonLicenseForm select,
+#olonLicenseAdminBlock .olonLicenseFilters input,
+#olonLicenseAdminBlock .olonLicenseFilters select,
+#olonLicenseAdminBlock .olonLicenseDateTrigger{
+  display:block;width:100%;min-width:0;min-height:41px;padding:10px 12px;
+  background:#0d1117;border:1px solid #484f58;border-radius:6px;
+  color:#e6edf3;font:500 11px/1.4 "JetBrains Mono",monospace;
+  box-shadow:none;outline-offset:2px
+}
+#olonLicenseAdminBlock .olonLicenseDateTrigger{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  text-align:left;cursor:pointer
+}
+#olonLicenseAdminBlock .olonLicenseDateTrigger strong{font:650 11px/1.4 "JetBrains Mono",monospace}
+#olonLicenseAdminBlock .olonLicenseDateTrigger small{font-size:10px;color:var(--lic-muted)}
+#olonLicenseAdminBlock .olonLicenseDateTrigger:hover,
+#olonLicenseAdminBlock .olonLicenseForm select:hover{border-color:#8b949e}
+#olonLicenseAdminBlock .olonLicenseForm :is(input,select,button):focus-visible,
+#olonLicenseAdminBlock .olonLicenseFilters :is(input,select):focus-visible,
+#olonLicenseAdminBlock #olonGeneratedCodes:focus-visible{
+  outline:2px solid var(--lic-blue);outline-offset:2px
+}
+#olonLicenseAdminBlock .olonLicenseGenerateBtn{
+  min-height:41px;padding:10px 16px;border:1px solid #238636;border-radius:6px;
+  background:#238636;color:#fff;font:700 11px "JetBrains Mono",monospace;
+  white-space:nowrap;box-shadow:none
+}
+#olonLicenseAdminBlock .olonLicenseGenerateBtn:hover{background:#2ea043}
+#olonLicenseAdminBlock .olonLicenseResult{
+  margin:20px 0 0;padding:16px 0 0;border:0;border-top:1px solid var(--lic-border);
+  border-radius:0;background:transparent;box-shadow:none
+}
 #olonLicenseAdminBlock .olonLicenseResult[hidden]{display:none!important}
-#olonLicenseAdminBlock .olonLicenseResultHead strong,#olonLicenseAdminBlock .olonLicenseResultHead small{display:block}
-#olonLicenseAdminBlock .olonLicenseResultHead strong{font-size:13px;color:#f5faff}
-#olonLicenseAdminBlock .olonLicenseResultHead small{color:#aac2d6;line-height:1.6;font-size:10px;margin-top:6px}
-#olonLicenseAdminBlock .olonLicenseResultHead>span{font-size:10px;color:#94dfc2;font-weight:700}
-#olonLicenseAdminBlock #olonGeneratedCodes{box-sizing:border-box;display:block;width:100%;min-height:90px;max-height:260px;resize:vertical;white-space:pre;overflow:auto;background:#060e16;color:#d7eefe;font:12px/1.85 'JetBrains Mono',monospace;user-select:text;-webkit-user-select:text}
-#olonLicenseAdminBlock .olonLicenseResultActions{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
-#olonLicenseAdminBlock .olonLicenseColumns{padding:0 28px 26px;gap:14px;margin-top:0;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
-#olonLicenseAdminBlock .olonLicenseCatalog,#olonLicenseAdminBlock .olonLicenseStudentPane{padding:19px;background:rgba(17,30,44,.77);border:1px solid var(--lic-line);border-radius:14px;min-width:0}
-#olonLicenseAdminBlock .olonLicenseFilters{display:flex;gap:10px;margin:14px 0}
-#olonLicenseAdminBlock .olonLicenseFilters label{display:grid;gap:6px;font-size:10px;color:#a9c1d5}
-#olonLicenseAdminBlock .olonLicenseFilters .olonLicenseFilterSearch{flex:1;min-width:0}
-#olonLicenseAdminBlock .olonLicenseFilters input,#olonLicenseAdminBlock .olonLicenseFilters select{box-sizing:border-box;min-width:0;width:100%;padding:10px;border:1px solid #43576e;background:#0a1622;border-radius:8px;color:#f1f6fb;font:11px 'JetBrains Mono',monospace}
-#olonLicenseAdminBlock .olonLicenseRow{align-items:flex-start;gap:10px;padding:15px 2px}
-#olonLicenseAdminBlock .olonLicenseRowMain{flex:1;min-width:0}
-#olonLicenseAdminBlock .olonLicenseRowTop{justify-content:flex-start;flex-wrap:wrap}
-#olonLicenseAdminBlock .olonLicenseRowTop strong{font-size:12px;color:#f5faff}
-#olonLicenseAdminBlock .olonLicenseRow small{display:block;overflow-wrap:anywhere;margin-top:6px;line-height:1.5;color:#9cacc0;font-size:10px}
-#olonLicenseAdminBlock .olonLicenseState{padding:4px 7px;border:1px solid #48586b;background:#243143;border-radius:999px;color:#d0dae6;font-size:9px;white-space:nowrap}
-#olonLicenseAdminBlock .olonLicenseState[data-state="available"]{color:#a1e4cb;border-color:#347760;background:#17362d}
-#olonLicenseAdminBlock .olonLicenseState[data-state="redeemed"]{color:#9bc7fb;border-color:#426d9a;background:#1a324f}
-#olonLicenseAdminBlock .olonLicenseState[data-state="revoked"]{color:#e8aaaa;border-color:#814e56;background:#401f2b}
-#olonLicenseAdminBlock .olonLicenseRowActions{max-width:190px;justify-content:flex-end}
-#olonLicenseAdminBlock .olonLicenseRowActions .adminSmallButton{font-size:10px;white-space:nowrap}
-#olonLicenseAdminBlock .olonLicenseDelete{border-color:#964852;color:#ffd1d4;background:#371b26}
-#olonLicenseAdminBlock .olonLicenseDelete:hover{background:#5a2935}
-#olonLicenseAdminBlock .olonLicenseEmpty{color:#9facc0;font-size:12px;padding:12px 0}
-#olonLicenseAdminBlock .olonLicenseFooterNote{font-size:11px;line-height:1.7;color:#879fb6;margin:0;padding:0 28px 24px}
-#olonLicenseAdminBlock .olonLicenseFeedback{font-size:12px;line-height:1.55;padding:10px 12px;margin:10px 0;background:rgba(60,118,157,.12);border:1px solid #335472;border-radius:8px}
+#olonLicenseAdminBlock .olonLicenseResultHead{
+  display:flex;align-items:start;justify-content:space-between;gap:12px
+}
+#olonLicenseAdminBlock .olonLicenseResultHead strong{display:block;font-size:12px;color:var(--lic-text)}
+#olonLicenseAdminBlock .olonLicenseResultHead small{
+  display:block;margin:5px 0 0;color:var(--lic-muted);font-size:10px;line-height:1.6
+}
+#olonLicenseAdminBlock .olonLicenseResultHead>span{color:#3fb950;font-size:10px;font-weight:700}
+#olonLicenseAdminBlock #olonGeneratedCodes{
+  display:block;width:100%;min-height:78px;max-height:240px;margin:12px 0 0;
+  padding:12px;resize:vertical;overflow:auto;
+  border:1px solid var(--lic-border);border-radius:6px;background:#010409;color:#d2e6f5;
+  font:12px/1.8 "JetBrains Mono",monospace;user-select:text;-webkit-user-select:text
+}
+#olonLicenseAdminBlock .olonLicenseResultActions{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+#olonLicenseAdminBlock .olonLicenseResultActions .btn{
+  background:#21262d;border:1px solid #484f58;color:var(--lic-text);
+  border-radius:6px;font:650 11px "JetBrains Mono",monospace;padding:9px 13px
+}
+#olonLicenseAdminBlock .olonLicenseResultActions .btn:hover{background:#30363d}
+#olonLicenseAdminBlock .olonLicenseColumns{
+  display:block!important;padding:0!important;margin:0!important;
+  border:0!important;gap:0!important
+}
+#olonLicenseAdminBlock .olonLicenseCatalog,
+#olonLicenseAdminBlock .olonLicenseStudentPane{
+  padding:28px 30px 32px!important;margin:0!important;background:transparent!important;
+  border:0!important;border-bottom:1px solid var(--lic-border)!important;
+  border-radius:0!important;box-shadow:none!important;min-width:0
+}
+#olonLicenseAdminBlock .olonLicenseFilters{
+  display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin:19px 0 16px
+}
+#olonLicenseAdminBlock .olonLicenseFilters label{
+  display:grid;gap:6px;color:var(--lic-muted);font-size:10px;font-weight:600
+}
+#olonLicenseAdminBlock .olonLicenseFilterSearch{flex:1 1 250px;min-width:180px}
+#olonLicenseAdminBlock .olonLicenseFilters label:not(.olonLicenseFilterSearch){flex:0 1 170px}
+#olonLicenseAdminBlock .olonLicenseTableHead{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,360px);
+  gap:16px;padding:10px 8px;color:var(--lic-muted);
+  background:#161b22;border-top:1px solid var(--lic-border);
+  border-bottom:1px solid var(--lic-border);
+  font:700 10px "JetBrains Mono",monospace;letter-spacing:.035em
+}
+#olonLicenseAdminBlock .olonLicenseRow{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;
+  align-items:center;padding:15px 8px;margin:0;min-width:0;
+  border:0;border-bottom:1px solid var(--lic-border);border-radius:0;
+  background:transparent;box-shadow:none
+}
+#olonLicenseAdminBlock .olonLicenseRow:last-child{border-bottom:0}
+#olonLicenseAdminBlock .olonLicenseRow:hover{background:#161b22}
+#olonLicenseAdminBlock .olonLicenseRowMain{min-width:0}
+#olonLicenseAdminBlock .olonLicenseRowTop{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:9px
+}
+#olonLicenseAdminBlock .olonLicenseRowTop strong,
+#olonLicenseAdminBlock .olonLicenseRow strong,
+#olonLicenseAdminBlock .olonLicenseRow b{
+  color:var(--lic-text);font-size:12px;font-weight:650;line-height:1.45
+}
+#olonLicenseAdminBlock .olonLicenseRow small{
+  display:block;margin-top:5px;font-size:10px;line-height:1.65;
+  color:var(--lic-muted);overflow-wrap:anywhere
+}
+#olonLicenseAdminBlock .olonLicenseState{
+  display:inline-flex;gap:5px;align-items:center;color:var(--lic-muted);
+  padding:0;border:0;border-radius:0;background:transparent;
+  font:600 10px "JetBrains Mono",monospace;white-space:nowrap
+}
+#olonLicenseAdminBlock .olonLicenseState::before{
+  content:"";width:7px;height:7px;flex:none;border-radius:50%;background:#8b949e
+}
+#olonLicenseAdminBlock .olonLicenseState[data-state="available"]{color:#3fb950;background:none;border:0}
+#olonLicenseAdminBlock .olonLicenseState[data-state="available"]::before{background:#3fb950}
+#olonLicenseAdminBlock .olonLicenseState[data-state="redeemed"]{color:#58a6ff;background:none;border:0}
+#olonLicenseAdminBlock .olonLicenseState[data-state="redeemed"]::before{background:#58a6ff}
+#olonLicenseAdminBlock .olonLicenseState[data-state="revoked"]{color:#f85149;background:none;border:0}
+#olonLicenseAdminBlock .olonLicenseState[data-state="revoked"]::before{background:#f85149}
+#olonLicenseAdminBlock .olonLicenseRowActions{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;
+  gap:2px;max-width:360px;min-width:0
+}
+#olonLicenseAdminBlock .olonLicenseRowActions .adminSmallButton,
+#olonLicenseAdminBlock .olonLicenseResultActions .adminSmallButton{
+  min-height:30px;padding:6px 9px;background:transparent;
+  border:0!important;border-radius:4px!important;
+  color:#9ecbff;font:600 10px/1.5 "JetBrains Mono",monospace;box-shadow:none;
+  cursor:pointer
+}
+#olonLicenseAdminBlock .olonLicenseRowActions .adminSmallButton:hover,
+#olonLicenseAdminBlock .olonLicenseResultActions .adminSmallButton:hover{background:#21262d!important;color:#fff}
+#olonLicenseAdminBlock .olonLicenseRowActions .olonLicenseDelete{color:#ff7b72}
+#olonLicenseAdminBlock .olonLicenseRowActions .olonLicenseDelete:hover{background:rgba(248,81,73,.13)!important;color:#ffa198}
+#olonLicenseAdminBlock .olonLicenseEmpty{padding:24px 8px;color:var(--lic-muted);font-size:12px}
+#olonLicenseAdminBlock .olonLicenseFooterNote{
+  padding:18px 30px 26px;margin:0;color:var(--lic-muted);
+  font-size:10px;line-height:1.85;background:transparent
+}
+#olonLicenseAdminBlock .olonLicenseFeedback{
+  margin:14px 0 0;padding:11px 0;border:0;border-radius:0;
+  border-bottom:1px solid var(--lic-border);background:transparent;
+  font-size:11px;line-height:1.6;color:#3fb950
+}
 #olonLicenseAdminBlock .olonLicenseFeedback[hidden]{display:none}
-#olonLicenseAdminBlock .olonLicenseFeedback[data-error="true"]{background:rgba(155,53,68,.12);border-color:#81454e}
-@media(max-width:1150px){#olonLicenseAdminBlock .olonLicenseForm{grid-template-columns:1fr 1fr}#olonLicenseAdminBlock .olonLicenseGenerateBtn{width:100%}#olonLicenseAdminBlock .olonLicenseColumns{grid-template-columns:1fr}}
-@media(max-width:680px){#olonLicenseAdminBlock .olonLicenseHero{padding:20px 16px}#olonLicenseAdminBlock .olonLicenseHeroTitle{align-items:stretch;flex-direction:column}#olonLicenseAdminBlock .olonLicenseStats{grid-template-columns:repeat(2,minmax(0,1fr));padding:15px 16px}#olonLicenseAdminBlock .olonLicenseCreate{margin:0 16px 18px;padding:16px}#olonLicenseAdminBlock .olonLicenseForm{grid-template-columns:1fr}#olonLicenseAdminBlock .olonLicenseColumns{padding:0 16px 20px}#olonLicenseAdminBlock .olonLicenseFilters{flex-direction:column}#olonLicenseAdminBlock .olonLicenseRow{flex-direction:column}#olonLicenseAdminBlock .olonLicenseRowActions{max-width:none;justify-content:flex-start}#olonLicenseAdminBlock .olonLicenseFooterNote{padding:0 16px 20px}}
+#olonLicenseAdminBlock .olonLicenseFeedback[data-error="true"]{
+  color:#ff7b72;border-color:var(--lic-border);background:transparent
+}
+@media(max-width:1100px){
+  #olonLicenseAdminBlock .olonLicenseForm{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  #olonLicenseAdminBlock .olonLicenseGenerateBtn{width:100%}
+  #olonLicenseAdminBlock .olonLicenseTableHead{grid-template-columns:minmax(0,1fr) 250px}
+  #olonLicenseAdminBlock .olonLicenseRowActions{max-width:250px}
+}
+@media(max-width:740px){
+  #olonLicenseAdminBlock .olonLicenseHero{padding:20px 16px}
+  #olonLicenseAdminBlock .olonLicenseHeroTitle{align-items:start;flex-direction:column}
+  #olonLicenseAdminBlock .olonLicenseStats{padding:0 16px;grid-template-columns:repeat(2,minmax(0,1fr))}
+  #olonLicenseAdminBlock .olonLicenseStats>div{padding:14px 12px 14px 0;margin-right:12px;border-bottom:1px solid var(--lic-border)}
+  #olonLicenseAdminBlock .olonLicenseStats>div:nth-child(2){margin-right:0;border-right:0}
+  #olonLicenseAdminBlock .olonLicenseStats>div:nth-last-child(-n+2){border-bottom:0}
+  #olonLicenseAdminBlock .olonLicenseCreate{padding:22px 16px}
+  #olonLicenseAdminBlock .olonLicenseForm{grid-template-columns:minmax(0,1fr)}
+  #olonLicenseAdminBlock .olonLicenseCatalog,
+  #olonLicenseAdminBlock .olonLicenseStudentPane{padding:24px 16px!important}
+  #olonLicenseAdminBlock .olonLicenseFilters{flex-direction:column;align-items:stretch}
+  #olonLicenseAdminBlock .olonLicenseFilters label,
+  #olonLicenseAdminBlock .olonLicenseFilters .olonLicenseFilterSearch{width:100%;flex:none}
+  #olonLicenseAdminBlock .olonLicenseTableHead{display:none}
+  #olonLicenseAdminBlock .olonLicenseRow{grid-template-columns:1fr;gap:9px;padding:14px 4px}
+  #olonLicenseAdminBlock .olonLicenseRowActions{justify-content:flex-start;max-width:none}
+  #olonLicenseAdminBlock .olonLicenseFooterNote{padding:18px 16px}
+}
+@media(prefers-reduced-motion:no-preference){
+  #olonLicenseAdminBlock .olonLicenseRow,
+  #olonLicenseAdminBlock .olonLicenseRowActions .adminSmallButton{transition:background-color .16s,color .16s}
+}
 
 /* Admin-only temporary display of individual VIP code */
 .olonLicenseRevealDialog{width:min(95vw,600px)}
