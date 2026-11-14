@@ -244,7 +244,8 @@ def one(automatic: bool = False) -> int:
 
 def check_auto_update() -> bool:
     """Actualiza solo este agente desde main. Nunca modifica claves, token ni ajustes."""
-    if os.environ.get("OLFX_DISABLE_AUTOUPDATE") == "1":
+    # Solo el lanzador supervisado puede reiniciar el proceso tras una actualizacion.
+    if os.environ.get("OLFX_AUTOUPDATE_SUPERVISED") != "1" or os.environ.get("OLFX_DISABLE_AUTOUPDATE") == "1":
         return False
     agent_file = Path(__file__).resolve()
     if agent_file.name != "olfx_agent.py":
@@ -328,7 +329,7 @@ def main():
         print("Busca cuentas nuevas cada 15 segundos y actualiza "
               "las cuentas existentes una vez al dia.", flush=True)
         print("No cierres esta ventana. CTRL+C para detener.", flush=True)
-        print("Autoactualizacion del agente: GitHub main cada 5 minutos.", flush=True)
+        print("Autoactualizacion: " + ("GitHub main cada 5 minutos" if os.environ.get("OLFX_AUTOUPDATE_SUPERVISED") == "1" else "usa OLFX_VPS_AUTOACTUALIZABLE.cmd para activarla"), flush=True)
         next_update_check = 0.0
         while True:
             try:
