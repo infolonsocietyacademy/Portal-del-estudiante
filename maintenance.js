@@ -294,6 +294,10 @@ async function init(){
  setInterval(()=>{if(!document.hidden)void check();},30000);
 }
 window.olonMaintenance={guard,refresh:check,waitReady:()=>readyPromise,updateAdmin,needsConnection:()=>startupConnectionFailed&&!state,withDeadline};
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>void init(),{once:true});
+// Deferred scripts run while readyState is "interactive". This file precedes
+// script.js, which creates supabaseClient. Wait for all deferred scripts before
+// checking access; otherwise every reload starts with a false connection error
+// and session restoration stays on the public login until the next poll.
+if(document.readyState!=="complete")document.addEventListener("DOMContentLoaded",()=>void init(),{once:true});
 else void init();
 })();
