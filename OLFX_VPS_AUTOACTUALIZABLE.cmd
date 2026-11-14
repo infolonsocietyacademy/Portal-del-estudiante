@@ -6,6 +6,7 @@ set "OLFX_AGENT=%OLFX_HOME%\olfx_agent.py"
 set "OLFX_BACKUP=%OLFX_HOME%\olfx_agent.py.previous"
 set "OLFX_RAW=https://raw.githubusercontent.com/infolonsocietyacademy/Portal-del-estudiante/main/olfx-connector/olfx_agent.py"
 set "OLFX_DISABLE_AUTOUPDATE="
+set "OLFX_AUTOUPDATE_SUPERVISED=1"
 set "OLFX_JUST_UPDATED=0"
 
 echo ======================================================
