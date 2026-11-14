@@ -351,7 +351,7 @@ function showAccessUpdate(account,card){
    const encryptedPayload=await securePayload(ready.publicKeyPem,{login:number,investorPassword:secret,platform:"mt5",brokerServer:account.broker_server});
    await invoke({action:"update-credentials",accountId:account.id,brokerServer:account.broker_server,login:number,encryptedPayload});
    const result=await invoke({action:"status"});renderAccounts(result.accounts||[]);
-   notice("Credenciales actualizadas de forma segura. Cuenta conservada y en espera de sincronización.","success");
+   notice("Credenciales guardadas de forma segura. Cuenta conservada; pulsa «Actualizar estadísticas» cuando quieras sincronizar.","success");
   }catch(e){notice(e.message,"error");}finally{pass.value="";busy=false;send.disabled=false;}
  });
  card.append(form);login.focus();
