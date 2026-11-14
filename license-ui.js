@@ -5,6 +5,7 @@ const $=id=>document.getElementById(id);
 const escape=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const endpoint=()=>SUPABASE_URL+"/functions/v1/olon-license-manager";
 let busy=false,adminBusy=false,generated=[],current=null,adminStudents=[],allLicenses=[];
+let lastStatusAt=0,lastStudentId=null,activeStatusPromise=null;
 function showGenerated(codes){generated=codes||[];const input=$("olonGeneratedCodes"),panel=$("olonLicenseResult");if(input)input.value=generated.map(x=>x.code).join("\n");if(panel)panel.hidden=!generated.length;const btn=$("olonLicenseCopy");if(btn)btn.disabled=!generated.length;}
 async function copyCodes(){const text=generated.map(x=>x.code).join("\n"),input=$("olonGeneratedCodes");if(!text)return note("olonLicenseAdminFeedback","Genera primero una licencia.",true);let ok=false;try{if(window.isSecureContext&&navigator.clipboard?.writeText){await navigator.clipboard.writeText(text);ok=true;}}catch(_){ }if(!ok&&input){input.focus();input.select();input.setSelectionRange(0,input.value.length);try{ok=document.execCommand("copy")===true;}catch(_){ }}note("olonLicenseAdminFeedback",ok?"Licencia copiada al portapapeles.":"Licencia seleccionada. Presiona Ctrl+C para copiar.",!ok);}
 async function revealLicense(id){try{const r=await call("reveal",{id});if(r.legacy){const legacy=allLicenses.find(x=>x.id===id);if(legacy?.status==="available"&&legacy.issued_to){if(confirm("Esta licencia antigua no se puede mostrar porque se guardó como hash. ¿Crear un código nuevo para el MISMO estudiante con los MISMOS días? El código anterior quedará inválido.")){const fresh=await call("reissue_legacy",{id});showGenerated([{id,code:fresh.code,days:fresh.days}]);await adminRefresh();$("olonLicenseResult")?.scrollIntoView({behavior:"smooth",block:"center"});note("olonLicenseAdminFeedback","Código reemplazado. Puedes verlo y copiarlo arriba.");}return;}return note("olonLicenseAdminFeedback","El código antiguo utilizado no puede recuperarse. La licencia activa y su vencimiento siguen intactos.",true);}const code=String(r.code||"");if(!code)throw Error("Código no disponible");const dialog=document.createElement("dialog");dialog.className="olonLicenseCalendarDialog olonLicenseRevealDialog";dialog.innerHTML='<div class="olonLicenseCalendarInner"><div class="olonLicenseCalendarHead"><div><small>OLFX / ADMINISTRACIÓN</small><h3>Licencia VIP del estudiante</h3></div><button type="button" class="olonLicenseCalendarClose" data-close aria-label="Cerrar">×</button></div><p class="olonLicenseCalendarIntro">Código completo vinculado al estudiante. Compártelo únicamente con su propietario.</p><textarea readonly spellcheck="false" class="olonLicenseRevealCode" aria-label="Código VIP completo"></textarea><div class="olonLicenseCalendarActions"><button class="adminSmallButton" type="button" data-close>Ocultar</button><button class="btn" type="button" data-copy>Copiar licencia</button></div><p class="olonLicenseCalendarError" role="status" hidden></p></div>';document.body.append(dialog);const area=dialog.querySelector("textarea");area.value=code;dialog.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>dialog.close()));dialog.querySelector("[data-copy]").addEventListener("click",async()=>{let ok=false;try{if(navigator.clipboard?.writeText&&window.isSecureContext){await navigator.clipboard.writeText(code);ok=true;}}catch(_){}if(!ok){area.focus();area.select();try{ok=document.execCommand("copy")===true;}catch(_){}}const msg=dialog.querySelector("[role=status]");msg.hidden=false;msg.textContent=ok?"Licencia copiada.":"Licencia seleccionada. Utiliza Ctrl+C.";});dialog.addEventListener("close",()=>dialog.remove(),{once:true});if(typeof dialog.showModal==="function")dialog.showModal();else dialog.setAttribute("open","");}catch(e){note("olonLicenseAdminFeedback",e.message||"No se pudo mostrar la licencia.",true);}}
@@ -48,23 +49,33 @@ function showState(state){
  const hint=$("olonLicenseProfileHint");
  if(hint)hint.textContent=state.phase==="active"?"Licencia activa y vinculada a tu cuenta. Las renovaciones y cambios anticipados se gestionan con administración.":state.phase==="legacy"?"Tu acceso actual continúa. Cuando renueves, pega aquí tu licencia.":"Tu cuenta y tus datos están guardados. Pega la licencia que recibiste después de pagar para reactivar tu VIP.";
 }
-async function status(){
- if(busy)return;
+async function status(force=false){
  const u=typeof currentUser!=="undefined"?currentUser:null;
- if(!u||String(u.role)!=="student")return;
+ if(!u||String(u.role)!=="student"||$("portal")?.classList.contains("hidden"))return;
+ if(activeStatusPromise)return activeStatusPromise;
+ // Cosmetic portal class changes must never trigger repeated license requests.
+ if(!force&&u.id===lastStudentId&&Date.now()-lastStatusAt<120000)return;
+ const studentId=u.id;
+ if(studentId!==lastStudentId){current=null;lastStudentId=studentId;lastStatusAt=0;}
  busy=true;
  if(!current)setLicenseMode("checking");
- try{
-  const result=await call("status");
-  if(typeof currentUser==="undefined"||currentUser?.id!==u.id)return;
-  showState(result);
-  note("olonLicenseStudentFeedback","");
- }catch(e){
-  if(typeof currentUser!=="undefined"&&currentUser?.id===u.id){
-   setLicenseMode("checking");
-   note("olonLicenseStudentFeedback","No se pudo verificar tu licencia. Comprueba la conexión y presiona Actualizar licencia.",true);
-  }
- }finally{busy=false;}
+ activeStatusPromise=(async()=>{
+  try{
+   const result=await call("status");
+   if(typeof currentUser==="undefined"||currentUser?.id!==studentId)return;
+   lastStatusAt=Date.now();
+   showState(result);
+   note("olonLicenseStudentFeedback","");
+  }catch(e){
+   if(typeof currentUser!=="undefined"&&currentUser?.id===studentId){
+    lastStatusAt=Date.now();
+    // A network failure does not revoke an already confirmed VIP license.
+    // Keep initial unverified access restricted until successful verification.
+    note("olonLicenseStudentFeedback","No se pudo actualizar la licencia. Conservamos el último estado válido. Presiona Actualizar licencia para reintentar.",true);
+   }
+  }finally{busy=false;activeStatusPromise=null;}
+ })();
+ return activeStatusPromise;
 }
 async function redeem(event){
  event?.preventDefault();
@@ -195,7 +206,7 @@ function init(){
  if($("olonLicenseSelectedDate"))$("olonLicenseSelectedDate").textContent=formatter.format(pickerDate);
  if($("olonLicenseSelectedDays"))$("olonLicenseSelectedDays").textContent=durationValue+" días";
  $("olonLicenseRedeem")?.addEventListener("click",redeem);
- $("olonLicenseRefreshStudent")?.addEventListener("click",()=>void status());
+ $("olonLicenseRefreshStudent")?.addEventListener("click",()=>void status(true));
  $("olonLicenseCode")?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();void redeem();}});
  $("olonLicenseDatePicker")?.addEventListener("click",()=>void editDays(null,Number($("olonLicenseDays")?.value)||15,true));
  $("olonLicenseGenerate")?.addEventListener("click",generate);
@@ -207,10 +218,22 @@ function init(){
  $("olonLicenseList")?.addEventListener("click",e=>{const assign=e.target.closest("[data-license-assign]");if(assign){const student=String($("olonLicenseAssign")?.value||"");if(!student){note("olonLicenseAdminFeedback","Selecciona arriba el estudiante y luego presiona Asignar estudiante.",true);return;}void call("assign",{id:assign.dataset.licenseAssign,student_id:student}).then(()=>adminRefresh()).then(()=>note("olonLicenseAdminFeedback","Licencia asignada al estudiante.")).catch(err=>note("olonLicenseAdminFeedback",err.message,true));return;}const reveal=e.target.closest("[data-license-reveal]");if(reveal){void revealLicense(reveal.dataset.licenseReveal);return;}const del=e.target.closest("[data-license-delete]");if(del){void deleteRevoked(del.dataset.licenseDelete);return;}const edit=e.target.closest("[data-license-edit]");if(edit){void editDays(edit.dataset.licenseEdit,edit.dataset.licenseDays);return;}const id=e.target.closest("[data-license-revoke]")?.dataset.licenseRevoke;if(id)void revoke(id);});
  $("olonLicenseStudents")?.addEventListener("click",e=>{const id=e.target.closest("[data-license-review]")?.dataset.licenseReview;const person=adminStudents.find(u=>u.id===id&&u.phase==="eligible"&&!u.pending_payment);if(person)window.olonRequests?.manageAccount(person,"delete");});
  const admin=$("admin");if(admin)new MutationObserver(()=>{if(!admin.classList.contains("hidden")&&currentUser?.role==="admin")void adminRefresh();}).observe(admin,{attributes:true,attributeFilter:["class"]});
- const portal=$("portal");if(portal)new MutationObserver(()=>{if(portal.classList.contains("hidden")){showGenerated([]);current=null;document.body.classList.remove("olonLicenseRenewalRequired","olonLicenseChecking");}else if(currentUser?.role==="student")void status();}).observe(portal,{attributes:true,attributeFilter:["class"]});
- document.addEventListener("visibilitychange",()=>{if(!document.hidden&&currentUser?.role==="student")void status();});
- window.addEventListener("focus",()=>{if(currentUser?.role==="student")void status();});
- document.addEventListener("click",event=>{
+ const portal=$("portal");
+  if(portal){
+   let wasHidden=portal.classList.contains("hidden");
+   new MutationObserver(()=>{
+    const hidden=portal.classList.contains("hidden");
+    if(hidden===wasHidden)return; // Ignore scroll, viewport resize and menu CSS.
+    wasHidden=hidden;
+    if(hidden){
+     showGenerated([]);current=null;lastStudentId=null;lastStatusAt=0;
+     document.body.classList.remove("olonLicenseRenewalRequired","olonLicenseChecking");
+    }else if(currentUser?.role==="student")void status(true);
+   }).observe(portal,{attributes:true,attributeFilter:["class"]});
+  }
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&currentUser?.role==="student")void status();});
+  window.addEventListener("focus",()=>{if(currentUser?.role==="student")void status();});
+  document.addEventListener("click",event=>{
   if(!document.body.classList.contains("olonLicenseRenewalRequired")&&!document.body.classList.contains("olonLicenseChecking"))return;
   if(!currentUser||currentUser.role!=="student")return;
   const target=event.target.closest("[data-page],[data-dock-page],.portalNavLink,.portalDockLink");
