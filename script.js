@@ -1686,9 +1686,9 @@ function showWelcome(user){
     return false;
   }
 
-  ["click","pointerdown","touchstart"].forEach(function(evt){
-    document.addEventListener(evt, handleReportTap, {capture:true, passive:false});
-  });
+  // A native click follows a stationary tap or keyboard activation.
+  // Starting a scroll on a report button must never cancel the gesture.
+  document.addEventListener("click", handleReportTap, {capture:true});
 
   document.addEventListener("DOMContentLoaded", function(){
     const active = document.querySelector(".reportTapBtn.active,[data-report].active");

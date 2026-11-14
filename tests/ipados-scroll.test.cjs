@@ -4,44 +4,62 @@ const fs=require("node:fs");
 const vm=require("node:vm");
 
 const html=fs.readFileSync("index.html","utf8");
-const snippet=html.match(/<script id="olon-ipados-scroll-guard">([\s\S]*?)<\/script>/)?.[1];
-assert.ok(snippet,"iPad touch guard must be present");
+const main=fs.readFileSync("script.js","utf8");
+const marker="FIX FINAL YTD MOBILE - JS SAFE";
+const start=main.indexOf("(function(){",main.indexOf(marker));
+const end=main.indexOf("\n})();",start)+6;
+const inline=[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)]
+  .filter(([,attrs,code])=>attrs.includes("olon-ipados-scroll-guard")||code.includes(marker))
+  .map(([, ,code])=>code);
 
-function harness({ipad=true,portalOpen=true}={}){
-  const listeners={};
-  const portal={classList:{contains:name=>name==="hidden"&&!portalOpen}};
-  let prevented=0;
+function harness(){
+  const listeners=new Map(),views=[];
+  class Element {closest(){return null;}}
+  const target=new Element();
+  const report=new Element();
+  report.closest=selector=>selector==="[data-report]"?report:null;
+  report.getAttribute=()=>"monthly";
   const context={
-    navigator:{userAgent:ipad?"Mozilla/5.0 (iPad; CPU OS 18_7 like Mac OS X)":"Mozilla/5.0 (X11; Linux x86_64)",platform:ipad?"iPad":"Linux",maxTouchPoints:ipad?5:0},
-    document:{body:{},getElementById:id=>id==="portal"?portal:null,
-      addEventListener:(name,fn,options)=>{listeners[name]={fn,options};}},
-    window:{scrollY:0},
-    Element:class Element{},
-    getComputedStyle:()=>({overflowY:"visible"})
+    navigator:{userAgent:"Mozilla/5.0 (iPad; CPU OS 18_7 like Mac OS X)",platform:"iPad",maxTouchPoints:5},
+    document:{body:{},readyState:"loading",getElementById:id=>id==="portal"?{classList:{contains:()=>false}}:null,
+      querySelector:()=>null,addEventListener:(name,fn)=>{
+        if(!listeners.has(name))listeners.set(name,[]);
+        listeners.get(name).push(fn);
+      }},
+    window:{scrollY:0,innerWidth:834,setReportView:view=>views.push(view)},
+    Element,getComputedStyle:()=>({overflowY:"visible"}),console
   };
-  vm.runInNewContext(snippet,context);
-  function move({y=30,x=0,cancelable=true}={}){
-    if(!listeners.touchstart)return false;
-    const target={};
-    const touch=(clientX,clientY)=>({clientX,clientY});
-    listeners.touchstart.fn({touches:[touch(0,0)],target});
-    listeners.touchmove.fn({touches:[touch(x,y)],cancelable,target,preventDefault(){prevented++;}});
-    return prevented>0;
+  vm.createContext(context);
+  for(const source of [...inline,main.slice(start,end)])vm.runInContext(source,context);
+  function send(type,{onReport=false,x=0,y=0}={}){
+    const touch={clientX:x,clientY:y};
+    let stopped=false;
+    const event={type,target:onReport?report:target,cancelable:true,defaultPrevented:false,
+      touches:[touch],changedTouches:[touch],preventDefault(){this.defaultPrevented=true;},
+      stopPropagation(){},stopImmediatePropagation(){stopped=true;}};
+    for(const listener of listeners.get(type)||[]){listener(event);if(stopped)break;}
+    return event;
   }
-  return {listeners,move,scroll:y=>{context.window.scrollY=y;},get prevented(){return prevented;}};
+  return {send,views};
 }
 
-test("iPad Safari pull-down on authenticated portal prevents default refresh",()=>{
-  const h=harness();assert.equal(h.listeners.touchmove.options.passive,false);
-  assert.equal(h.move({y:45}),true);
+test("native iPad vertical and horizontal gestures remain available at the top of the portal",()=>{
+  for(const gesture of [{y:45},{y:-45},{x:80,y:20}]){
+    const h=harness();
+    assert.equal(h.send("touchstart").defaultPrevented,false);
+    assert.equal(h.send("touchmove",gesture).defaultPrevented,false);
+    assert.equal(h.send("touchend",gesture).defaultPrevented,false);
+  }
 });
-test("normal downward page scrolling and horizontal gestures remain available",()=>{
-  const h=harness();h.scroll(140);
-  assert.equal(h.move({y:45}),false);h.scroll(0);
-  assert.equal(h.move({y:-50}),false);
-  assert.equal(h.move({y:20,x:80}),false);
+test("scrolling from a report button does not cancel the gesture or change reports",()=>{
+  const h=harness();
+  assert.equal(h.send("pointerdown",{onReport:true}).defaultPrevented,false);
+  assert.equal(h.send("touchstart",{onReport:true}).defaultPrevented,false);
+  assert.equal(h.send("touchmove",{onReport:true,y:-80}).defaultPrevented,false);
+  assert.deepEqual(h.views,[]);
 });
-test("public login and non-iPad browsers are unaffected",()=>{
-  assert.equal(harness({portalOpen:false}).move({y:40}),false);
-  assert.equal(harness({ipad:false}).listeners.touchmove,undefined);
+test("a report click changes the selected report exactly once",()=>{
+  const h=harness();
+  h.send("click",{onReport:true});
+  assert.deepEqual(h.views,["monthly"]);
 });
