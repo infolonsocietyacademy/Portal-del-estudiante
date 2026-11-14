@@ -624,3 +624,25 @@
   #portal #admin .olAdminMobileBar{display:flex!important}
   #portal #adminChat .adminChatLayout>div:first-child{border-right:0!important;border-bottom:1px solid #30363d!important}
 }
+
+
+/* Keep the VIP license registry as flat text actions under the universal theme. */
+#portal #admin #olonLicenseAdminBlock .olonLicenseRowActions .adminSmallButton{
+  background:transparent!important;border:0!important;
+  border-radius:4px!important;color:#9ecbff!important;box-shadow:none!important
+}
+#portal #admin #olonLicenseAdminBlock .olonLicenseRowActions .adminSmallButton:hover{
+  background:#21262d!important;color:#fff!important
+}
+#portal #admin #olonLicenseAdminBlock .olonLicenseRowActions .olonLicenseDelete{
+  color:#ff7b72!important
+}
+#portal #admin #olonLicenseAdminBlock .olonLicenseRowActions .olonLicenseDelete:hover{
+  color:#ffa198!important;background:rgba(248,81,73,.13)!important
+}
+#portal #admin #olonLicenseAdminBlock .olonLicenseResultActions .adminSmallButton{
+  border:0!important;background:transparent!important;color:#9ecbff!important
+}
+#portal #admin #olonLicenseAdminBlock .olonLicenseResultActions .adminSmallButton:hover{
+  background:#21262d!important
+}
