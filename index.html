@@ -34,42 +34,6 @@
   }catch(error){console.warn("[OLON] No se pudo limpiar la URL anterior",error);}
 })();
 </script>
-<script id="olon-ipados-scroll-guard">
-/* Keep iPad Safari native pull-to-refresh from remounting an authenticated
-   portal after a downward gesture at the very top of the page. */
-(()=>{
-  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||
-    (navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
-  if(!isIOS)return;
-  let origin=null;
-  document.addEventListener("touchstart",event=>{
-    if(event.touches.length!==1){origin=null;return;}
-    const t=event.touches[0];
-    origin={x:t.clientX,y:t.clientY};
-  },{passive:true});
-  document.addEventListener("touchmove",event=>{
-    if(!origin||event.touches.length!==1||!event.cancelable)return;
-    const portal=document.getElementById("portal");
-    if(!portal||portal.classList.contains("hidden"))return;
-    const touch=event.touches[0],dy=touch.clientY-origin.y,dx=touch.clientX-origin.x;
-    if(dy<=7||Math.abs(dy)<=Math.abs(dx)||window.scrollY>1)return;
-    // Do not interfere with independently scrollable menus, inputs or dialogs.
-    const target=event.target;
-    if(target instanceof Element){
-      if(target.closest("#sidebar,.olAdminSidebar,dialog,.tableWrap,.chatMessages,textarea,[contenteditable]"))return;
-      let ancestor=target.parentElement;
-      while(ancestor&&ancestor!==document.body){
-        const css=getComputedStyle(ancestor);
-        if(/auto|scroll/.test(css.overflowY)&&ancestor.scrollHeight>ancestor.clientHeight+2)return;
-        ancestor=ancestor.parentElement;
-      }
-    }
-    event.preventDefault();
-  },{passive:false});
-  document.addEventListener("touchend",()=>{origin=null;},{passive:true});
-  document.addEventListener("touchcancel",()=>{origin=null;},{passive:true});
-})();
-</script>
 
 <!-- jsPDF is loaded on demand by premium-report.js. -->
 
@@ -89,11 +53,10 @@
 
 /* ===== OLON RESCUE FIX: CLICK / INTERACTION ===== */
 html,body{max-width:100%!important;overflow-x:clip!important}
-html{overflow-y:auto!important;overscroll-behavior-y:none!important}
-body{overflow-y:visible!important;overscroll-behavior-y:none!important;-webkit-overflow-scrolling:touch}
-/* Native Safari pull-to-refresh may be mistaken for logout while scrolling.
-   Keep normal vertical scrolling but prevent scroll chaining/reload gestures. */
-#portal:not(.hidden){overscroll-behavior-y:none!important}
+html{overflow-y:auto!important;overscroll-behavior-y:auto!important}
+body{overflow-y:visible!important;overscroll-behavior-y:auto!important;-webkit-overflow-scrolling:touch}
+/* Preserve native touch scrolling; authenticated reloads restore the session. */
+#portal:not(.hidden){touch-action:auto;overscroll-behavior-y:auto!important}
 #portal:not(.hidden){display:grid!important;position:relative!important;z-index:50!important}
 @media(max-width:980px){#portal:not(.hidden){display:block!important}}
 #auth.hidden,#codeResult.hidden{display:none!important;pointer-events:none!important;visibility:hidden!important}
@@ -1559,7 +1522,7 @@ window.addEventListener("load", () => {
 <script src="./olon-mt-records.js?v=20261113-cashflow-audit-1" defer></script>
 <script src="./session-diagnostics.js?v=20261114-ipad-trace-1" defer></script>
 <script src="./maintenance.js?v=20261114-maintenance-startup-12" defer></script>
-<script src="./script.js?v=20261114-safe-touch-logout-16" defer></script>
+<script src="./script.js?v=20261114-native-scroll-17" defer></script>
 <script src="./interior-typewriter.js?v=20261107-profile-nickname-fix" defer></script>
 <script src="./appearance.js?v=20261109-terminal-1" defer></script>
 <script src="./trade-history.js?v=20261108-performance-1" defer></script>
@@ -1613,70 +1576,6 @@ window.addEventListener("load", () => {
 })();
 </script>
 
-<script>
-
-/* =====================================================
-   FIX FINAL YTD MOBILE - JS SAFE
-   ===================================================== */
-(function(){
-  window.setReportViewSafe = function(view){
-    view = String(view || "weekly").toLowerCase();
-    if(!["weekly","monthly","ytd"].includes(view)) view = "weekly";
-
-    try{
-      if(typeof window.setReportView === "function"){
-        window.setReportView(view);
-      }else{
-        window.currentReportView = view;
-        if(typeof window.renderSelectedReport === "function") window.renderSelectedReport();
-      }
-
-      ["weekly","monthly","ytd"].forEach(function(v){
-        const btn = document.querySelector('[data-report="'+v+'"]');
-        if(btn) btn.classList.toggle("active", v === view);
-      });
-
-      const select = document.getElementById("mobileReportSelect");
-      if(select && select.value !== view) select.value = view;
-
-      const card = document.querySelector(".selectedReportCard");
-      if(card && window.innerWidth <= 700){
-        setTimeout(() => {
-          card.scrollIntoView({behavior:"smooth", block:"nearest"});
-        }, 80);
-      }
-    }catch(err){
-      console.error("setReportViewSafe error:", err);
-    }
-  };
-
-  function handleReportTap(e){
-    const btn = e.target.closest("[data-report]");
-    if(!btn) return;
-
-    const view = btn.getAttribute("data-report");
-    if(!view) return;
-
-    e.preventDefault();
-    e.stopPropagation();
-    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-
-    window.setReportViewSafe(view);
-    return false;
-  }
-
-  ["click","pointerdown","touchstart"].forEach(function(evt){
-    document.addEventListener(evt, handleReportTap, {capture:true, passive:false});
-  });
-
-  document.addEventListener("DOMContentLoaded", function(){
-    const active = document.querySelector(".reportTapBtn.active,[data-report].active");
-    const view = active?.getAttribute("data-report") || window.currentReportView || "weekly";
-    window.setReportViewSafe(view);
-  });
-})();
-
-</script>
 <script id="olonTypewriterInit">
 /* Efecto de escritura: solo en la portada pública. Preserva el texto accesible y las preferencias de movimiento. */
 (function(){
