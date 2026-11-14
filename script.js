@@ -2067,6 +2067,9 @@ document.addEventListener("DOMContentLoaded", function(){
     const portalElement = document.getElementById("portal");
     if(portalElement) portalElement.classList.toggle("admin-mode", String(profile?.role||"").trim().toLowerCase()==="admin");
     localStorage.setItem("olon_current_user", JSON.stringify(profile));
+    // A non-authorizing hint only: if Safari temporarily reports no session
+    // during reload, retry instead of immediately discarding a verified login.
+    try{sessionStorage.setItem("olon_verified_session","1");}catch{}
     // Keep private VIP content gated during license verification, without a loading overlay.
     if(String(profile.role).toLowerCase()!=="admin")document.body.classList.add("olonLicenseChecking");
     else document.body.classList.remove("olonLicenseChecking","olonLicenseRenewalRequired");
@@ -2200,6 +2203,7 @@ document.addEventListener("DOMContentLoaded", function(){
         }catch{}
       }
       window.olonPendingLandingPage=null;
+      try{sessionStorage.removeItem("olon_verified_session");}catch{}
       localStorage.removeItem("olon_current_user");
       currentUser=null;cachedRecords=[];cachedUsers=[];
       window.olonCommunity?.clear();
@@ -2252,6 +2256,13 @@ document.addEventListener("DOMContentLoaded", function(){
     clearTimeout(restoreRetryTimer);restoreRetryTimer=null;restoreRetryCount=0;
     void restoreSupabaseSession();
   });
+  // Safari restores tabs from its back-forward cache without DOMContentLoaded.
+  // Revalidate the Supabase session on return instead of leaving the login
+  // screen visible despite a surviving server session.
+  window.addEventListener("pageshow",event=>{
+    if(event.persisted&&!currentUser&&!authBusy&&!logoutInProgress)
+      void restoreSupabaseSession();
+  });
   document.addEventListener("visibilitychange",()=>{
     // Only resume an interrupted restoration. Never reinitialize an open portal.
     if(!document.hidden&&restorePending&&!currentUser&&!authBusy&&!logoutInProgress){
@@ -2282,7 +2293,16 @@ document.addEventListener("DOMContentLoaded", function(){
       // does not mean the user logged out or should lose the connected MT5 page.
       const snapshot=await window.olonMaintenance.withDeadline(supabaseClient.auth.getSession(),10000);
       if(snapshot.error)throw snapshot.error;
-      if(!snapshot?.data?.session){recoveryNotice(false);return;}
+      if(!snapshot?.data?.session){
+        // On Safari, a delayed auth-store initialization during page reload
+        // can briefly return null. Recheck a bounded number of times when
+        // this tab previously completed server-side authentication.
+        let wasVerified=false;
+        try{wasVerified=sessionStorage.getItem("olon_verified_session")==="1";}catch{}
+        if(wasVerified){retrySessionRecovery();return;}
+        recoveryNotice(false);
+        return;
+      }
       let verifiedUser=null,failed=null;
       for(let attempt=0;attempt<3&&!currentUser;attempt++){
         try{
