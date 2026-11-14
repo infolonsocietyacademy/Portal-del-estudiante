@@ -23,9 +23,9 @@
     return new Option(label,value);
   }
 
-  function setMonths(){
-    const selected = month.value;
-    const months = Array.from(new Set(rows.map(row => row.date.slice(0,7))));
+  function setMonths(preferred=month.value){
+    const selected = preferred;
+    const months = Array.from(new Set([window.olonAnalyticsCore.today().slice(0,7),...rows.map(row => row.date.slice(0,7))])).sort().reverse();
     month.replaceChildren(option("","Todo el historial"),...months.map(value => {
       const label = periodFormat.format(parseDate(value + "-01"));
       return option(value,label.charAt(0).toUpperCase() + label.slice(1));
@@ -37,29 +37,31 @@
     if(kind.value === "trading") return isTradingRecord(row);
     if(kind.value === "deposit") return row.deposit > 0;
     if(kind.value === "withdrawal") return row.withdrawal > 0;
-    return true;
+    return !kind.value||row.kind===kind.value;
   }
 
   function makeRow(row){
     const trades = isTradingRecord(row);
     const net = netAmount(row.gain,row.loss);
-    const type = trades ? row.entry_scope === "trade" ? "Operación" : "Resumen diario" : row.withdrawal ? "Retiro" : "Depósito";
+    const flow=window.olonMt5Ledger.cashFlow(row);
+    const type = trades ? row.entry_scope === "trade" ? "Operación" : "Resumen diario" : flow.label;
     const style = trades ? net > 0 ? "good" : net < 0 ? "bad" : "" : "";
     const date = parseDate(row.date);
     const parts = [];
+    if(!trades&&row.trade_time)parts.push(escapeHTML(row.trade_time)+" "+escapeHTML(row.time_label||"PR"));
     if(trades && row.entry_scope !== "trade" && individualDates.has(row.date)) parts.push("Resumen excluido del saldo: hay operaciones para esta fecha");
     if(trades && row.entry_scope === "trade"){
       if(row.trade_instrument) parts.push(escapeHTML(row.trade_instrument));
       if(row.trade_strategy) parts.push(escapeHTML(row.trade_strategy));
       if(row.trade_side) parts.push(row.trade_side === "buy" ? "Compra" : "Venta");
-      if(row.trade_time) parts.push(escapeHTML(row.trade_time.slice(0,5))+" PR");
+      if(row.trade_time) parts.push(escapeHTML(row.trade_time.slice(0,5))+" "+escapeHTML(row.time_label||"PR"));
       if(row.trade_risk) parts.push("Riesgo "+money(row.trade_risk), (net/row.trade_risk).toFixed(2)+" R");
     }
     if(trades) parts.push("Ganancia " + money(row.gain),"Pérdida " + money(row.loss));
     if(row.deposit && (trades || row.withdrawal)) parts.push("Depósito " + money(row.deposit));
     if(row.withdrawal && trades) parts.push("Retiro " + money(row.withdrawal));
     const note = escapeHTML(row.note) || "Sin nota";
-    const amount = trades ? signedTradeMoney(net) : row.withdrawal ? "−" + money(row.withdrawal) : "+" + money(row.deposit);
+    const amount = trades ? signedTradeMoney(net) : signedTradeMoney(flow.amount);
     return '<li class="historyRow"><div class="historyWhen"><time datetime="' + escapeHTML(row.date) + '">' +
       escapeHTML(Number.isFinite(+date) ? dayFormat.format(date) : row.date) + '</time><span>' + type + '</span></div>' +
       '<div class="historyDetail"><p>' + note + '</p>' + (parts.length ? '<small>' + parts.join(" · ") + '</small>' : "") + '</div>' +
@@ -74,6 +76,9 @@
     net.className = summary.net > 0 ? "good" : summary.net < 0 ? "bad" : "";
     byId("historyDeposits").textContent = money(summary.deposit);
     byId("historyWithdrawals").textContent = money(summary.withdrawal);
+    for(const [id,value] of [["historyTransferIn",summary.transferIn],["historyTransferOut",summary.transferOut],["historyAdjustments",summary.adjustment]]){
+      const cell=byId(id);if(cell)cell.textContent=money(value);
+    }
     byId("historyTotal").textContent = String(selected.length);
     byId("historyRange").textContent = selected.length === 1 ? "1 registro" : selected.length + " registros";
     empty.hidden = Boolean(selected.length);
@@ -85,6 +90,7 @@
 
   function render(records){
     const id = currentUser?.id;
+    const preferred=owner!==id?window.olonAnalyticsCore.today().slice(0,7):month.value;
     if(owner !== id){
       owner = id;
       month.value = kind.value = "";
@@ -92,7 +98,7 @@
     }
     rows = records.slice().reverse();
     individualDates = new Set(records.filter(window.olonAnalyticsCore.trade).map(row=>row.date));
-    setMonths();
+    setMonths(preferred);
     update();
   }
 

@@ -26,7 +26,7 @@
     const groups=core.groups(selected,dimension),body=$("analyticsBreakdownBody");
     body.replaceChildren();
     text("analyticsGroupCount",groups.length ? groups.length+(groups.length===1?" grupo":" grupos") : "Sin operaciones");
-    text("analyticsGroupHeading",{instrument:"Activo",strategy:"Estrategia",session:"Sesión",hour:"Hora PR"}[dimension]);
+    text("analyticsGroupHeading",{instrument:"Activo",strategy:"Estrategia",session:"Sesión",hour:"Hora MT5"}[dimension]);
     if(!groups.length){
       const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=5;td.className="analyticsEmpty";
       td.textContent="Tus operaciones aparecerán aquí. Registra cada entrada para descubrir qué activo, estrategia y horario te funcionan mejor.";tr.append(td);body.append(tr);
@@ -51,7 +51,7 @@
     const filtered=core.filter(rows,selection),stats=core.stats(filtered),days=core.days(filtered);
     const legacy=filtered.filter(r=>!core.trade(r)).length;
     const metadataFilter=Boolean(selection.instrument||selection.strategy||selection.side||selection.session);
-    text("analyticsPeriodLabel",bounds.valid ? (bounds.start || "Inicio del historial")+" → "+bounds.end+" · PR" : "Selecciona un rango válido");
+    text("analyticsPeriodLabel",bounds.valid ? (bounds.start || "Inicio del historial MT5")+" → "+bounds.end+" · MT5" : "Selecciona un rango válido");
     text("analyticsWinrate",percent(stats.winrate));
     text("analyticsWins",stats.wins);text("analyticsLosses",stats.losses);text("analyticsFlat",stats.flat);
     $("analyticsWinArc").style.strokeDashoffset=String(213.63*(1-(stats.winrate || 0)/100));
@@ -81,7 +81,7 @@
     text("analyticsAccountDD",!bounds.valid || metadataFilter ? "—" : dd.percent===null ? "Sin base de capital" : percent(dd.percent));
     text("analyticsAccountDDLabel",metadataFilter ? "DD de cuenta disponible sin filtros de activo, estrategia, dirección o sesión" : "DD de cuenta · saldo cerrado ajustado por depósitos y retiros");
     const times=filtered.filter(r=>core.trade(r)&&r.trade_time).length;
-    text("analyticsTimeCoverage",times+" de "+stats.total+" operaciones con hora PR");
+    text("analyticsTimeCoverage",times+" de "+stats.total+" operaciones con hora MT5");
     text("analyticsLegacyCoverage",legacy+" resúmenes diarios conservados");
     if(!bounds.valid) status("Selecciona una fecha inicial y final válidas. La fecha final debe ser igual o posterior a la inicial.",true);
     else if(!stats.total && legacy) status("Tus "+legacy+" resúmenes diarios se conservan en Resultados diarios. El Win Rate por operación comenzará cuando registres cada trade.");

@@ -46,6 +46,26 @@ async function invoke(body){
  if(data?.error)throw Error(data.error);
  return data;
 }
+let sharedStatus=null,sharedStatusOwner=null;
+async function readStatus(){
+ const owner=typeof currentUser!=="undefined"?currentUser?.id:null;
+ if(sharedStatusOwner!==owner){
+  sharedStatus=null;sharedStatusOwner=owner;currentAccounts=[];currentAccount=null;
+  $("metaapiAccountsList")?.replaceChildren();
+ }
+ if(!sharedStatus){
+ const request=invoke({action:"status"}).then(result=>{
+  if(typeof currentUser==="undefined"||currentUser?.id!==owner)return {accounts:[]};
+  if(Array.isArray(result?.accounts)&&!busy&&!$(PAGE)?.classList.contains("hidden")&&
+     !document.activeElement?.closest?.(".olfxAccessUpdate")&&
+     JSON.stringify(result.accounts)!==JSON.stringify(currentAccounts))renderAccounts(result.accounts);
+  window.dispatchEvent(new CustomEvent("olon:mt5-status",{detail:result}));
+  return result;
+ }).finally(()=>{if(sharedStatus===request)sharedStatus=null;});
+ sharedStatus=request;
+ }
+ return sharedStatus;
+}
 async function securePayload(pem,payload){
  if(!window.crypto?.subtle)throw Error("Para conectar la cuenta necesitas HTTPS.");
  const stripped=pem.replace(/-----BEGIN PUBLIC KEY-----|-----END PUBLIC KEY-----|\s/g,"");
@@ -111,6 +131,11 @@ function renderAccounts(accounts){
  const host=$("metaapiAccountsList"),form=$("metaapiConnectForm"),legacy=$("metaapiConnected");
  const add=$("metaapiAddAccount"),badge=$("metaapiConnectionBadge"),steps=qs("#metaapiAccountsPage .metaapi-steps");
  if(!host||!form||!legacy||!badge)return;
+ const expanded=new Map();
+ host.querySelectorAll(".olfxAccountCard[data-account-id]").forEach(card=>{
+  const details=card.querySelector(".olfxRecentDeals");
+  if(details?.open)expanded.set(card.dataset.accountId,Number(details.dataset.page||0));
+ });
  currentDealsRequest++;
  host.replaceChildren();
  legacy.hidden=true;
@@ -132,6 +157,7 @@ function renderAccounts(accounts){
  host.append(txt("h4","Mis cuentas de MetaTrader · "+currentAccounts.length,"olfxAccountListTitle"));
  for(const account of currentAccounts){
   const card=document.createElement("article");card.className="olfxAccountCard";
+  card.dataset.accountId=account.id;
   if(account.is_primary)card.classList.add("olfxAccountPrimary");
   const heading=document.createElement("div");heading.className="olfxAccountHeader";
   const name=document.createElement("div");
@@ -179,6 +205,10 @@ function renderAccounts(accounts){
     if(recent.open&&!loaded){loaded=true;void loadRecentDeals(account.id,recent,detail);}
    });
    card.append(recent);
+   if(expanded.has(account.id)){
+    loaded=true;recent.open=true;
+    void loadRecentDeals(account.id,recent,detail,expanded.get(account.id));
+   }
   }
   const actions=document.createElement("div");actions.className="metaapi-actions olfxAccountActions";
   const primary=txt("button",account.is_primary?"Cuenta principal":"Mostrar en Resumen","btn "+(account.is_primary?"secondary":"metaapi-primary"));
@@ -192,6 +222,7 @@ function renderAccounts(accounts){
  }
 }
 async function loadRecentDeals(accountId,container,label,page=0){
+ container.dataset.page=String(page);
  const seq=currentDealsRequest;
  const old=container.querySelector(".olfxRecentTableWrap");
  if(old)old.remove();
@@ -235,7 +266,7 @@ async function status(force=false){
  lastStatus=Date.now();
  statusInFlight=true;
  try{
-  const result=await invoke({action:"status"});
+  const result=await readStatus();
   if(!Array.isArray(result?.accounts))throw Error("Respuesta de cuentas no válida. Se mantiene la lista anterior.");
   const next=result.accounts;
   if(currentAccounts.length>0&&!next.length){
@@ -260,7 +291,7 @@ async function changePrimary(id,button){
  busy=true;if(button)button.disabled=true;
  try{
   await invoke({action:"select-primary",accountId:id});
-  const result=await invoke({action:"status"});
+  const result=await readStatus();
   renderAccounts(result.accounts||[]);
   window.olonMtRecords?.invalidate?.();
   await window.render?.();
@@ -307,7 +338,7 @@ async function connect(){
   notice("Cuenta MT5 guardada. Pulsa «Actualizar estadísticas» para solicitar la importación.","success");
   window.olonMtRecords?.invalidate?.();
   try{
-   const result=await invoke({action:"status"});
+   const result=await readStatus();
    if(Array.isArray(result?.accounts)&&result.accounts.some(a=>a.id===saved.accountId))
     renderAccounts(result.accounts);
    else notice("La cuenta quedó guardada. No se pudo confirmar su información actualizada todavía.","info");
@@ -330,7 +361,7 @@ async function requestStudentRefresh(){
  try{
   const result=await invoke({action:"refresh-my-accounts"});
   lastStatus=0;
-  const state=await invoke({action:"status"});
+  const state=await readStatus();
   renderAccounts(state.accounts||[]);
   const queued=Number(result.queued||0),waiting=Number(result.alreadyWaiting||0);
   notice(queued?("Actualización solicitada para "+queued+" cuenta(s). La VPS procesará solamente estas solicitudes."):waiting?"Ya hay una actualización pendiente en la VPS.":"No hay cuentas nuevas para actualizar.","success");
@@ -342,7 +373,7 @@ async function retrySync(accountId,button){
  busy=true;button.disabled=true;
  try{
   const result=await invoke({action:"retry-sync",accountId,force:true});
-  const response=await invoke({action:"status"});renderAccounts(response.accounts||[]);
+  const response=await readStatus();renderAccounts(response.accounts||[]);
   notice(result.alreadyWaiting?"La sincronización ya está pendiente.":"Cuenta conservada: la VPS volverá a intentar la sincronización.","success");
  }catch(e){notice(e.message,"error");}
  finally{busy=false;if(button.isConnected)button.disabled=false;}
@@ -366,7 +397,7 @@ function showAccessUpdate(account,card){
    const ready=await invoke({action:"agent-ready"});if(!ready.publicKeyPem)throw Error("Agente OLFX no disponible.");
    const encryptedPayload=await securePayload(ready.publicKeyPem,{login:number,investorPassword:secret,platform:"mt5",brokerServer:account.broker_server});
    await invoke({action:"update-credentials",accountId:account.id,brokerServer:account.broker_server,login:number,encryptedPayload});
-   const result=await invoke({action:"status"});renderAccounts(result.accounts||[]);
+   const result=await readStatus();renderAccounts(result.accounts||[]);
    notice("Credenciales guardadas de forma segura. Cuenta conservada; pulsa «Actualizar estadísticas» cuando quieras sincronizar.","success");
   }catch(e){notice(e.message,"error");}finally{pass.value="";busy=false;send.disabled=false;}
  });
@@ -377,7 +408,7 @@ async function unlink(accountId){
  busy=true;
  try{
   await invoke({action:"disconnect",accountId});
-  const result=await invoke({action:"status"});
+  const result=await readStatus();
   renderAccounts(result.accounts||[]);
   window.olonMtRecords?.invalidate?.();
   await window.render?.();
@@ -576,6 +607,7 @@ function init(){
  onPageVisibility();
 }
 // Read-only, authenticated status for the lightweight Portal Resumen. Never exposes investor passwords.
-window.olonOwnAccountStatus=()=>invoke({action:"status"});
+window.olonOwnAccountStatus=readStatus;
+window.olonRequestMt5Sync=accountId=>invoke({action:"retry-sync",accountId,force:true});
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();

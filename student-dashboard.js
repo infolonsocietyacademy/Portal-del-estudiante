@@ -60,7 +60,7 @@
     refresh.type="button";
     refresh.textContent="Actualizar datos";
     refresh.className="olSummaryMT5Refresh";
-    refresh.addEventListener("click",()=>void load(true));
+    refresh.addEventListener("click",async()=>{await window.olonMt5Live?.refresh?.();void load(true);});
     top.append(refresh);block.append(top);
     const grid=document.createElement("div");
     grid.className="olSummaryMT5Metrics";
@@ -88,7 +88,7 @@
       node.textContent=String(value??"—");
       node.classList.toggle("negative",Boolean(negative));
     }
-    async function load(force=false){
+    async function load(force=false,provided=null){
       if(loading||document.visibilityState==="hidden")return;
       if(!force&&Date.now()-lastRequest<25000)return;
       if(!window.olonOwnAccountStatus){
@@ -97,7 +97,7 @@
       }
       loading=true;lastRequest=Date.now();refresh.disabled=true;
       try{
-        const result=await window.olonOwnAccountStatus();
+        const result=provided||await window.olonOwnAccountStatus();
         const accounts=Array.isArray(result?.accounts)?result.accounts:[];
         const primary=accounts.find(a=>a.is_primary)||accounts[0];
         if(!primary){
@@ -106,9 +106,9 @@
           foot.textContent="Conecta tu propia cuenta en Mis cuentas MT4/MT5. Los historiales antiguos no se incluyen.";
           return;
         }
-        const ready=primary.status==="active"&&Boolean(primary.last_sync_at);
+        const ready=["active","waiting","error"].includes(primary.status)&&Boolean(primary.last_sync_at);
         state.textContent=(primary.broker_server||"MT5")+" · "+(primary.login_masked||"Cuenta")
-          +(ready?" · Sincronizada":primary.status==="error"?" · Requiere revisión":" · Pendiente de primera sincronización");
+          +(primary.status==="waiting"?" · Actualizando desde MT5":ready?" · Sincronizada":primary.status==="error"?" · Requiere revisión":" · Pendiente de primera sincronización");
         if(!ready){
           clear();
           foot.textContent=primary.status==="error"
@@ -128,7 +128,7 @@
         const updated=new Date(primary.last_sync_at);
         foot.textContent="Última sincronización: "+(Number.isFinite(updated.getTime())
           ?updated.toLocaleString("es-PR",{timeZone:"America/Puerto_Rico"}):"—")
-          +" · Solo datos reales. Para detalles y otras cuentas, abre Mis cuentas MT4/MT5.";
+          +" · Hora y movimientos originales de MT5. Actualización automática mientras consultas esta cuenta.";
       }catch(e){
         state.textContent="No se pudieron consultar las estadísticas de MT5";
         foot.textContent="Comprueba tu sesión o abre Mis cuentas MT4/MT5. "+String(e?.message||"Error").slice(0,110);
@@ -143,6 +143,8 @@
       if(document.visibilityState==="visible"&&!byId("dashboard")?.classList.contains("hidden"))void load();
     });
     window.olonSummaryMt5Refresh=()=>load(true);
+    window.addEventListener("olon:mt5-updated",()=>void load(true));
+    window.addEventListener("olon:mt5-status",event=>void load(true,event.detail));
     return {block,load};
   }
   function quickLinks(){
@@ -215,6 +217,8 @@
     }
     if(ledger){
       const block=section("olDetailedBlock","Capital y movimientos","Depósitos, retiros, resultado neto y balance registrado.");
+      const period=byId("mtLedgerPeriod")?.closest(".ledgerPeriod");
+      if(period)move(period,block);
       move(ledger,block);detailed.append(block);
     }
     if(report){
@@ -258,7 +262,7 @@
     const kpiGrid=document.createElement("div");
     kpiGrid.className="olSummaryKPIGrid";
     const kpiItems=[
-      {label:"Saldo registrado",source:"mBalance",empty:"$0.00"},
+      {label:"Balance MT5",source:"mBalance",empty:"$0.00"},
       {label:"Resultado del mes",source:"calendarMonthNet",empty:"$0.00"},
       {label:"WinRate registrado",source:"analyticsWinrate",empty:"—"},
       {label:"Operaciones del período",source:"analyticsSample",empty:"0",operation:true}
