@@ -2213,7 +2213,7 @@ document.addEventListener("DOMContentLoaded", function(){
     const touch=event.changedTouches?.[0];
     if(!touch||Math.abs(touch.clientX-logoutTouch.x)>10||
        Math.abs(touch.clientY-logoutTouch.y)>10)logoutTouch.moved=true;
-    logoutTouch.endedAt=Date.now();
+    logoutTouch.endedAt=lastTouchEndAt;
   },{passive:true,capture:true});
   document.addEventListener("touchcancel",()=>{logoutTouch=null;touchOrigin=null;lastTouchDragAt=Date.now();},{passive:true,capture:true});
   window.logout = async function(event){
