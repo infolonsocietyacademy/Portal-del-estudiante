@@ -2047,6 +2047,7 @@ document.addEventListener("DOMContentLoaded", function(){
     return !!profile && ["active","approved"].includes(String(profile.status||"").toLowerCase()); // VIP expiry is handled by OLFX License Manager while data are retained.
   }
   async function openVerifiedProfile(profile,user){
+    recoveryNotice(false);
     currentUser = profile;
     window.olonAppearance?.setAccount(user);
     // Aislar la distribución del administrador de la interfaz del estudiante.
@@ -2171,6 +2172,7 @@ document.addEventListener("DOMContentLoaded", function(){
     if(!confirm('¿Cerrar tu sesión del Portal del Trader?'))return;
     if(logoutInProgress)return;
     logoutInProgress=true;
+    recoveryNotice(false);
     const buttons=document.querySelectorAll("[data-olon-logout]");
     buttons.forEach(button=>{button.disabled=true;button.setAttribute("aria-busy","true");});
     try{
@@ -2198,24 +2200,63 @@ document.addEventListener("DOMContentLoaded", function(){
     }
   };
 
-  let restoreInFlight=null;
+  let restoreInFlight=null,restoreRetryTimer=null,restoreRetryCount=0,restorePending=false;
+  function recoveryNotice(pending){
+    restorePending=pending;
+    let notice=$auth("olonSessionRecoveryNotice");
+    if(pending&&!notice){
+      notice=document.createElement("p");
+      notice.id="olonSessionRecoveryNotice";
+      notice.setAttribute("role","status");
+      $auth("loginSubmitBtn")?.parentNode?.appendChild(notice);
+    }
+    if(notice){
+      notice.hidden=!pending;
+      notice.textContent="Estamos recuperando tu sesión. Al volver la conexión, el portal intentará abrirse automáticamente.";
+    }
+    if(!pending){clearTimeout(restoreRetryTimer);restoreRetryTimer=null;restoreRetryCount=0;}
+  }
+  function retrySessionRecovery(){
+    if(restoreRetryTimer||currentUser||logoutInProgress)return;
+    recoveryNotice(true);
+    // Bounded backoff: avoid a request loop while offline or the service is down.
+    if(restoreRetryCount>=4)return;
+    const delay=Math.min(30000,2000*2**restoreRetryCount++);
+    restoreRetryTimer=setTimeout(()=>{
+      restoreRetryTimer=null;
+      if(!authBusy&&!document.hidden)void restoreSupabaseSession();
+    },delay);
+  }
+  window.addEventListener("online",()=>{
+    if(!restorePending||currentUser||authBusy||logoutInProgress)return;
+    clearTimeout(restoreRetryTimer);restoreRetryTimer=null;restoreRetryCount=0;
+    void restoreSupabaseSession();
+  });
+  document.addEventListener("visibilitychange",()=>{
+    // Only resume an interrupted restoration. Never reinitialize an open portal.
+    if(!document.hidden&&restorePending&&!currentUser&&!authBusy&&!logoutInProgress){
+      clearTimeout(restoreRetryTimer);restoreRetryTimer=null;
+      void restoreSupabaseSession();
+    }
+  });
   async function restoreSupabaseSession(){
     // A background or repeated request must never restart an active session.
-    if(currentUser || !document.getElementById("portal")?.classList.contains("hidden"))return;
+    if(currentUser || authBusy || logoutInProgress || !document.getElementById("portal")?.classList.contains("hidden"))return;
     if(restoreInFlight)return restoreInFlight;
     restoreInFlight=restoreOnce().finally(()=>{restoreInFlight=null;});
     return restoreInFlight;
   }
   async function restoreOnce(){
     await window.olonMaintenance.waitReady();
-    if(currentUser || !document.getElementById("portal")?.classList.contains("hidden"))return;
+    if(currentUser || authBusy || logoutInProgress || !document.getElementById("portal")?.classList.contains("hidden"))return;
     if(window.olonMaintenance.needsConnection?.())return;
-    showPortalLoader("Recuperando tu sesión del Portal del Trader…");
+    if(!restorePending)showPortalLoader("Recuperando tu sesión del Portal del Trader…");
     try{
       // A stored session survives a Safari refresh; a transient getUser timeout
       // does not mean the user logged out or should lose the connected MT5 page.
       const snapshot=await window.olonMaintenance.withDeadline(supabaseClient.auth.getSession(),10000);
-      if(!snapshot?.data?.session || snapshot.error)return;
+      if(snapshot.error)throw snapshot.error;
+      if(!snapshot?.data?.session){recoveryNotice(false);return;}
       let verifiedUser=null,failed=null;
       for(let attempt=0;attempt<3&&!currentUser;attempt++){
         try{
@@ -2227,20 +2268,30 @@ document.addEventListener("DOMContentLoaded", function(){
       }
       if(!verifiedUser){
         console.warn("OLON: sesión almacenada, pendiente de verificación",failed);
+        retrySessionRecovery();
         return;
       }
       const profile=await window.olonMaintenance.withDeadline(profileForAuthenticatedUser(verifiedUser),10000);
-      if(currentUser)return;
+      if(currentUser||authBusy||logoutInProgress)return;
       if(!canUsePortal(profile)){
+        recoveryNotice(false);
         // Verified account restrictions are authoritative; network errors are not.
         await supabaseClient.auth.signOut({scope:"local"});
         if(membershipExpired(profile))showMembershipExpiredNotice();
         return;
       }
-      if(!(await window.olonMaintenance.withDeadline(window.olonMaintenance.guard(profile,verifiedUser),12000)))return;
+      if(!(await window.olonMaintenance.withDeadline(window.olonMaintenance.guard(profile,verifiedUser),12000))){
+        // Confirmed maintenance is a deliberate access gate, not a network retry.
+        if(!document.body.classList.contains("olonMaintenanceBlocked"))retrySessionRecovery();
+        else recoveryNotice(false);
+        return;
+      }
+      if(currentUser||authBusy||logoutInProgress)return;
+      recoveryNotice(false);
       await openVerifiedProfile(profile,verifiedUser);
     }catch(error){
       console.warn("OLON: recuperación de sesión interrumpida sin cerrar la sesión",error);
+      retrySessionRecovery();
     }finally{
       hidePortalLoader();
     }
