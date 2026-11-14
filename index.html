@@ -59,7 +59,7 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
 <link rel="stylesheet" href="./olon-own-connect.css?v=20261113-auth-submit-fix-1">
 <link rel="stylesheet" href="./student-sidebar.css?v=20261110-student-rail-1">
 <link rel="stylesheet" href="./student-dashboard.css?v=20261113-unified-summary-1">
-<link rel="stylesheet" href="./maintenance.css?v=20261114-maintenance-state-3">
+<link rel="stylesheet" href="./maintenance.css?v=20261114-boot-screen-restored-4">
 <link rel="stylesheet" href="./admin-github.css?v=20261114-admin-explorer-2">
 </head>
 <body class="trader-themed olonMaintenancePending">
@@ -76,25 +76,18 @@ html,body{max-width:100%!important;overflow-x:clip!important;overflow-y:visible!
     <div class="portalLoaderTrack" aria-hidden="true"><span></span></div>
     <div class="portalLoaderTelemetry" aria-hidden="true"><span>AUTH // ENCRYPTED</span><span>OLON OS v2.0</span></div>
     <p id="portalLoaderStatus">Preparando el portal…</p>
+    <button type="button" id="olonLoaderRetry" hidden>Reintentar conexión</button>
   </div>
   <div class="portalLoaderBottom" aria-hidden="true"><span>EST. PUERTO RICO</span><span>DISCIPLINE · PRECISION · PERFORMANCE</span></div>
 </div>
 <script>
 window.addEventListener("load", () => {
   const loader = document.getElementById("olonLoader");
-  if (loader && !loader.dataset.managed) loader.hidden = true;
+  if (loader && !loader.dataset.managed && !loader.dataset.maintenanceHold && !document.body.classList.contains("olonMaintenancePending")) loader.hidden = true;
 }, {once: true});
 </script>
 
 
-<section id="olonConnectionGate" hidden role="main" aria-labelledby="olonConnectionHeading">
-  <div class="olfxConnectionFrame">
-    <span class="olfxConnectionOverline">OLFX / CONECTIVIDAD</span>
-    <h1 id="olonConnectionHeading">No se pudo verificar el portal</h1>
-    <p>La conexión con el servicio de acceso no está disponible. Esto no significa que el mantenimiento esté activado. Tu información permanece protegida.</p>
-    <button type="button" id="olonConnectionRetry">Reintentar conexión</button>
-  </div>
-</section>
 <section id="olonMaintenanceGate" hidden role="main" aria-labelledby="olonMaintenanceHeading">
  <div class="olfxMaintenanceFrame">
   <div class="olfxMaintenanceTop"><img src="./assets/favicon.png" alt="OLON Society Academy"><span>OLON SOCIETY ACADEMY</span><span class="olfxMaintenancePill">SYSTEM UPDATE</span></div>
@@ -1508,8 +1501,8 @@ window.addEventListener("load", () => {
 
 <script src="./analytics-core.js?v=20261113-accounting-audit-1" defer></script>
 <script src="./olon-mt-records.js?v=20261113-cashflow-audit-1" defer></script>
-<script src="./maintenance.js?v=20261114-maintenance-state-3" defer></script>
-<script src="./script.js?v=20261113-accounting-audit-1" defer></script>
+<script src="./maintenance.js?v=20261114-boot-screen-restored-4" defer></script>
+<script src="./script.js?v=20261114-maintenance-boot-2" defer></script>
 <script src="./interior-typewriter.js?v=20261107-profile-nickname-fix" defer></script>
 <script src="./appearance.js?v=20261109-terminal-1" defer></script>
 <script src="./trade-history.js?v=20261108-performance-1" defer></script>
