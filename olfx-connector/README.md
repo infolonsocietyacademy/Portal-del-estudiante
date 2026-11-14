@@ -73,3 +73,12 @@ Balance y equity, historial (primera sincronización: últimos 365 días; poster
 **Limites y precauciones:** No modifica ni sube al repositorio `settings.json`, `private_key.pem`, contraseñas, tokens ni datos de estudiantes. La descarga de codigo tiene como origen fijo el propio repositorio de OLON y usa HTTPS. No actualiza automaticamente Python, MetaTrader 5 ni las dependencias de `requirements.txt`. Para funcionar tras reinicios completos de Windows sigue siendo necesaria una tarea de inicio de sesion y que MT5 sea accesible. El CMD viejo puede sincronizar, pero **no** reinicia las nuevas versiones sin el lanzador supervisado.
 
 **Si hay un error de GitHub:** se conserva el agente instalado y vuelve a intentarlo en cinco minutos. Si un cambio nuevo se instala pero falla en su inicio, el lanzador restaura el codigo previo.
+
+## Sincronizacion MT5 exclusivamente a solicitud del estudiante
+
+A partir de esta version **registrar una cuenta MT5 no importa operaciones**. Queda guardada con estado `registered` y la misma clave de inversor cifrada, hasta que el estudiante autenticado haga clic en **Actualizar estadísticas**. Ese boton invoca `refresh-my-accounts` en `olon-own-connect`, que pone las cuentas de ese estudiante en `waiting`; la VPS solo lee esa cola cada 15 segundos. Al terminar todos los lotes, el servidor vuelve la cuenta a `active`. Si ocurre un error se conserva lo ya sincronizado y no se programa un nuevo intento por tiempo. **No hay refresco diario ni automatico al conectar.**
+
+Pulsar **Reintentar sincronización** de una cuenta especifica tambien es una orden manual explicita. **Actualizar acceso de inversor** solo guarda las credenciales nuevas cifradas; no solicita descarga hasta que el estudiante pulse el boton de actualización. La pantalla puede consultar Supabase para mostrar estados actualizados, pero esas lecturas **no** conectan al bróker ni importan movimientos nuevos.
+
+La autoactualizacion de Python es independiente de los datos: el CMD supervisado puede actualizar codigo desde GitHub cada 5 minutos, pero nunca dispara una sincronizacion MT5 sin una solicitud previa. Si la VPS tiene el agente antiguo, hay que ejecutar una vez el CMD autoactualizable con la nueva version para obtener este comportamiento.
+
