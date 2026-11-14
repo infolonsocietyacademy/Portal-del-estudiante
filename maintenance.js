@@ -166,6 +166,11 @@ async function check(){
     const result=await withDeadline(db.from("profiles").select("role,status").eq("id",user.id).maybeSingle());
     if(result.error)throw result.error;
     p=result.data;
+    // A missing profile from a transient RLS/transport read is not a
+    // confirmed revocation. Let the next poll retry rather than signing out.
+    if(!p&&profile()?.id===user.id){
+      throw Error("No se pudo confirmar temporalmente el perfil; sesión preservada.");
+    }
    }
    if(authorized(p,user)){
     lastAllowedDuringMaintenance=true;
