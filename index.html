@@ -21,6 +21,19 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<script id="olon-clean-stale-logout">
+/* The old logout handler left ?logout=1 on the public URL. That marker is
+   not an authentication instruction and must never survive the next launch. */
+(()=>{
+  try{
+    const url=new URL(window.location.href);
+    if(url.searchParams.has("logout")){
+      url.searchParams.delete("logout");
+      history.replaceState(history.state,"",url.pathname+url.search+url.hash);
+    }
+  }catch(error){console.warn("[OLON] No se pudo limpiar la URL anterior",error);}
+})();
+</script>
 <script id="olon-ipados-scroll-guard">
 /* Keep iPad Safari native pull-to-refresh from remounting an authenticated
    portal after a downward gesture at the very top of the page. */
@@ -1545,7 +1558,7 @@ window.addEventListener("load", () => {
 <script src="./analytics-core.js?v=20261113-accounting-audit-1" defer></script>
 <script src="./olon-mt-records.js?v=20261113-cashflow-audit-1" defer></script>
 <script src="./maintenance.js?v=20261114-maintenance-auth-11" defer></script>
-<script src="./script.js?v=20261114-safari-session-recovery-15" defer></script>
+<script src="./script.js?v=20261114-safe-touch-logout-16" defer></script>
 <script src="./interior-typewriter.js?v=20261107-profile-nickname-fix" defer></script>
 <script src="./appearance.js?v=20261109-terminal-1" defer></script>
 <script src="./trade-history.js?v=20261108-performance-1" defer></script>
