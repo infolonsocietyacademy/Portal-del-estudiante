@@ -1512,8 +1512,17 @@ function showWelcome(user){
     document.querySelectorAll('.adminNav').forEach(x=>x.classList.toggle('hidden', !isAdmin));
     document.querySelectorAll('.studentOnly').forEach(x=>x.classList.toggle('hidden', isAdmin));
 
+    // Preserve the MT5 page after a Safari tab reload. Access is still
+    // validated by Supabase Auth, the profile and License Manager.
+    let landingPage=isAdmin?'admin':'dashboard';
+    if(!isAdmin){
+      try{
+        if(sessionStorage.getItem('olon_open_page_'+currentUser.id)==='metaapiAccountsPage')
+          landingPage='metaapiAccountsPage';
+      }catch{}
+    }
     // Optional UI modules must NEVER cancel a verified login.
-    try{activatePage(isAdmin ? 'admin' : 'dashboard');}
+    try{activatePage(landingPage);}
     catch(error){console.error('[OLON] Navegación inicial falló; se conserva la sesión',error);}
     try{window.olonProfile?.start();}
     catch(error){console.error('[OLON] Perfil no inició; se conserva la sesión',error);}
@@ -2155,7 +2164,11 @@ document.addEventListener("DOMContentLoaded", function(){
   window.login = window.olonSecureLogin;
   window.signup = window.olonSecureSignup;
   let logoutInProgress=false;
-  window.logout = async function(){
+  window.logout = async function(event){
+    // Only an intentional tap on a Logout button may end this session.
+    if(!event || event.type!=='click' || !event.isTrusted ||
+       !event.currentTarget?.matches?.('[data-olon-logout]'))return;
+    if(!confirm('¿Cerrar tu sesión del Portal del Trader?'))return;
     if(logoutInProgress)return;
     logoutInProgress=true;
     const buttons=document.querySelectorAll("[data-olon-logout]");
@@ -2197,22 +2210,37 @@ document.addEventListener("DOMContentLoaded", function(){
     await window.olonMaintenance.waitReady();
     if(currentUser || !document.getElementById("portal")?.classList.contains("hidden"))return;
     if(window.olonMaintenance.needsConnection?.())return;
-    showPortalLoader("Comprobando tu sesión…");
+    showPortalLoader("Recuperando tu sesión del Portal del Trader…");
     try{
-      const {data,error} = await window.olonMaintenance.withDeadline(supabaseClient.auth.getUser());
-      if(error || !data?.user || currentUser)return;
-      const profile = await window.olonMaintenance.withDeadline(profileForAuthenticatedUser(data.user));
+      // A stored session survives a Safari refresh; a transient getUser timeout
+      // does not mean the user logged out or should lose the connected MT5 page.
+      const snapshot=await window.olonMaintenance.withDeadline(supabaseClient.auth.getSession(),10000);
+      if(!snapshot?.data?.session || snapshot.error)return;
+      let verifiedUser=null,failed=null;
+      for(let attempt=0;attempt<3&&!currentUser;attempt++){
+        try{
+          const {data,error}=await window.olonMaintenance.withDeadline(supabaseClient.auth.getUser(),9000);
+          if(error)throw error;
+          if(data?.user){verifiedUser=data.user;break;}
+        }catch(error){failed=error;}
+        if(attempt<2)await new Promise(resolve=>setTimeout(resolve,900));
+      }
+      if(!verifiedUser){
+        console.warn("OLON: sesión almacenada, pendiente de verificación",failed);
+        return;
+      }
+      const profile=await window.olonMaintenance.withDeadline(profileForAuthenticatedUser(verifiedUser),10000);
       if(currentUser)return;
       if(!canUsePortal(profile)){
-        await supabaseClient.auth.signOut();
+        // Verified account restrictions are authoritative; network errors are not.
+        await supabaseClient.auth.signOut({scope:"local"});
         if(membershipExpired(profile))showMembershipExpiredNotice();
         return;
       }
-      if(!(await window.olonMaintenance.withDeadline(window.olonMaintenance.guard(profile,data.user),10000)))return;
-      await openVerifiedProfile(profile,data.user);
+      if(!(await window.olonMaintenance.withDeadline(window.olonMaintenance.guard(profile,verifiedUser),12000)))return;
+      await openVerifiedProfile(profile,verifiedUser);
     }catch(error){
-      // A failed restore is not a logout. Do not destroy a profile opened in parallel.
-      console.warn("OLON: la restauración automática no terminó",error);
+      console.warn("OLON: recuperación de sesión interrumpida sin cerrar la sesión",error);
     }finally{
       hidePortalLoader();
     }
@@ -2354,10 +2382,14 @@ function installPortalNavigation(){
   const repositionTools = () => {
     if(sidebar.classList.contains("open")) positionPortalTools();
   };
+  let navViewportWidth=window.innerWidth;
   window.addEventListener("resize", () => {
+    // Safari scrolls its browser chrome by changing viewport HEIGHT.
+    // Do not rebuild the navigation for those vertical scroll changes.
+    if(window.innerWidth===navViewportWidth)return;
+    navViewportWidth=window.innerWidth;
     repositionTools();
-    if(!sidebar.classList.contains("open"))setPortalMenu(false);
-    else if(window.innerWidth>980)setPortalMenu(false);
+    if(!sidebar.classList.contains("open")||window.innerWidth>980)setPortalMenu(false);
   }, {passive:true});
   window.addEventListener("scroll", repositionTools, {passive:true});
   dock.addEventListener("click", event => {
@@ -2399,6 +2431,13 @@ function installPortalNavigation(){
     if(current !== id) return result;
 
     syncPortalNavigation(id);
+    if(currentUser?.id){
+      try{
+        const key='olon_open_page_'+currentUser.id;
+        if(id==='metaapiAccountsPage')sessionStorage.setItem(key,id);
+        else sessionStorage.removeItem(key);
+      }catch{}
+    }
     closeMenu();
     if(portalMenuBreakpoint.matches && previous !== id) window.scrollTo({top: 0, behavior: "instant"});
     window.olonAcademy?.openPage(id);
