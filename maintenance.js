@@ -6,6 +6,7 @@ const $=id=>document.getElementById(id);
 const client=()=>typeof supabaseClient!=="undefined"?supabaseClient:null;
 const profile=()=>typeof currentUser!=="undefined"?currentUser:null;
 let state=null,verified=false,lastError="",changing=false,checkPromise=null,lastRead=0,lastAllowedDuringMaintenance=false;
+let startupConnectionFailed=false,initialized=false;
 let resolveReady;
 const readyPromise=new Promise(resolve=>{resolveReady=resolve;});
 const authorized=(p,u)=>{
@@ -16,6 +17,9 @@ const authorized=(p,u)=>{
 };
 const setHidden=(id,value)=>{const element=$(id);if(element)element.hidden=value;};
 function displayMaintenance(message){
+ const loader=$("olonLoader");if(loader){delete loader.dataset.maintenanceHold;loader.hidden=true;}
+ const retry=$("olonLoaderRetry");if(retry)retry.hidden=true;
+ startupConnectionFailed=false;
  document.body.classList.remove("olonMaintenancePending","olonMaintenanceOffline","olonMaintenanceAdminLogin");
  document.body.classList.add("olonMaintenanceBlocked");
  setHidden("olonConnectionGate",true);
@@ -24,27 +28,29 @@ function displayMaintenance(message){
  if(label)label.textContent=message||"El Portal del Trader está temporalmente en mantenimiento.";
 }
 function displayConnectionError(){
- // A database/network failure is NOT a maintenance announcement.
- if(state?.enabled){
-  if(lastAllowedDuringMaintenance)return; // Keep a previously verified admin session visible during a transient outage.
-  displayMaintenance("El mantenimiento sigue activo. Reintenta la conexión para verificar el estado.");
-  return;
- }
- if(state && !document.body.classList.contains("olonMaintenancePending") &&
-    !document.body.classList.contains("olonMaintenanceOffline")){
-  // Keep a previously verified, open portal visible during transient network failures.
-  // Refreshing after connectivity returns will enforce any subsequently enabled maintenance.
-  return;
- }
- document.body.classList.remove("olonMaintenancePending","olonMaintenanceBlocked","olonMaintenanceAdminLogin");
- document.body.classList.add("olonMaintenanceOffline");
+ // Once a maintenance state was verified, transient refresh failures must NEVER
+ // interrupt a logged-in student or admin, or replace the normal portal loader.
+ if(state)return;
+ startupConnectionFailed=true;
+ document.body.classList.remove("olonMaintenanceOffline","olonMaintenanceBlocked","olonMaintenanceAdminLogin");
+ document.body.classList.add("olonMaintenancePending");
+ setHidden("olonConnectionGate",true);
  setHidden("olonMaintenanceGate",true);
- setHidden("olonConnectionGate",false);
+ const loader=$("olonLoader");
+ if(loader){loader.hidden=false;loader.dataset.maintenanceHold="true";}
+ const status=$("portalLoaderStatus");
+ if(status)status.textContent="Conectando con Portal del Trader…";
+ const retry=$("olonLoaderRetry");
+ if(retry)retry.hidden=false;
 }
 function allowPortal(){
  document.body.classList.remove("olonMaintenancePending","olonMaintenanceBlocked","olonMaintenanceOffline","olonMaintenanceAdminLogin");
  setHidden("olonMaintenanceGate",true);
  setHidden("olonConnectionGate",true);
+ const loader=$("olonLoader");
+ if(loader){delete loader.dataset.maintenanceHold;}
+ const retry=$("olonLoaderRetry");
+ if(retry)retry.hidden=true;
  if(!profile())$("auth")?.classList.remove("hidden");
 }
 function adminLogin(){
@@ -90,7 +96,18 @@ async function check(){
  checkPromise=(async()=>{
   try{
    const current=await read();
-   if(!current.enabled){lastAllowedDuringMaintenance=false;allowPortal();return;}
+   if(!current.enabled){
+    lastAllowedDuringMaintenance=false;
+    const reconnecting=startupConnectionFailed;
+    allowPortal();
+    if(reconnecting&&initialized){
+      startupConnectionFailed=false;
+      // Auth restoration already attempted while verification was unavailable.
+      // Reinitialize it only after the backend has confirmed that maintenance is off.
+      window.location.reload();
+    }
+    return;
+   }
    const db=client();
    const {data,error}=await db.auth.getUser();
    const user=!error?data?.user:null;
@@ -120,7 +137,7 @@ async function check(){
    console.warn("[OLFX mantenimiento] Falló la consulta:",error);
    displayConnectionError();
   }finally{
-   document.body.classList.remove("olonMaintenancePending");
+   if(!startupConnectionFailed)document.body.classList.remove("olonMaintenancePending");
    updateAdmin();
   }
  })().finally(()=>{checkPromise=null;});
@@ -142,13 +159,9 @@ async function guard(p,u){
   verified=false;
   lastError="No se pudo comprobar el acceso. Revisa tu conexión e inténtalo nuevamente.";
   console.warn("[OLFX mantenimiento] No se pudo validar el acceso:",error);
-  // Do not label failed verification as maintenance.
-  if(state?.enabled)displayMaintenance("El mantenimiento sigue activo. Reintenta la conexión.");
-  else {
-   document.body.classList.add("olonMaintenanceOffline");
-   document.body.classList.remove("olonMaintenancePending","olonMaintenanceBlocked","olonMaintenanceAdminLogin");
-   setHidden("olonMaintenanceGate",true);setHidden("olonConnectionGate",false);
-  }
+  // A failed check must never open a special error screen during scrolling.
+  // Keep the ordinary portal UI if already verified; otherwise use the existing boot loader.
+  displayConnectionError();
   updateAdmin();
   return false;
  }
@@ -193,22 +206,23 @@ async function toggle(){
 }
 async function init(){
  $("olonMaintenanceRetry")?.addEventListener("click",()=>void check());
- $("olonConnectionRetry")?.addEventListener("click",()=>void check());
+ $("olonLoaderRetry")?.addEventListener("click",()=>void check());
  $("olonMaintenanceAdminLogin")?.addEventListener("click",adminLogin);
  $("olonMaintenanceToggle")?.addEventListener("click",()=>void toggle());
  $("olonMaintenanceRefresh")?.addEventListener("click",()=>void check());
  try{await check();}
  finally{
   resolveReady();
-  // The boot loader belongs to the portal, not the maintenance banner.
+  initialized=true;
+  // When Supabase is unreachable, the familiar Portal del Trader boot screen stays up.
   const loader=$("olonLoader");
-  if(loader&&!loader.dataset.managed)loader.hidden=true;
+  if(loader&&!loader.dataset.managed&&!loader.dataset.maintenanceHold)loader.hidden=true;
  }
  window.addEventListener("focus",()=>void check());
  document.addEventListener("visibilitychange",()=>{if(!document.hidden)void check();});
  setInterval(()=>{if(!document.hidden)void check();},15000);
 }
-window.olonMaintenance={guard,refresh:check,waitReady:()=>readyPromise,updateAdmin};
+window.olonMaintenance={guard,refresh:check,waitReady:()=>readyPromise,updateAdmin,needsConnection:()=>startupConnectionFailed&&!state};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>void init(),{once:true});
 else void init();
 })();
