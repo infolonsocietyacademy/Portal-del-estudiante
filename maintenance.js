@@ -59,8 +59,9 @@ function displayConnectionError(){
  const loader=$("olonLoader");
  if(loader){delete loader.dataset.maintenanceHold;loader.hidden=true;}
  const retry=$("olonLoaderRetry");if(retry)retry.hidden=true;
- if(!profile())$("auth")?.classList.remove("hidden");
- connectionNotice(true);
+ const portalOpen=!$("portal")?.classList.contains("hidden");
+ if(!portalOpen&&!profile())$("auth")?.classList.remove("hidden");
+ if(!portalOpen)connectionNotice(true);
 }
 function allowPortal(){
  document.body.classList.remove("olonMaintenancePending","olonMaintenanceBlocked","olonMaintenanceOffline","olonMaintenanceAdminLogin");
@@ -71,7 +72,7 @@ function allowPortal(){
  const retry=$("olonLoaderRetry");
  if(retry)retry.hidden=true;
  connectionNotice(false);
- if(!profile())$("auth")?.classList.remove("hidden");
+ if($("portal")?.classList.contains("hidden")&&!profile())$("auth")?.classList.remove("hidden");
 }
 function adminLogin(){
  if(!state?.enabled)return;
@@ -118,22 +119,21 @@ async function check(){
    const current=await read();
    if(!current.enabled){
     lastAllowedDuringMaintenance=false;
-    const reconnecting=startupConnectionFailed;
     allowPortal();
     startupConnectionFailed=false;
-    // Restore the session in place when connectivity returns. No reload loops.
-    if(reconnecting&&initialized&&typeof window.olonRestoreSession==="function"){
-      void window.olonRestoreSession();
-    }
+    // Status polling must not restart authentication or show a full-screen loader.
+    // Supabase Auth restores the session once during initial page startup.
     return;
    }
    const db=client();
    const {data,error}=await withDeadline(db.auth.getUser());
-   const user=!error?data?.user:null;
+   if(error)throw error;
+   const user=data?.user||null;
    let p=null;
    if(user){
     const result=await withDeadline(db.from("profiles").select("role,status").eq("id",user.id).maybeSingle());
-    if(!result.error)p=result.data;
+    if(result.error)throw result.error;
+    p=result.data;
    }
    if(authorized(p,user)){
     lastAllowedDuringMaintenance=true;
@@ -237,9 +237,9 @@ async function init(){
   const loader=$("olonLoader");
   if(loader&&!loader.dataset.managed)loader.hidden=true;
  }
- window.addEventListener("focus",()=>void check());
- document.addEventListener("visibilitychange",()=>{if(!document.hidden)void check();});
- setInterval(()=>{if(!document.hidden)void check();},15000);
+ // Poll independently of scrolling, browser toolbar changes or focus events.
+ // Admin toggles still apply immediately, and other sessions see changes shortly.
+ setInterval(()=>{if(!document.hidden)void check();},20000);
 }
 window.olonMaintenance={guard,refresh:check,waitReady:()=>readyPromise,updateAdmin,needsConnection:()=>startupConnectionFailed&&!state,withDeadline};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>void init(),{once:true});
