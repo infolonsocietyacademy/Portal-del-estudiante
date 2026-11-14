@@ -192,18 +192,30 @@ const SUPABASE_URL = "https://xanhhfashgkyrvphprts.supabase.co";
 const SUPABASE_KEY = "sb_publishable_JQ9TWOn3GvY2nTth0JLHIQ_AtTgwz8B";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+let olonLoaderTimeout=null;
 function showPortalLoader(message){
-  const loader = $("olonLoader");
-  loader.dataset.managed = "true";
-  $("portalLoaderStatus").textContent = message;
-  loader.hidden = false;
-  $("auth").inert = true;
-}
-
-function hidePortalLoader(){
   const loader=$("olonLoader");
-  if(loader && !loader.dataset.maintenanceHold)loader.hidden = true;
-  $("auth").inert = false;
+  if(!loader)return;
+  loader.dataset.managed="true";
+  const status=$("portalLoaderStatus");if(status)status.textContent=message;
+  loader.hidden=false;
+  const auth=$("auth");if(auth)auth.inert=true;
+  clearTimeout(olonLoaderTimeout);
+  // The splash screen must never mask the portal indefinitely on an unresponsive network.
+  olonLoaderTimeout=setTimeout(()=>{
+    loader.hidden=true;
+    if(auth)auth.inert=false;
+    if(!document.body.classList.contains("olonMaintenanceBlocked")){
+      const notice=document.getElementById("olonMaintenanceConnectionNotice");
+      if(notice)notice.hidden=false;
+    }
+  },12000);
+}
+function hidePortalLoader(){
+  clearTimeout(olonLoaderTimeout);
+  const loader=$("olonLoader");
+  if(loader){loader.hidden=true;delete loader.dataset.managed;}
+  const auth=$("auth");if(auth)auth.inert=false;
 }
 
 // Totales públicos agregados por el servidor (sin exponer perfiles ni resultados privados).
@@ -2154,20 +2166,19 @@ document.addEventListener("DOMContentLoaded", function(){
 
   async function restoreSupabaseSession(){
     await window.olonMaintenance.waitReady();
-    // An initial maintenance-status outage keeps the regular portal boot screen;
-    // do not start a second auth loader or replace it with a connection error.
+    // The login form remains usable even if maintenance verification is offline.
     if(window.olonMaintenance.needsConnection?.())return;
     showPortalLoader("Comprobando tu sesión…");
     try{
-      const {data,error} = await supabaseClient.auth.getUser();
+      const {data,error} = await window.olonMaintenance.withDeadline(supabaseClient.auth.getUser());
       if(error || !data?.user) return;
-      const profile = await profileForAuthenticatedUser(data.user);
+      const profile = await window.olonMaintenance.withDeadline(profileForAuthenticatedUser(data.user));
       if(!canUsePortal(profile)){
         await supabaseClient.auth.signOut();
         if(membershipExpired(profile))showMembershipExpiredNotice();
         return;
       }
-      if(!(await window.olonMaintenance.guard(profile,data.user)))return;
+      if(!(await window.olonMaintenance.withDeadline(window.olonMaintenance.guard(profile,data.user),10000)))return;
       await openVerifiedProfile(profile,data.user);
     }catch(error){
       console.warn("OLON: no se restauró la sesión Auth",error);
@@ -2177,6 +2188,7 @@ document.addEventListener("DOMContentLoaded", function(){
       hidePortalLoader();
     }
   }
+  window.olonRestoreSession=restoreSupabaseSession;
   let lastMembershipCheck=0;
   async function recheckMembership(){
     if(!currentUser || String(currentUser.role||"").toLowerCase()==="admin" ||
