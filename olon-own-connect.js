@@ -132,9 +132,11 @@ function renderAccounts(accounts){
  const add=$("metaapiAddAccount"),badge=$("metaapiConnectionBadge"),steps=qs("#metaapiAccountsPage .metaapi-steps");
  if(!host||!form||!legacy||!badge)return;
  const expanded=new Map();
+ const expandedTotals=new Set();
  host.querySelectorAll(".olfxAccountCard[data-account-id]").forEach(card=>{
   const details=card.querySelector(".olfxRecentDeals");
   if(details?.open)expanded.set(card.dataset.accountId,Number(details.dataset.page||0));
+  if(card.querySelector(".olfxHistoricalTotals")?.open)expandedTotals.add(card.dataset.accountId);
  });
  currentDealsRequest++;
  host.replaceChildren();
@@ -164,7 +166,7 @@ function renderAccounts(accounts){
   name.append(txt("strong","MT5 · "+account.login_masked));
   name.append(txt("small",account.broker_server,"metaapi-muted"));
   const ready=Boolean(account.last_sync_at)&&account.status!=="revoked";
-  const state=txt("span",ready?(account.last_error?"Vinculada · última actualización falló":account.status==="waiting"?"Vinculada · actualizando a solicitud":"Datos sincronizados · actualización manual"):account.status==="waiting"?"Actualización solicitada · esperando VPS":account.status==="registered"?"Cuenta registrada · pulsa Actualizar estadísticas":account.status==="error"?"Revisar acceso de inversor":"Esperando solicitud","olfxAccountState");
+  const state=txt("span",ready?(account.last_error?"Vinculada · última actualización falló":account.status==="waiting"?"Vinculada · actualizando desde MT5":"Datos sincronizados"):account.status==="waiting"?"Actualización solicitada · esperando VPS":account.status==="registered"?"Cuenta registrada · pulsa Actualizar estadísticas":account.status==="error"?"Revisar acceso de inversor":"Esperando solicitud","olfxAccountState");
   state.dataset.status=account.status;
   heading.append(name,state);card.append(heading);
   if(account.is_primary)card.append(txt("p","★ Esta cuenta alimenta tu Resumen, calendario y resultados","olfxPrimaryCaption"));
@@ -186,14 +188,21 @@ function renderAccounts(accounts){
    metric("Profit factor",ready&&account.profit_factor!=null?String(account.profit_factor):"—"),
    metric("Operaciones ganadoras",accountValue(account.wins,ready,"count")),
    metric("Operaciones perdedoras",accountValue(account.losses,ready,"count")),
-   metric("Empates / breakeven",accountValue(account.breakeven_trades,ready,"count")),
+   metric("Empates / breakeven",accountValue(account.breakeven_trades,ready,"count"))
+  );card.append(grid);
+  const historical=document.createElement("details");historical.className="olfxHistoricalTotals metaapi-panel";
+  historical.open=expandedTotals.has(account.id);
+  historical.append(txt("summary","Ver depósitos y movimientos de todo el historial"));
+  historical.append(txt("p","Estos importes suman todo el historial guardado. No representan el saldo actual ni los depósitos de este mes. Para consultar un período, abre Resultados o Historial.","metaapi-muted"));
+  const historicalGrid=document.createElement("div");historicalGrid.className="olfxAccountMetrics";
+  historicalGrid.append(
    metric("Depósitos externos históricos (DEP)",accountValue(account.deposits,ready,"money",account.currency)),
    metric("Retiros externos históricos",accountValue(account.withdrawals,ready,"money",account.currency)),
    metric("Transferencias recibidas",accountValue(account.transfer_in,ready,"money",account.currency)),
    metric("Transferencias enviadas",accountValue(account.transfer_out,ready,"money",account.currency)),
    metric("Otros ajustes de balance",accountValue(account.balance_adjustments,ready,"money",account.currency)),
    metric("Comisiones, swaps y tasas",accountValue(account.fees,ready,"money",account.currency))
-  );card.append(grid);
+  );historical.append(historicalGrid);card.append(historical);
   card.append(txt("p",ready?"Última actualización: "+accountDate(account.last_sync_at)+(account.backfill_done?" · Historial importado":" · Importación en curso"):"Sin datos sincronizados todavía","olfxAccountSync"));
   if(ready){
    const recent=document.createElement("details");recent.className="olfxRecentDeals";
