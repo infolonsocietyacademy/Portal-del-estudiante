@@ -4,7 +4,7 @@ const fs=require("node:fs");
 const vm=require("node:vm");
 
 const source=fs.readFileSync("maintenance.js","utf8");
-function harness({enabled=true,verifiedUser=true,profileStatus="active"}={}){
+function harness({enabled=true,verifiedUser=true,profileStatus="active",readyState="loading",deferredClient=false}={}){
   const events=new Map(), elements=new Map();
   let clock=1000000, getUserCount=0, signouts=0, unauthorized=false;
   const uid="admin-id";
@@ -40,7 +40,7 @@ function harness({enabled=true,verifiedUser=true,profileStatus="active"}={}){
     }
   };
   const document={
-    readyState:"loading",hidden:false,body:el("body"),
+    readyState,hidden:false,body:el("body"),
     getElementById:el,
     addEventListener:(event,callback)=>events.set(event,callback)
   };
@@ -48,7 +48,7 @@ function harness({enabled=true,verifiedUser=true,profileStatus="active"}={}){
   const FakeDate=class extends Date {static now(){return clock;}};
   const fetch=async()=>({ok:true,async json(){return [{enabled,updated_at:"now"}];}});
   const ctx={
-    window:win,document,currentUser,supabaseClient:client,fetch,
+    window:win,document,currentUser,supabaseClient:deferredClient?undefined:client,fetch,
     AbortController,Date:FakeDate,Promise,
     console:{warn(){},error(){}},clearTimeout,
     setTimeout, setInterval(){},
@@ -56,15 +56,37 @@ function harness({enabled=true,verifiedUser=true,profileStatus="active"}={}){
   };
   vm.runInNewContext(source,ctx,{filename:"maintenance.js"});
   return {
-    async start(){await events.get("DOMContentLoaded")();await win.olonMaintenance.waitReady();},
+    async start(){
+      ctx.supabaseClient=client;
+      await events.get("DOMContentLoaded")?.();
+      await win.olonMaintenance.waitReady();
+    },
     async check(){await win.olonMaintenance.refresh();},
     el,
+    needsConnection:()=>win.olonMaintenance.needsConnection(),
     advance:(ms)=>{clock+=ms;},
     unauthorized:()=>{unauthorized=true;},
     get getUserCount(){return getUserCount;},
     get signouts(){return signouts;}
   };
 }
+
+test("deferred startup waits for the later Supabase script before checking maintenance",async()=>{
+  // Deferred scripts run with readyState=interactive. maintenance.js is before
+  // script.js in index.html, so its client does not exist until parsing ends.
+  const h=harness({enabled:false,readyState:"interactive",deferredClient:true});
+  await h.start();
+  assert.equal(h.needsConnection(),false,"a normal page refresh must not be mistaken for a connection failure");
+  assert.equal(h.el("body").classList.contains("olonMaintenanceBlocked"),false);
+  assert.equal(h.signouts,0);
+});
+
+test("maintenance also initializes when loaded after the document is complete",async()=>{
+  const h=harness({enabled:false,readyState:"complete"});
+  await h.start();
+  assert.equal(h.needsConnection(),false);
+  assert.equal(h.signouts,0);
+});
 
 test("verified administrator remains signed in across regular maintenance polls",async()=>{
   const h=harness();
