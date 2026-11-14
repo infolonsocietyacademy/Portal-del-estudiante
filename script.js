@@ -201,7 +201,8 @@ function showPortalLoader(message){
 }
 
 function hidePortalLoader(){
-  $("olonLoader").hidden = true;
+  const loader=$("olonLoader");
+  if(loader && !loader.dataset.maintenanceHold)loader.hidden = true;
   $("auth").inert = false;
 }
 
@@ -2153,6 +2154,9 @@ document.addEventListener("DOMContentLoaded", function(){
 
   async function restoreSupabaseSession(){
     await window.olonMaintenance.waitReady();
+    // An initial maintenance-status outage keeps the regular portal boot screen;
+    // do not start a second auth loader or replace it with a connection error.
+    if(window.olonMaintenance.needsConnection?.())return;
     showPortalLoader("Comprobando tu sesión…");
     try{
       const {data,error} = await supabaseClient.auth.getUser();
