@@ -135,12 +135,12 @@ function renderAccounts(accounts){
   const name=document.createElement("div");
   name.append(txt("strong","MT5 · "+account.login_masked));
   name.append(txt("small",account.broker_server,"metaapi-muted"));
-  const ready=account.status==="active"&&Boolean(account.last_sync_at);
-  const state=txt("span",ready?"Datos sincronizados":account.status==="waiting"?"Pendiente de primera sincronización":account.status==="error"?"Error de conexión":"Esperando Windows","olfxAccountState");
+  const ready=Boolean(account.last_sync_at)&&account.status!=="revoked";
+  const state=txt("span",ready?(account.last_error?"Vinculada · actualización pendiente":account.status==="waiting"?"Vinculada · actualizando":"Datos sincronizados"):account.status==="waiting"?"Pendiente de primera sincronización":account.status==="error"?"Revisar acceso de inversor":"Esperando Windows","olfxAccountState");
   state.dataset.status=account.status;
   heading.append(name,state);card.append(heading);
   if(account.is_primary)card.append(txt("p","★ Esta cuenta alimenta tu Resumen, calendario y resultados","olfxPrimaryCaption"));
-  if(account.last_error)card.append(txt("p","Error: "+account.last_error,"olfxAccountError"));
+  if(account.last_error)card.append(txt("p",(ready?"Aviso de actualización: ":"Error de conexión: ")+account.last_error+" La cuenta sigue registrada.","olfxAccountError"));
   if(!ready){
    card.append(txt("p","Cuenta registrada. Para recibir balance, equity, operaciones y estadísticas reales, en la computadora ejecuta OLFX CONNECT → Sincronizar ahora. No se muestran datos de una cuenta archivada.","metaapi-muted"));
   }
@@ -184,7 +184,9 @@ function renderAccounts(accounts){
   primary.addEventListener("click",()=>void changePrimary(account.id,primary));
   const remove=txt("button","Desconectar cuenta","btn secondary");
   remove.type="button";remove.addEventListener("click",()=>void unlink(account.id));
-  actions.append(primary,remove);card.append(actions);host.append(card);
+  const retry=txt("button","Reintentar sincronización","btn secondary");retry.type="button";retry.addEventListener("click",()=>void retrySync(account.id,retry));
+  const access=txt("button","Actualizar acceso de inversor","btn secondary");access.type="button";access.addEventListener("click",()=>showAccessUpdate(account,card));
+  actions.append(primary,retry,access,remove);card.append(actions);host.append(card);
  }
 }
 async function loadRecentDeals(accountId,container,label,page=0){
@@ -304,6 +306,41 @@ async function connect(){
   busy=false;
   if(btn){btn.textContent="Conectar mi cuenta MetaTrader 5";btn.disabled=false;btn.removeAttribute("aria-busy");}
  }
+}
+async function retrySync(accountId,button){
+ if(busy)return;
+ busy=true;button.disabled=true;
+ try{
+  const result=await invoke({action:"retry-sync",accountId,force:true});
+  const response=await invoke({action:"status"});renderAccounts(response.accounts||[]);
+  notice(result.alreadyWaiting?"La sincronización ya está pendiente.":"Cuenta conservada: la VPS volverá a intentar la sincronización.","success");
+ }catch(e){notice(e.message,"error");}
+ finally{busy=false;if(button.isConnected)button.disabled=false;}
+}
+function showAccessUpdate(account,card){
+ const old=card.querySelector(".olfxAccessUpdate");if(old){old.remove();return;}
+ const form=document.createElement("form");form.className="olfxAccessUpdate metaapi-panel";form.autocomplete="off";
+ const title=txt("strong","Actualizar credenciales de "+account.login_masked);
+ const desc=txt("p","Introduce el número completo y la contraseña de inversor de la misma cuenta. No se borrará el historial.","metaapi-muted");
+ const login=document.createElement("input");login.type="text";login.inputMode="numeric";login.maxLength=20;login.required=true;login.placeholder="Número completo de cuenta MT5";
+ const pass=document.createElement("input");pass.type="password";pass.maxLength=256;pass.required=true;pass.placeholder="Contraseña de inversor (solo lectura)";pass.autocomplete="new-password";
+ const label=document.createElement("label"),check=document.createElement("input");check.type="checkbox";check.required=true;label.append(check,document.createTextNode(" Confirmo que es la contraseña de inversor, no la contraseña principal."));
+ const send=txt("button","Guardar y reintentar","btn metaapi-primary");send.type="submit";
+ form.append(title,desc,login,pass,label,send);
+ form.addEventListener("submit",async event=>{
+  event.preventDefault();if(busy||!check.checked)return;
+  const number=clean(login.value),secret=pass.value;
+  if(!/^[0-9]{4,20}$/.test(number)||!account.login_masked.endsWith(number.slice(-4)))return notice("El número no coincide con la cuenta registrada.","error");
+  busy=true;send.disabled=true;
+  try{
+   const ready=await invoke({action:"agent-ready"});if(!ready.publicKeyPem)throw Error("Agente OLFX no disponible.");
+   const encryptedPayload=await securePayload(ready.publicKeyPem,{login:number,investorPassword:secret,platform:"mt5",brokerServer:account.broker_server});
+   await invoke({action:"update-credentials",accountId:account.id,brokerServer:account.broker_server,login:number,encryptedPayload});
+   const result=await invoke({action:"status"});renderAccounts(result.accounts||[]);
+   notice("Credenciales actualizadas de forma segura. Cuenta conservada y en espera de sincronización.","success");
+  }catch(e){notice(e.message,"error");}finally{pass.value="";busy=false;send.disabled=false;}
+ });
+ card.append(form);login.focus();
 }
 async function unlink(accountId){
  if(busy||!accountId||!confirm("¿Desvincular únicamente esta cuenta MT5? El historial sincronizado quedará conservado en Account Vault."))return;
