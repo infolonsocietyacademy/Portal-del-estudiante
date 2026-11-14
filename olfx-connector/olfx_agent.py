@@ -164,9 +164,21 @@ def _due_for_sync(item: dict, automatic: bool = False) -> bool:
         return True
     status = str(item.get("status") or "")
     if status == "waiting":
+        # Para una cuenta ya sincronizada, reintento manual sin esperar 24 horas.
         return True
+    if status == "error":
+        # Fallas de primera conexión se reintentan con pausa de 30 minutos.
+        previous = item.get("updated_at")
+        if not previous:
+            return True
+        try:
+            last_error_at = datetime.fromisoformat(str(previous).replace("Z", "+00:00"))
+            if last_error_at.tzinfo is None:
+                last_error_at = last_error_at.replace(tzinfo=timezone.utc)
+            return (datetime.now(timezone.utc) - last_error_at).total_seconds() >= ERROR_RETRY_SECONDS
+        except (ValueError, TypeError):
+            return True
     if status != "active":
-        # Una contraseña equivocada requiere revisión, no intentos cada 15 segundos.
         return False
     last = item.get("last_sync_at")
     if not last:
@@ -196,6 +208,7 @@ def one(automatic: bool = False) -> int:
         print(f"OLFX CONNECT - {len(accounts)} cuenta(s) en el servidor, "
               f"{len(pending)} lista(s) para sincronizar.", flush=True)
     for account in pending:
+        attempt_started_at = datetime.now(timezone.utc).isoformat()
         try:
             sync_account(mt5, account, cfg)
         except Exception as exc:
@@ -203,7 +216,8 @@ def one(automatic: bool = False) -> int:
                   str(exc)[:180], flush=True)
             try:
                 api("agent-error", {"accountId":account["id"],
-                                    "message":str(exc)[:160]}, cfg["agent_token"])
+                                    "message":str(exc)[:160],
+                                    "attemptStartedAt":attempt_started_at}, cfg["agent_token"])
             except Exception as report:
                 print("  No se pudo informar el error:", report, flush=True)
     return len(pending)
