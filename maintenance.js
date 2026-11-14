@@ -5,7 +5,7 @@
 const $=id=>document.getElementById(id);
 const client=()=>typeof supabaseClient!=="undefined"?supabaseClient:null;
 const profile=()=>typeof currentUser!=="undefined"?currentUser:null;
-let state=null,verified=false,lastError="",changing=false,checkPromise=null,lastRead=0,lastAllowedDuringMaintenance=false;
+let state=null,verified=false,lastError="",changing=false,checkPromise=null,lastRead=0,lastAllowedDuringMaintenance=false,lastAllowedCheck=0;
 let startupConnectionFailed=false,initialized=false;
 let resolveReady;
 const readyPromise=new Promise(resolve=>{resolveReady=resolve;});
@@ -138,6 +138,7 @@ async function check(){
    if(!current.enabled){
     const recoveredFromStartupError=startupConnectionFailed;
     lastAllowedDuringMaintenance=false;
+    lastAllowedCheck=0;
     allowPortal();
     startupConnectionFailed=false;
     // If the initial status read failed, session restoration was deferred.
@@ -146,6 +147,15 @@ async function check(){
        $("portal")?.classList.contains("hidden")&&typeof window.olonRestoreSession==="function"){
        void window.olonRestoreSession();
     }
+    return;
+   }
+   // Poll the maintenance *flag* every 30 seconds, but do not repeatedly
+   // reinitialize a recently server-verified active session. Safari focus,
+   // scroll and token refresh are not user-initiated logout events.
+   if(lastAllowedDuringMaintenance && profile() &&
+      !$("portal")?.classList.contains("hidden") &&
+      Date.now()-lastAllowedCheck < 300000){
+    allowPortal();
     return;
    }
    const db=client();
@@ -158,7 +168,8 @@ async function check(){
    // with the public landing page merely because of that temporary gap.
    // Supabase still enforces permissions on every private server operation.
    if(!user&&profile()&&lastAllowedDuringMaintenance){
-    console.warn("[OLFX mantenimiento] Verificación temporalmente vacía; se conserva la vista autenticada.");
+    console.warn("[OLFX mantenimiento] Lectura temporalmente vacía; se conserva la sesión previamente validada.");
+    allowPortal();
     return;
    }
    let p=null;
@@ -172,20 +183,20 @@ async function check(){
       throw Error("No se pudo confirmar temporalmente el perfil; sesión preservada.");
     }
    }
-   if(authorized(p,user)){
+   if(authorized(p,user)&&(!profile()||profile()?.id===user.id)){
     lastAllowedDuringMaintenance=true;
+    lastAllowedCheck=Date.now();
     allowPortal();
    }else if(!user&&document.body.classList.contains("olonMaintenanceAdminLogin")){
     // An explicit admin-login attempt remains available; guard() validates the signed-in user.
    }else{
     lastAllowedDuringMaintenance=false;
+    lastAllowedCheck=0;
+    // An ongoing background maintenance check may show the access gate,
+    // but MUST NOT revoke tokens, clear currentUser, hide #portal or route
+    // the browser to the public login screen. CSS hides protected content
+    // while maintenance is confirmed; login guard() still validates access.
     displayMaintenance("El Portal del Trader está en mantenimiento. Tu información permanece protegida.");
-    if(user){
-     try{await db.auth.signOut({scope:"local"});}catch{}
-     if(typeof currentUser!=="undefined")currentUser=null;
-     try{localStorage.removeItem("olon_current_user");}catch{}
-     $("portal")?.classList.add("hidden");$("auth")?.classList.remove("hidden");
-    }
    }
   }catch(error){
    verified=false;
@@ -210,6 +221,7 @@ async function guard(p,u){
    return false;
   }
   lastAllowedDuringMaintenance=!!current.enabled;
+  lastAllowedCheck=current.enabled?Date.now():0;
   allowPortal();updateAdmin();return true;
  }catch(error){
   verified=false;
@@ -246,6 +258,9 @@ async function toggle(){
   // Check the stored value again so a stale UI never pretends a change succeeded.
   const persisted=await read();
   if(persisted.enabled!==enable)throw Error("Supabase devolvió un estado diferente. Pulsa Actualizar estado.");
+  // This toggle request already checked the administrator identity on the server.
+  lastAllowedDuringMaintenance=enable;
+  lastAllowedCheck=enable?Date.now():0;
   if(feedback)feedback.textContent=enable
    ?"Mantenimiento ACTIVADO y confirmado en Supabase."
    :"Mantenimiento DESACTIVADO y confirmado. Portal abierto para accesos vigentes.";
