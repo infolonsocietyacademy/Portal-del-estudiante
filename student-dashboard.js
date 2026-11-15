@@ -108,12 +108,12 @@
         }
         const ready=["active","waiting","error"].includes(primary.status)&&Boolean(primary.last_sync_at);
         state.textContent=(primary.broker_server||"MT5")+" · "+(primary.login_masked||"Cuenta")
-          +(primary.status==="waiting"?" · Actualizando desde MT5":ready?" · Sincronizada":primary.status==="error"?" · Requiere revisión":" · Pendiente de primera sincronización");
+          +(primary.last_error||primary.status==="error"?ready?" · Última actualización falló":" · Acceso MT5 sin verificar":primary.status==="waiting"?" · Verificando y sincronizando":ready?" · Sincronizada":" · Registrada, acceso MT5 sin verificar");
         if(!ready){
           clear();
           foot.textContent=primary.status==="error"
             ?"La sincronización presentó un error. Abre Mis cuentas MT4/MT5 para ver el detalle."
-            :"La cuenta ya está vinculada. Abre el agente OLFX CONNECT en Windows para importar el balance y las operaciones.";
+            :"La cuenta está registrada, pero aún no se ha verificado el acceso a MT5. Pulsa Actualizar estadísticas en Mis cuentas MT4/MT5 y mantén el conector abierto en Windows.";
           return;
         }
         const currency=primary.currency||"USD";

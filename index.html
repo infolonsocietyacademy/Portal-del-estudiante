@@ -753,7 +753,7 @@ window.addEventListener("load", () => {
         </div>
         <div class="metaapi-panel">
           <div class="olfxAccountManagementIntro">
-            <div><strong>Cuentas conectadas</strong><p class="metaapi-muted">Las cuentas permanecen vinculadas. Solo se consultarán nuevos datos MT5 cuando presiones «Actualizar estadísticas»; la VPS no actualiza automáticamente.</p></div>
+            <div><strong>Cuentas registradas</strong><p class="metaapi-muted">Registrar la cuenta guarda sus datos, pero no valida la contraseña. Pulsa «Actualizar estadísticas» para que la VPS compruebe el acceso a MT5 e importe el historial.</p></div>
             <div class="metaapi-actions"><button type="button" id="metaapiRefreshAccounts" class="btn secondary">Actualizar estadísticas</button><button type="button" id="metaapiAddAccount" class="btn secondary" hidden>+ Conectar otra cuenta MT5</button></div>
           </div>
           <div id="metaapiAccountsList" class="olfxAccountsList" aria-live="polite"></div>
@@ -831,7 +831,7 @@ window.addEventListener("load", () => {
               </label>
               <p class="metaapi-muted metaapi-privacy-note">La contraseña se cifra en tu navegador para la computadora autorizada de OLFX. El servidor guarda solamente el contenido cifrado; no se envía a MetaApi.</p>
               <div class="metaapi-actions">
-                <button id="metaapiConnect" type="submit" class="btn metaapi-primary">Conectar mi cuenta MetaTrader 5</button>
+                <button id="metaapiConnect" type="submit" class="btn metaapi-primary">Registrar mi cuenta MetaTrader 5</button>
                 <button id="metaapiCancelPending" type="button" class="btn secondary" hidden>Cancelar intento y cambiar servidor</button>
               </div>
             </div>
@@ -1603,8 +1603,8 @@ window.addEventListener("load", () => {
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
 <script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script>
-<script src="./olon-own-connect.js?v=20261114-mt5-history-context-10" defer></script>
+<script src="./olon-own-connect.js?v=20261115-verified-connection-labels-11" defer></script>
 <script src="./mt5-live.js?v=20261114-live-calendar-1" defer></script>
-<script src="./student-dashboard.js?v=20261115-student-menu-cleanup-1" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
+<script src="./student-dashboard.js?v=20261115-verified-connection-labels-2" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>
 </html>
 

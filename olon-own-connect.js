@@ -144,11 +144,12 @@ function renderAccounts(accounts){
  const hasAccounts=currentAccounts.length>0;
  form.hidden=hasAccounts&&!addingAccount;
  if(steps)steps.hidden=form.hidden;
- if(add){add.hidden=!hasAccounts;add.textContent=addingAccount?"Cancelar nueva conexión":"+ Conectar otra cuenta MT5";}
- const active=currentAccounts.filter(a=>a.status==="active").length;
+ if(add){add.hidden=!hasAccounts;add.textContent=addingAccount?"Cancelar nueva conexión":"+ Registrar otra cuenta MT5";}
+ const active=currentAccounts.filter(a=>a.status==="active"&&a.last_sync_at&&a.backfill_done&&!a.last_error).length;
  const pending=currentAccounts.filter(a=>a.status==="waiting").length;
  badge.dataset.status=active?"on":pending?"wait":"off";
- badge.textContent=!hasAccounts?"Sin vincular":active+" sincronizada(s) de "+currentAccounts.length;
+ const errors=currentAccounts.filter(a=>a.last_error||a.status==="error").length;
+ badge.textContent=!hasAccounts?"Sin registrar":active?active+" verificada(s) de "+currentAccounts.length+(errors?" · "+errors+" con error":""):pending?"Verificando con MT5":errors?"Acceso sin verificar · revisar error":"Pendiente de verificación MT5";
  if(!hasAccounts){
   const callout=document.createElement("div");callout.className="olfxConnectFirst";
   callout.append(txt("strong","Conecta tu propia cuenta MetaTrader 5"));
@@ -166,13 +167,13 @@ function renderAccounts(accounts){
   name.append(txt("strong","MT5 · "+account.login_masked));
   name.append(txt("small",account.broker_server,"metaapi-muted"));
   const ready=Boolean(account.last_sync_at)&&account.status!=="revoked";
-  const state=txt("span",ready?(account.last_error?"Vinculada · última actualización falló":account.status==="waiting"?"Vinculada · actualizando desde MT5":"Datos sincronizados"):account.status==="waiting"?"Actualización solicitada · esperando VPS":account.status==="registered"?"Cuenta registrada · pulsa Actualizar estadísticas":account.status==="error"?"Revisar acceso de inversor":"Esperando solicitud","olfxAccountState");
+  const state=txt("span",ready?(account.last_error?"Vinculada · última actualización falló":account.status==="waiting"?"Vinculada · actualizando desde MT5":"Datos sincronizados"):account.status==="waiting"?"Verificación solicitada · esperando VPS":account.status==="registered"?"Registrada · acceso MT5 sin verificar":account.status==="error"?"Acceso MT5 sin verificar · revisar servidor y contraseña":"Esperando solicitud","olfxAccountState");
   state.dataset.status=account.status;
   heading.append(name,state);card.append(heading);
   if(account.is_primary)card.append(txt("p","★ Esta cuenta alimenta tu Resumen, calendario y resultados","olfxPrimaryCaption"));
   if(account.last_error)card.append(txt("p",(ready?"Aviso de actualización: ":"Error de conexión: ")+account.last_error+" La cuenta sigue registrada.","olfxAccountError"));
   if(!ready){
-   card.append(txt("p","La cuenta se conserva guardada. Pulsa «Actualizar estadísticas» para solicitar una sincronización MT5 desde la VPS. Hasta entonces no se consultan nuevos movimientos.","metaapi-muted"));
+   card.append(txt("p","El acceso todavía no está verificado. Pulsa «Actualizar estadísticas» para comprobar el servidor y la contraseña de inversor desde la VPS e importar el historial.","metaapi-muted"));
   }
   const grid=document.createElement("div");grid.className="olfxAccountMetrics";
   grid.append(
@@ -324,7 +325,7 @@ async function connect(){
  if(!/^[0-9]{4,20}$/.test(login))return notice("Escribe el número completo de tu cuenta MT5.","error");
  if(!password||password.length>256||!$("metaapiInvestorConfirm")?.checked)return notice("Escribe la contraseña de inversor (solo lectura) y marca la confirmación.","error");
  busy=true;
- if(btn){btn.disabled=true;btn.setAttribute("aria-busy","true");btn.textContent="Verificando sesión y conectando…";}
+ if(btn){btn.disabled=true;btn.setAttribute("aria-busy","true");btn.textContent="Registrando cuenta…";}
  notice("Verificando la sesión y la conexión segura. No cierres esta página.","info");
  try{
   const ready=await invoke({action:"agent-ready"});
@@ -344,7 +345,7 @@ async function connect(){
    status:"registered",is_primary:currentAccounts.length===0,last_sync_at:null,last_error:null
   };
   renderAccounts([...currentAccounts.filter(a=>a.id!==saved.accountId),linked]);
-  notice("Cuenta MT5 guardada. Pulsa «Actualizar estadísticas» para solicitar la importación.","success");
+  notice("Cuenta registrada. El acceso a MT5 todavía no está verificado. Pulsa «Actualizar estadísticas» para verificar e importar.","info");
   window.olonMtRecords?.invalidate?.();
   try{
    const result=await readStatus();
@@ -356,11 +357,11 @@ async function connect(){
   }
   // No redibujar toda la aplicación al conectar; la sección permanece abierta.
  }catch(e){
-  notice("No se conectó la cuenta: "+(e?.message||"Error desconocido")+". Revisa el mensaje y vuelve a intentarlo.","error");
+  notice("No se pudo registrar la cuenta: "+(e?.message||"Error desconocido")+". Revisa el mensaje y vuelve a intentarlo.","error");
  }finally{
   if(passwordEl)passwordEl.value="";
   busy=false;
-  if(btn){btn.textContent="Conectar mi cuenta MetaTrader 5";btn.disabled=false;btn.removeAttribute("aria-busy");}
+  if(btn){btn.textContent="Registrar mi cuenta MetaTrader 5";btn.disabled=false;btn.removeAttribute("aria-busy");}
  }
 }
 async function requestStudentRefresh(){
