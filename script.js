@@ -672,6 +672,7 @@ function getVipPayment(value, now = new Date()){
 function renderVipPayment(profile){
   if(!profile || isAdminUser(profile)) return;
   const card = $("vipPayment");
+  if(!card || !$("vipPaymentDate")) return;
   const payment = getVipPayment(profile.next_payment_date);
   if(!payment){
     card.dataset.state = "unassigned";
@@ -1598,7 +1599,6 @@ function showWelcome(user){
 
   const subtitles = {
     dashboard:"Tu actividad y progreso en la academia.",
-    institutionalFlowPage:"OLFX Institutional Contract Flow · GC y NQ · Fuentes verificables.",
     copyTradePage:"Coming soon · Esta función aún no está disponible.",
     registro:"Registra depósito, ganancia, pérdida y notas del día.",
     historial:"Revisa tus resultados y movimientos de capital.",
@@ -1607,10 +1607,9 @@ function showWelcome(user){
 
     newsProPage:"Titulares y calendario económico.",
     academyClassesPage:"Próximas sesiones y material de repaso.",
-    academyVipPage:"Comprobantes y próxima fecha de pago.",
     academyChecklistPage:"Tus reglas y la revisión de cada día.",
     academyJournalPage:"Captura y notas privadas de tu operación.",
-    notificationsPage:"Avisos de clases y renovación VIP en tus dispositivos.",
+    notificationsPage:"Avisos de clases y acceso en tus dispositivos.",
     academyAdminClassesPage:"Agenda, acceso y grabaciones de la academia.",
     academyAdminVipPage:"Revisión de comprobantes de membresía.",
     admin:"Panel administrativo profesional.",

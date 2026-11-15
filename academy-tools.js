@@ -13,14 +13,14 @@
   });
   const rulesInfo = [["schedule_rule","schedule_ok","Horario"], ["risk_rule","risk_ok","Límite de riesgo"],
     ["entry_rule","entry_ok","Confirmación"]];
-  const studentPages = new Set(["academyClassesPage","academyVipPage","academyChecklistPage","academyJournalPage"]);
+  const studentPages = new Set(["academyClassesPage","academyChecklistPage","academyJournalPage"]);
   const adminPages = new Set(["academyAdminClassesPage","academyAdminVipPage"]);
   const types = {
     "image/jpeg":"jpg","image/png":"png","image/webp":"webp",
     "image/heic":"heic","image/heif":"heif","application/pdf":"pdf"
   };
   const safeError = message => Object.assign(new Error(message), {safe:true});
-  let classDraft = null, classCreateId = null, receiptDraft = null, journal = null;
+  let classDraft = null, classCreateId = null, journal = null;
   let rules = {}, rulesOwner = null, dayRules = {}, dayRequest = 0, dayReady = null;
   let classNotifications = null, studentClassRequest = 0, studentClassesLoading = false;
 
@@ -382,80 +382,6 @@
   });
   byId("academyClassCancel").addEventListener("click", () => editClass());
 
-  const vipForm = byId("academyVipForm");
-  const receiptStatus = {pending:"Pendiente",confirmed:"Confirmado",rejected:"Requiere corrección"};
-
-  function receiptCard(row){
-    const card = node("article","","academyItem");
-    const head = node("div","","academyItemHead");
-    const badge = node("span",receiptStatus[row.status],"academyBadge");
-    badge.dataset.status = row.status;
-    head.append(node("h5","Comprobante"),badge);
-    card.append(head,node("p",dateTime.format(new Date(row.submitted_at)) + " PR","academyMeta"));
-    if(row.next_payment_date) card.append(node("p","Próxima fecha de pago · " + vipPaymentDateLabel.format(new Date(row.next_payment_date + "T00:00:00Z")),"academyCopy"));
-    if(row.review_note) card.append(node("p","Administración · " + row.review_note,"academyCopy"));
-    card.append(privateFile(vipBucket,row.object_path,"comprobante"));
-    return card;
-  }
-
-  async function loadVip(){
-    const owner = student();
-    if(!owner) return;
-    listMessage("academyVipHistory","Cargando comprobantes…");
-    try{
-      const [proof,profile] = await Promise.all([
-        table("olon_vip_receipts").select("*").eq("student_id",owner).order("submitted_at",{ascending:false}).limit(20),
-        table("profiles").select("next_payment_date").eq("id",owner).maybeSingle()
-      ]);
-      if(student() !== owner) return;
-      const rows = unwrap(proof) || [];
-      if(!profile.error && profile.data) currentUser.next_payment_date = profile.data.next_payment_date;
-      renderVipPayment(currentUser);
-      const date = currentUser.next_payment_date;
-      byId("academyVipDate").textContent = date
-        ? "Próximo pago · " + vipPaymentDateLabel.format(new Date(date + "T00:00:00Z"))
-        : "Administración todavía no ha asignado una próxima fecha de pago.";
-      const pending = rows.some(row=>row.status==="pending");
-      vipForm.hidden = pending;
-      byId("academyVipPending").hidden = !pending;
-      setList("academyVipHistory",rows.map(receiptCard),"Todavía no has enviado comprobantes.");
-    }catch{ listMessage("academyVipHistory","No se pudieron consultar tus comprobantes."); }
-  }
-
-  vipForm.addEventListener("submit",event=>{
-    event.preventDefault();
-    const owner = student();
-    if(!owner) return;
-    void action(event.submitter || vipForm.querySelector("button"),"academyVipFeedback",async()=>{
-      const file = field(vipForm,"proof").files[0];
-      const info = fileInfo(file,Object.keys(types),8,"Selecciona una imagen o un PDF de hasta 8 MB.");
-      if(!receiptDraft || receiptDraft.owner !== owner || receiptDraft.file !== file){
-        if(receiptDraft?.owner === owner) await discard(vipBucket,receiptDraft.path);
-        const id = crypto.randomUUID();
-        receiptDraft = {owner,id,file,path:owner + "/" + id + "." + info.ext};
-      }
-      const draft = receiptDraft;
-      await upload(vipBucket,draft.path,file,info.type);
-      const {error} = await table("olon_vip_receipts").insert({
-        id:draft.id, student_id:owner, object_path:draft.path, student_note:value(vipForm,"note")
-      });
-      if(error){
-        const found = unwrap(await table("olon_vip_receipts").select("id").eq("id",draft.id).eq("student_id",owner).maybeSingle());
-        if(!found && error.code === "23505"){
-          await discard(vipBucket,draft.path);
-          receiptDraft = null;
-          await loadVip();
-          throw safeError("Ya tienes un comprobante pendiente de revisión.");
-        }
-        if(!found) throw error;
-      }
-      receiptDraft = null;
-      vipForm.reset();
-      await loadVip();
-      feedback("academyVipFeedback","Comprobante enviado a Administración.","success");
-    },"No se confirmó el envío. Vuelve a intentar con el mismo archivo.");
-  });
-
   function adminReceiptCard(row){
     const card = node("article","","academyItem");
     card.append(node("h5",row.profiles?.full_name || "Estudiante"),node("p",dateTime.format(new Date(row.submitted_at)) + " PR","academyMeta"));
@@ -700,7 +626,6 @@
     },
     openPage(page){
       if(page === "academyClassesPage") void loadClasses();
-      if(page === "academyVipPage") void loadVip();
       if(page === "academyChecklistPage") void loadChecklist();
       if(page === "academyAdminClassesPage") void loadClasses(true);
       if(page === "academyAdminVipPage") void loadAdminVip();
