@@ -2,6 +2,7 @@ name: VPS diagnostics Windows check
 on:
   pull_request:
     paths:
+      - '.gitattributes'
       - 'OLFX_DIAGNOSTICO_VPS.cmd'
       - 'diagnostico-vps/**'
       - 'scripts/build-vps-diagnostics.py'
