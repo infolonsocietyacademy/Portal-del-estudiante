@@ -1599,6 +1599,7 @@ function showWelcome(user){
   const subtitles = {
     dashboard:"Tu actividad y progreso en la academia.",
     institutionalFlowPage:"OLFX Institutional Contract Flow · GC y NQ · Fuentes verificables.",
+    copyTradePage:"Coming soon · Esta función aún no está disponible.",
     registro:"Registra depósito, ganancia, pérdida y notas del día.",
     historial:"Revisa tus resultados y movimientos de capital.",
     comparacion:"Compara tu mes actual con el mes anterior.",
@@ -1631,7 +1632,7 @@ function showWelcome(user){
       if(btn) btn.classList.add("active");
 
       const title = $("pageTitle");
-      if(title) title.innerText = id === "dashboard" ? "Resumen de rendimiento" : btn ? clean(btn.querySelector(".portalNavText")?.textContent || btn.textContent) : id === "academyJournalPage" ? "Diario visual" : clean(id);
+      if(title) title.innerText = id === "dashboard" ? "Resumen de rendimiento" : id === "copyTradePage" ? "Copy Trade" : btn ? clean(btn.querySelector(".portalNavText")?.textContent || btn.textContent) : id === "academyJournalPage" ? "Diario visual" : clean(id);
 
       const sub = $("pageSubtitle");
       if(sub && subtitles[id]) sub.innerText = subtitles[id];
