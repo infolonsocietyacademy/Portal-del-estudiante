@@ -1632,7 +1632,7 @@ function showWelcome(user){
       if(btn) btn.classList.add("active");
 
       const title = $("pageTitle");
-      if(title) title.innerText = id === "dashboard" ? "Resumen de rendimiento" : btn ? clean(btn.querySelector(".portalNavText")?.textContent || btn.textContent) : id === "academyJournalPage" ? "Diario visual" : clean(id);
+      if(title) title.innerText = id === "dashboard" ? "Resumen de rendimiento" : id === "copyTradePage" ? "Copy Trade" : btn ? clean(btn.querySelector(".portalNavText")?.textContent || btn.textContent) : id === "academyJournalPage" ? "Diario visual" : clean(id);
 
       const sub = $("pageSubtitle");
       if(sub && subtitles[id]) sub.innerText = subtitles[id];
