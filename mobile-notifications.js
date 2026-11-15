@@ -3,7 +3,7 @@
   const root=document.getElementById('notificationsPage');if(!root)return;
   const $=id=>document.getElementById(id),base=new URL('.',document.currentScript?.src||location.href);
   const ownershipKey='olon_push_device_owner_v1';
-  const allowed={classes:'academyClassesPage',vip:'academyVipPage',notifications:'notificationsPage'};
+  const allowed={classes:'academyClassesPage',vip:'dashboard',notifications:'notificationsPage'};
   let registration=null,publicKey='',subscription=null,devices=[],currentDevice=null,busy=false,ready=false,owner=null,request=0,installPrompt=null;
   let pending=new URL(location.href).searchParams.get('notify');
   const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
@@ -47,7 +47,7 @@
     if(!devices.length){const empty=document.createElement('li');empty.className='pushEmpty';empty.textContent='Todavía no has conectado dispositivos.';list.append(empty);}
     for(const device of devices){
       const row=document.createElement('li'),copy=document.createElement('div'),title=document.createElement('strong'),detail=document.createElement('small'),remove=document.createElement('button');
-      title.textContent=device.label+(device.current?' · Este dispositivo':'');detail.textContent=[device.classes?'Clases':'',device.vip?'Renovación VIP':''].filter(Boolean).join(' · ')||'Sin categorías activadas';
+      title.textContent=device.label+(device.current?' · Este dispositivo':'');detail.textContent=[device.classes?'Clases':'',device.vip?'Vencimiento de licencia':''].filter(Boolean).join(' · ')||'Sin categorías activadas';
       copy.append(title,detail);remove.type='button';remove.className='btn secondary';remove.textContent='Desactivar';remove.disabled=busy;
       remove.addEventListener('click',()=>void disable(device));row.append(copy,remove);list.append(row);
     }

@@ -156,10 +156,8 @@
       ["Historial","historial","Operaciones y calendario"],
       ["Checklist","academyChecklistPage","Rutina y disciplina"],
       ["Clases","academyClassesPage","Contenido educativo"],
-      ["Renovación VIP","academyVipPage","Acceso y pagos"],
       ["Noticias","newsProPage","Eventos del mercado"],
-      ["Notificaciones","notificationsPage","Mensajes importantes"],
-      ["Institutional Flow","institutionalFlowPage","Herramientas institucionales"]
+      ["Notificaciones","notificationsPage","Mensajes importantes"]
     ];
     const grid=document.createElement("div");grid.className="olSummaryQuickGrid";
     links.forEach(([label,page,description])=>{
@@ -249,7 +247,7 @@
     if(classesShortcut)byId("academyClassesPage")?.append(classesShortcut);
     if(registerShortcut)register.append(registerShortcut);
     // License activation remains in the student's profile card inside the welcome
-    // area. Renewal VIP is reserved for payment proofs and their approval history.
+    // area, independent of the retired payment-proof submission page.
 
     const kpiBlock=section("olSummaryKPIsBlock","Tu rendimiento de un vistazo","Datos calculados desde tu historial personal.","comparacion");
     kpiBlock.id="olonSummaryKPIs";

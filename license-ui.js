@@ -60,7 +60,7 @@ function showState(state){
  if(input){input.disabled=state.phase==="active";input.placeholder=state.phase==="active"?"Licencia activa — gestionada por administración":"Pega tu licencia asignada";if(state.phase==="active")input.value="";}
  if(redeemButton){redeemButton.disabled=state.phase==="active";redeemButton.hidden=state.phase==="active";}
  const hint=$("olonLicenseProfileHint");
- if(hint)hint.textContent=state.phase==="active"?"Licencia activa y vinculada a tu cuenta. Las renovaciones y cambios anticipados se gestionan con administración.":state.phase==="legacy"?"Tu acceso actual continúa. Cuando renueves, pega aquí tu licencia.":"Tu cuenta y tus datos están guardados. Pega la licencia que recibiste después de pagar para reactivar tu VIP.";
+ if(hint)hint.textContent=state.phase==="active"?"Licencia activa y vinculada a tu cuenta. Los cambios de acceso se gestionan con Administración.":state.phase==="legacy"?"Tu acceso actual continúa. Administración gestiona tu licencia.":"Tu cuenta y tus datos están guardados. Introduce la licencia que te entregó Administración para activar tu acceso.";
 }
 async function status(force=false){
  const u=typeof currentUser!=="undefined"?currentUser:null;
@@ -252,7 +252,7 @@ function init(){
   const target=event.target.closest("[data-page],[data-dock-page],.portalNavLink,.portalDockLink");
   if(!target)return;
   const destination=target.dataset.page||target.dataset.dockPage;
-  if(destination&&destination!=="dashboard"&&destination!=="academyVipPage"){
+  if(destination&&destination!=="dashboard"){
    event.preventDefault();event.stopImmediatePropagation();
    if(typeof window.showPage==="function")window.showPage("dashboard",document.querySelector('[data-page="dashboard"]'));
    $("olonLicenseStudentCard")?.scrollIntoView({behavior:"smooth",block:"center"});
