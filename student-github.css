@@ -96,6 +96,11 @@
   #portal.app:not(.admin-mode) #portalWelcomeCard:has(#olonLicenseStudentCard) {grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:24px!important}
   #portal.app:not(.admin-mode) #portalWelcomeCard .cyberWelcomeIdentity {display:none!important}
   #portal.app:not(.admin-mode) #portalWelcomeCard .welcomeHeroContent {border:0!important;padding-left:0!important}
+  #portal.app:not(.admin-mode) #portalWelcomeCard :is(#vipPayment,#olonLicenseStudentCard) {margin:0!important;padding:0!important}
+  #portal.app:not(.admin-mode) .olonLicenseProfileHint {font-size:calc(12px * var(--trader-font-scale,1))!important;line-height:1.6!important;margin:8px 0!important}
+  #portal.app:not(.admin-mode) :is(.olonLicenseProfileDates,.olonLicenseProfileForm label) {font-size:calc(12px * var(--trader-font-scale,1))!important}
+  #portal.app:not(.admin-mode) .olonLicenseProfileInputRow input {font-size:calc(13px * var(--trader-font-scale,1))!important}
+  #portal.app:not(.admin-mode) .adminSmallButton {background:var(--student-gh-subtle)!important;color:var(--student-gh-text)!important;border:1px solid var(--student-gh-border)!important}
   #portal.app:not(.admin-mode) .cyberProfileCard {box-shadow:none!important;background:var(--student-gh-subtle)!important;border-radius:6px!important}
   #portal.app:not(.admin-mode) .olSummaryBlockHeader {border:0!important;padding:0!important;margin-bottom:16px!important}
   #portal.app:not(.admin-mode) .olSummaryBlockHeader h3 {font-size:calc(17px * var(--trader-font-scale,1))!important;font-weight:600!important}
