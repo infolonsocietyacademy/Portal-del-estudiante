@@ -1609,7 +1609,7 @@ function showWelcome(user){
     academyClassesPage:"Próximas sesiones y material de repaso.",
     academyChecklistPage:"Tus reglas y la revisión de cada día.",
     academyJournalPage:"Captura y notas privadas de tu operación.",
-    notificationsPage:"Avisos de clases y renovación VIP en tus dispositivos.",
+    notificationsPage:"Avisos de clases y acceso en tus dispositivos.",
     academyAdminClassesPage:"Agenda, acceso y grabaciones de la academia.",
     academyAdminVipPage:"Revisión de comprobantes de membresía.",
     admin:"Panel administrativo profesional.",
