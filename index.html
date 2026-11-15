@@ -516,7 +516,7 @@ window.addEventListener("load", () => {
         <div class="card v3Card">
           <small>Ranking Estudiantil</small>
           <h3 id="topRanking">Top --%</h3>
-          <span id="topRankingNote">Posición entre estudiantes por rendimiento sobre depósito</span>
+          <span id="topRankingNote">Ranking histórico por rendimiento sobre capital ingresado</span>
         </div>
         <div class="card v3Card">
           <small>Rendimiento</small>
@@ -1275,7 +1275,7 @@ window.addEventListener("load", () => {
         <span class="adminSectionEyebrow">RECONOCIMIENTO AUTOMÁTICO / OLON SOCIETY</span>
         <h4 id="olonRankingAdminTitle">🏆 TOP 3 automático</h4>
         <p>Clasificación automática con operaciones cerradas de cuentas MT activas y sincronizadas. No requiere aprobaciones ni publicaciones.</p>
-        <p class="olonRankingExplain">El rendimiento se calcula como resultado neto del período ÷ depósitos registrados × 100. Se necesita al menos una operación cerrada y capital positivo en una cuenta conectada. Los historiales desconectados permanecen archivados y no entran al ranking. Los nombres respetan la configuración de privacidad de cada estudiante.</p>
+        <p class="olonRankingExplain">El rendimiento se calcula como resultado neto del período ÷ capital ingresado acumulado × 100, con las fechas de MT5. El capital incluye abonos positivos de balance, como depósitos y transferencias recibidas. Se necesita al menos una operación cerrada y capital positivo en una cuenta conectada. Las cuentas de prueba no participan. Los nombres respetan la configuración de privacidad de cada estudiante.</p>
         <div class="olonRankingAdminControls">
           <label>Tipo de ranking
             <select id="olonRankPeriod">
@@ -1322,12 +1322,12 @@ window.addEventListener("load", () => {
       <section id="olonPerformanceBlock" class="adminWorkspaceCard olonPerformanceBlock" aria-labelledby="olonPerformanceTitle">
         <header class="olonPerformanceHeader">
           <div><span class="adminSectionEyebrow">PERFORMANCE / ESTUDIANTES</span><h4 id="olonPerformanceTitle">Resultados de los traders</h4>
-          <p>Porcentaje calculado con los resultados registrados. Revisa y prepara estudiantes para el TOP 3; publicar requiere autorización.</p></div>
+          <p>Clasificación automática con los resultados de MT5. Las cuentas de prueba conservan su historial y quedan fuera del ranking.</p></div>
           <button type="button" id="olonPerformanceReload" class="adminBtn adminBtnOutline">↻ Actualizar resultados</button>
         </header>
         <div class="olonPerformanceFilters">
           <label>Período <select id="olonPerformancePeriod"><option value="weekly">Esta semana</option><option value="monthly">Este mes</option><option value="annual">Este año</option><option value="all">Histórico completo</option></select></label>
-          <span id="olonPerformancePeriodNote">Resultados por período, sobre capital depositado acumulado.</span>
+          <span id="olonPerformancePeriodNote">Resultados por período, sobre capital ingresado acumulado.</span>
         </div>
         <div id="olonPerformanceStatus" role="status" aria-live="polite">Preparando resultados…</div>
         <div class="olonPerformanceTableWrap"><table class="olonPerformanceTable">
@@ -1530,7 +1530,7 @@ window.addEventListener("load", () => {
 <script src="./olon-mt-records.js?v=20261114-source-ledger-2" defer></script>
 <script src="./session-diagnostics.js?v=20261114-ipad-trace-1" defer></script>
 <script src="./maintenance.js?v=20261114-maintenance-startup-12" defer></script>
-<script src="./script.js?v=20261114-mt5-calendar-18" defer></script>
+<script src="./script.js?v=20261115-real-trader-ranking-19" defer></script>
 <script src="./interior-typewriter.js?v=20261107-profile-nickname-fix" defer></script>
 <script src="./appearance.js?v=20261109-terminal-1" defer></script>
 <script src="./trade-history.js?v=20261114-mt5-cashflow-2" defer></script>
@@ -1550,7 +1550,7 @@ window.addEventListener("load", () => {
 <script src="./leaderboard.js?v=20261113-verified-top3-1" defer></script>
 <link rel="stylesheet" href="./olon-myfxbook.css?v=20261111-1">
 <script src="./olon-myfxbook.js?v=20261111-1" defer></script>
-<script src="./admin-performance.js?v=20261113-verified-top3-1" defer></script>
+<script src="./admin-performance.js?v=20261115-real-trader-ranking-2" defer></script>
 <script src="./admin-registration.js?v=20261110-admin-sections-1" defer></script><script src="./license-ui.js?v=20261114-scroll-stability-7" defer></script>
 <script src="./password-settings.js?v=20261107-security-hardening" defer></script>
 

@@ -1036,9 +1036,8 @@ function bestWorst(records){
 }
 
 function rankingLabelFromPosition(position){
-  if(!position) return {label:"Sin ranking", note:"Registra datos para aparecer en el ranking"};
-  if(position <= 5) return {label:"#"+position, note:"Ranking entre estudiantes por rendimiento sobre depósito"};
-  return {label:"#"+position, note:"Fuera del Top 5, sigue subiendo tu rendimiento"};
+  if(!position) return {label:"Sin ranking", note:"Cuenta sin clasificación en el ranking histórico"};
+  return {label:"#"+position, note:"Ranking histórico por rendimiento sobre capital ingresado"};
 }
 
 function reportHTML(records, label){
@@ -1076,7 +1075,7 @@ async function renderStudentRanking(){
   }catch(e){
     console.warn("Ranking privado no disponible",e);
     if(rankEl)rankEl.textContent="Sin ranking";
-    if(noteEl)noteEl.textContent="Registra resultados para participar en el ranking privado.";
+    if(noteEl)noteEl.textContent="No fue posible verificar tu posición. Reintenta la consulta.";
   }
 }
 
