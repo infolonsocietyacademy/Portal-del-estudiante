@@ -1,0 +1,166 @@
+/* Student-only flat workspace. The layer overrides legacy decorative !important
+   rules without changing page visibility, form states, IDs or event handlers. */
+@layer studentGithub {
+  #portal.app:not(.admin-mode) {
+    --student-gh-bg:#ffffff;
+    --student-gh-subtle:#f6f8fa;
+    --student-gh-border:#d1d9e0;
+    --student-gh-text:var(--trader-text,#1f2328);
+    --student-gh-muted:#59636e;
+    --cyber-ui-panel:var(--student-gh-bg)!important;
+    --cyber-ui-panel-2:var(--student-gh-subtle)!important;
+    --cyber-ui-rail:var(--student-gh-subtle)!important;
+    --cyber-ui-border:var(--student-gh-border)!important;
+    --cyber-ui-ink:var(--student-gh-text)!important;
+    --cyber-ui-muted:var(--student-gh-muted)!important;
+    --panel:var(--student-gh-bg)!important;
+    --panel2:var(--student-gh-subtle)!important;
+    --text:var(--student-gh-text)!important;
+    --muted:var(--student-gh-muted)!important;
+    --line:var(--student-gh-border)!important;
+    color:var(--student-gh-text)!important;
+    background:var(--student-gh-bg)!important;
+    font-family:var(--trader-font,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif)!important;
+  }
+  body.atlas-dark #portal.app:not(.admin-mode) {
+    --student-gh-bg:#0d1117;
+    --student-gh-subtle:#151b23;
+    --student-gh-border:#30363d;
+    --student-gh-text:var(--trader-text,#f0f6fc);
+    --student-gh-muted:#9198a1;
+  }
+  #portal.app:not(.admin-mode) :is(main.main,.page) {
+    background:var(--student-gh-bg)!important;
+    color:var(--student-gh-text)!important;
+    min-width:0;
+  }
+  #portal.app:not(.admin-mode) :is(h1,h2,h3,h4,h5,p,span,strong,small,button,input,select,textarea,label,table,summary) {
+    font-family:var(--trader-font,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif)!important;
+  }
+  #portal.app:not(.admin-mode) :is(.card,.olSummaryBlock,.olDetailedBlock,.olDetailedResultsIntro,
+    .academyCard,.academyHero,.metaapi-panel,.olfxAccountCard,.pushPanel,.copyTradePanel,
+    .historyWorkspace,.historyLedger,.goalCard,.vipPayment,.olonLicenseProfileInline,
+    .traderAnalytics,.analyticsPanel,.analyticsMetric,.traderScoreCard,.aiCard,.chartBox) {
+    border:0!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    background:transparent!important;
+    background-image:none!important;
+    color:var(--student-gh-text)!important;
+  }
+  #portal.app:not(.admin-mode) :is(.card,.welcomeHeroCard,.goalCard,.olSummaryBlock)::before,
+  #portal.app:not(.admin-mode) :is(.card,.welcomeHeroCard,.goalCard,.olSummaryBlock)::after {
+    display:none!important;
+  }
+  #portal.app:not(.admin-mode) .portalTopbar {
+    border:0!important;border-bottom:1px solid var(--student-gh-border)!important;
+    border-radius:0!important;box-shadow:none!important;background:var(--student-gh-subtle)!important;
+  }
+  #portal.app:not(.admin-mode) .portalPageInfo {padding-block:24px 16px!important}
+  #portal.app:not(.admin-mode) #pageTitle {font-size:clamp(22px,3vw,28px)!important;font-weight:600!important;letter-spacing:-.025em!important}
+  #portal.app:not(.admin-mode) #pageSubtitle {font-size:calc(13px * var(--trader-font-scale,1))!important;line-height:1.6!important}
+  #portal.app:not(.admin-mode) #sidebar {
+    background:var(--student-gh-subtle)!important;box-shadow:none!important;
+    border-right:1px solid var(--student-gh-border)!important;
+  }
+  #portal.app:not(.admin-mode) #sidebar :is(.cyberSidebarProfile,.portalAccessCard) {
+    border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
+  }
+  #portal.app:not(.admin-mode) #sidebar .portalNavLink {
+    border-color:transparent!important;border-radius:6px!important;box-shadow:none!important;min-height:40px!important;
+  }
+  #portal.app:not(.admin-mode) #sidebar .portalNavLink.active {
+    background:color-mix(in srgb,var(--student-gh-muted) 12%,transparent)!important;
+    box-shadow:inset 3px 0 var(--trader-accent,#0969da)!important;
+    color:var(--student-gh-text)!important;
+  }
+  #portal.app:not(.admin-mode) #sidebar .portalNavText {font-size:calc(13px * var(--trader-font-scale,1))!important;font-weight:500!important}
+  #portal.app:not(.admin-mode) :is(.btn,.olSummaryDetail,.olSummaryMT5Refresh,.portalExitBtn,.adminSmallButton) {
+    border-radius:6px!important;box-shadow:none!important;min-height:34px;
+    font-weight:500!important;letter-spacing:0!important;
+  }
+  #portal.app:not(.admin-mode) :is(input,select,textarea) {
+    border-radius:6px!important;box-shadow:none!important;
+    background:var(--student-gh-bg)!important;color:var(--student-gh-text)!important;
+    border-color:var(--student-gh-border)!important;
+  }
+  #portal.app:not(.admin-mode) :is(button,input,select,textarea,a,summary):focus-visible {
+    outline:2px solid var(--trader-accent,#0969da)!important;outline-offset:2px!important;
+  }
+  #portal.app:not(.admin-mode) #dashboard.olSummaryFocused {gap:28px 32px!important}
+  #portal.app:not(.admin-mode) #dashboard :is(.olSummaryBlock,#portalWelcomeCard) {
+    padding:0 0 24px!important;border-bottom:1px solid var(--student-gh-border)!important;
+  }
+  #portal.app:not(.admin-mode) #portalWelcomeCard {min-height:0!important}
+  #portal.app:not(.admin-mode) #dashboard::before {display:none!important}
+  #portal.app:not(.admin-mode) #portalWelcomeCard:has(#olonLicenseStudentCard) {grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:24px!important}
+  #portal.app:not(.admin-mode) #portalWelcomeCard .cyberWelcomeIdentity {display:none!important}
+  #portal.app:not(.admin-mode) #portalWelcomeCard .welcomeHeroContent {border:0!important;padding-left:0!important}
+  #portal.app:not(.admin-mode) #portalWelcomeCard :is(#vipPayment,#olonLicenseStudentCard) {margin:0!important;padding:0!important}
+  #portal.app:not(.admin-mode) .olonLicenseProfileHint {font-size:calc(12px * var(--trader-font-scale,1))!important;line-height:1.6!important;margin:8px 0!important}
+  #portal.app:not(.admin-mode) :is(.olonLicenseProfileDates,.olonLicenseProfileForm label) {font-size:calc(12px * var(--trader-font-scale,1))!important}
+  #portal.app:not(.admin-mode) .olonLicenseProfileInputRow input {font-size:calc(13px * var(--trader-font-scale,1))!important}
+  #portal.app:not(.admin-mode) .adminSmallButton {background:var(--student-gh-subtle)!important;color:var(--student-gh-text)!important;border:1px solid var(--student-gh-border)!important}
+  #portal.app:not(.admin-mode) .cyberProfileCard {box-shadow:none!important;background:var(--student-gh-subtle)!important;border-radius:6px!important}
+  #portal.app:not(.admin-mode) .olSummaryBlockHeader {border:0!important;padding:0!important;margin-bottom:16px!important}
+  #portal.app:not(.admin-mode) .olSummaryBlockHeader h3 {font-size:calc(17px * var(--trader-font-scale,1))!important;font-weight:600!important}
+  #portal.app:not(.admin-mode) .olSummaryBlockHeader p {font-size:calc(12px * var(--trader-font-scale,1))!important;line-height:1.6!important}
+  #portal.app:not(.admin-mode) :is(.olSummaryKPIGrid,.olSummaryMT5Metrics,.olfxAccountMetrics) {gap:0 24px!important}
+  #portal.app:not(.admin-mode) :is(.olSummaryKPI,.olSummaryMT5Metric,.olfxAccountMetric,.v3Card,.metric,.historyMetrics>div) {
+    padding:14px 0!important;border:0!important;border-bottom:1px solid var(--student-gh-border)!important;
+    border-radius:0!important;box-shadow:none!important;background:transparent!important;min-height:78px!important;
+  }
+  #portal.app:not(.admin-mode) :is(.olSummaryKPI,.olSummaryMT5Metric,.olfxAccountMetric)>span {font-size:calc(12px * var(--trader-font-scale,1))!important;font-weight:400!important}
+  #portal.app:not(.admin-mode) :is(.olSummaryKPI,.olSummaryMT5Metric,.olfxAccountMetric)>strong {
+    font-weight:600!important;font-variant-numeric:tabular-nums;
+  }
+  #portal.app:not(.admin-mode) .olSummaryQuickGrid {grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:0 28px!important}
+  #portal.app:not(.admin-mode) .olSummaryQuickLink {
+    display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:4px 14px!important;
+    min-height:66px!important;padding:13px 0!important;border:0!important;
+    border-bottom:1px solid var(--student-gh-border)!important;border-radius:0!important;
+    box-shadow:none!important;background:transparent!important;transform:none!important;
+  }
+  #portal.app:not(.admin-mode) .olSummaryQuickLink strong {font-size:calc(14px * var(--trader-font-scale,1))!important;font-weight:500!important}
+  #portal.app:not(.admin-mode) .olSummaryQuickLink span {grid-column:1;font-size:calc(12px * var(--trader-font-scale,1))!important}
+  #portal.app:not(.admin-mode) .olSummaryQuickLink::after {content:"→";grid-column:2;grid-row:1/3;align-self:center;color:var(--student-gh-muted)}
+  #portal.app:not(.admin-mode) .olSummaryQuickLink:hover {background:var(--student-gh-subtle)!important}
+  #portal.app:not(.admin-mode) :is(.olSummaryGoalsGrid .goalCard,.academyCard,.olfxAccountCard,.pushPanel,.olDetailedBlock) {
+    padding:20px 0!important;border-bottom:1px solid var(--student-gh-border)!important;
+  }
+  #portal.app:not(.admin-mode) .olonLicenseProfileInline {padding:16px 0!important}
+  #portal.app:not(.admin-mode) :is(.academyHero,.olDetailedResultsIntro,.historyHeader) {padding:12px 0 24px!important}
+  #portal.app:not(.admin-mode) .olfxHistoricalTotals {border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important}
+  #portal.app:not(.admin-mode) :is(table,.olfxRecentTable,.historyList) {border-radius:0!important;box-shadow:none!important}
+  #portal.app:not(.admin-mode) .historyRow {border:0!important;border-bottom:1px solid var(--student-gh-border)!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;padding-block:14px!important}
+  #portal.app:not(.admin-mode) .historyListHead {border:0!important;border-bottom:1px solid var(--student-gh-border)!important;border-radius:0!important;background:var(--student-gh-subtle)!important}
+  #portal.app:not(.admin-mode) th {background:var(--student-gh-subtle)!important;color:var(--student-gh-muted)!important;font-size:calc(12px * var(--trader-font-scale,1))!important;font-weight:500!important}
+  #portal.app:not(.admin-mode) :is(th,td) {border-color:var(--student-gh-border)!important;padding:12px!important}
+  #portal.app:not(.admin-mode) .olonPodium {display:flex!important;flex-direction:column!important;gap:0!important}
+  #portal.app:not(.admin-mode) .olonPodiumEntry {
+    display:grid!important;grid-template-columns:34px 36px minmax(0,1fr) auto!important;
+    align-items:center!important;gap:12px!important;padding:15px 0!important;
+    border:0!important;border-bottom:1px solid var(--student-gh-border)!important;
+    border-radius:0!important;background:transparent!important;box-shadow:none!important;text-align:left!important;
+  }
+  #portal.app:not(.admin-mode) .olonPodiumEntry[data-leaderboard-rank="1"] {order:1}
+  #portal.app:not(.admin-mode) .olonPodiumEntry[data-leaderboard-rank="2"] {order:2}
+  #portal.app:not(.admin-mode) .olonPodiumEntry[data-leaderboard-rank="3"] {order:3}
+  #portal.app:not(.admin-mode) .olonPodiumEntry .olonTopAvatar {grid-column:2;grid-row:1;width:36px!important;height:36px!important;border-width:1px!important;box-shadow:none!important}
+  #portal.app:not(.admin-mode) .olonTopName {grid-column:3;grid-row:1;font-size:calc(13px * var(--trader-font-scale,1))!important;text-align:left!important}
+  #portal.app:not(.admin-mode) .olonTopPercent {grid-column:4;grid-row:1;font-size:calc(14px * var(--trader-font-scale,1))!important}
+  #portal.app:not(.admin-mode) .olonTopPlatform {grid-column:1;grid-row:1;padding:0!important;min-height:0!important;height:auto!important;min-width:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+  #portal.app:not(.admin-mode) .olonTopRank {font-size:calc(14px * var(--trader-font-scale,1))!important;color:var(--student-gh-muted)!important}
+  #portal.app:not(.admin-mode) .olonTopMedal {display:none!important}
+  #portal.app:not(.admin-mode) .copyTradePanel {padding-inline:0!important}
+  #portal.app:not(.admin-mode) .copyTradePanel h2 {font-size:calc(32px * var(--trader-font-scale,1))!important;font-weight:600!important}
+  @media(max-width:720px) {
+    #portal.app:not(.admin-mode) #portalWelcomeCard:has(#olonLicenseStudentCard) {grid-template-columns:minmax(0,1fr)!important}
+    #portal.app:not(.admin-mode) #dashboard.olSummaryFocused {gap:24px!important}
+    #portal.app:not(.admin-mode) :is(.olSummaryKPIGrid,.olSummaryMT5Metrics,.olfxAccountMetrics) {gap:0 16px!important}
+    #portal.app:not(.admin-mode) .olSummaryQuickGrid {grid-template-columns:minmax(0,1fr)!important}
+    #portal.app:not(.admin-mode) :is(.btn,.olSummaryDetail,.olSummaryMT5Refresh) {min-height:40px}
+    #portal.app:not(.admin-mode) .olonPodiumEntry {gap:8px!important;grid-template-columns:24px 32px minmax(0,1fr) auto!important}
+    #portal.app:not(.admin-mode) .olonPodiumEntry .olonTopAvatar {width:32px!important;height:32px!important}
+  }
+}
