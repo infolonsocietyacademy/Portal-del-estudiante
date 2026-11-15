@@ -1599,6 +1599,7 @@ function showWelcome(user){
   const subtitles = {
     dashboard:"Tu actividad y progreso en la academia.",
     institutionalFlowPage:"OLFX Institutional Contract Flow · GC y NQ · Fuentes verificables.",
+    copyTradePage:"Coming soon · Esta función aún no está disponible.",
     registro:"Registra depósito, ganancia, pérdida y notas del día.",
     historial:"Revisa tus resultados y movimientos de capital.",
     comparacion:"Compara tu mes actual con el mes anterior.",
