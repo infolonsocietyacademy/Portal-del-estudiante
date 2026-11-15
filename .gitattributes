@@ -1,0 +1,3 @@
+OLFX_DIAGNOSTICO_VPS.cmd text eol=crlf
+diagnostico-vps/portal_monitor.py text eol=lf
+scripts/build-vps-diagnostics.py text eol=lf

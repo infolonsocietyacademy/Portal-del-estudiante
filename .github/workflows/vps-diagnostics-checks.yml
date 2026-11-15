@@ -1,0 +1,26 @@
+name: VPS diagnostics Windows check
+on:
+  pull_request:
+    paths:
+      - '.gitattributes'
+      - 'OLFX_DIAGNOSTICO_VPS.cmd'
+      - 'diagnostico-vps/**'
+      - 'scripts/build-vps-diagnostics.py'
+      - 'scripts/test-vps-diagnostics-browser.py'
+      - 'tests/vps_diagnostics_test.py'
+      - '.github/workflows/vps-diagnostics-checks.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows-launcher:
+    runs-on: windows-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python scripts/build-vps-diagnostics.py --check
+      - run: python -m unittest discover -s tests -p vps_diagnostics_test.py
+      - run: python scripts/test-vps-diagnostics-browser.py
