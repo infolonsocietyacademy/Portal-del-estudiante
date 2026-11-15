@@ -111,13 +111,13 @@ class SingleInstance:
         self.file = None
 
     def acquire(self):
-        self.file = self.path.open("a+b")
-        self.file.seek(0)
-        if not self.file.read(1):
-            self.file.write(b"0")
-            self.file.flush()
-        self.file.seek(0)
         try:
+            self.file = self.path.open("a+b")
+            # Windows byte locks deny reads too. Inspect size without reading a locked byte.
+            if not os.fstat(self.file.fileno()).st_size:
+                self.file.write(b"0")
+                self.file.flush()
+            self.file.seek(0)
             if sys.platform == "win32":
                 import msvcrt
                 msvcrt.locking(self.file.fileno(), msvcrt.LK_NBLCK, 1)
@@ -126,7 +126,8 @@ class SingleInstance:
                 fcntl.flock(self.file, fcntl.LOCK_EX | fcntl.LOCK_NB)
             return True
         except OSError:
-            self.file.close()
+            if self.file:
+                self.file.close()
             self.file = None
             return False
 
