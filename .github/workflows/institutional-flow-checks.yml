@@ -7,6 +7,11 @@ on:
       - 'tests/**'
       - 'index.html'
       - 'script.js'
+      - 'admin-performance.js'
+      - 'leaderboard.js'
+      - 'supabase/migrations/**'
+      - 'package.json'
+      - 'package-lock.json'
       - '.github/workflows/institutional-flow-*.yml'
   workflow_dispatch:
 permissions:
@@ -20,6 +25,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - run: npm ci --ignore-scripts
       - run: node --test tests/*.test.cjs tests/*.test.mjs
       - run: python3 -m unittest discover -s tests -p '*_test.py'
       - run: node --check script.js && node --check institutional-flow/entry.mjs && node --check admin-billing.js && node --check billing/editor.js && node --check billing/invoice-pdf.js

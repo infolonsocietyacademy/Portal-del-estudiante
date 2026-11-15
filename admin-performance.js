@@ -35,7 +35,7 @@
     return Number(n||0).toLocaleString("en-US",{style:"currency",currency:"USD",minimumFractionDigits:2,maximumFractionDigits:2});
   }
   function percentage(n){
-    if(n==null)return "Sin capital";
+    if(n==null)return "—";
     const v=Number(n);
     return (v>0?"+":"")+v.toLocaleString("es-PR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";
   }
@@ -57,7 +57,7 @@
     const sorted=(data||[]).filter(r=>names.has(r.student_id)).sort((a,b)=>{
       const aa=a.return_pct==null?-Infinity:Number(a.return_pct);
       const bb=b.return_pct==null?-Infinity:Number(b.return_pct);
-      return bb-aa||Number(b.trade_count)-Number(a.trade_count);
+      return bb-aa||Number(b.net)-Number(a.net)||String(a.student_id).localeCompare(String(b.student_id));
     });
     if(!sorted.length){empty("Todavía no hay estudiantes con datos disponibles.");return;}
     for(const record of sorted){
@@ -75,7 +75,7 @@
         record.return_pct!=null&&["active","approved"].includes(String(user.status||"").toLowerCase());
       const marker=el("span",eligible?"Automático":"Sin clasificar","olonPerformanceAuto");
       marker.title=eligible?"Se clasifica automáticamente por sus resultados si entra al TOP 3":
-        "Para clasificar debe registrar operaciones y un depósito, y tener acceso activo";
+        "Requiere acceso vigente, operaciones y capital. Las cuentas de prueba no participan.";
       action.append(marker);
       tr.append(name,ops,capital,net,pct,action);
       rowsEl.append(tr);
@@ -89,8 +89,8 @@
     const key=periodKey(period);
     reload.disabled=true;
     status.textContent="Consultando trades y calculando porcentajes…";
-    periodNote.textContent=period==="all"?"Histórico de cuentas conectadas: neto total ÷ depósitos totales. Las cuentas archivadas no se clasifican.":
-      "Neto de "+key+" ÷ depósitos totales registrados × 100.";
+    periodNote.textContent=period==="all"?"Histórico de cuentas conectadas: neto total ÷ capital ingresado × 100.":
+      "Neto de "+key+" (fecha MT5) ÷ capital ingresado acumulado × 100.";
     try{
       const {data,error}=await supabaseClient.rpc("olon_admin_student_performance",{
         p_period_type:period,p_period_key:key
@@ -99,7 +99,7 @@
       if(current!==token||!open())return;
       cache=data||[];lastPeriod=period;lastKey=key;
       paint(cache,period,key);
-      status.textContent="Ranking MT verificado · "+cache.length+" estudiantes · "+cache.filter(r=>Number(r.trade_count)>0&&Number(r.deposited)>0).length+" con cuentas elegibles.";
+      status.textContent="Ranking MT verificado · "+cache.length+" estudiantes · "+cache.filter(r=>r.return_pct!=null).length+" con cuentas elegibles.";
       if(period==="all")window.olonAdmin?.setPerformance(cache);
       else if(window.olonAdmin?.setPerformance){
         // Historical figures stay in the directory, independent of the ranking period.
