@@ -15,6 +15,7 @@ async function fixture(fn){
 before(async()=>{
   await db.exec(fs.readFileSync(path.join(__dirname,'fixtures/mt5-ranking.sql'),'utf8'));
   await db.exec(migration);
+  await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/20261115074220_private_ranking_exclusion_policy.sql'),'utf8'));
   await db.query('INSERT INTO private.olon_ranking_exclusions(student_id,reason) VALUES($1,$2)',[user(2),'Owner test account']);
 });
 after(()=>db.close());
@@ -95,4 +96,11 @@ test('authenticated clients cannot edit exclusions or read the internal performa
   assert.equal((await sql("SELECT has_table_privilege(current_user,'private.olon_ranking_exclusions','INSERT') allowed"))[0].allowed,false);
   assert.equal((await sql("SELECT has_function_privilege(current_user,'private.olon_mt_rank_performance(text,text)','EXECUTE') allowed"))[0].allowed,false);
   assert.equal((await sql("SELECT * FROM private.olon_compute_automatic_top3('annual','2026')"))[0].rank,1);
+}));
+test('exclusion RLS still denies clients if a future table grant is introduced',()=>fixture(async()=>{
+  await db.exec('GRANT SELECT,INSERT ON private.olon_ranking_exclusions TO authenticated');
+  await asUser(3);
+  await db.exec('SET LOCAL ROLE authenticated');
+  assert.equal((await sql('SELECT * FROM private.olon_ranking_exclusions')).length,0);
+  await assert.rejects(db.query('INSERT INTO private.olon_ranking_exclusions(student_id,reason) VALUES($1,$2)',[user(3),'Unauthorized change']),{code:'42501'});
 }));
