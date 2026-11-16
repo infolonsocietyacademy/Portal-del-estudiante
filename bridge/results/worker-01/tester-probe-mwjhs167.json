@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "id": "tester-probe-mwjhs167",
+  "task_sha256": "23568e4dea3a8f49b8fbf1e0ba16b4e5fbc047cc1f7273acdeb72be3f8b028ee",
+  "status": "failed",
+  "started_at": "2026-11-16T16:43:23+00:00",
+  "code": "NO_TEST_REPORT_SEE_LOCAL_MT5_LOGS",
+  "finished_at": "2026-11-16T16:43:48+00:00"
+}
