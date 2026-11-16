@@ -1,9 +1,0 @@
-{
-  "schema": 1,
-  "id": "gold-demo-session-mwjp683w",
-  "task_sha256": "1ae166ce74d39950b96253821a0b1a35cf04254f900b3923dc4b61293aece3d6",
-  "status": "failed",
-  "started_at": "2026-11-16T20:10:03+00:00",
-  "code": "EJECUTA_CONFIGURAR_XAUUSD_PRIMERO",
-  "finished_at": "2026-11-16T20:10:03+00:00"
-}
