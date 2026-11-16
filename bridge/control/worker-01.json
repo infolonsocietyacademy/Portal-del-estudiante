@@ -153,6 +153,14 @@
       "source_path": "bridge/eas/OLFX_DemoRoundtrip.mq5",
       "source_ref": "08490ac249dd7eda37e60bc6d221a0a86482ca50",
       "source_sha256": "16f3f24c7f5d7caeac3bf0efd8dfce809fce92ecdac2d0454a4990a758a1ab3c"
+    },
+    {
+      "id": "compile-demo-final-mwjk7m8h",
+      "action": "compile",
+      "expires_at": "2026-11-16T18:10:49.937Z",
+      "source_path": "bridge/eas/OLFX_DemoRoundtrip.mq5",
+      "source_ref": "7a9fe053b4ca96d04863786d04b3c0f184b2fcbd",
+      "source_sha256": "2f87f0b878035d06efdf79a83944224e4526e16fba4b806d6ac579bcff6573f2"
     }
   ]
 }
