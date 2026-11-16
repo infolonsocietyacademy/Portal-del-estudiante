@@ -458,6 +458,16 @@
       "id": "resume-auto-doctor-mwjvtk5b",
       "action": "diagnose",
       "expires_at": "2026-11-16T23:35:49.439Z"
+    },
+    {
+      "id": "health-bridge-ping-mwjwzyz4",
+      "action": "ping",
+      "expires_at": "2026-11-16T23:58:48.208Z"
+    },
+    {
+      "id": "health-bridge-doctor-mwjwzyz4",
+      "action": "diagnose",
+      "expires_at": "2026-11-16T23:58:48.208Z"
     }
   ]
 }
