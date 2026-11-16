@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "id": "resume-auto-doctor-mwjvtk5b",
+  "task_sha256": "9039268e232aa509ba2a3f0a63d1397d8f387488891f8942fea1be17aeaa274a",
+  "status": "succeeded",
+  "started_at": "2026-11-16T23:26:52+00:00",
+  "code": "MT5_READY",
+  "mt5_prepared": true,
+  "test_terminal_busy": false,
+  "diagnostics": {
+    "scope": "recent_logs",
+    "log_files_scanned": 5,
+    "log_read_errors": 0,
+    "log_groups": [
+      "expert",
+      "terminal",
+      "tester"
+    ],
+    "recent_crash_files": 0,
+    "crash_exceptions": [],
+    "observed_log_signals": [
+      "AUTHORIZATION_FAILED",
+      "AUTHORIZED_DEMO",
+      "AUTHORIZED_SERVER",
+      "CONFIG_LOADED",
+      "DEMO_TRADING_ENABLED",
+      "NO_DEMO_GROUPS",
+      "SOCKET_ALREADY_IN_USE",
+      "TERMINAL_SYNCHRONIZED",
+      "TESTER_FINISHED",
+      "TESTER_STARTED"
+    ],
+    "numeric_error_codes": [
+      10009
+    ]
+  },
+  "finished_at": "2026-11-16T23:26:52+00:00"
+}
