@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "id": "auto-after-manual-mwjj2w3n",
+  "task_sha256": "f07e917f25b5e13dc80f8eedbee83b2a9d88f7b57650ee23686ef2a8c7093f1c",
+  "status": "failed",
+  "started_at": "2026-11-16T17:20:05+00:00",
+  "code": "NO_TEST_REPORT_SEE_LOCAL_MT5_LOGS",
+  "diagnostics": {
+    "log_files_scanned": 3,
+    "log_read_errors": 0,
+    "log_groups": [
+      "terminal",
+      "tester"
+    ],
+    "observed_log_signals": [
+      "AUTHORIZATION_FAILED",
+      "AUTHORIZED_DEMO",
+      "AUTHORIZED_SERVER",
+      "DEMO_TRADING_ENABLED",
+      "NO_DEMO_GROUPS",
+      "TERMINAL_SYNCHRONIZED",
+      "TESTER_FINISHED",
+      "TESTER_STARTED"
+    ],
+    "numeric_error_codes": [
+      10009
+    ],
+    "terminal_exit_code": 3294954943,
+    "compile_verified": true
+  },
+  "finished_at": "2026-11-16T17:20:36+00:00"
+}
