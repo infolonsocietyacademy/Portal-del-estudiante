@@ -285,6 +285,11 @@
       "id": "pre-structure-mwjo12ou",
       "action": "diagnose",
       "expires_at": "2026-11-16T19:47:43.134Z"
+    },
+    {
+      "id": "structure-demo-mwjo1xys",
+      "action": "demo_structure",
+      "expires_at": "2026-11-16T19:48:23.668Z"
     }
   ]
 }
