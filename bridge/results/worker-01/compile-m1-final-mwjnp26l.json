@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "id": "compile-m1-final-mwjnp26l",
+  "task_sha256": "5c6579d3eb47b01d878cfcc296ba7a822bc2210baa322ce72867db3198925c43",
+  "status": "succeeded",
+  "started_at": "2026-11-16T19:29:28+00:00",
+  "code": "COMPILED",
+  "source_sha256": "03ca1095fbed4670748494c33a0ce1bed08bc98930556e934e68032ec460d887",
+  "finished_at": "2026-11-16T19:29:30+00:00"
+}
