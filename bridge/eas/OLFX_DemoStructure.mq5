@@ -306,6 +306,7 @@ int OnInit()
       || StringFind(ResultFile,":")>=0 || StringFind(TradeLogStem,"OLFX_TRADES_")!=0
       || StringFind(TradeLogStem,"\\")>=0 || StringFind(TradeLogStem,"/")>=0 || StringFind(TradeLogStem,":")>=0) return INIT_FAILED;
    started_ms=GetTickCount64(); session_time=TimeCurrent(); last_bar=iTime(_Symbol,PERIOD_M1,1);
+   for(int n=1;n<=MAX_ATTEMPTS;n++) if(FileIsExist(ResultFile+".entry_"+(string)n)) attempts=n;
    if(FileIsExist(ResultFile+".attempted")) { draining=true; reason="RESTART_CLOSE_ONLY_NO_NEW_ENTRIES"; }
    else
    {
