@@ -428,6 +428,11 @@
       "source_path": "bridge/eas/OLFX_GoldOneMinute.mq5",
       "source_ref": "5ee9f7e4cf9959fb423e2ad6c08e3d371fbdb7e4",
       "source_sha256": "5a837b6c9605bbc7b8475e905ab88bc6c125130f5d01a493076628c195f05396"
+    },
+    {
+      "id": "xau-minute-demo-mwjqy9ye",
+      "action": "demo_gold_once",
+      "expires_at": "2026-11-16T21:09:31.430Z"
     }
   ]
 }
