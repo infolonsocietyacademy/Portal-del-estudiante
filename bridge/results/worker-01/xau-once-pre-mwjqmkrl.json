@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "id": "xau-once-pre-mwjqmkrl",
+  "task_sha256": "a36b09a5c3fae2fdde6a5b7a74a2191b9afd5f39b537ff800828b6e69241870c",
+  "status": "succeeded",
+  "started_at": "2026-11-16T20:50:40+00:00",
+  "code": "MT5_READY",
+  "mt5_prepared": true,
+  "test_terminal_busy": false,
+  "diagnostics": {
+    "scope": "recent_logs",
+    "log_files_scanned": 5,
+    "log_read_errors": 0,
+    "log_groups": [
+      "expert",
+      "terminal",
+      "tester"
+    ],
+    "recent_crash_files": 0,
+    "crash_exceptions": [],
+    "observed_log_signals": [
+      "AUTHORIZATION_FAILED",
+      "AUTHORIZED_DEMO",
+      "AUTHORIZED_SERVER",
+      "CONFIG_LOADED",
+      "DEMO_TRADING_ENABLED",
+      "NO_DEMO_GROUPS",
+      "SOCKET_ALREADY_IN_USE",
+      "TERMINAL_SYNCHRONIZED",
+      "TESTER_FINISHED",
+      "TESTER_STARTED"
+    ],
+    "numeric_error_codes": [
+      10009
+    ]
+  },
+  "finished_at": "2026-11-16T20:50:41+00:00"
+}
