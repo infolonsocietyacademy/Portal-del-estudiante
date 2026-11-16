@@ -12,6 +12,17 @@
       "id": "installed-doctor-mwjta4gh",
       "action": "diagnose",
       "expires_at": "2026-11-16T22:14:43.409Z"
+    },
+    {
+      "id": "gold-m5-trend-mwjtcpes",
+      "action": "trade",
+      "expires_at": "2026-11-16T22:36:43.876Z",
+      "symbol": "XAUUSD",
+      "direction": "structure",
+      "timeframe": "M5",
+      "hold_seconds": 300,
+      "signal_timeout_seconds": 1800,
+      "rr": 2
     }
   ]
 }
