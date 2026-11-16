@@ -1,0 +1,6 @@
+{
+  "schema": 2,
+  "device": "worker-01-resident",
+  "enabled": true,
+  "jobs": []
+}
