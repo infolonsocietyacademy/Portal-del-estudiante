@@ -23,6 +23,11 @@
       "hold_seconds": 300,
       "signal_timeout_seconds": 1800,
       "rr": 2
+    },
+    {
+      "id": "installer-check-mwjuobjj",
+      "action": "diagnose",
+      "expires_at": "2026-11-16T22:58:45.391Z"
     }
   ]
 }
