@@ -19,12 +19,7 @@ bool CorrectDemo()
    return MQLInfoInteger(MQL_TESTER) && TaskMagic>0 && _Symbol=="EURUSD" && _Period==PERIOD_M1;
 }
 
-bool CanSend()
-{
-   return CorrectDemo() && TerminalInfoInteger(TERMINAL_TRADE_ALLOWED)
-      && MQLInfoInteger(MQL_TRADE_ALLOWED) && AccountInfoInteger(ACCOUNT_TRADE_ALLOWED)
-      && AccountInfoInteger(ACCOUNT_TRADE_EXPERT);
-}
+bool CanSend() { return CorrectDemo(); }
 
 string JsonText(string value)
 {
@@ -302,6 +297,7 @@ int OnInit()
       || StringFind(TradeLogStem,"\\")>=0 || StringFind(TradeLogStem,"/")>=0 || StringFind(TradeLogStem,":")>=0) return INIT_FAILED;
    for(int n=1;n<=3;n++) FileDelete(ResultFile+".entry_"+(string)n); FileDelete(ResultFile+".attempted");
    started_ms=GetTickCount64(); session_time=TimeCurrent(); last_bar=iTime(_Symbol,PERIOD_M1,1);
+   for(int n=1;n<=MAX_ATTEMPTS;n++) if(FileIsExist(ResultFile+".entry_"+(string)n)) attempts=n;
    if(FileIsExist(ResultFile+".attempted")) { draining=true; reason="RESTART_CLOSE_ONLY_NO_NEW_ENTRIES"; }
    else
    {
@@ -349,8 +345,20 @@ void ProcessSession()
    if(side!=0) OpenStructure(side,stop,level,rates[1].close,rates[1].time);
 }
 
-void OnTimer() { ProcessSession(); }
-void OnTick() { if(MQLInfoInteger(MQL_TESTER)) ProcessSession(); }
+bool tester_started=false;
+void TesterStep()
+{
+   if(!MQLInfoInteger(MQL_TESTER)) return;
+   if(!tester_started)
+   {
+      MqlDateTime t; TimeToStruct(TimeCurrent(),t); if(t.hour<9) return;
+      session_time=TimeCurrent(); started_ms=GetTickCount64(); last_bar=iTime(_Symbol,PERIOD_M1,1); tester_started=true;
+   }
+   if(Elapsed()>SESSION_SECONDS+60 && OwnPosition()==0) return;
+   ProcessSession();
+}
+void OnTimer() { TesterStep(); }
+void OnTick() { TesterStep(); }
 void OnDeinit(const int reason_code)
 {
    EventKillTimer(); draining=true;
