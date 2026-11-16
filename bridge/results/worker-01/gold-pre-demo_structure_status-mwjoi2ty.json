@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "id": "gold-pre-demo_structure_status-mwjoi2ty",
+  "task_sha256": "db457aee40602ddb091a040abf109e6a87f199c2dcae1fb42601a1181d6bb707",
+  "status": "succeeded",
+  "started_at": "2026-11-16T19:51:47+00:00",
+  "code": "SESSION_RUNNING",
+  "account_type_verified": "demo",
+  "symbol": "EURUSD",
+  "period": "M1",
+  "volume": 0.01,
+  "max_attempts": 3,
+  "max_session_minutes": 30,
+  "open_attempts": 0,
+  "entry_deals": 0,
+  "exit_deals": 0,
+  "open_positions": 0,
+  "elapsed_seconds": 733,
+  "last_retcode": 0,
+  "net_recorded": 0.0,
+  "snapshot_fresh": true,
+  "finished_at": "2026-11-16T19:51:47+00:00"
+}
