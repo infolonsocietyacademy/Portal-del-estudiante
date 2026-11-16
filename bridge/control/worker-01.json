@@ -100,6 +100,11 @@
         "inputs": {},
         "timeout_seconds": 240
       }
+    },
+    {
+      "id": "manual-test-logcheck-mwjivu9c",
+      "action": "diagnose",
+      "expires_at": "2026-11-16T17:28:40.848Z"
     }
   ]
 }
