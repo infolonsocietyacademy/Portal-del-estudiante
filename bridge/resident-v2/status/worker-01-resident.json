@@ -3,24 +3,24 @@
   "version": "2.0.1-rc1",
   "state": "online",
   "code": "RESIDENT_ONLINE",
-  "updated_at": "2026-11-16T23:10:57+00:00",
+  "updated_at": "2026-11-16T23:11:57+00:00",
   "terminal_reused": true,
   "account_type_verified": "demo",
   "device": "worker-01-resident",
   "active_count": 1,
   "active": [
     {
-      "id": "local-3ad9de8ba2754d6faf28",
+      "id": "local-23b72782efd64b698759",
       "phase": "waiting",
       "code": "WAIT_FRESH_QUOTE",
-      "updated_at": 1794870657.1406026,
+      "updated_at": 1794870717.9727302,
       "schema": 2,
       "version": "2.0.1-rc1",
       "status": "running",
-      "task_sha256": "fb2970299bf13ae278f6df4f48787b7e8ccfcbc41563dd11e3149d1a956fdf75",
+      "task_sha256": "a20ee01713775c8c50dfe23479a709edef9364dc85e7e98510eaa17fd0b1cf62",
       "symbol": "XAUUSD",
-      "period": "MANUAL",
-      "hold_seconds": 1500
+      "period": "M1",
+      "hold_seconds": 300
     }
   ],
   "actions": [
