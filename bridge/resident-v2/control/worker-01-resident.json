@@ -37,9 +37,9 @@
       "direction": "buy",
       "hold_seconds": 1500,
       "signal_timeout_seconds": 120,
-      "rr": 2.0,
-      "sl_distance": 5.0,
-      "tp_distance": 10.0,
+      "rr": 2,
+      "sl_distance": 5,
+      "tp_distance": 10,
       "lots": 0.05
     },
     {
@@ -51,8 +51,18 @@
       "timeframe": "M1",
       "hold_seconds": 300,
       "signal_timeout_seconds": 1800,
-      "rr": 2.0,
+      "rr": 2,
       "lots": 0.05
+    },
+    {
+      "id": "health-resident-ping-mwjwzyz4",
+      "action": "ping",
+      "expires_at": "2026-11-16T23:58:48.208Z"
+    },
+    {
+      "id": "health-resident-doctor-mwjwzyz4",
+      "action": "diagnose",
+      "expires_at": "2026-11-16T23:58:48.208Z"
     }
   ]
 }
