@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "kind": "menus_only",
+  "version": "2.0.1-rc1",
+  "installer_revision": 2,
+  "package_folder": "OLFX_MENUS_SEPARADOS",
+  "zip_path": "OLFX_MENUS_SEPARADOS_Windows.zip",
+  "zip_sha256": "6eb798af516163f9643c6e697782294b8ef75fbc3cee44af0b87b00c8c51ff2a",
+  "size": 10343,
+  "source_commit": "43c013823e7cacfbf5fd9b054733ee8e5d681b7e",
+  "ci_run_url": "https://github.com/infolonsocietyacademy/Portal-del-estudiante/actions/runs/43976610763",
+  "validation": "Linux and Windows offline tests passed; VPS integration pending installation",
+  "download_url": "https://github.com/infolonsocietyacademy/Portal-del-estudiante/raw/olfx-bridge-resident-download/OLFX_MENUS_SEPARADOS_Windows.zip"
+}
