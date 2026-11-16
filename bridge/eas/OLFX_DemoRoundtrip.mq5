@@ -11,7 +11,7 @@ const double DEMO_VOLUME=0.01;
 const int PREVIEW_SECONDS=20;
 const int HOLD_SECONDS=15;
 ulong started_ms=0, opened_ms=0, sent_ms=0;
-bool attempted=false, opened=false, closed=false, finished=false;
+bool attempted=false, opened=false, closed=false, finished=false, close_ack=false, profit_known=false;
 double open_price=0.0, close_price=0.0, profit=0.0;
 uint last_retcode=0;
 datetime started_time=0;
@@ -40,7 +40,8 @@ bool SaveState(string code)
    string text="{\"schema\":1,\"code\":\""+code+"\",\"demo_verified\":"+(CorrectDemo()?"true":"false")
       +",\"opened\":"+(opened?"true":"false")+",\"closed\":"+(closed?"true":"false")
       +",\"retcode\":"+(string)last_retcode+",\"volume\":0.01,\"open_price\":"+DoubleToString(open_price,8)
-      +",\"close_price\":"+DoubleToString(close_price,8)+",\"profit\":"+DoubleToString(profit,2)+"}";
+      +",\"close_price\":"+DoubleToString(close_price,8)+",\"profit_known\":"+(profit_known?"true":"false")
+      +",\"profit\":"+DoubleToString(profit,2)+"}";
    FileWriteString(handle,text);
    FileFlush(handle);
    FileClose(handle);
@@ -136,8 +137,29 @@ bool CloseDemo()
    if(!CorrectDemo()) return false;
    bool ok=OrderSend(request,result); last_retcode=result.retcode;
    if(ok && (result.retcode==TRADE_RETCODE_DONE || result.retcode==TRADE_RETCODE_DONE_PARTIAL))
-   { close_price=result.price; return true; }
+   { close_ack=true; close_price=result.price; return true; }
    return false;
+}
+
+void CompleteClose(string code)
+{
+   if(!CorrectDemo() || OwnPosition()>0) return;
+   closed=true; profit=0.0; profit_known=false;
+   if(HistorySelect(started_time-120,TimeCurrent()+60))
+      for(int i=0;i<HistoryDealsTotal();i++)
+      {
+         ulong deal=HistoryDealGetTicket(i);
+         if((ulong)HistoryDealGetInteger(deal,DEAL_MAGIC)==TaskMagic && HistoryDealGetString(deal,DEAL_SYMBOL)==_Symbol)
+         {
+            profit+=HistoryDealGetDouble(deal,DEAL_PROFIT)+HistoryDealGetDouble(deal,DEAL_COMMISSION)
+               +HistoryDealGetDouble(deal,DEAL_SWAP)+HistoryDealGetDouble(deal,DEAL_FEE);
+            long entry=HistoryDealGetInteger(deal,DEAL_ENTRY);
+            if(entry==DEAL_ENTRY_OUT || entry==DEAL_ENTRY_INOUT)
+            { close_price=HistoryDealGetDouble(deal,DEAL_PRICE); profit_known=true; }
+         }
+      }
+   ObjectCreate(0,"OLFX_DEMO_CLOSE_"+(string)TaskMagic,OBJ_ARROW_SELL,0,TimeCurrent(),close_price);
+   Finish(code);
 }
 
 void Finish(string code)
@@ -189,23 +211,13 @@ void OnTimer()
          bool close_ok=CloseDemo();
          if(close_ok && CorrectDemo() && OwnPosition()==0)
          {
-            closed=true;
-            if(HistorySelect(started_time-120,TimeCurrent()+60))
-               for(int i=0;i<HistoryDealsTotal();i++)
-               {
-                  ulong deal=HistoryDealGetTicket(i);
-                  if((ulong)HistoryDealGetInteger(deal,DEAL_MAGIC)==TaskMagic && HistoryDealGetString(deal,DEAL_SYMBOL)==_Symbol)
-                     profit+=HistoryDealGetDouble(deal,DEAL_PROFIT)+HistoryDealGetDouble(deal,DEAL_COMMISSION)
-                        +HistoryDealGetDouble(deal,DEAL_SWAP)+HistoryDealGetDouble(deal,DEAL_FEE);
-               }
-            ObjectCreate(0,"OLFX_DEMO_CLOSE_"+(string)TaskMagic,OBJ_ARROW_SELL,0,TimeCurrent(),close_price);
-            Finish("DEMO_ROUNDTRIP_CLOSED");
+            CompleteClose("DEMO_ROUNDTRIP_CLOSED");
          }
          else if((GetTickCount64()-opened_ms)/1000>60) SaveState("DEMO_CLOSE_PENDING");
       }
       ChartRedraw(); return;
    }
-   if(opened) { closed=true; Finish("DEMO_POSITION_NO_LONGER_OPEN"); return; }
+   if(opened) { CompleteClose(close_ack?"DEMO_ROUNDTRIP_CLOSED":"DEMO_POSITION_NO_LONGER_OPEN"); return; }
    if(attempted)
    {
       if(GetTickCount64()-sent_ms>20000)
