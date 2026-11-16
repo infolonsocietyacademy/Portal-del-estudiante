@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "id": "gold-compile-mwjp2hib",
+  "task_sha256": "f33eeaf815391bb1faf7036bf832cc6cc33aac64f3dc9a078ba5d450c49ab422",
+  "status": "succeeded",
+  "started_at": "2026-11-16T20:07:07+00:00",
+  "code": "COMPILED",
+  "source_sha256": "06b171cfa326f7e048c715e8cc3a504e74690455237184edf57ff50097ec169d",
+  "finished_at": "2026-11-16T20:07:10+00:00"
+}
