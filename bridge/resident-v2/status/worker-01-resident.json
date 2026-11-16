@@ -3,7 +3,7 @@
   "version": "2.0.1-rc1",
   "state": "online",
   "code": "RESIDENT_ONLINE",
-  "updated_at": "2026-11-16T23:01:54+00:00",
+  "updated_at": "2026-11-16T23:02:54+00:00",
   "terminal_reused": true,
   "account_type_verified": "demo",
   "device": "worker-01-resident",
