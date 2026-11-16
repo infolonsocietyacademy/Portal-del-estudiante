@@ -1,0 +1,58 @@
+OLFX MT5 BRIDGE RESIDENTE 2.0.0-rc1
+INSTALADOR MANUAL PARA WINDOWS - SOLO CUENTA DEMO
+
+1. Descarga el ZIP en la VPS con el mismo usuario de Windows del Bridge.
+2. Extrae TODO el contenido. No ejecutes INSTALAR.cmd dentro del ZIP.
+3. Ejecuta INSTALAR.cmd. Conserva el Bridge anterior encendido.
+4. El instalador comprueba archivos, instala dependencias en un entorno separado,
+   ejecuta pruebas sin broker y comprueba la conexion DEMO sin enviar operaciones.
+5. Si el diagnostico indica RESIDENT_READY, abre el receptor automaticamente.
+   Deja abierta la ventana "OLFX Bridge Residente".
+6. Escribe en el chat: "Receptor residente encendido; verifica la conexion".
+
+SI MT5 BLOQUEA PYTHON
+En SOLO el MT5 de pruebas: Tools > Options > Expert Advisors.
+Permite el trading automatizado y desmarca:
+"Disable automated trading via external Python API".
+Despues ejecuta DIAGNOSTICAR_RESIDENTE.cmd e INICIAR_RESIDENTE.cmd.
+Nunca cambies de cuenta mientras el receptor gestiona operaciones.
+
+FUNCIONAMIENTO
+- Conecta a la copia mt5-test propiedad del Bridge. Reutiliza MT5 abierto.
+- Mantiene el token, las cuentas, OLFX CONNECT y el actualizador anterior.
+- Usa un buzon separado; la version anterior no recibe estas ordenes nuevas.
+- No instala un servicio ni se inicia automaticamente al reiniciar Windows.
+- Maximo tres solicitudes activas del receptor.
+- Una entrada por solicitud; M1 y M5 configurables por separado de su duracion.
+- Modo structure: espera ruptura confirmada en la direccion HH/HL o LH/LL.
+  Puede terminar sin entrada. No estima ganancias ni garantiza resultados.
+- Modo buy/sell: solo se usa por instruccion explicita; tambien exige SL/TP.
+- Muestra y registra apertura, cierre, volumen y ganancia/perdida neta.
+- El historial JSONL completo permanece en la VPS. El buzon publica resumenes.
+- Cada solicitud guarda su estado antes de enviar. Una respuesta incierta
+  no provoca un reintento de apertura. Se informa para reconciliacion.
+- Cierres por ticket y magic de la propia solicitud.
+- En hedging admite otras posiciones abiertas. En netting rechaza nuevas
+  entradas en el mismo simbolo si mezclarlas alteraria una posicion existente.
+- Debe mantenerse Windows, MT5 y el receptor encendidos. SL/TP permanecen en
+  el broker; el cierre por tiempo necesita que el receptor siga funcionando.
+- Si el resultado de un cierre es incierto, se informa y no se reenvia a ciegas.
+- DETENER_RESIDENTE.cmd deja de aceptar entradas y sigue gestionando las
+  operaciones propias hasta confirmar que termino.
+- CERRAR_OPERACIONES_RESIDENTE.cmd cancela esperas y solicita cerrar SOLO
+  las posiciones de este receptor.
+- VER_LOGS_RESIDENTE.cmd muestra aperturas/cierres locales.
+
+VERSION Y VALIDACION
+Version candidata 2.0.0-rc1. El paquete contiene pruebas con broker simulado.
+El instalador solo inicia si esas pruebas pasan y el diagnostico DEMO funciona.
+Una prueba con una orden real de DEMO se debe verificar despues de instalar.
+La preparacion del ZIP no demuestra por si sola que ya este instalado en la VPS.
+No se incluye ninguna orden de trading preprogramada.
+
+BUZON
+Rama existente: olfx-mt5-bridge
+Control: bridge/resident-v2/control/worker-01-resident.json
+Estado: bridge/resident-v2/status/worker-01-resident.json
+Resultados: bridge/resident-v2/results/worker-01-resident/<id>.json
+No pongas contrasenas ni tokens en el buzon o en capturas.

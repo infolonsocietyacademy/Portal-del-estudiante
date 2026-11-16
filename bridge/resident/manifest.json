@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "version": "2.0.0-rc1",
+  "files": {
+    "resident_core.py": "cac8559ecab6b795d3b03398cc789e0a7a57f13a326be08ddb3d58f554715c7b",
+    "resident_worker.py": "f9eefac130ed3397ea8fb69d2e2a446675356b81f7189975bd96e56cffc2a1cc",
+    "requirements.txt": "e146f83a53725a8fd56f6621b9faa4d43117ed2ea6a3808e8115cf957f450c43",
+    "INSTALAR.cmd": "9de1cc31266eb082a560739e2e18b638834ddbb5a403836221211da4b10d6747",
+    "tests/test_resident.py": "2b56262a609859284278604187ee9e4305433c527654553426108a436069169d",
+    "INSTALAR.ps1": "2ffb2b9ba712c739ec834828b3196b84952dbf2f8148bf961f9244055ad3ae16",
+    "INICIAR_RESIDENTE.cmd": "8183f26a47538eca8493a7deb3e33ccb063bc75bd9a21f868ebeade2a69ba6a1",
+    "DIAGNOSTICAR_RESIDENTE.cmd": "28fa2baa3c247b32232b6291de0bccf34f51799dab628d8fb5d42092b4a8c149",
+    "DETENER_RESIDENTE.cmd": "b7c24f52b4ef4d0af2e60db63e5358ae6e302e32da2009f0e5b208c3f289b42f",
+    "CERRAR_OPERACIONES_RESIDENTE.cmd": "f6a46ff1a081952e29931f9a9e7f0a9cd3e2ee055ade7c7c50cb937b0de55bad",
+    "VER_LOGS_RESIDENTE.cmd": "511a155a5444a0fc7b5ec50a3b01d2bf6d7315563f9cdd4bff5368693326190e",
+    "LEEME_PRIMERO.txt": "b2088721194f937fde89d2f79481efd14bceca9c6f136e1820eac4435aaada8c",
+    "legacy/bridge_agent.py": "1fcd95b6414039e607549e8cd0990f8847755bcc111efabe5df32700884d48df",
+    "legacy/gold_settings.py": "9802e1f2bb7a6ef2f7a03c05097ab03ac793ba66d226d3ac8fc9f7479eb1820b",
+    "README.md": "25510055cd12bd06d27a993102b477a6a5d8629b82c9208b8fa2b0dc1007d517"
+  }
+}
