@@ -179,6 +179,34 @@
       "id": "visible-demo-mwjn54a8",
       "action": "demo_roundtrip",
       "expires_at": "2026-11-16T19:22:52.208Z"
+    },
+    {
+      "id": "compile-structure-mwjnj2g2",
+      "action": "compile",
+      "expires_at": "2026-11-16T19:53:43.010Z",
+      "source_path": "bridge/eas/OLFX_DemoStructure.mq5",
+      "source_ref": "116a6d7cacd50b3ef59de094d44cdbe478c401cc",
+      "source_sha256": "a322d74dbd923e58eff249631a2c38b609f88095ab0ac41a5fa774c49efe6351"
+    },
+    {
+      "id": "backtest-structure-mwjnj2g2",
+      "action": "backtest",
+      "expires_at": "2026-11-16T19:53:43.010Z",
+      "source_path": "bridge/eas/OLFX_M1_Structure_Tester.mq5",
+      "source_ref": "7d120175bdf17b31d32e9fbd637f2fedcc0c731f",
+      "source_sha256": "afec683ad865b538a719229888153416f51d026bf6cb1a48dc7bb5ef3f85d109",
+      "test": {
+        "symbol": "EURUSD",
+        "period": "M1",
+        "from": "2026.11.12",
+        "to": "2026.11.13",
+        "deposit": 10000,
+        "currency": "USD",
+        "leverage": 100,
+        "model": 1,
+        "inputs": {},
+        "timeout_seconds": 240
+      }
     }
   ]
 }
