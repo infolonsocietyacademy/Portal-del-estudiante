@@ -6,8 +6,8 @@
   "zip_path": "OLFX_PANEL_ORDENES_DEMO_Windows_2.0.1-rc1_instalador2_con_carpeta.zip",
   "zip_sha256": "ee2e31fd25a786ccc6dc598842bf41e7b51797c77f7f6377466c321bde4d130f",
   "size": 46344,
-  "source_commit": "be8981c479822bd99ee988865e6a1cdccbe2093f",
-  "ci_run_url": "https://github.com/infolonsocietyacademy/Portal-del-estudiante/actions/runs/43975658502",
+  "source_commit": "33f798a125904c954c72bd72c274e890ae62aae0",
+  "ci_run_url": "https://github.com/infolonsocietyacademy/Portal-del-estudiante/actions/runs/43975692162",
   "validation": "Linux and Windows offline tests passed; VPS integration pending installation",
   "download_url": "https://github.com/infolonsocietyacademy/Portal-del-estudiante/raw/olfx-bridge-resident-download/OLFX_PANEL_ORDENES_DEMO_Windows_2.0.1-rc1_instalador2_con_carpeta.zip"
 }
