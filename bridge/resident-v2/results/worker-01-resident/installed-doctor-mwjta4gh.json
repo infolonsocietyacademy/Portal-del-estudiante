@@ -4,7 +4,7 @@
   "code": "RESIDENT_READY",
   "updated_at": 1794866699.4987109,
   "schema": 2,
-  "version": "2.0.0-rc1",
+  "version": "2.0.1-rc1",
   "status": "succeeded",
   "task_sha256": "48104adebdc1afa35b911ddcb9c1d075879964f3a539f5bf9385600e4b1fee87"
 }
