@@ -12,14 +12,14 @@ import urllib.request
 import zipfile
 
 ROOT=Path(__file__).resolve().parent
-NAME="OLFX_PANEL_ORDENES_DEMO_Windows_2.0.1-rc1.zip"
+NAME="OLFX_PANEL_ORDENES_DEMO_Windows_2.0.1-rc1_instalador2.zip"
 FILES=["AGREGAR_PANEL.cmd","PANEL_ORDENES.cmd","install_panel.py","panel_client.py","panel_local.py","LEEME_PRIMERO.txt",
        "runtime/resident_core.py","runtime/resident_worker.py","runtime/legacy/bridge_agent.py","runtime/legacy/gold_settings.py",
        "tests/test_panel.py","tests/test_resident.py","tests/test_installer.py"]
 
 def build(output):
     content={name:(ROOT/name).read_bytes() for name in FILES}
-    manifest={"schema":1,"version":"2.0.1-rc1","files":{name:hashlib.sha256(data).hexdigest() for name,data in content.items()}}
+    manifest={"schema":1,"version":"2.0.1-rc1","installer_revision":2,"files":{name:hashlib.sha256(data).hexdigest() for name,data in content.items()}}
     content["manifest.json"]=(json.dumps(manifest,indent=2)+"\n").encode()
     path=Path(output)/NAME
     path.parent.mkdir(parents=True,exist_ok=True)
@@ -64,7 +64,7 @@ def publish(path):
     checksum=hashlib.sha256(data).hexdigest()
     put(path.name,data)
     put(path.name+".sha256",(checksum+"  "+path.name+"\n").encode())
-    info={"schema":1,"version":"2.0.1-rc1","zip_path":path.name,"zip_sha256":checksum,"size":len(data),
+    info={"schema":1,"version":"2.0.1-rc1","installer_revision":2,"zip_path":path.name,"zip_sha256":checksum,"size":len(data),
           "source_commit":os.environ.get("GITHUB_SHA"),"ci_run_url":"https://github.com/"+repo+"/actions/runs/"+os.environ.get("GITHUB_RUN_ID",""),
           "validation":"Linux and Windows offline tests passed; VPS integration pending installation",
           "download_url":"https://github.com/"+repo+"/raw/"+branch+"/"+path.name}
