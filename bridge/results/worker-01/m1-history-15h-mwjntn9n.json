@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "id": "m1-history-15h-mwjntn9n",
+  "task_sha256": "7d853805dfd09a4480873c681d7b9bc6d856410261db01827abef495a9ea7071",
+  "status": "succeeded",
+  "started_at": "2026-11-16T19:32:02+00:00",
+  "code": "BACKTEST_FINISHED",
+  "local_report_available": true,
+  "metrics": {
+    "net_profit": "0.00",
+    "balance_drawdown_maximal": "0.00 (0.00%)",
+    "equity_drawdown_maximal": "0.00 (0.00%)",
+    "equity_drawdown_relative": "0.00% (0.00)",
+    "profit_factor": "0.00",
+    "expected_payoff": "0.00",
+    "total_trades": "0",
+    "winning_trades": "0 (0.00%)"
+  },
+  "report_sha256": "ac8f66c2b0780bf8c67b4a6570bb5d94a70e24db9e9802cdb64629154712f1df",
+  "finished_at": "2026-11-16T19:32:29+00:00"
+}
