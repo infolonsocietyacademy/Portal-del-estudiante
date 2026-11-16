@@ -1,0 +1,56 @@
+OLFX PANEL DE ORDENES DEMO - WINDOWS
+Complemento del receptor instalado. Runtime compatible: 2.0.1-rc1.
+
+INSTALAR UNA VEZ
+1. Extrae TODO este ZIP en la VPS.
+2. Ejecuta AGREGAR_PANEL.cmd con el mismo usuario del Bridge.
+3. El instalador valida los archivos y ejecuta pruebas sin broker.
+4. Para actualizar el receptor espera a que sus solicitudes activas terminen.
+   No cancela la senal pendiente ni fuerza cierres para actualizar.
+   Si quedan solicitudes, espera hasta cinco minutos y termina sin instalar.
+   En ese caso vuelve a ejecutarlo cuando dichas solicitudes hayan terminado.
+5. Reinicia solamente el receptor cuando esta sin solicitudes activas.
+   MT5 y OLFX CONNECT permanecen abiertos.
+6. Crea OLFX_PANEL_ORDENES.cmd en el escritorio y conserva la configuracion.
+
+USAR
+Abre PANEL_ORDENES.cmd, o el acceso del escritorio.
+Mantiene disponibles:
+1. Compra manual de oro
+2. Venta manual de oro
+3. Entrada por estructura M1/M5
+4. Ver solicitudes/operaciones
+5. Cerrar o cancelar una solicitud por ID
+6. Cerrar o cancelar todas las solicitudes del receptor
+7. Diagnostico
+8. Logs
+9. Verificar/reintentar envios inciertos con el MISMO ID
+
+MANUAL Y ESTRUCTURA
+Compra/venta manual NO espera tu estrategia ni consulta sus velas.
+Eliges lote o riesgo, SL y TP como distancias en el precio del oro.
+Ejemplo de unidades: SL=5.00 significa cinco unidades de PRECIO desde la
+entrada, no cinco dolares de perdida de la cuenta. El P/L depende del lote.
+Una orden manual nueva caduca en dos minutos si no puede entrar.
+Puedes elegir 0 minutos de duracion: sin cierre automatico por tiempo.
+En ese caso se mantiene hasta SL/TP, cierre manual o solicitud explicita de cierre.
+Un tiempo mayor que cero solicita cerrar tras esos minutos; SL/TP pueden cerrar antes.
+Estructura es una opcion distinta: espera ruptura confirmada HH/HL o LH/LL.
+
+FUNCIONAMIENTO
+El panel envia por el mismo buzon del receptor y comparte sus limites:
+solo DEMO, simbolo XAUUSD configurado, maximo 1 lote o 2% de riesgo por
+solicitud, tres solicitudes activas. Mantiene filtros de spread y broker.
+No permite usar cuentas reales ni modifica las operaciones de OLFX CONNECT.
+Los tamanos elegidos se aplican a esa orden; no sobrescriben tu configuracion de estrategia.
+La confirmacion de envio no significa que el broker haya abierto/cerrado.
+Consulta el estado por ID para ver el resultado.
+La conexion a Internet es necesaria para publicar la solicitud.
+Cerrar el panel no detiene el receptor ni cierra operaciones.
+No repitas una solicitud creando otro ID si el envio es incierto: usa opcion 9.
+La instalacion nunca envia una orden de trading.
+
+VALIDACION
+Incluye pruebas de cola, conflictos, reintentos, modo manual sin estrategia,
+cierres propios, limites y compatibilidad con el receptor anterior.
+La conexion con tu VPS y el primer uso manual deben verificarse despues de instalar.
