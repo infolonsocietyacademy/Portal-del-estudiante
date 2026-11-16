@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "device": "worker-01",
+  "enabled": true,
+  "jobs": [
+    {
+      "id": "bootstrap-ping",
+      "action": "ping",
+      "expires_at": "2026-11-30T15:28:47+00:00"
+    },
+    {
+      "id": "bootstrap-diagnose",
+      "action": "diagnose",
+      "expires_at": "2026-11-30T15:28:47+00:00"
+    }
+  ]
+}
