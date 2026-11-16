@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "id": "m1-live-status-mwjo3vxr",
+  "task_sha256": "0d7a08ca2ab7299f4db26d6077c9a75d345b8cc5a3bd75310ba018de0b7701b6",
+  "status": "succeeded",
+  "started_at": "2026-11-16T19:40:37+00:00",
+  "code": "SESSION_RUNNING",
+  "account_type_verified": "demo",
+  "symbol": "EURUSD",
+  "period": "M1",
+  "volume": 0.01,
+  "max_attempts": 3,
+  "max_session_minutes": 30,
+  "open_attempts": 0,
+  "entry_deals": 0,
+  "exit_deals": 0,
+  "open_positions": 0,
+  "elapsed_seconds": 63,
+  "last_retcode": 0,
+  "net_recorded": 0.0,
+  "snapshot_fresh": true,
+  "finished_at": "2026-11-16T19:40:37+00:00"
+}
