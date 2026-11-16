@@ -17,6 +17,19 @@
       "id": "verify-mwjgltx2",
       "action": "ping",
       "expires_at": "2026-11-16T16:24:54.614Z"
+    },
+    {
+      "id": "diagnose-mwjgqy4t",
+      "action": "diagnose",
+      "expires_at": "2026-11-16T16:33:53.357Z"
+    },
+    {
+      "id": "compile-probe-mwjgqy4t",
+      "action": "compile",
+      "expires_at": "2026-11-16T16:33:53.357Z",
+      "source_path": "bridge/eas/OLFX_Bridge_Probe.mq5",
+      "source_ref": "05c721983bb4061a553423a97a3325108f31c146",
+      "source_sha256": "cf12cd3f7fdbdc3c06e3b864f05f5bd2219a1563a3155cc84722d9bc8c395e08"
     }
   ]
 }
