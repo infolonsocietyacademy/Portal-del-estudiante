@@ -42,6 +42,32 @@ def build(output):
             assert hashlib.sha256(archive.read(PACKAGE_FOLDER+name)).hexdigest()==expected,name
     return path
 
+def build_menus(output):
+    menu_root=ROOT/"menus"
+    files=["SEPARAR_MENUS.cmd","separar_menus.py","PANEL_ORDENES.cmd","ESTRATEGIA.cmd","panel_local.py","menu_scope.py","LEEME_MENUS.txt"]
+    content={name:(menu_root/name).read_bytes() for name in files}
+    manifest={"schema":1,"kind":"menus_only","ui_revision":1,"files":{name:hashlib.sha256(data).hexdigest() for name,data in content.items()}}
+    content["manifest_menus.json"]=(json.dumps(manifest,indent=2)+"\n").encode()
+    prefix="OLFX_MENUS_SEPARADOS/"
+    path=Path(output)/"OLFX_MENUS_SEPARADOS_Windows.zip"
+    path.parent.mkdir(parents=True,exist_ok=True)
+    with zipfile.ZipFile(path,"w",compression=zipfile.ZIP_DEFLATED,compresslevel=9) as archive:
+        directory=zipfile.ZipInfo(prefix,date_time=(2026,11,16,0,0,0))
+        directory.external_attr=(0o40755 << 16) | 0x10
+        archive.writestr(directory,b"")
+        for name,data in sorted(content.items()):
+            item=zipfile.ZipInfo(prefix+name,date_time=(2026,11,16,0,0,0))
+            item.compress_type=zipfile.ZIP_DEFLATED
+            item.external_attr=0o100644 << 16
+            archive.writestr(item,data)
+    with zipfile.ZipFile(path) as archive:
+        assert archive.testzip() is None
+        assert all(name.startswith(prefix) for name in archive.namelist())
+        for name,expected in manifest["files"].items():
+            assert hashlib.sha256(archive.read(prefix+name)).hexdigest()==expected,name
+    return path
+
+
 def publish(path):
     repo=os.environ["GITHUB_REPOSITORY"]
     token=os.environ["GITHUB_TOKEN"]
@@ -71,19 +97,21 @@ def publish(path):
     checksum=hashlib.sha256(data).hexdigest()
     put(path.name,data)
     put(path.name+".sha256",(checksum+"  "+path.name+"\n").encode())
-    info={"schema":1,"version":"2.0.1-rc1","installer_revision":2,"package_folder":PACKAGE_FOLDER.rstrip("/"),"zip_path":path.name,"zip_sha256":checksum,"size":len(data),
+    menus_only=path.name=="OLFX_MENUS_SEPARADOS_Windows.zip"
+    info={"schema":1,"kind":"menus_only" if menus_only else "panel","version":"2.0.1-rc1","installer_revision":2,"package_folder":"OLFX_MENUS_SEPARADOS" if menus_only else PACKAGE_FOLDER.rstrip("/"),"zip_path":path.name,"zip_sha256":checksum,"size":len(data),
           "source_commit":os.environ.get("GITHUB_SHA"),"ci_run_url":"https://github.com/"+repo+"/actions/runs/"+os.environ.get("GITHUB_RUN_ID",""),
           "validation":"Linux and Windows offline tests passed; VPS integration pending installation",
           "download_url":"https://github.com/"+repo+"/raw/"+branch+"/"+path.name}
-    put("panel-install-latest.json",(json.dumps(info,indent=2)+"\n").encode())
+    put("menus-install-latest.json" if menus_only else "panel-install-latest.json",(json.dumps(info,indent=2)+"\n").encode())
     print(json.dumps({"package":path.name,"sha256":checksum,"bytes":len(data)}))
 
 if __name__=="__main__":
     parser=argparse.ArgumentParser()
     parser.add_argument("--output",default="dist")
     parser.add_argument("--publish",action="store_true")
+    parser.add_argument("--menus",action="store_true")
     args=parser.parse_args()
-    archive=build(args.output)
+    archive=build_menus(args.output) if args.menus else build(args.output)
     if args.publish:
         publish(archive)
     else:
