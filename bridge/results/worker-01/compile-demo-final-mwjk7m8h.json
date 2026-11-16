@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "id": "compile-demo-final-mwjk7m8h",
+  "task_sha256": "e9013aaabce3f18f694a2ce9fe6de82f340eb4d95ec89e4269100d1d299dbee0",
+  "status": "succeeded",
+  "started_at": "2026-11-16T17:51:19+00:00",
+  "code": "COMPILED",
+  "source_sha256": "2f87f0b878035d06efdf79a83944224e4526e16fba4b806d6ac579bcff6573f2",
+  "finished_at": "2026-11-16T17:51:22+00:00"
+}
