@@ -9,7 +9,7 @@ import subprocess
 import sys
 import time
 
-VERSION="2.0.1-rc1"
+VERSION="2.0.2-rc1"
 SOURCE=Path(__file__).resolve().parent
 ROOT=Path(os.environ.get("LOCALAPPDATA",str(Path.home())))/"OLFX_MT5_BRIDGE"
 DATA=ROOT/"resident-v2"
@@ -37,8 +37,8 @@ def running(directory):
     import msvcrt
     path=Path(directory)/"worker.lock"
     with path.open("a+b") as lock:
-        lock.seek(0)
-        if lock.read(1)==b"":
+        # Check file length through metadata; reading byte 0 fails while the worker locks it.
+        if os.fstat(lock.fileno()).st_size==0:
             lock.write(b"0")
             lock.flush()
         lock.seek(0)
@@ -81,6 +81,7 @@ def main():
             raise RuntimeError("Todavia hay solicitudes activas. Ejecuta AGREGAR_PANEL.cmd cuando terminen. No se modifico el receptor.")
         time.sleep(10)
         active=active_requests(DATA/"state")
+    print("Comprobando la salida del receptor mediante su bloqueo de proceso...")
     # Stop only this resident. The old launcher retains its own MT5 EAs and CONNECT.
     stop=DATA/"STOP"
     stop.touch()
