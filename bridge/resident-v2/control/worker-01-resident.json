@@ -28,6 +28,19 @@
       "id": "installer-check-mwjuobjj",
       "action": "diagnose",
       "expires_at": "2026-11-16T22:58:45.391Z"
+    },
+    {
+      "id": "local-3ad9de8ba2754d6faf28",
+      "action": "trade",
+      "expires_at": "2026-11-16T23:11:07+00:00",
+      "symbol": "XAUUSD",
+      "direction": "buy",
+      "hold_seconds": 1500,
+      "signal_timeout_seconds": 120,
+      "rr": 2.0,
+      "sl_distance": 5.0,
+      "tp_distance": 10.0,
+      "lots": 0.05
     }
   ]
 }
