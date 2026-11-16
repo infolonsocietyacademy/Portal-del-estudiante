@@ -405,6 +405,11 @@
       "id": "gold-configured-mwjpadu0",
       "action": "demo_gold",
       "expires_at": "2026-11-16T20:22:57.096Z"
+    },
+    {
+      "id": "gold-live-check-mwjpe18a",
+      "action": "demo_structure_status",
+      "expires_at": "2026-11-16T20:25:47.386Z"
     }
   ]
 }
