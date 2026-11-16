@@ -1,0 +1,13 @@
+{
+  "id": "local-3ad9de8ba2754d6faf28",
+  "phase": "waiting",
+  "code": "WAIT_FRESH_QUOTE",
+  "updated_at": 1794870585.1142714,
+  "schema": 2,
+  "version": "2.0.1-rc1",
+  "status": "running",
+  "task_sha256": "fb2970299bf13ae278f6df4f48787b7e8ccfcbc41563dd11e3149d1a956fdf75",
+  "symbol": "XAUUSD",
+  "period": "MANUAL",
+  "hold_seconds": 1500
+}
