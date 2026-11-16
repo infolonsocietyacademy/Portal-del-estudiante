@@ -3,12 +3,26 @@
   "version": "2.0.0-rc1",
   "state": "online",
   "code": "RESIDENT_ONLINE",
-  "updated_at": "2026-11-16T22:06:35+00:00",
+  "updated_at": "2026-11-16T22:07:36+00:00",
   "terminal_reused": true,
   "account_type_verified": "demo",
   "device": "worker-01-resident",
-  "active_count": 0,
-  "active": [],
+  "active_count": 1,
+  "active": [
+    {
+      "id": "gold-m5-trend-mwjtcpes",
+      "phase": "waiting",
+      "code": "WAIT_FRESH_QUOTE",
+      "updated_at": 1794866856.5078468,
+      "schema": 2,
+      "version": "2.0.0-rc1",
+      "status": "running",
+      "task_sha256": "078dbf0269930734e9da83c27c20e88e5938f2188c22262ae6e41526aceb9fcc",
+      "symbol": "XAUUSD",
+      "period": "M5",
+      "hold_seconds": 300
+    }
+  ],
   "actions": [
     "ping",
     "diagnose",
