@@ -41,6 +41,18 @@
       "sl_distance": 5.0,
       "tp_distance": 10.0,
       "lots": 0.05
+    },
+    {
+      "id": "local-23b72782efd64b698759",
+      "action": "trade",
+      "expires_at": "2026-11-16T23:40:44+00:00",
+      "symbol": "XAUUSD",
+      "direction": "structure",
+      "timeframe": "M1",
+      "hold_seconds": 300,
+      "signal_timeout_seconds": 1800,
+      "rr": 2.0,
+      "lots": 0.05
     }
   ]
 }
