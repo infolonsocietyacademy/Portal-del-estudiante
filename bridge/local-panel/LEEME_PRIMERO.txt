@@ -54,3 +54,10 @@ VALIDACION
 Incluye pruebas de cola, conflictos, reintentos, modo manual sin estrategia,
 cierres propios, limites y compatibilidad con el receptor anterior.
 La conexion con tu VPS y el primer uso manual deben verificarse despues de instalar.
+
+REVISION 2 DEL INSTALADOR
+Corrige Permission denied al consultar el archivo de bloqueo del receptor en Windows.
+El receptor 2.0.1-rc1 y sus capacidades permanecen sin cambios.
+Incluye una prueba con otro proceso Windows manteniendo worker.lock bloqueado.
+Si el intento anterior fallo, extrae este ZIP nuevo completo y ejecuta su
+AGREGAR_PANEL.cmd. No cambies permisos ni borres worker.lock manualmente.
