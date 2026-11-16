@@ -1,0 +1,10 @@
+{
+  "id": "installed-ping-mwjta4gh",
+  "phase": "done",
+  "code": "PONG_RESIDENT",
+  "updated_at": 1794866699.4908998,
+  "schema": 2,
+  "version": "2.0.0-rc1",
+  "status": "succeeded",
+  "task_sha256": "6de6765b926d1e589109e6761e2352041158f08c530a30974b160269ad0c8b20"
+}
