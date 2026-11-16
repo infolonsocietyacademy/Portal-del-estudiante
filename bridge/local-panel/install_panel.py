@@ -9,7 +9,7 @@ import subprocess
 import sys
 import time
 
-VERSION="2.0.2-rc1"
+VERSION="2.0.1-rc1"
 SOURCE=Path(__file__).resolve().parent
 ROOT=Path(os.environ.get("LOCALAPPDATA",str(Path.home())))/"OLFX_MT5_BRIDGE"
 DATA=ROOT/"resident-v2"
