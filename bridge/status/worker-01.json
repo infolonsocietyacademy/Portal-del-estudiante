@@ -1,6 +1,23 @@
 {
   "schema": 1,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "state": "online",
-  "updated_at": "2026-11-16T16:50:19+00:00"
+  "updated_at": "2026-11-16T16:55:18+00:00",
+  "diagnostics": {
+    "log_files_scanned": 3,
+    "log_read_errors": 0,
+    "log_groups": [
+      "terminal",
+      "tester"
+    ],
+    "observed_log_signals": [
+      "AUTHORIZATION_FAILED",
+      "AUTHORIZED_DEMO",
+      "AUTHORIZED_SERVER",
+      "DEMO_TRADING_ENABLED",
+      "NO_DEMO_GROUPS",
+      "TERMINAL_SYNCHRONIZED"
+    ],
+    "numeric_error_codes": []
+  }
 }
