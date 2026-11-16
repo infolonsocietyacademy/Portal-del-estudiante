@@ -145,6 +145,14 @@
         "inputs": {},
         "timeout_seconds": 240
       }
+    },
+    {
+      "id": "compile-demo-guard-mwjk4znx",
+      "action": "compile",
+      "expires_at": "2026-11-16T18:08:47.373Z",
+      "source_path": "bridge/eas/OLFX_DemoRoundtrip.mq5",
+      "source_ref": "08490ac249dd7eda37e60bc6d221a0a86482ca50",
+      "source_sha256": "16f3f24c7f5d7caeac3bf0efd8dfce809fce92ecdac2d0454a4990a758a1ab3c"
     }
   ]
 }
