@@ -315,6 +315,86 @@
       "id": "gold-ready-mwjp052r",
       "action": "diagnose",
       "expires_at": "2026-11-16T20:14:59.187Z"
+    },
+    {
+      "id": "gold-compile-mwjp2hib",
+      "action": "compile",
+      "expires_at": "2026-11-16T20:36:48.611Z",
+      "source_path": "bridge/eas/OLFX_DemoGold.mq5",
+      "source_ref": "b2601080aa2efac0b6fff054b6a4f7fa29701619",
+      "source_sha256": "06b171cfa326f7e048c715e8cc3a504e74690455237184edf57ff50097ec169d"
+    },
+    {
+      "action": "backtest",
+      "expires_at": "2026-11-16T20:36:48.611Z",
+      "source_path": "bridge/eas/OLFX_Gold_M1_Tester.mq5",
+      "source_ref": "8f37790f209129548287c277ef2518ba1f264221",
+      "source_sha256": "e2365789f3b31a1ed68633bc7cbb9ba17432e7269b27905f208a7e0cf6f7a5c0",
+      "id": "gold-history-mwjp2hib",
+      "test": {
+        "symbol": "XAUUSD",
+        "period": "M1",
+        "from": "2026.11.12",
+        "to": "2026.11.13",
+        "deposit": 10000,
+        "currency": "USD",
+        "leverage": 100,
+        "model": 1,
+        "timeout_seconds": 240,
+        "inputs": {
+          "TestStartHour": 15
+        }
+      }
+    },
+    {
+      "action": "backtest",
+      "expires_at": "2026-11-16T20:36:48.611Z",
+      "source_path": "bridge/eas/OLFX_Gold_M1_Tester.mq5",
+      "source_ref": "8f37790f209129548287c277ef2518ba1f264221",
+      "source_sha256": "e2365789f3b31a1ed68633bc7cbb9ba17432e7269b27905f208a7e0cf6f7a5c0",
+      "id": "gold-fixed-fixture-mwjp2hib",
+      "test": {
+        "symbol": "XAUUSD",
+        "period": "M1",
+        "from": "2026.11.12",
+        "to": "2026.11.13",
+        "deposit": 10000,
+        "currency": "USD",
+        "leverage": 100,
+        "model": 1,
+        "timeout_seconds": 240,
+        "inputs": {
+          "TestStartHour": 15,
+          "TestSyntheticSignals": true,
+          "SizeMode": 0,
+          "FixedLots": 0.01
+        }
+      }
+    },
+    {
+      "action": "backtest",
+      "expires_at": "2026-11-16T20:36:48.611Z",
+      "source_path": "bridge/eas/OLFX_Gold_M1_Tester.mq5",
+      "source_ref": "8f37790f209129548287c277ef2518ba1f264221",
+      "source_sha256": "e2365789f3b31a1ed68633bc7cbb9ba17432e7269b27905f208a7e0cf6f7a5c0",
+      "id": "gold-risk-fixture-mwjp2hib",
+      "test": {
+        "symbol": "XAUUSD",
+        "period": "M1",
+        "from": "2026.11.12",
+        "to": "2026.11.13",
+        "deposit": 10000,
+        "currency": "USD",
+        "leverage": 100,
+        "model": 1,
+        "timeout_seconds": 240,
+        "inputs": {
+          "TestStartHour": 15,
+          "TestSyntheticSignals": true,
+          "SizeMode": 1,
+          "RiskPercent": 0.5
+        }
+      }
     }
   ]
 }
