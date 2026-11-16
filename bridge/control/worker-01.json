@@ -305,6 +305,11 @@
       "id": "gold-pre-diagnose-mwjoi2ty",
       "action": "diagnose",
       "expires_at": "2026-11-16T20:00:56.470Z"
+    },
+    {
+      "id": "gold-final-precheck-mwjoop1v",
+      "action": "diagnose",
+      "expires_at": "2026-11-16T20:06:05.203Z"
     }
   ]
 }
