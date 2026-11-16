@@ -448,6 +448,16 @@
       "id": "review-session-mwjrttpm",
       "action": "demo_structure_status",
       "expires_at": "2026-11-16T21:39:03.370Z"
+    },
+    {
+      "id": "resume-auto-ping-mwjvtk5b",
+      "action": "ping",
+      "expires_at": "2026-11-16T23:35:49.439Z"
+    },
+    {
+      "id": "resume-auto-doctor-mwjvtk5b",
+      "action": "diagnose",
+      "expires_at": "2026-11-16T23:35:49.439Z"
     }
   ]
 }
