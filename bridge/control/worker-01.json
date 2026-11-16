@@ -169,6 +169,11 @@
       "source_path": "bridge/eas/OLFX_DemoRoundtrip.mq5",
       "source_ref": "1ea983dfdb987a5c8e3ce65b9288426fb99a8665",
       "source_sha256": "4874cf8af676bf607b510f11075907d87b8e837467e65c4258ff32b2f6107370"
+    },
+    {
+      "id": "pre-demo-mwjn4550",
+      "action": "diagnose",
+      "expires_at": "2026-11-16T19:22:06.660Z"
     }
   ]
 }
