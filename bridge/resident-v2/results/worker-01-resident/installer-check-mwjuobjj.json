@@ -1,0 +1,10 @@
+{
+  "id": "installer-check-mwjuobjj",
+  "phase": "done",
+  "code": "RESIDENT_READY",
+  "updated_at": 1794869513.0493374,
+  "schema": 2,
+  "version": "2.0.1-rc1",
+  "status": "succeeded",
+  "task_sha256": "2be2cd260fbe556f7a7690ec6087ac99d16b1bfa9cc9d008d7133cc7a3867742"
+}
