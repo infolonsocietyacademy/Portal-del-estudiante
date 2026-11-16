@@ -6,6 +6,7 @@ input ulong ExpectedDemoLogin=0;
 input string ExpectedDemoServer="";
 input ulong TaskMagic=0;
 input string ResultFile="";
+input string TradeLogStem="";
 
 const double DEMO_VOLUME=0.01;
 const int PREVIEW_SECONDS=20;
@@ -31,6 +32,77 @@ bool CanSend()
    return CorrectDemo() && TerminalInfoInteger(TERMINAL_TRADE_ALLOWED)
       && MQLInfoInteger(MQL_TRADE_ALLOWED) && AccountInfoInteger(ACCOUNT_TRADE_ALLOWED)
       && AccountInfoInteger(ACCOUNT_TRADE_EXPERT);
+}
+
+string JsonText(string value)
+{
+   StringReplace(value,"\\","\\\\"); StringReplace(value,"\"","\\\"");
+   StringReplace(value,"\r"," "); StringReplace(value,"\n"," ");
+   return value;
+}
+
+void SavePositionSnapshot()
+{
+   if(TradeLogStem=="") return;
+   bool verified=CorrectDemo();
+   string rows=""; double floating=0.0;
+   if(verified)
+      for(int i=0;i<PositionsTotal();i++)
+      {
+         ulong ticket=PositionGetTicket(i); if(ticket==0) continue;
+         if(rows!="") rows+=",";
+         double value=PositionGetDouble(POSITION_PROFIT)+PositionGetDouble(POSITION_SWAP);
+         floating+=value;
+         rows+="{\"position_id\":\""+(string)PositionGetInteger(POSITION_IDENTIFIER)+"\",\"symbol\":\""
+            +JsonText(PositionGetString(POSITION_SYMBOL))+"\",\"side\":\""
+            +(PositionGetInteger(POSITION_TYPE)==POSITION_TYPE_BUY?"BUY":"SELL")
+            +"\",\"volume\":"+DoubleToString(PositionGetDouble(POSITION_VOLUME),8)
+            +",\"open_price\":"+DoubleToString(PositionGetDouble(POSITION_PRICE_OPEN),8)
+            +",\"floating_profit\":"+DoubleToString(value,2)+"}";
+      }
+   int handle=FileOpen(TradeLogStem+".snapshot.json",FILE_WRITE|FILE_TXT|FILE_ANSI|FILE_SHARE_READ,0,CP_UTF8);
+   if(handle==INVALID_HANDLE) return;
+   FileWriteString(handle,"{\"schema\":1,\"demo_verified\":"+(verified?"true":"false")
+      +",\"positions\":["+rows+"],\"floating_profit\":"+DoubleToString(floating,2)+"}");
+   FileFlush(handle); FileClose(handle);
+}
+
+void OnTradeTransaction(const MqlTradeTransaction &trans,const MqlTradeRequest &request,const MqlTradeResult &result)
+{
+   if(!CorrectDemo() || TradeLogStem=="" || trans.type!=TRADE_TRANSACTION_DEAL_ADD || trans.deal==0) return;
+   if(!HistoryDealSelect(trans.deal)) return;
+   long type=HistoryDealGetInteger(trans.deal,DEAL_TYPE);
+   if(type!=DEAL_TYPE_BUY && type!=DEAL_TYPE_SELL) return;
+   long entry=HistoryDealGetInteger(trans.deal,DEAL_ENTRY);
+   string event=entry==DEAL_ENTRY_IN?"APERTURA":entry==DEAL_ENTRY_INOUT?"REVERSA":"CIERRE";
+   string deal_side=type==DEAL_TYPE_BUY?"BUY":"SELL";
+   string side=entry==DEAL_ENTRY_OUT || entry==DEAL_ENTRY_OUT_BY?(type==DEAL_TYPE_BUY?"SELL":"BUY"):deal_side;
+   string symbol=HistoryDealGetString(trans.deal,DEAL_SYMBOL);
+   string stamp=TimeToString((datetime)HistoryDealGetInteger(trans.deal,DEAL_TIME),TIME_DATE|TIME_SECONDS);
+   string position=(string)HistoryDealGetInteger(trans.deal,DEAL_POSITION_ID);
+   double volume=HistoryDealGetDouble(trans.deal,DEAL_VOLUME),price=HistoryDealGetDouble(trans.deal,DEAL_PRICE);
+   double pnl=HistoryDealGetDouble(trans.deal,DEAL_PROFIT),commission=HistoryDealGetDouble(trans.deal,DEAL_COMMISSION);
+   double swap=HistoryDealGetDouble(trans.deal,DEAL_SWAP),fee=HistoryDealGetDouble(trans.deal,DEAL_FEE);
+   double net=pnl+commission+swap+fee;
+   string row="{\"deal_id\":\""+(string)trans.deal+"\",\"position_id\":\""+position
+      +"\",\"time_server\":\""+stamp+"\",\"event\":\""+event+"\",\"symbol\":\""+JsonText(symbol)
+      +"\",\"side\":\""+side+"\",\"deal_side\":\""+deal_side+"\",\"volume\":"+DoubleToString(volume,8)
+      +",\"price\":"+DoubleToString(price,8)+",\"profit\":"+DoubleToString(pnl,2)
+      +",\"commission\":"+DoubleToString(commission,2)+",\"swap\":"+DoubleToString(swap,2)
+      +",\"fee\":"+DoubleToString(fee,2)+",\"net\":"+DoubleToString(net,2)+"}";
+   int log=FileOpen(TradeLogStem+".jsonl",FILE_READ|FILE_WRITE|FILE_TXT|FILE_ANSI|FILE_SHARE_READ,0,CP_UTF8);
+   if(log!=INVALID_HANDLE) { FileSeek(log,0,SEEK_END); FileWriteString(log,row+"\r\n"); FileFlush(log); FileClose(log); }
+   int csv=FileOpen(TradeLogStem+".csv",FILE_READ|FILE_WRITE|FILE_CSV|FILE_ANSI|FILE_SHARE_READ,';',CP_UTF8);
+   if(csv!=INVALID_HANDLE)
+   {
+      if(FileSize(csv)==0) FileWrite(csv,"hora_servidor","evento","activo","direccion","lado_deal","lote","precio","ganancia_perdida","comision","swap","fee","neto","deal_id","position_id");
+      FileSeek(csv,0,SEEK_END);
+      FileWrite(csv,stamp,event,symbol,side,deal_side,DoubleToString(volume,8),DoubleToString(price,8),
+         DoubleToString(pnl,2),DoubleToString(commission,2),DoubleToString(swap,2),DoubleToString(fee,2),
+         DoubleToString(net,2),(string)trans.deal,position);
+      FileFlush(csv); FileClose(csv);
+   }
+   SavePositionSnapshot();
 }
 
 bool SaveState(string code)
@@ -164,7 +236,7 @@ void CompleteClose(string code)
 
 void Finish(string code)
 {
-   SaveState(code); finished=true; EventKillTimer();
+   SaveState(code); finished=true;
    Comment("OLFX DEMO EURUSD 0.01\n",code,"\nApertura: ",DoubleToString(open_price,_Digits),
       "\nCierre: ",DoubleToString(close_price,_Digits),"\nResultado DEMO: ",DoubleToString(profit,2));
    ChartRedraw();
@@ -175,6 +247,8 @@ int OnInit()
    if(MQLInfoInteger(MQL_TESTER) || ExpectedDemoLogin==0 || TaskMagic==0
       || StringFind(ResultFile,"OLFX_DEMO_")!=0 || StringFind(ResultFile,"\\")>=0
       || StringFind(ResultFile,"/")>=0 || _Symbol!="EURUSD") return INIT_FAILED;
+   if(StringFind(TradeLogStem,"OLFX_TRADES_")!=0 || StringFind(TradeLogStem,"\\")>=0
+      || StringFind(TradeLogStem,"/")>=0 || StringFind(TradeLogStem,":")>=0) return INIT_FAILED;
    started_ms=GetTickCount64(); started_time=TimeCurrent();
    // Persist the open attempt before sending. Reattaching cannot create another order.
    attempted=FileIsExist(ResultFile+".attempted");
@@ -186,6 +260,7 @@ int OnInit()
 
 void OnTimer()
 {
+   SavePositionSnapshot();
    if(finished) return;
    ulong elapsed=(GetTickCount64()-started_ms)/1000;
    if(!TerminalInfoInteger(TERMINAL_CONNECTED))
