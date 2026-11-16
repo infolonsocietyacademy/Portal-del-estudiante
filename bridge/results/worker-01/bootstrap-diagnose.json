@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "id": "bootstrap-diagnose",
+  "task_sha256": "7ebd372a557dff134c72d09b71f357459b205b59d43af4c87a31458b27393820",
+  "status": "succeeded",
+  "started_at": "2026-11-16T16:08:45+00:00",
+  "code": "TERMINAL_NOT_BRIDGE_OWNED",
+  "mt5_prepared": false,
+  "finished_at": "2026-11-16T16:08:45+00:00"
+}
