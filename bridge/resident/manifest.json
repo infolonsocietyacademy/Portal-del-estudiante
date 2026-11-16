@@ -2,8 +2,8 @@
   "schema": 1,
   "version": "2.0.0-rc1",
   "files": {
-    "resident_core.py": "f24ee7ebcbc311f32c16a11324f0a5cf9d6403231ef97879446e308acd36bb56",
-    "resident_worker.py": "8339a180a6f530778a8f6e01a95bae8741cc3da86327158c4737287fa9873a7b",
+    "resident_core.py": "cac8559ecab6b795d3b03398cc789e0a7a57f13a326be08ddb3d58f554715c7b",
+    "resident_worker.py": "f9eefac130ed3397ea8fb69d2e2a446675356b81f7189975bd96e56cffc2a1cc",
     "requirements.txt": "e146f83a53725a8fd56f6621b9faa4d43117ed2ea6a3808e8115cf957f450c43",
     "INSTALAR.cmd": "9de1cc31266eb082a560739e2e18b638834ddbb5a403836221211da4b10d6747",
     "tests/test_resident.py": "2b56262a609859284278604187ee9e4305433c527654553426108a436069169d",
