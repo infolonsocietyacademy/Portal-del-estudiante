@@ -35,6 +35,11 @@
       "id": "account-diagnose-mwjhh34t",
       "action": "diagnose",
       "expires_at": "2026-11-16T16:49:12.893Z"
+    },
+    {
+      "id": "pretest-mwjhr3t4",
+      "action": "diagnose",
+      "expires_at": "2026-11-16T16:57:00.328Z"
     }
   ]
 }
