@@ -159,7 +159,7 @@ def run():
                     except (Fault,legacy.BridgeError) as exc:
                         jid=job.get("id") if isinstance(job,dict) else None
                         if isinstance(jid,str) and re.fullmatch(r"[A-Za-z0-9_-]{1,64}",jid) and jid not in engine.states:
-                            engine.save({"id":jid,"job":job,"fingerprint":fingerprint(job),"phase":"failed","code":str(exc),"created_at":time.time()})
+                            engine.save({"id":jid,"job":{"id":jid,"action":"rejected"},"fingerprint":fingerprint(job),"phase":"failed","code":str(exc),"created_at":time.time()})
                     except Exception:
                         message("LOCAL_TASK_ERROR_CHECK_CONFIGURATION")
             engine.tick()
