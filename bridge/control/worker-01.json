@@ -438,6 +438,16 @@
       "id": "m5-preflight-mwjrgsuk",
       "action": "diagnose",
       "expires_at": "2026-11-16T21:43:55.724Z"
+    },
+    {
+      "id": "review-open-terminal-mwjrttpm",
+      "action": "diagnose",
+      "expires_at": "2026-11-16T21:39:03.370Z"
+    },
+    {
+      "id": "review-session-mwjrttpm",
+      "action": "demo_structure_status",
+      "expires_at": "2026-11-16T21:39:03.370Z"
     }
   ]
 }
