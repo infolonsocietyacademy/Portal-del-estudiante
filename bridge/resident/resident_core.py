@@ -221,6 +221,7 @@ class Engine:
     def request(self, state):
         job, m = state["job"], self.mt5
         account = self.guard(trade=True)
+        need(not any(other["id"] != state["id"] and other["phase"] in {"submitted", "uncertain"} for other in self.states.values()), "WAIT_RECONCILIATION")
         symbol = job["symbol"]
         need(m.symbol_select(symbol, True), "SYMBOL_UNAVAILABLE")
         info, tick = m.symbol_info(symbol), m.symbol_info_tick(symbol)
