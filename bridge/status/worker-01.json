@@ -2,9 +2,9 @@
   "schema": 1,
   "version": "1.0.2",
   "state": "online",
-  "updated_at": "2026-11-16T17:10:55+00:00",
+  "updated_at": "2026-11-16T17:16:01+00:00",
   "diagnostics": {
-    "log_files_scanned": 3,
+    "log_files_scanned": 4,
     "log_read_errors": 0,
     "log_groups": [
       "terminal",
@@ -16,8 +16,12 @@
       "AUTHORIZED_SERVER",
       "DEMO_TRADING_ENABLED",
       "NO_DEMO_GROUPS",
-      "TERMINAL_SYNCHRONIZED"
+      "TERMINAL_SYNCHRONIZED",
+      "TESTER_FINISHED",
+      "TESTER_STARTED"
     ],
-    "numeric_error_codes": []
+    "numeric_error_codes": [
+      10009
+    ]
   }
 }
