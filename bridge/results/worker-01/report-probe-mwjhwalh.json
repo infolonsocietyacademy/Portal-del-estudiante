@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "id": "report-probe-mwjhwalh",
+  "task_sha256": "07b1f124c0d0e9a58c62d526cf3d420d295ff9059cebbc8e26a1a3ed189e72d4",
+  "status": "failed",
+  "started_at": "2026-11-16T16:46:53+00:00",
+  "code": "NO_TEST_REPORT_SEE_LOCAL_MT5_LOGS",
+  "finished_at": "2026-11-16T16:47:17+00:00"
+}
