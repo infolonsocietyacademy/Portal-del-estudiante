@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "id": "visible-demo-mwjn54a8",
+  "task_sha256": "e835468f1a9cf285712faecb619b6c2c642fa675e73ea3973cec55eedb716bac",
+  "status": "succeeded",
+  "started_at": "2026-11-16T19:13:32+00:00",
+  "code": "DEMO_ROUNDTRIP_CLOSED",
+  "account_type_verified": "demo",
+  "symbol": "EURUSD",
+  "volume": 0.01,
+  "opened": true,
+  "closed": true,
+  "open_price": 1.09999,
+  "close_price": 1.09993,
+  "profit": -0.06,
+  "retcode": 10009,
+  "finished_at": "2026-11-16T19:14:29+00:00"
+}
