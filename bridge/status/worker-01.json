@@ -1,0 +1,6 @@
+{
+  "schema": 1,
+  "version": "1.0.0",
+  "state": "awaiting_vps_installation",
+  "note": "Controller initialization only; no VPS connection verified."
+}
