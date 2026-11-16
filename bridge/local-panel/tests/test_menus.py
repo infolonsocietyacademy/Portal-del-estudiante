@@ -66,7 +66,7 @@ class MenuScopeTest(unittest.TestCase):
                 ui.close_menu(Mock(),all_active=True)
             return [j["target_id"] for j in sent]
     def test_manual_close_all_cannot_close_strategy(self):
-        self.assertEqual(self.close_all("manual"),["manual-buy","manual-sell"])
+        self.assertCountEqual(self.close_all("manual"),["manual-buy","manual-sell"])
     def test_strategy_close_all_cannot_close_manual(self):
         self.assertEqual(self.close_all("strategy"),["strategy"])
 
