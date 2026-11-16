@@ -2,5 +2,16 @@
   "schema": 2,
   "device": "worker-01-resident",
   "enabled": true,
-  "jobs": []
+  "jobs": [
+    {
+      "id": "installed-ping-mwjta4gh",
+      "action": "ping",
+      "expires_at": "2026-11-16T22:14:43.409Z"
+    },
+    {
+      "id": "installed-doctor-mwjta4gh",
+      "action": "diagnose",
+      "expires_at": "2026-11-16T22:14:43.409Z"
+    }
+  ]
 }
