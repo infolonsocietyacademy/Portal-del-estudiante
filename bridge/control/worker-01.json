@@ -395,6 +395,11 @@
           "RiskPercent": 0.5
         }
       }
+    },
+    {
+      "id": "gold-demo-session-mwjp683w",
+      "action": "demo_gold",
+      "expires_at": "2026-11-16T20:19:43.052Z"
     }
   ]
 }
