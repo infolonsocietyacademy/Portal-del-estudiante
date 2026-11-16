@@ -1,6 +1,8 @@
 #property strict
 #property version "1.00"
 #property description "DEMO ONLY: EURUSD M1 confirmed swing continuation. Max 3 attempts / 30 minutes."
+input int TestStartHour=9;
+input bool TestSyntheticSignals=false;
 input ulong ExpectedDemoLogin=1;
 input string ExpectedDemoServer="";
 input ulong TaskMagic=777105;
@@ -309,6 +311,21 @@ int OnInit()
    EventSetTimer(1); return INIT_SUCCEEDED;
 }
 
+void SyntheticFixture(MqlRates &rates[])
+{
+   MqlTick tick={}; if(!SymbolInfoTick(_Symbol,tick)) return;
+   double p=SymbolInfoDouble(_Symbol,SYMBOL_POINT)*((_Digits==3 || _Digits==5)?10:1),a=tick.bid;
+   bool buy=(attempts%2)==0;
+   for(int i=0;i<ArraySize(rates);i++)
+   {
+      rates[i].high=a+(buy?-2:3)*p; rates[i].low=a+(buy?-3:2)*p;
+      rates[i].open=a;rates[i].close=a;
+   }
+   rates[8].high=a+(buy?-0.5:5)*p;rates[20].high=a+(buy?-1:6)*p;
+   rates[12].low=a+(buy?-5:0.5)*p;rates[24].low=a+(buy?-6:1)*p;
+   rates[1].close=a;rates[1].open=a+(buy?-1:1)*p;rates[2].close=rates[1].open;
+}
+
 void ProcessSession()
 {
    SavePositionSnapshot();
@@ -340,6 +357,7 @@ void ProcessSession()
    if(rates[1].time==last_bar) return;
    last_bar=rates[1].time;
    if(!EntryWindow(attempts,Elapsed(),SymbolBusy(),outstanding,draining)) return;
+   if(TestSyntheticSignals) SyntheticFixture(rates);
    double stop=0,level=0; int side=StructureSignal(rates,stop,level);
    reason=side==0?"WAIT_CONFIRMED_HH_HL_OR_LH_LL_BREAK":"SIGNAL_CHECKING_EXECUTION";
    if(side!=0) OpenStructure(side,stop,level,rates[1].close,rates[1].time);
@@ -351,7 +369,7 @@ void TesterStep()
    if(!MQLInfoInteger(MQL_TESTER)) return;
    if(!tester_started)
    {
-      MqlDateTime t; TimeToStruct(TimeCurrent(),t); if(t.hour<9) return;
+      MqlDateTime t; TimeToStruct(TimeCurrent(),t); if(t.hour<TestStartHour) return;
       session_time=TimeCurrent(); started_ms=GetTickCount64(); last_bar=iTime(_Symbol,PERIOD_M1,1); tester_started=true;
    }
    if(Elapsed()>SESSION_SECONDS+60 && OwnPosition()==0) return;
