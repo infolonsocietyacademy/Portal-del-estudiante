@@ -40,6 +40,26 @@
       "id": "pretest-mwjhr3t4",
       "action": "diagnose",
       "expires_at": "2026-11-16T16:57:00.328Z"
+    },
+    {
+      "id": "tester-probe-mwjhs167",
+      "action": "backtest",
+      "expires_at": "2026-11-16T17:02:43.567Z",
+      "source_path": "bridge/eas/OLFX_Bridge_Probe.mq5",
+      "source_ref": "05c721983bb4061a553423a97a3325108f31c146",
+      "source_sha256": "cf12cd3f7fdbdc3c06e3b864f05f5bd2219a1563a3155cc84722d9bc8c395e08",
+      "test": {
+        "symbol": "EURUSD",
+        "period": "M5",
+        "from": "2026.11.12",
+        "to": "2026.11.13",
+        "deposit": 10000,
+        "currency": "USD",
+        "leverage": 100,
+        "model": 1,
+        "inputs": {},
+        "timeout_seconds": 240
+      }
     }
   ]
 }
