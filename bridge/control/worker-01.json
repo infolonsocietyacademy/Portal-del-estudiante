@@ -433,6 +433,11 @@
       "id": "xau-minute-demo-mwjqy9ye",
       "action": "demo_gold_once",
       "expires_at": "2026-11-16T21:09:31.430Z"
+    },
+    {
+      "id": "m5-preflight-mwjrgsuk",
+      "action": "diagnose",
+      "expires_at": "2026-11-16T21:43:55.724Z"
     }
   ]
 }
