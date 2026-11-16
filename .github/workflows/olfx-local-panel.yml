@@ -1,0 +1,51 @@
+name: OLFX Local Panel tests and package
+on:
+  push:
+    branches: [olfx-bridge-local-panel]
+    paths: ['bridge/local-panel/**', '.github/workflows/olfx-local-panel.yml']
+  pull_request:
+    branches: [olfx-bridge-resident-v2]
+    paths: ['bridge/local-panel/**', '.github/workflows/olfx-local-panel.yml']
+permissions:
+  contents: read
+jobs:
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 8
+    steps:
+      - name: Preserve package bytes
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Manual entries, queue conflicts and resident regression tests
+        run: python -m unittest discover -s bridge/local-panel/tests -v
+      - name: Compile Python
+        run: python -m compileall -q bridge/local-panel
+      - name: Build and validate existing panel ZIP
+        run: python bridge/local-panel/build_package.py --output dist
+      - name: Build and validate separated menus ZIP
+        run: python bridge/local-panel/build_package.py --output dist --menus
+  package:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/olfx-bridge-local-panel'
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Preserve package bytes
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Publish manual installer to downloads branch
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python bridge/local-panel/build_package.py --output dist --menus --publish

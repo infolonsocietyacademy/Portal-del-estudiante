@@ -1,0 +1,31 @@
+OLFX - DOS MENUS CMD SEPARADOS
+Ajuste de ventanas para el receptor 2.0.1-rc1 ya instalado. Solo DEMO.
+
+1. Extrae TODO el ZIP y abre la carpeta OLFX_MENUS_SEPARADOS.
+2. Cierra solamente las ventanas del MENU anteriores que tengas abiertas.
+   Mantiene MT5, OLFX CONNECT y la ventana del receptor encendidos.
+3. Ejecuta SEPARAR_MENUS.cmd una vez.
+4. En el escritorio tendras:
+   OLFX_PANEL_ORDENES.cmd - operaciones MANUALES
+   OLFX_ESTRATEGIA.cmd - operaciones de ESTRUCTURA
+
+MANUAL
+Comprar o vender oro, elegir lote/riesgo, SL/TP y duracion opcional.
+No aparece la opcion de estructura en este menu.
+Las listas, logs, reintentos y cierres se filtran a solicitudes manuales.
+
+ESTRATEGIA
+Solo la logica de ruptura confirmada por estructura que ya tiene el receptor.
+Permite elegir M1/M5, tamano y tiempo de espera.
+No aparece compra/venta directa en este menu.
+Las listas, logs, reintentos y cierres se filtran a solicitudes de estrategia.
+
+"CERRAR TODAS" AFECTA SOLO A LAS SOLICITUDES DEL MENU DESDE EL QUE LO USAS.
+La logica de entrada de la estrategia y los parametros del receptor se conservan.
+Los dos menus siguen compartiendo el mismo receptor DEMO y sus limites.
+Cerrar un menu no cierra operaciones ni detiene el receptor.
+Instalar este ajuste no envia ninguna orden, no cambia el receptor y no lo reinicia.
+Tus configuraciones y las solicitudes existentes se conservan.
+
+Si usas PANEL_ORDENES.cmd de una carpeta anterior, tambien abrira el modo manual
+despues de aplicar este ajuste; el modo predeterminado es MANUAL.
