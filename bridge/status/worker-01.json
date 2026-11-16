@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "1.0.4",
+  "version": "1.0.5",
   "state": "online",
-  "updated_at": "2026-11-16T19:34:00+00:00",
+  "updated_at": "2026-11-16T19:37:09+00:00",
   "diagnostics": {
     "scope": "recent_logs",
     "log_files_scanned": 4,
