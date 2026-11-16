@@ -30,6 +30,11 @@
       "source_path": "bridge/eas/OLFX_Bridge_Probe.mq5",
       "source_ref": "05c721983bb4061a553423a97a3325108f31c146",
       "source_sha256": "cf12cd3f7fdbdc3c06e3b864f05f5bd2219a1563a3155cc84722d9bc8c395e08"
+    },
+    {
+      "id": "account-diagnose-mwjhh34t",
+      "action": "diagnose",
+      "expires_at": "2026-11-16T16:49:12.893Z"
     }
   ]
 }
