@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "id": "compile-demo-guard-mwjk4znx",
+  "task_sha256": "ce53be001642eaaf7cb227daa6a2f018ebef63dbcbc5c14b2338ac0e7ad1fabf",
+  "status": "succeeded",
+  "started_at": "2026-11-16T17:49:14+00:00",
+  "code": "COMPILED",
+  "source_sha256": "16f3f24c7f5d7caeac3bf0efd8dfce809fce92ecdac2d0454a4990a758a1ab3c",
+  "finished_at": "2026-11-16T17:49:16+00:00"
+}
