@@ -60,6 +60,26 @@
         "inputs": {},
         "timeout_seconds": 240
       }
+    },
+    {
+      "id": "report-probe-mwjhwalh",
+      "action": "backtest",
+      "expires_at": "2026-11-16T17:06:02.405Z",
+      "source_path": "bridge/eas/OLFX_Report_Probe.mq5",
+      "source_ref": "77bf934b235414dad3a5c26c5a4b01b7649595ec",
+      "source_sha256": "80b45d943e93afca6a77cc5c32b0ec813b0b6895ca021bf8cc149a0082f1d503",
+      "test": {
+        "symbol": "EURUSD",
+        "period": "M5",
+        "from": "2026.11.12",
+        "to": "2026.11.13",
+        "deposit": 10000,
+        "currency": "USD",
+        "leverage": 100,
+        "model": 1,
+        "inputs": {},
+        "timeout_seconds": 240
+      }
     }
   ]
 }
