@@ -1,0 +1,23 @@
+{
+  "schema": 2,
+  "version": "2.0.0-rc1",
+  "state": "online",
+  "code": "RESIDENT_ONLINE",
+  "updated_at": "2026-11-16T22:03:35+00:00",
+  "terminal_reused": true,
+  "account_type_verified": "demo",
+  "device": "worker-01-resident",
+  "active_count": 0,
+  "active": [],
+  "actions": [
+    "ping",
+    "diagnose",
+    "status",
+    "trade",
+    "close"
+  ],
+  "periods": [
+    "M1",
+    "M5"
+  ]
+}
