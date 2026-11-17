@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "id": "crt-pause-old-mwk3de8r",
+  "task_sha256": "ce1e33544a74c2a830c6575b52ead1e5ab41f9d501773f78370291e23e4ff3b5",
+  "status": "succeeded",
+  "started_at": "2026-11-17T02:47:42+00:00",
+  "code": "DEMO_GOLD_ENTRIES_PAUSED_SL_TP_RETAINED",
+  "finished_at": "2026-11-17T02:47:42+00:00"
+}
