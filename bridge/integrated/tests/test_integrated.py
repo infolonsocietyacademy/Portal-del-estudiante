@@ -16,11 +16,11 @@ from execution_terminal import execution_terminal
 from process_tools import locked
 spec=importlib.util.spec_from_file_location("integrated_controller",BASE/"runtime"/"bridge_agent.py")
 controller=importlib.util.module_from_spec(spec);spec.loader.exec_module(controller)
-from test_resident import EngineTest
+import test_resident as regression
 
 class HealthTest(unittest.TestCase):
-    setUp=EngineTest.setUp
-    make=EngineTest.make
+    setUp=regression.EngineTest.setUp
+    make=regression.EngineTest.make
     def test_quote_age_is_reported_without_trade(self):
         self.m.symbol_info_tick=lambda _:NS(time=self.now()-7200,bid=2000.,ask=2000.2)
         d=self.engine.diagnostics()
@@ -99,3 +99,25 @@ class SupervisorTest(unittest.TestCase):
         for _ in range(20):r.failed(10)
         self.assertLessEqual(r.next_at-10,60)
         self.assertFalse(r.due(10))
+
+@unittest.skipUnless(os.name=="nt","Windows byte-range locking")
+class WindowsLocksTest(unittest.TestCase):
+    def test_probe_never_reads_locked_byte_and_releases_after_close(self):
+        from process_tools import lock
+        with TemporaryDirectory() as folder:
+            path=Path(folder)/"worker.lock"
+            handle=lock(path)
+            self.assertIsNotNone(handle)
+            try:
+                self.assertTrue(locked(path))
+                self.assertIsNone(lock(path))
+            finally:handle.close()
+            self.assertFalse(locked(path))
+    def test_bootstrap_duplicate_launch_is_rejected(self):
+        spec=importlib.util.spec_from_file_location("lock_bootstrap",BASE/"launcher"/"bridge_bootstrap.py")
+        module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        with TemporaryDirectory() as folder:
+            handle=module.launcher_lock(folder)
+            self.assertIsNotNone(handle)
+            try:self.assertIsNone(module.launcher_lock(folder))
+            finally:handle.close()
