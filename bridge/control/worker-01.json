@@ -27,6 +27,11 @@
       "id": "liqh4-final-mwkbgtta",
       "action": "demo_structure_status",
       "expires_at": "2026-11-17T06:53:49.294Z"
+    },
+    {
+      "id": "h4-backtest14-mwkc53vv",
+      "action": "gold_backtest_14d",
+      "expires_at": "2026-11-17T07:22:42.091Z"
     }
   ]
 }
