@@ -618,6 +618,11 @@
       "id": "verify-breakfake-m1-live-mwk9sb8s",
       "action": "demo_structure_status",
       "expires_at": "2026-11-17T05:56:45.868Z"
+    },
+    {
+      "id": "backtest-bf1-14d-mwka3sqa",
+      "action": "gold_backtest_14d",
+      "expires_at": "2026-11-17T06:25:41.746Z"
     }
   ]
 }
