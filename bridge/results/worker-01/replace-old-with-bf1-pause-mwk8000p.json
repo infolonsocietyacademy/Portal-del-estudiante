@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "id": "replace-old-with-bf1-pause-mwk8000p",
+  "task_sha256": "252a6fa6d71df2c584108996ddd1515a3acb1c5b3570507ed92f9eb7b165f9ac",
+  "status": "succeeded",
+  "started_at": "2026-11-17T04:57:01+00:00",
+  "code": "DEMO_GOLD_ENTRIES_PAUSED_SL_TP_RETAINED",
+  "finished_at": "2026-11-17T04:57:01+00:00"
+}
