@@ -518,6 +518,11 @@
       "id": "feed-version-mwk1qstq",
       "action": "ping",
       "expires_at": "2026-11-17T02:11:38.414Z"
+    },
+    {
+      "id": "feed-fixed-start-mwk1sklz",
+      "action": "demo_gold",
+      "expires_at": "2026-11-17T02:13:01.079Z"
     }
   ]
 }
