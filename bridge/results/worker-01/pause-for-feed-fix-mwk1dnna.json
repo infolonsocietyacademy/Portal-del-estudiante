@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "id": "pause-for-feed-fix-mwk1dnna",
+  "task_sha256": "098d920effd00c7a53443c43ec1d3031fc152f32b894ab6ad7055fb2e547d557",
+  "status": "succeeded",
+  "started_at": "2026-11-17T01:52:15+00:00",
+  "code": "DEMO_GOLD_ENTRIES_PAUSED_SL_TP_RETAINED",
+  "finished_at": "2026-11-17T01:52:15+00:00"
+}
