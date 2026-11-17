@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "id": "restore-20261117-0057-ping",
+  "task_sha256": "584e88c7e4978231c07d5e83ae961c656ea6fdc34c81b044a95ed2ffbec17232",
+  "status": "succeeded",
+  "started_at": "2026-11-17T00:57:10+00:00",
+  "code": "PONG",
+  "version": "1.0.9",
+  "finished_at": "2026-11-17T00:57:10+00:00"
+}
