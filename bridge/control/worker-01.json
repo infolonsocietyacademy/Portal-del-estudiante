@@ -12,6 +12,11 @@
       "id": "verify-live-20261117-0406-strategy",
       "action": "demo_structure_status",
       "expires_at": "2026-11-17T08:16:00.000Z"
+    },
+    {
+      "id": "h4-backtest14-mwl75drs",
+      "action": "gold_backtest_14d",
+      "expires_at": "2026-11-17T21:50:43.000Z"
     }
   ]
 }
