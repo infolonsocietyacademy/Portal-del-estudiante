@@ -503,6 +503,11 @@
       "id": "gold-m1-sltp-start-20261117-0125",
       "action": "demo_gold",
       "expires_at": "2026-11-17T01:35:00Z"
+    },
+    {
+      "id": "gold-m1-live-status-20261117-0127",
+      "action": "demo_structure_status",
+      "expires_at": "2026-11-17T01:40:00Z"
     }
   ]
 }
