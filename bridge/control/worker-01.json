@@ -543,6 +543,16 @@
       "id": "backtest-progress-mwk36co1",
       "action": "gold_backtest_status",
       "expires_at": "2026-11-17T02:56:43.585Z"
+    },
+    {
+      "id": "crt-pre-ping-mwk3de8r",
+      "action": "ping",
+      "expires_at": "2026-11-17T03:02:12.219Z"
+    },
+    {
+      "id": "crt-pause-old-mwk3de8r",
+      "action": "demo_gold_stop",
+      "expires_at": "2026-11-17T03:02:12.219Z"
     }
   ]
 }
