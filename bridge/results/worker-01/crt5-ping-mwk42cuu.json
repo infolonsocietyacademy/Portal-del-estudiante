@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "id": "crt5-ping-mwk42cuu",
+  "task_sha256": "8a5a8b02bd5065b1b861e0b4df309e1d99013379ba0e475140d7e1d3a17238fa",
+  "status": "succeeded",
+  "started_at": "2026-11-17T03:10:25+00:00",
+  "code": "PONG",
+  "version": "1.0.14",
+  "finished_at": "2026-11-17T03:10:25+00:00"
+}
