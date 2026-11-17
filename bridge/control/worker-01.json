@@ -588,6 +588,11 @@
       "id": "crt5-backtest30d-mwk42cuu",
       "action": "gold_backtest_30d",
       "expires_at": "2026-11-17T03:29:44.500Z"
+    },
+    {
+      "id": "verify-m5-backtest30-mwk5zcde",
+      "action": "gold_backtest_30d",
+      "expires_at": "2026-11-17T04:15:15.458Z"
     }
   ]
 }
