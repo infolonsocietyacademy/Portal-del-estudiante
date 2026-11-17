@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.14",
   "state": "online",
-  "updated_at": "2026-11-17T04:28:03+00:00",
+  "updated_at": "2026-11-17T04:29:05+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "verify-m5-backtest30-mwk5zcde",
@@ -66,7 +66,7 @@
   "gold_strategy": {
     "schema": 1,
     "version": "1.0.14",
-    "updated_at": 1794889682.9053683,
+    "updated_at": 1794889744.7936053,
     "code": "WAIT_NEW_CANDLE",
     "signal_state": "WAIT_NEW_CANDLE",
     "ready": true,
@@ -89,8 +89,8 @@
     "net_recorded": -50.85,
     "quote_fresh": true,
     "python_trading_allowed": true,
-    "quote_age_seconds": -7199.095,
-    "adjusted_quote_age_seconds": 0.905,
+    "quote_age_seconds": -7199.206,
+    "adjusted_quote_age_seconds": 0.794,
     "broker_clock_offset_seconds": -7200,
     "advancing_tick_samples": 6,
     "spread_price": 0.16,
