@@ -2,7 +2,10 @@ name: H4 liquidity native-candle backtest checks
 on:
   push:
     branches: [olfx-mt5-bridge]
-    paths: ['bridge/liquidez_h4/**', '.github/workflows/olfx-liquidez-h4-checks.yml']
+    paths: ['bridge/liquidez_h4/**', 'bridge/eas/OLFX_Liquidez_H4.mq5', '.github/workflows/olfx-liquidez-h4-checks.yml']
+  pull_request:
+    branches: [olfx-mt5-bridge]
+    paths: ['bridge/liquidez_h4/**', 'bridge/eas/OLFX_Liquidez_H4.mq5', '.github/workflows/olfx-liquidez-h4-checks.yml']
 permissions:
   contents: read
 jobs:

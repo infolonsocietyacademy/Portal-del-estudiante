@@ -17,15 +17,7 @@ ROOT=Path(__file__).resolve().parent
 def canonical(value):
     return json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=True).encode()
 
-def build(key_path,public_key_path):
-    from cryptography.hazmat.primitives import hashes,serialization
-    from cryptography.hazmat.primitives.asymmetric import padding,rsa
-    key=serialization.load_pem_private_key(Path(key_path).read_bytes(),password=None)
-    if not isinstance(key,rsa.RSAPrivateKey):raise ValueError('RSA_KEY_REQUIRED')
-    expected=json.loads(Path(public_key_path).read_text())
-    pub=key.public_key().public_numbers()
-    if pub.n!=int(expected['n'],16) or pub.e!=expected['e']:
-        raise ValueError('KEY_DOES_NOT_MATCH_SELECTED_PUBLIC_KEY')
+def pack_runtime():
     files={};archive=io.BytesIO()
     with zipfile.ZipFile(archive,'w',compression=zipfile.ZIP_DEFLATED) as z:
         for p in sorted((ROOT/'runtime').rglob('*')):
@@ -35,8 +27,19 @@ def build(key_path,public_key_path):
             info=zipfile.ZipInfo(name,date_time=(2026,11,17,0,0,0))
             info.compress_type=zipfile.ZIP_DEFLATED
             z.writestr(info,raw)
-    raw=archive.getvalue()
-    payload=dict(schema=1,sequence=22,version='1.0.22',launcher=1,session_schema=1,
+    return archive.getvalue(), files
+
+def build(key_path,public_key_path):
+    from cryptography.hazmat.primitives import hashes,serialization
+    from cryptography.hazmat.primitives.asymmetric import padding,rsa
+    key=serialization.load_pem_private_key(Path(key_path).read_bytes(),password=None)
+    if not isinstance(key,rsa.RSAPrivateKey):raise ValueError('RSA_KEY_REQUIRED')
+    expected=json.loads(Path(public_key_path).read_text())
+    pub=key.public_key().public_numbers()
+    if pub.n!=int(expected['n'],16) or pub.e!=expected['e']:
+        raise ValueError('KEY_DOES_NOT_MATCH_SELECTED_PUBLIC_KEY')
+    raw, files = pack_runtime()
+    payload=dict(schema=1,sequence=23,version='1.0.23',launcher=1,session_schema=1,
                  archive=base64.b64encode(raw).decode(),archive_sha256=hashlib.sha256(raw).hexdigest(),files=files)
     signature=key.sign(canonical(payload),padding.PKCS1v15(),hashes.SHA256())
     return canonical(dict(payload=payload,signature=base64.b64encode(signature).decode()))
