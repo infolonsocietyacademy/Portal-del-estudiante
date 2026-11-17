@@ -2,13 +2,13 @@
   "schema": 1,
   "version": "1.0.9",
   "state": "online",
-  "updated_at": "2026-11-17T00:42:58+00:00",
+  "updated_at": "2026-11-17T00:48:43+00:00",
   "updater": {
     "state": "running"
   },
   "diagnostics": {
     "scope": "recent_logs",
-    "log_files_scanned": 5,
+    "log_files_scanned": 6,
     "log_read_errors": 0,
     "log_groups": [
       "expert",
