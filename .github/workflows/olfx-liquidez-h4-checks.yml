@@ -1,0 +1,21 @@
+name: H4 liquidity native-candle backtest checks
+on:
+  push:
+    branches: [olfx-mt5-bridge]
+    paths: ['bridge/liquidez_h4/**', '.github/workflows/olfx-liquidez-h4-checks.yml']
+permissions:
+  contents: read
+jobs:
+  tests:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - run: git config --global core.autocrlf false
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s bridge/liquidez_h4/tests -v
+      - run: python -m compileall -q bridge/liquidez_h4/runtime

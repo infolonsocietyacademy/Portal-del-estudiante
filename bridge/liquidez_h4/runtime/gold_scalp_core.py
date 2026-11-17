@@ -7,7 +7,7 @@ from pathlib import Path
 import re
 import time
 
-VERSION = "1.0.20"
+VERSION = "1.0.21"
 LIVE_PHASES = {"waiting", "submitted", "open", "closing", "uncertain"}
 FINAL_PHASES = {"done", "failed"}
 
