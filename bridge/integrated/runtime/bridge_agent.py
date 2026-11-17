@@ -109,7 +109,7 @@ def run():
             bridge_running=locked(lockfiles["bridge"])
             resident_running=locked(lockfiles["resident"])
             resident_health=read(RESIDENT/"local-health.json",{})
-            fresh=time.time()-resident_health.get("updated_at",0)<20
+            fresh=0<=time.time()-resident_health.get("updated_at",0)<20 and resident_health.get("nonce")==os.environ.get("OLFX_BRIDGE_LAUNCH_NONCE","")
             ready=bridge_running and resident_running and fresh and resident_health.get("version")==VERSION
             if ready and not marked:
                 mark_ready(MANAGED,VERSION);marked=True
