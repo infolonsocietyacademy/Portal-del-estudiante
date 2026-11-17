@@ -2,11 +2,11 @@
   "schema": 1,
   "version": "1.0.10",
   "state": "online",
-  "updated_at": "2026-11-17T01:47:03+00:00",
+  "updated_at": "2026-11-17T01:48:05+00:00",
   "gold_strategy": {
     "schema": 1,
     "version": "1.0.10",
-    "updated_at": 1794880023.1607728,
+    "updated_at": 1794880085.0297053,
     "code": "WAIT_NEW_CANDLE",
     "ready": false,
     "account_type_verified": "demo",
