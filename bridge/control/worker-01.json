@@ -488,6 +488,11 @@
       "id": "restore-20261117-0057-diagnose",
       "action": "diagnose",
       "expires_at": "2026-11-17T01:05:00Z"
+    },
+    {
+      "id": "xau-demo-once-20261117-0101",
+      "action": "demo_gold_once",
+      "expires_at": "2026-11-17T01:08:00Z"
     }
   ]
 }
