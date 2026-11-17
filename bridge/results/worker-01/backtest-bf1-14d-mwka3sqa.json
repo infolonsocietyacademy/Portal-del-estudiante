@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "id": "backtest-bf1-14d-mwka3sqa",
+  "task_sha256": "9568d281ee6d8dcf8ae66d59d07313db64d1c4738e409a12842cef28f466e889",
+  "status": "succeeded",
+  "started_at": "2026-11-17T05:56:02+00:00",
+  "code": "BACKTEST_14D_STARTED",
+  "job_id": "backtest-bf1-14d-mwka3sqa",
+  "days": 14,
+  "symbol": "XAUUSD",
+  "mode": "READ_ONLY_MARKET_DATA",
+  "finished_at": "2026-11-17T05:56:02+00:00"
+}
