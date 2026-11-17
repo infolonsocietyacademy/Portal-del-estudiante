@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "id": "crt-pre-ping-mwk3de8r",
+  "task_sha256": "6ea85039492fe0f0f7c4c31d31d52fde090c7921f3cd926d45cbd060613999f2",
+  "status": "succeeded",
+  "started_at": "2026-11-17T02:47:41+00:00",
+  "code": "PONG",
+  "version": "1.0.12",
+  "finished_at": "2026-11-17T02:47:41+00:00"
+}
