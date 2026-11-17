@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "id": "crt5-backtest30d-mwk42cuu",
+  "task_sha256": "15c38a1bd440c1ee0ea9805c456a871051b5419653e7ce24c6dfd33f5704696e",
+  "status": "succeeded",
+  "started_at": "2026-11-17T03:10:30+00:00",
+  "code": "BACKTEST_30D_STARTED",
+  "job_id": "crt5-backtest30d-mwk42cuu",
+  "days": 30,
+  "symbol": "XAUUSD",
+  "mode": "READ_ONLY_MARKET_DATA",
+  "finished_at": "2026-11-17T03:10:30+00:00"
+}
