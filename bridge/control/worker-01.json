@@ -608,6 +608,11 @@
       "id": "bf18-update-check-mwk9kn6v",
       "action": "ping",
       "expires_at": "2026-11-17T05:50:48.103Z"
+    },
+    {
+      "id": "start-breakfake-m1-tp1-mwk9qyom",
+      "action": "demo_gold",
+      "expires_at": "2026-11-17T06:00:42.934Z"
     }
   ]
 }
