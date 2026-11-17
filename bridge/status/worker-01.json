@@ -1,6 +1,61 @@
 {
   "schema": 1,
-  "version": "1.0.10",
-  "state": "updating",
-  "updated_at": "2026-11-17T02:02:14+00:00"
+  "version": "1.0.11",
+  "state": "online",
+  "updated_at": "2026-11-17T02:02:16+00:00",
+  "gold_strategy": {
+    "schema": 1,
+    "version": "1.0.10",
+    "updated_at": 1794880336.697013,
+    "code": "PAUSED_SL_TP_ONLY",
+    "ready": false,
+    "account_type_verified": "demo",
+    "symbol": "XAUUSD",
+    "period": "M1",
+    "entry_limit": null,
+    "hold_seconds": 0,
+    "close_policy": "BROKER_SL_TP_ONLY",
+    "paused": true,
+    "size_mode": "fixed",
+    "fixed_lots": 0.05,
+    "risk_percent": 0.5,
+    "active_commands": 0,
+    "open_positions": 0,
+    "entry_attempts": 0,
+    "closed_commands": 0,
+    "net_recorded": 0,
+    "quote_fresh": false,
+    "python_trading_allowed": true,
+    "snapshot_fresh": false
+  },
+  "updater": {
+    "state": "restarting"
+  },
+  "diagnostics": {
+    "scope": "recent_logs",
+    "log_files_scanned": 8,
+    "log_read_errors": 0,
+    "log_groups": [
+      "expert",
+      "terminal",
+      "tester"
+    ],
+    "recent_crash_files": 0,
+    "crash_exceptions": [],
+    "observed_log_signals": [
+      "AUTHORIZATION_FAILED",
+      "AUTHORIZED_DEMO",
+      "AUTHORIZED_SERVER",
+      "CONFIG_LOADED",
+      "DEMO_TRADING_ENABLED",
+      "NO_DEMO_GROUPS",
+      "SOCKET_ALREADY_IN_USE",
+      "TERMINAL_SYNCHRONIZED",
+      "TESTER_FINISHED",
+      "TESTER_STARTED"
+    ],
+    "numeric_error_codes": [
+      10009
+    ]
+  }
 }
