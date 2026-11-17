@@ -12,10 +12,10 @@ class ReleaseTests(unittest.TestCase):
     def test_installed_trust_key_accepts_exact_runtime_without_secrets(self):
         spec=importlib.util.spec_from_file_location('liqh4_bootstrap',BASE.parent/'original/bridge_bootstrap.py')
         boot=importlib.util.module_from_spec(spec);spec.loader.exec_module(boot)
-        doc,raw=boot.parse_release((BASE/'release_1.0.21.json').read_bytes(),
+        doc,raw=boot.parse_release((BASE/'release_1.0.22.json').read_bytes(),
                                  json.loads((BASE.parent/'original/update_public_key.json').read_text()))
-        self.assertEqual(doc['payload']['version'],'1.0.21')
-        self.assertEqual(doc['payload']['sequence'],21)
+        self.assertEqual(doc['payload']['version'],'1.0.22')
+        self.assertEqual(doc['payload']['sequence'],22)
         paths={p.relative_to(BASE/'runtime').as_posix():p for p in (BASE/'runtime').rglob('*')
                if p.is_file() and p.suffix in ('.py','.mq5') and '__pycache__' not in p.parts}
         self.assertEqual(set(paths),set(doc['payload']['files']))

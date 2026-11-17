@@ -36,7 +36,7 @@ def build(key_path,public_key_path):
             info.compress_type=zipfile.ZIP_DEFLATED
             z.writestr(info,raw)
     raw=archive.getvalue()
-    payload=dict(schema=1,sequence=21,version='1.0.21',launcher=1,session_schema=1,
+    payload=dict(schema=1,sequence=22,version='1.0.22',launcher=1,session_schema=1,
                  archive=base64.b64encode(raw).decode(),archive_sha256=hashlib.sha256(raw).hexdigest(),files=files)
     signature=key.sign(canonical(payload),padding.PKCS1v15(),hashes.SHA256())
     return canonical(dict(payload=payload,signature=base64.b64encode(signature).decode()))
