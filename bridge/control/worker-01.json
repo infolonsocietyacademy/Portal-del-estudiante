@@ -4,34 +4,9 @@
   "enabled": true,
   "jobs": [
     {
-      "id": "liqh4-change-mwkb7om0-pause",
-      "action": "demo_gold_stop",
-      "expires_at": "2026-11-17T07:26:42.648Z"
-    },
-    {
-      "id": "liqh4-change-mwkb7om0-ping",
+      "id": "ping-buytest-20261117-001",
       "action": "ping",
-      "expires_at": "2026-11-17T07:26:42.648Z"
-    },
-    {
-      "id": "liqh4-start-mwkbfe9t",
-      "action": "demo_gold",
-      "expires_at": "2026-11-17T07:02:42.497Z"
-    },
-    {
-      "id": "liqh4-start-mwkbfe9t-verify",
-      "action": "demo_structure_status",
-      "expires_at": "2026-11-17T07:02:42.497Z"
-    },
-    {
-      "id": "liqh4-final-mwkbgtta",
-      "action": "demo_structure_status",
-      "expires_at": "2026-11-17T06:53:49.294Z"
-    },
-    {
-      "id": "h4-backtest14-mwkc53vv",
-      "action": "gold_backtest_14d",
-      "expires_at": "2026-11-17T07:22:42.091Z"
+      "expires_at": "2026-11-18T08:00:00.000Z"
     }
   ]
 }
