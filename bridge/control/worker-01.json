@@ -533,6 +533,11 @@
       "id": "bt-version-mwk33j6o",
       "action": "ping",
       "expires_at": "2026-11-17T02:49:32.064Z"
+    },
+    {
+      "id": "xau-m1-backtest-30d-mwk35hbx",
+      "action": "gold_backtest_30d",
+      "expires_at": "2026-11-17T02:56:02.973Z"
     }
   ]
 }
