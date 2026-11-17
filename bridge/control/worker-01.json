@@ -2,11 +2,5 @@
   "schema": 1,
   "device": "worker-01",
   "enabled": true,
-  "jobs": [
-    {
-      "id": "ping-buytest-20261117-001",
-      "action": "ping",
-      "expires_at": "2026-11-18T08:00:00.000Z"
-    }
-  ]
+  "jobs": []
 }
