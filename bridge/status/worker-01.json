@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.13",
   "state": "online",
-  "updated_at": "2026-11-17T03:00:21+00:00",
+  "updated_at": "2026-11-17T03:01:23+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "xau-m1-backtest-30d-mwk35hbx",
@@ -94,7 +94,7 @@
     "snapshot_fresh": false
   },
   "updater": {
-    "state": "restarting"
+    "state": "running"
   },
   "diagnostics": {
     "scope": "recent_logs",
