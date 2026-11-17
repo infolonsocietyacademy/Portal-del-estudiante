@@ -1,0 +1,24 @@
+name: ALPHA PRO X candidate checks
+on:
+  push:
+    branches: [olfx-mt5-bridge]
+    paths: ['bridge/alpha_pro_x/**', '.github/workflows/olfx-alpha-checks.yml']
+permissions:
+  contents: read
+jobs:
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 6
+    steps:
+      - run: git config --global core.autocrlf false
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install cryptography
+      - run: python -m unittest discover -s bridge/alpha_pro_x/tests -v
+      - run: python -m compileall -q bridge/alpha_pro_x/runtime
