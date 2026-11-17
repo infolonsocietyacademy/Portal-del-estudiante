@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.21",
   "state": "online",
-  "updated_at": "2026-11-17T23:36:03+00:00",
+  "updated_at": "2026-11-17T23:37:05+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "h4-backtest14-mwl75drs",
@@ -105,7 +105,7 @@
   },
   "diagnostics": {
     "scope": "recent_logs",
-    "log_files_scanned": 6,
+    "log_files_scanned": 5,
     "log_read_errors": 0,
     "log_groups": [
       "expert",
@@ -115,12 +115,10 @@
     "recent_crash_files": 0,
     "crash_exceptions": [],
     "observed_log_signals": [
-      "AUTHORIZATION_FAILED",
       "AUTHORIZED_DEMO",
       "AUTHORIZED_SERVER",
       "CONFIG_LOADED",
       "DEMO_TRADING_ENABLED",
-      "NO_DEMO_GROUPS",
       "SOCKET_ALREADY_IN_USE",
       "TERMINAL_SYNCHRONIZED",
       "TESTER_FINISHED",
