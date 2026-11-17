@@ -10,6 +10,7 @@ import sys
 import threading
 import time
 from resident_core import Engine, Fault, VERSION, atomic, fingerprint, need
+from panel_client import validate_control
 
 HERE=Path(__file__).resolve().parent
 sys.path.insert(0,str(HERE / "legacy"))
@@ -74,7 +75,7 @@ def public_status(engine,code="RESIDENT_ONLINE"):
     except Fault as exc: diagnostic={"code":str(exc),"trade_ready":False}
     return {"health":diagnostic,"schema":2,"version":VERSION,"state":"online","code":code,"updated_at":now(),
             "terminal_reused":True,"account_type_verified":"demo","device":DEVICE,
-            "active_count":len(active),"active":active,
+            "active_count":len(active),"active":active,"max_active_commands":None,
             "actions":["ping","diagnose","status","trade","close"],"periods":["M1","M5"]}
 
 def bridge_network(incoming,outgoing,halt):
@@ -94,12 +95,7 @@ def bridge_network(incoming,outgoing,halt):
         try:
             if time.monotonic()-last_poll>=10:
                 control=gh.json(PREFIX+"/control/"+DEVICE+".json")
-                need(isinstance(control,dict) and control.get("schema")==2 and control.get("device")==DEVICE,"INVALID_RESIDENT_CONTROL")
-                need(type(control.get("enabled")) is bool,"INVALID_RESIDENT_CONTROL")
-                jobs=control.get("jobs")
-                need(isinstance(jobs,list) and len(jobs)<=100,"INVALID_RESIDENT_QUEUE")
-                ids=[j.get("id") for j in jobs if isinstance(j,dict)]
-                need(len(ids)==len(jobs) and all(isinstance(i,str) for i in ids) and len(set(ids))==len(ids),"DUPLICATE_TASK_ID")
+                jobs=validate_control(control,DEVICE)
                 if control["enabled"]:
                     incoming.put(jobs)
                 atomic(DATA/"network-health.json",{"connected":True,"updated_at":time.time()})

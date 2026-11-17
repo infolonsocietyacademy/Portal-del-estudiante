@@ -283,10 +283,11 @@ class EngineTest(unittest.TestCase):
         data=str(self.engine.summary(state))
         for key in ("login","server","password","ticket","magic","token","expected"):
             self.assertNotIn(key,data)
-    def test_three_active_commands_limit(self):
-        for i in range(3): self.open("job"+str(i))
-        with self.assertRaisesRegex(Fault,"MAX_ACTIVE_COMMANDS"):
-            self.engine.accept(self.job("four"))
+    def test_more_than_three_active_commands_are_independent(self):
+        for i in range(12): self.open("job"+str(i))
+        self.assertEqual(len(self.m.pos),12)
+        self.assertEqual(len({p.magic for p in self.m.pos}),12)
+        self.assertTrue(all(s["phase"]=="open" for s in self.engine.states.values()))
     def test_readonly_commands_never_send(self):
         for action in ("ping","diagnose","status"):
             result=self.engine.accept({"id":action,"action":action,"expires_at":self.job()["expires_at"]})

@@ -3,12 +3,12 @@ import argparse,base64,hashlib,json,os
 from pathlib import Path
 import urllib.error,urllib.parse,urllib.request,zipfile
 ROOT=Path(__file__).resolve().parent
-NAME="OLFX_ACTUALIZACION_INTEGRADA_2.1.0_Windows.zip"
+NAME="OLFX_ACTUALIZACION_INTEGRADA_2.2.0_Windows.zip"
 PACKAGE_FOLDER="OLFX_ACTUALIZACION_INTEGRADA/"
-FILES=["original_launcher/bridge_bootstrap.py","original_launcher/update_public_key.json","original_launcher/bootstrap_config.json","launcher/update_public_key.json","launcher/bootstrap_config.json","launcher/bridge_bootstrap.py","runtime/update_handoff.py","runtime/process_tools.py","runtime/execution_terminal.py","runtime/legacy/bridge_agent.py","runtime/legacy/gold_settings.py","runtime/resident_core.py","runtime/resident_worker.py","runtime/bridge_agent.py","runtime/panel_client.py","runtime/menu_scope.py","runtime/panel_local.py","install_integrated.py","INSTALAR_ACTUALIZACION.cmd","LEEME_PRIMERO.txt","tests/test_resident.py","tests/test_updates.py","tests/test_integrated.py","tests/test_baseline.py"]
+FILES=["original_launcher/bridge_bootstrap.py","original_launcher/update_public_key.json","original_launcher/bootstrap_config.json","launcher/update_public_key.json","launcher/bootstrap_config.json","launcher/bridge_bootstrap.py","runtime/update_handoff.py","runtime/process_tools.py","runtime/execution_terminal.py","runtime/legacy/bridge_agent.py","runtime/legacy/gold_settings.py","runtime/resident_core.py","runtime/resident_worker.py","runtime/bridge_agent.py","runtime/panel_client.py","runtime/menu_scope.py","runtime/panel_local.py","install_integrated.py","INSTALAR_ACTUALIZACION.cmd","LEEME_PRIMERO.txt","tests/test_resident.py","tests/test_updates.py","tests/test_integrated.py","tests/test_baseline.py","tests/test_many_orders.py"]
 def build(output):
     content={name:(ROOT/name).read_bytes() for name in FILES}
-    manifest={"schema":1,"version":"2.1.0","files":{name:{"sha256":hashlib.sha256(data).hexdigest(),"size":len(data)} for name,data in content.items()}}
+    manifest={"schema":1,"version":"2.2.0","files":{name:{"sha256":hashlib.sha256(data).hexdigest(),"size":len(data)} for name,data in content.items()}}
     content["package_manifest.json"]=(json.dumps(manifest,indent=2)+"\n").encode()
     path=Path(output)/NAME
     path.parent.mkdir(parents=True,exist_ok=True)
@@ -59,7 +59,7 @@ def publish(path):
     put(path.name,data)
     put(path.name+".sha256",(checksum+"  "+path.name+"\n").encode())
     menus_only=path.name=="OLFX_MENUS_SEPARADOS_Windows.zip"
-    info={"schema":1,"kind":"integrated","version":"2.1.0","installer_revision":2,"package_folder":"OLFX_MENUS_SEPARADOS" if menus_only else PACKAGE_FOLDER.rstrip("/"),"zip_path":path.name,"zip_sha256":checksum,"size":len(data),
+    info={"schema":1,"kind":"integrated","version":"2.2.0","installer_revision":3,"package_folder":"OLFX_MENUS_SEPARADOS" if menus_only else PACKAGE_FOLDER.rstrip("/"),"zip_path":path.name,"zip_sha256":checksum,"size":len(data),
           "source_commit":os.environ.get("GITHUB_SHA"),"ci_run_url":"https://github.com/"+repo+"/actions/runs/"+os.environ.get("GITHUB_RUN_ID",""),
           "validation":"Linux and Windows offline tests passed; VPS integration pending installation",
           "download_url":"https://github.com/"+repo+"/raw/"+branch+"/"+path.name}

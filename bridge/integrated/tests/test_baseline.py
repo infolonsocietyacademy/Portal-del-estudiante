@@ -14,7 +14,7 @@ class BaselineTest(unittest.TestCase):
             managed=root/"managed";installer.install_baseline(package,managed)
             key=json.loads((BASE/"launcher"/"update_public_key.json").read_text())
             store=u.ReleaseStore(managed,key)
-            self.assertEqual(store.current(),"000000-2.1.0")
+            self.assertEqual(store.current(),"000000-2.2.0")
             target=managed/"versions"/store.current()/"bridge_agent.py"
             target.write_text("# changed\n")
             with self.assertRaises(u.UpdateError):store.current()

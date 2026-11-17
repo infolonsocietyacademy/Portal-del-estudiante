@@ -16,6 +16,8 @@ DATA=ROOT / "resident-v2"
 LABELS={"waiting":"ESPERANDO","submitted":"ENVIADA","open":"ABIERTA","closing":"CERRANDO","uncertain":"POR VERIFICAR","done":"TERMINADA","failed":"RECHAZADA"}
 CODES={"WAIT_FRESH_QUOTE":"Sin cotizacion reciente","WAIT_SPREAD":"Esperando spread permitido",
        "WAIT_NEW_CANDLE":"Esperando cierre de vela","WAIT_STRUCTURE":"Esperando ruptura de estructura",
+       "WAIT_RECONCILIATION":"Esperando confirmar una orden anterior",
+       "MAILBOX_PAYLOAD_TOO_LARGE":"Buzon lleno por tamano; conserva los registros y solicita mantenimiento",
        "NO_SIGNAL_EXPIRED":"Vencio sin entrada","POSITION_OPEN":"Posicion abierta","POSITION_CLOSED":"Cierre confirmado",
        "PYTHON_TRADING_DISABLED":"Trading Python deshabilitado","MT5_DISCONNECTED":"MT5 desconectado",
        "CLOSE_STATUS_UNCERTAIN":"Cierre pendiente de verificar","OPEN_STATUS_UNCERTAIN":"Apertura pendiente de verificar"}
@@ -51,7 +53,7 @@ def connect_mailbox():
     bridge=importlib.import_module("bridge_agent")
     settings=importlib.import_module("gold_settings")
     config=settings.load_gold_settings(ROOT)
-    need(core.VERSION in {"2.0.1-rc1","2.1.0"},"Instala AGREGAR_PANEL.cmd para habilitar el modo manual independiente.")
+    need(core.VERSION in {"2.0.1-rc1","2.2.0"},"Instala AGREGAR_PANEL.cmd para habilitar el modo manual independiente.")
     need((DATA/"account-pin.json").is_file(),"Ejecuta DIAGNOSTICAR_RESIDENTE.cmd antes de usar el panel.")
     github=bridge.GitHub(bridge.dpapi((ROOT/"token.dpapi").read_bytes(),False).decode())
     mailbox=Mailbox(github,bridge.BRANCH,bridge.DEVICE+"-resident",DATA/"panel"/"requests",core.validate,config["symbol"])

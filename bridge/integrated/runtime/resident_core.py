@@ -7,10 +7,9 @@ from pathlib import Path
 import re
 import time
 
-VERSION = "2.1.0"
+VERSION = "2.2.0"
 LIVE_PHASES = {"waiting", "submitted", "open", "closing", "uncertain"}
 FINAL_PHASES = {"done", "failed"}
-MAX_ACTIVE = 3
 
 class Fault(Exception):
     pass
@@ -209,8 +208,7 @@ class Engine:
         state = {"id": jid, "job": job, "fingerprint": fingerprint(job), "phase": "done", "code": "OK", "created_at": self.clock()}
         action = job["action"]
         if action == "trade":
-            need(sum(s["phase"] in LIVE_PHASES and s["job"]["action"] == "trade" for s in self.states.values()) < MAX_ACTIVE, "MAX_ACTIVE_COMMANDS")
-            need(not any(s["phase"] in {"submitted", "uncertain"} for s in self.states.values()), "RECONCILE_PREVIOUS_SEND_FIRST")
+            # No fixed command-count cap. Reconcile each send before the next one.
             state.update(phase="waiting", code="WAIT_SIGNAL", last_bar=0,
                          deadline=min(expiry(job["expires_at"]), self.clock()+job.get("signal_timeout_seconds",1800)))
             if job["direction"] == "structure":

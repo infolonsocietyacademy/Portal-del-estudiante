@@ -25,6 +25,15 @@ def valid_id(value):
     import re
     return isinstance(value,str) and re.fullmatch(r"[A-Za-z0-9_-]{1,64}",value) is not None
 
+def validate_control(control, device):
+    """Validate mailbox identity and job IDs without a fixed operation-count cap."""
+    need(isinstance(control, dict) and control.get("schema") == 2 and control.get("device") == device, "INVALID_MAILBOX")
+    need(type(control.get("enabled")) is bool, "INVALID_MAILBOX")
+    jobs = control.get("jobs")
+    need(isinstance(jobs, list) and all(isinstance(j, dict) and valid_id(j.get("id")) for j in jobs), "INVALID_QUEUE")
+    need(len({j["id"] for j in jobs}) == len(jobs), "INVALID_QUEUE")
+    return jobs
+
 def make_trade(config,direction,timeframe,hold_minutes=5,size_mode="configured",size=None,rr=2.0,wait_minutes=30,clock=time.time,identifier=None,sl_distance=None,tp_distance=None):
     need(direction in {"buy","sell","structure"},"INVALID_DIRECTION")
     manual=direction in {"buy","sell"} and sl_distance is not None
@@ -93,10 +102,7 @@ class Mailbox:
                 current=self.github.get(self.path,ref=self.branch)
                 need(current is not None,"RESIDENT_MAILBOX_MISSING")
                 control=json.loads(current[0])
-                need(isinstance(control,dict) and control.get("schema")==2 and control.get("device")==self.device,"INVALID_MAILBOX")
-                jobs=control.get("jobs")
-                need(isinstance(jobs,list) and len(jobs)<=100 and all(isinstance(j,dict) and valid_id(j.get("id")) for j in jobs),"INVALID_QUEUE")
-                need(len({j["id"] for j in jobs})==len(jobs),"INVALID_QUEUE")
+                jobs=validate_control(control,self.device)
                 existing=next((j for j in jobs if j["id"]==job["id"]),None)
                 if existing is not None:
                     need(digest(existing)==digest(job),"TASK_ID_REUSED")
@@ -104,10 +110,12 @@ class Mailbox:
                     return "ALREADY_QUEUED"
                 self.validator(job,self.symbol)
                 need(control.get("enabled") is True,"RESIDENT_MAILBOX_DISABLED")
-                need(len(jobs)<100,"QUEUE_FULL")
                 jobs.append(job)
+                encoded=json.dumps(control,ensure_ascii=False,indent=2).encode()
+                # Match the existing GitHub reader's byte limit, rather than limiting trade count.
+                need(len(encoded)<=700000,"MAILBOX_PAYLOAD_TOO_LARGE")
                 payload={"branch":self.branch,"message":"OLFX local panel: "+job["id"],
-                         "content":base64.b64encode(json.dumps(control,ensure_ascii=False,indent=2).encode()).decode(),"sha":current[1]}
+                         "content":base64.b64encode(encoded).decode(),"sha":current[1]}
                 try:
                     response=self.github.request("PUT",endpoint,payload)
                     need(response is not None,"WRITE_NOT_CONFIRMED")

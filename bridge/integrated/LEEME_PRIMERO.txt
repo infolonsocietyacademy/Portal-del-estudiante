@@ -1,4 +1,4 @@
-OLFX INTEGRADO 2.1.0 - WINDOWS - SOLO DEMO
+OLFX INTEGRADO 2.2.0 - WINDOWS - SOLO DEMO
 
 Una actualizacion de migracion para el Bridge y Residente ya configurados.
 Instala un unico arranque: INICIAR_OLFX.cmd.
@@ -31,8 +31,17 @@ USAR
 - DIAGNOSTICO_OLFX.cmd: muestra procesos, permisos y edad del precio.
 - DETENER_OLFX.cmd: solicita parada ordenada. Las posiciones propias siguen
   gestionandose hasta terminar; no fuerza liquidacion por cerrar el menu.
-- Mantiene limites actuales: DEMO, XAUUSD autorizado, tres solicitudes
-  activas, 1 lote o 2% de riesgo por solicitud.
+- MT5 de ejecucion puede permanecer abierto mientras recibe compras,
+  ventas y entradas por estrategia, con operaciones anteriores abiertas.
+- No fija un maximo de solicitudes activas ni un tope de 100 registros.
+  Cada orden tiene identidad y seguimiento separados. Los envios se
+  confirman uno a uno; no se reenvia una apertura de resultado incierto.
+- El broker, el margen disponible, los recursos de la VPS y el tamano
+  admitido por el transporte siguen condicionando la capacidad real.
+- Conserva DEMO, XAUUSD autorizado, 1 lote o 2% por solicitud, SL/TP
+  y la verificacion de cuenta y permisos.
+- En cuentas hedging permite varias posiciones independientes; en netting
+  conserva el bloqueo de conflictos para no mezclar operaciones ajenas.
 - Si un precio no es reciente, se bloquean nuevas entradas.
 - No garantiza ganancias ni que exista siempre una senal o cotizacion.
 - Cerrar las ventanas o reiniciar Windows puede interrumpir los timers

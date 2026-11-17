@@ -15,7 +15,7 @@ HERE=Path(__file__).resolve().parent
 ROOT=Path(os.environ.get("LOCALAPPDATA",str(Path.home())))/"OLFX_MT5_BRIDGE"
 DATA=ROOT/"resident-v2"
 MANAGED=ROOT/"managed"
-VERSION="2.1.0"
+VERSION="2.2.0"
 PREVIOUS={}
 STOPPED=False
 
@@ -77,7 +77,7 @@ def clone_demo_terminal(source,target,installation_id):
 
 def install_baseline(package,managed):
     package,managed=Path(package),Path(managed)
-    folder=managed/"versions"/"000000-2.1.0"
+    folder=managed/"versions"/"000000-2.2.0"
     folder.parent.mkdir(parents=True,exist_ok=True)
     staging=folder.with_name(".stage-"+str(time.time_ns()))
     shutil.copytree(package/"runtime",staging,ignore=shutil.ignore_patterns("__pycache__","*.pyc"))
@@ -87,7 +87,7 @@ def install_baseline(package,managed):
     for path in folder.rglob("*.py"):
         raw=path.read_bytes()
         records[str(path.relative_to(folder)).replace(os.sep,"/")]={"sha256":hashlib.sha256(raw).hexdigest(),"size":len(raw)}
-    manifest={"schema":1,"sequence":0,"version":"2.1.0","launcher":2,"session_schema":1,"files":records}
+    manifest={"schema":1,"sequence":0,"version":"2.2.0","launcher":2,"session_schema":1,"files":records}
     raw=(json.dumps(manifest,sort_keys=True,indent=2)+"\n").encode()
     (folder/"baseline_manifest.json").write_bytes(raw)
     atomic(managed/"trusted_baseline.json",{"dir":folder.name,"manifest_sha256":hashlib.sha256(raw).hexdigest()})

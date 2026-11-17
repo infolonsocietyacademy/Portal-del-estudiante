@@ -11,7 +11,7 @@ import time
 from process_tools import locked,lock
 from update_handoff import mark_ready,update_pending
 
-VERSION="2.1.0"
+VERSION="2.2.0"
 ROOT=Path(os.environ.get("LOCALAPPDATA",str(Path.home())))/"OLFX_MT5_BRIDGE"
 MANAGED=ROOT/"managed"
 RESIDENT=ROOT/"resident-v2"
