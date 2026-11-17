@@ -57,15 +57,44 @@ class SignalTests(unittest.TestCase):
     def test_no_signal_on_breakout_close(self):
         self.assertIsNone(self.state().step(bar(T+60,o=2000.,h=2004.,c=2003.), higher()))
 
-    def test_no_reuse_of_taken_levels(self):
+    def test_first_signal_cannot_repeat_on_next_candle(self):
         s=self.state()
         self.assertIsNotNone(s.step(buy(),higher()))
         self.assertIsNone(s.step(buy(T+120),higher()))
 
-    def test_invalid_color_still_consumes_level(self):
+    def test_invalid_color_cannot_retry_until_after_an_inside_close(self):
         s=self.state()
         self.assertIsNone(s.step(bar(T+60,o=2001.,l=1997.,c=2000.),higher()))
         self.assertIsNone(s.step(buy(T+120),higher()))
+
+    def test_second_attempt_requires_distinct_inside_close_and_has_no_third(self):
+        for side in (-1, 1):
+            with self.subTest(side=side):
+                s = self.state()
+                sweep = buy if side == 1 else sell
+                first = (bar(T+60, o=2000., h=2001., l=1996., c=1997.) if side == 1
+                         else bar(T+60, o=2000., h=2004., l=1999., c=2003.))
+                self.assertIsNone(s.step(first, higher()))
+                # A candle that crosses the same level can rearm it, but cannot also trigger.
+                self.assertIsNone(s.step(sweep(T+120), higher()))
+                restored = SignalState(state=json.loads(json.dumps(s.dump())))
+                self.assertEqual(restored.step(sweep(T+180), higher())["side"], side)
+                self.assertIsNone(restored.step(bar(T+240), higher()))
+                self.assertIsNone(restored.step(sweep(T+300), higher()))
+
+    def test_recovery_close_must_be_inside_both_h4_edges(self):
+        s = self.state()
+        self.assertIsNone(s.step(bar(T+60, o=2000., l=1996., c=1997.), higher()))
+        self.assertIsNone(s.step(bar(T+120, o=2000., h=2003., c=2002.), higher()))
+        self.assertIsNone(s.step(buy(T+180), higher()))
+        self.assertIsNotNone(s.step(buy(T+240), higher()))
+
+    def test_legacy_consumed_levels_do_not_rearm_on_upgrade(self):
+        old = self.state()
+        old.step(buy(), higher())
+        restored = SignalState(state=old.legacy_dump())
+        restored.step(bar(T+120), higher())
+        self.assertIsNone(restored.step(buy(T+180), higher()))
 
     def test_no_direction_for_two_sided_sweep(self):
         self.assertIsNone(self.state().step(bar(T+60,o=1999.,h=2003.,l=1997.,c=2000.),higher()))
@@ -93,7 +122,7 @@ class SignalTests(unittest.TestCase):
     def test_newest_h4_cannot_be_confirmed_pivot(self):
         self.assertIsNone(self.state(pivots=True).step(buy(),higher()))
 
-    def test_restore_preserves_consumed_levels(self):
+    def test_restore_preserves_wait_for_recovery_close(self):
         s=self.state()
         s.step(buy(),higher())
         restored=SignalState(state=json.loads(json.dumps(s.dump())))
@@ -209,7 +238,70 @@ class BrokerTests(unittest.TestCase):
         self.assertEqual(len(self.m.sent),1)
         s.step();self.assertEqual(len(self.m.sent),1)
 
-    def test_paused_worker_consumes_signal_without_entry(self):
+    def advance(self, strategy, candle):
+        self.rows.append(candle)
+        self.now = candle["time"] + 61.
+        return strategy.step()
+
+    def test_rejected_order_can_retry_after_restart_and_inside_close(self):
+        self.rows[-1] = bar(T+60)
+        strategy = Strategy(self.e, self.base)
+        strategy.step()
+        self.m.next_code = 10006
+        self.assertEqual(self.advance(strategy, buy(T+120)), 'LIQH4_SIGNAL_ACCEPTED')
+        self.assertEqual(self.e.states[strategy.state.pending["job_id"]]["code"], "OPEN_REJECTED")
+        restored = Strategy(self.e, self.base)
+        self.m.next_code = 10009
+        self.assertEqual(self.advance(restored, bar(T+180)), 'LIQH4_WAIT_SIGNAL')
+        self.assertEqual(self.advance(restored, buy(T+240)), 'LIQH4_SIGNAL_ACCEPTED')
+        self.assertEqual(len(self.m.sent), 2)
+        self.assertEqual(len(self.m.pos), 1)
+        self.assertIsNone(restored.state.pending)
+
+    def test_filled_order_locks_level_even_after_position_closes(self):
+        self.rows[-1] = bar(T+60)
+        strategy = Strategy(self.e, self.base)
+        strategy.step()
+        self.advance(strategy, buy(T+120))
+        position = self.m.pos.pop()
+        self.m.deals.append(NS(entry=1, position_id=position.ticket, magic=position.magic,
+                               symbol=position.symbol, volume=position.volume, price=2003.,
+                               profit=1., commission=0., swap=0., fee=0.))
+        restored = Strategy(self.e, self.base)
+        self.assertEqual(self.advance(restored, bar(T+180)), 'LIQH4_WAIT_SIGNAL')
+        self.assertEqual(self.advance(restored, buy(T+240)), 'LIQH4_WAIT_SIGNAL')
+        self.assertEqual(len(self.m.sent), 1)
+        self.assertIsNone(restored.state.pending)
+        legacy = json.loads(restored.legacy_path.read_text())
+        self.assertEqual(legacy["schema"], 1)
+        self.assertEqual(set(legacy["lows_taken"]), restored.state.lows_taken)
+
+    def test_uncertain_order_does_not_rearm(self):
+        self.rows[-1] = bar(T+60)
+        strategy = Strategy(self.e, self.base)
+        strategy.step()
+        self.m.next_code = None
+        self.advance(strategy, buy(T+120))
+        restored = Strategy(self.e, self.base)
+        self.advance(restored, bar(T+180))
+        self.advance(restored, buy(T+240))
+        self.assertEqual(len(self.m.sent), 1)
+        self.assertIsNotNone(restored.state.pending)
+
+    def test_rollback_cursor_supersedes_older_retry_state(self):
+        self.rows[-1] = bar(T+60)
+        strategy = Strategy(self.e, self.base)
+        strategy.step()
+        self.advance(strategy, bar(T+120, o=2001., l=1997., c=2000.))
+        legacy = strategy.state.legacy_dump()
+        legacy["last_time"] = T+180
+        strategy.legacy_path.write_text(json.dumps(legacy))
+        restored = Strategy(self.e, self.base)
+        self.assertEqual(restored.state.last_time, T+180)
+        self.assertFalse(restored.state.lows_retry)
+        self.assertTrue(restored.state.lows_taken)
+
+    def test_paused_worker_does_not_send_last_signal_after_resuming(self):
         self.rows[-1]=bar(T+60)
         s=Strategy(self.e,self.base);s.step()
         self.rows.append(buy(T+120));self.now=T+181.

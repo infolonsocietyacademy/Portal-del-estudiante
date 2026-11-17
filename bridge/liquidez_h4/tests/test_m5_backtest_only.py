@@ -23,10 +23,10 @@ def bar(t,o=2000.,h=2001.,l=1999.,c=2000.):
     return dict(time=t,open=o,high=h,low=l,close=c)
 
 class M5BacktestOnly(unittest.TestCase):
-    def test_all_live_execution_files_remain_identical_to_signed_m1(self):
+    def test_m1_execution_engine_and_guards_remain_identical_to_signed_m1(self):
         doc=json.loads((BASE/'release_1.0.21.json').read_bytes())
         with zipfile.ZipFile(io.BytesIO(base64.b64decode(doc['payload']['archive']))) as z:
-            for name in ('gold_scalp_core.py','liquidez_h4.py','gold_scalp_runner.py',
+            for name in ('gold_scalp_core.py','gold_scalp_runner.py',
                          'gold_scalp.py','market_feed.py','gold_settings.py'):
                 self.assertEqual(z.read(name),(BASE/'runtime'/name).read_bytes(),name)
 

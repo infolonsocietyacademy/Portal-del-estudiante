@@ -27,7 +27,7 @@ class ReleaseTests(unittest.TestCase):
         self.assertEqual(set(paths),set(doc['payload']['files']))
         with zipfile.ZipFile(io.BytesIO(raw)) as z:
             for name,path in paths.items():
-                if name != 'bridge_agent.py':  # The next release adds read-only H4 status.
+                if name not in {'bridge_agent.py', 'liquidez_h4.py'}:  # Pending 1.0.23 changes.
                     self.assertEqual(z.read(name),path.read_bytes())
                 self.assertNotIn(b'-----BEGIN PRIVATE KEY-----',z.read(name))
                 self.assertNotIn(b'-----BEGIN RSA PRIVATE KEY-----',z.read(name))

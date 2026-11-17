@@ -4,11 +4,16 @@ Reemplazo del motor Breakout/Fake Breakout por la estrategia del archivo
 OLFX_LIQUIDEZ_H4_ESTRATEGIA.pine. Runtime 1.0.20; cuenta DEMO emparejada,
 XAUUSD, configuracion de lote/riesgo existente sin ampliacion de limites.
 
-Compra: primera perforacion de un LOW de las ultimas tres H4 cerradas,
+Compra por perforación de un LOW de las últimas tres H4 cerradas,
 cierre M1 por encima del nivel, cierre anterior dentro y vela alcista.
-Venta: primera perforacion de un HIGH H4 y confirmacion inversa con vela bajista.
+Venta por perforación de un HIGH H4 y confirmación inversa con vela bajista.
 Si hay rechazo de ambos lados en la misma vela se descarta la entrada.
-Se consumen los niveles en su primera perforacion aunque no haya entrada.
+Si la primera perforación queda sin entrada, una vela M1 posterior debe cerrar
+estrictamente dentro del rango de su H4 para habilitar un segundo intento.
+La segunda perforación agota el nivel aunque tampoco genere entrada.
+El nivel queda agotado si el primer intento abrió una posición. Una orden
+pendiente o incierta bloquea el reintento mientras se reconcilia con el bróker.
+Los niveles agotados por la versión anterior conservan ese estado al actualizar.
 La opcion de pivotes existe en el motor puro; por defecto esta desactivada,
 igual que en Pine. Minimo de barrida: un tick. Buffer del SL: cinco ticks.
 
