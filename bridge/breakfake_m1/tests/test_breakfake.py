@@ -87,6 +87,26 @@ class Execution(unittest.TestCase):
   return dict(id='bf-fixture',action='trade',symbol='XAUUSD',direction='breakfake',timeframe='M1',signal_bar=self.engine.bf_event['time'],
               bf_key=self.engine.bf_event['key'],hold_seconds=0,rr=1.,expires_at=datetime.fromtimestamp(self.now()+60,timezone.utc).isoformat(),**kw)
  def open(self):self.engine.accept(self.job());self.engine.tick();self.engine.tick()
+ def test_old_crt_cannot_create_a_new_order(self):
+  job=self.job();job.update(direction='crt',timeframe='M5',crt_setup=BASE)
+  job.pop('bf_key')
+  with self.assertRaisesRegex(Fault,'INVALID_DIRECTION'):self.engine.accept(job)
+  self.assertFalse(self.mt.sent)
+ def test_persisted_crt_cannot_submit_even_without_new_validation(self):
+  job=self.job();job['direction']='crt'
+  with self.assertRaisesRegex(Fault,'RETIRED_STRATEGY'):
+   self.engine.request({'job':job})
+  self.assertFalse(self.mt.sent)
+ def test_retiring_crt_does_not_force_close_existing_positions(self):
+  self.open();state=self.engine.states['bf-fixture'];state['job']['direction']='crt'
+  self.engine.save(state);sent=len(self.mt.sent)
+  self.engine.tick()
+  self.assertEqual(len(self.mt.sent),sent)
+  self.assertEqual(len(self.mt.pos),1)
+ def test_old_crt_signal_functions_are_removed(self):
+  import gold_scalp_core
+  self.assertFalse(hasattr(gold_scalp_core,'crt_context'))
+  self.assertFalse(hasattr(gold_scalp_core,'crt_signal'))
  def test_buy_has_structural_sl_and_full_tp1(self):
   self.open();r=self.mt.sent[0]
   self.assertAlmostEqual(r['sl'],1998.6);self.assertAlmostEqual(r['tp']-r['price'],r['price']-r['sl'])

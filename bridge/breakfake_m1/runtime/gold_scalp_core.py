@@ -7,7 +7,7 @@ from pathlib import Path
 import re
 import time
 
-VERSION = "1.0.16"
+VERSION = "1.0.17"
 LIVE_PHASES = {"waiting", "submitted", "open", "closing", "uncertain"}
 FINAL_PHASES = {"done", "failed"}
 
@@ -42,9 +42,9 @@ def validate(job, symbol, now=None):
     action = job.get("action")
     allowed = {"id", "action", "expires_at"}
     if action == "trade":
-        allowed |= {"symbol", "direction", "timeframe", "hold_seconds", "signal_timeout_seconds", "lots", "risk_percent", "rr", "sl_distance", "tp_distance", "signal_bar", "crt_setup", "bf_key"}
+        allowed |= {"symbol", "direction", "timeframe", "hold_seconds", "signal_timeout_seconds", "lots", "risk_percent", "rr", "sl_distance", "tp_distance", "signal_bar", "bf_key"}
         need(job.get("symbol") == symbol, "SYMBOL_NOT_LOCALLY_APPROVED")
-        need(job.get("direction") in {"buy", "sell", "structure", "crt", "breakfake"}, "INVALID_DIRECTION")
+        need(job.get("direction") in {"buy", "sell", "structure", "breakfake"}, "INVALID_DIRECTION")
         manual = job.get("direction") in {"buy", "sell"} and "sl_distance" in job
         need(job.get("timeframe") in {"M1", "M5"} or (manual and "timeframe" not in job), "INVALID_TIMEFRAME")
         if "sl_distance" in job:
@@ -53,9 +53,7 @@ def validate(job, symbol, now=None):
             need(manual and finite(job["tp_distance"], 0.1, 250.0), "INVALID_MANUAL_TARGET")
         need(type(job.get("hold_seconds")) is int and job["hold_seconds"] == 0, "BROKER_SL_TP_ONLY")
         if "signal_bar" in job:
-            need(job["direction"] in {"structure", "crt", "breakfake"} and type(job["signal_bar"]) is int and job["signal_bar"] > 0, "INVALID_SIGNAL_BAR")
-        if job["direction"] == "crt":
-            need(job.get("timeframe") == "M5" and "crt_setup" in job and "signal_bar" in job, "CRT_M5_SETUP_REQUIRED")
+            need(job["direction"] in {"structure", "breakfake"} and type(job["signal_bar"]) is int and job["signal_bar"] > 0, "INVALID_SIGNAL_BAR")
         if job['direction']=='breakfake':
             need(job.get('timeframe')=='M1' and type(job.get('signal_bar')) is int and job['signal_bar']%60==0,
                  'BF_CLOSED_M1_REQUIRED')
@@ -63,8 +61,6 @@ def validate(job, symbol, now=None):
             need(job.get('rr')==1.0, 'BF_TP1_ONE_R_REQUIRED')
         elif 'bf_key' in job:
             raise Fault('BF_EVENT_KEY_WRONG_DIRECTION')
-        if "crt_setup" in job:
-            need(job["direction"] == "crt" and type(job["crt_setup"]) is int and job["crt_setup"] > 0, "INVALID_CRT_SETUP")
         need(type(job.get("signal_timeout_seconds", 1800)) is int and 30 <= job.get("signal_timeout_seconds", 1800) <= 3600, "INVALID_SIGNAL_TIMEOUT")
         need(not ("lots" in job and "risk_percent" in job), "ONE_SIZE_MODE_REQUIRED")
         if "lots" in job:
@@ -100,94 +96,6 @@ def structure_signal(rates):
     if highs[0] < highs[1] and lows[0] < lows[1] and previous["close"] >= lows[0] > bar["close"] and bar["close"] < bar["open"]:
         return -1, highs[0], lows[0]
     return 0, 0.0, 0.0
-
-def crt_context(rates):
-    """H1 C1/C2 closed, then first M5 MSS and retest in C3/C4. No future bars.
-
-    Rates are newest CLOSED M5 first, in the broker's bar clock. Missing
-    missing M5 bars invalidate an H1 candle; a partial H1 is never a C1 or C2.
-    This is the deterministic initial CRT variant, without SMT/FVG filters.
-    """
-    out = {"side": 0, "sweep": 0.0, "level": 0.0, "setup": 0,
-           "state": "WAIT_CRT_H1", "target": 0.0}
-    if len(rates) < 36:
-        return out
-    bars = sorted(rates, key=lambda r: r["time"])
-    times = [b["time"] for b in bars]
-    if len(set(times)) != len(times) or any(t % 300 for t in times):
-        return {**out, "state": "WAIT_CRT_HISTORY"}
-    asof = bars[-1]["time"] + 300
-    buckets = {}
-    for b in bars:
-        buckets.setdefault(b["time"] // 3600 * 3600, []).append(b)
-    hours = {}
-    for stamp, group in buckets.items():
-        if stamp + 3600 <= asof and [b["time"] for b in group] == list(range(stamp, stamp+3600, 300)):
-            hours[stamp] = {"time": stamp, "open": group[0]["open"],
-                            "high": max(b["high"] for b in group),
-                            "low": min(b["low"] for b in group), "close": group[-1]["close"]}
-    candidate = None
-    for stamp in sorted(hours):
-        if stamp - 3600 not in hours:
-            continue
-        c1, c2 = hours[stamp-3600], hours[stamp]
-        inside = c1["low"] < c2["close"] < c1["high"]
-        bull = inside and c2["low"] < c1["low"] and c2["high"] <= c1["high"]
-        bear = inside and c2["high"] > c1["high"] and c2["low"] >= c1["low"]
-        if bull or bear:
-            candidate = (c1, c2, 1 if bull else -1)
-    if candidate is None:
-        return out
-    c1, c2, side = candidate
-    begin = c2["time"] + 3600
-    out.update(setup=c2["time"], sweep=c2["low"] if side>0 else c2["high"],
-               target=c1["high"] if side>0 else c1["low"], state="WAIT_MSS_M5")
-    if asof > begin + 7200:
-        return {**out, "state": "CRT_EXPIRED"}
-    broken = None
-    for i, bar in enumerate(bars):
-        if bar["time"] < begin:
-            continue
-        if bar["time"] >= begin + 7200:
-            break
-        if (bar["low"] <= out["sweep"] if side>0 else bar["high"] >= out["sweep"]):
-            return {**out, "state": "CRT_SWEEP_INVALIDATED"}
-        if (bar["high"] >= out["target"] if side>0 else bar["low"] <= out["target"]):
-            return {**out, "state": "CRT_RANGE_TARGET_REACHED"}
-        if broken is not None:
-            break_index, level = broken
-            if bar["time"] - bars[break_index]["time"] > 3000:
-                return {**out, "state": "CRT_RETEST_EXPIRED"}
-            retest = (bar["low"] <= level <= bar["high"] and
-                      (bar["close"] > level and bar["close"] > bar["open"] if side>0 else
-                       bar["close"] < level and bar["close"] < bar["open"]))
-            if retest:
-                # Only the first retest can signal. Later candles cannot re-arm it.
-                return {**out, "side": side if i == len(bars)-1 else 0,
-                        "level": level, "state": "CRT_RETEST_CONFIRMED" if i == len(bars)-1 else "CRT_SETUP_CONSUMED"}
-            out.update(level=level, state="WAIT_RETEST_M5")
-            continue
-        field = "high" if side>0 else "low"
-        for j in range(i-3, max(-1, i-64), -1):
-            if j < 2 or bars[j]["time"] < c2["time"]:
-                break
-            value = bars[j][field]
-            if all(value > bars[j+k][field] if side>0 else value < bars[j+k][field] for k in (-2,-1,1,2)):
-                previous = bars[i-1]["close"]
-                crossing = (previous <= value < bar["close"] and bar["close"] > bar["open"] if side>0 else
-                            previous >= value > bar["close"] and bar["close"] < bar["open"])
-                if crossing:
-                    broken = (i, value)
-                    out.update(level=value, state="WAIT_RETEST_M5")
-                # Only the most recent confirmed pivot defines the MSS level.
-                break
-    return out
-
-
-def crt_signal(rates):
-    value = crt_context(rates)
-    return value["side"], value["sweep"], value["level"]
-
 
 def closed_atr(rates):
     need(len(rates) >= 15, "WAIT_HISTORY")
@@ -321,7 +229,7 @@ class Engine:
             # No fixed command-count cap. Reconcile each send before the next one.
             state.update(phase="waiting", code="WAIT_SIGNAL", last_bar=0,
                          deadline=min(expiry(job["expires_at"]), self.clock()+job.get("signal_timeout_seconds",1800)))
-            if job["direction"] in {"structure", "crt", "breakfake"}:
+            if job["direction"] in {"structure", "breakfake"}:
                 try:
                     state["last_bar"] = job["signal_bar"] - 1 if "signal_bar" in job else self.bars(job)[0]["time"]
                 except Fault:
@@ -342,6 +250,7 @@ class Engine:
 
     def request(self, state):
         job, m = state["job"], self.mt5
+        need(job.get("direction") != "crt", "RETIRED_STRATEGY")
         account = self.guard(trade=True)
         need(not any(other["id"] != state["id"] and other["phase"] in {"submitted", "uncertain"} for other in self.states.values()), "WAIT_RECONCILIATION")
         symbol = job["symbol"]
@@ -366,7 +275,7 @@ class Engine:
         else:
             rates = self.bars(job)
             atr = closed_atr(rates)
-            if job["direction"] in {"structure", "crt", "breakfake"}:
+            if job["direction"] in {"structure", "breakfake"}:
                 seconds = 60 if job["timeframe"] == "M1" else 300
                 if "signal_bar" in job:
                     need(rates[0]["time"] == job["signal_bar"], "WAIT_SIGNAL_BAR")
@@ -383,11 +292,6 @@ class Engine:
                     side=event['side']
                     swing=event['sl_bid']+(tick.ask-tick.bid if side<0 else 0.)
                     need(side in (-1,1), 'BF_EVENT_NOT_VERIFIED')
-                elif job["direction"] == "crt":
-                    context = crt_context(rates)
-                    need(context["setup"] == job.get("crt_setup"), "WAIT_CRT_SETUP")
-                    side, swing, level = context["side"], context["sweep"], context["level"]
-                    need(side != 0, context["state"])
                 else:
                     side, swing, level = structure_signal(rates)
                     need(side != 0, "WAIT_STRUCTURE")
@@ -402,7 +306,7 @@ class Engine:
                 need(abs(entry-event['entry'])<=max(.25*event['atr'],self.config['max_spread_price']), 'BF_ENTRY_MOVED_TOO_FAR')
                 risk=side*(entry-swing)
                 need(risk>=gap, 'BF_STRUCTURAL_STOP_TOO_CLOSE')
-            cap = self.config["max_stop_price"] if job["direction"] in {'crt','breakfake'} else min(4*atr,self.config["max_stop_price"])
+            cap = self.config["max_stop_price"] if job["direction"] == 'breakfake' else min(4*atr,self.config["max_stop_price"])
             need(finite(risk, 1e-8, cap), "WAIT_STOP_FILTER")
         step = float(info.trade_tick_size)
         need(step > 0, "INVALID_TICK_SIZE")
@@ -422,8 +326,6 @@ class Engine:
             target_d=entry_d+side*risk_d
             tp=float((target_d/grid).to_integral_value(rounding=ROUND_CEILING if side>0 else ROUND_FLOOR)*grid)
             need(side*(entry-sl)>=gap and side*(tp-entry)>=gap, 'BF_INVALID_PROTECTION')
-        if job["direction"] == "crt":
-            need((context["target"]-tp if side>0 else tp-context["target"]) >= 0, "CRT_INSUFFICIENT_ROOM_FOR_RR")
         order_type = m.ORDER_TYPE_BUY if side>0 else m.ORDER_TYPE_SELL
         loss = m.order_calc_profit(order_type,symbol,float(info.volume_min),entry,sl)
         need(loss is not None and finite(loss,-1e12,-1e-12), "PROFIT_CALC_UNAVAILABLE")

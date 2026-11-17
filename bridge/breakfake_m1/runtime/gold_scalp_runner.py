@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 import sys
 import time
-from gold_scalp_core import Engine, Fault, VERSION, atomic, crt_context
+from gold_scalp_core import Engine, Fault, VERSION, atomic
 from gold_settings import load_gold_settings
 
 ROOT = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "OLFX_MT5_BRIDGE"

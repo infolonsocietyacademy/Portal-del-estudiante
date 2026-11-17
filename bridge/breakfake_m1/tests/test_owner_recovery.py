@@ -18,21 +18,21 @@ class OwnerRecovery(unittest.TestCase):
   cls.owner=mod('owner_recovery',BASE/'recovery/install_owner.py')
   cls.boot=mod('owner_bootstrap_fixture',BASE/'recovery/bridge_bootstrap.py')
  def test_signed_recovery_release_verifies_and_matches_all_runtime_files(self):
-  raw=(BASE/'recovery/release_1.0.16.json').read_bytes()
+  raw=(BASE/'recovery/release_1.0.17.json').read_bytes()
   doc,archive=self.boot.parse_release(raw,self.owner.NEW_KEY)
   import zipfile,io
   with zipfile.ZipFile(io.BytesIO(archive)) as z:
-   self.assertEqual(doc['payload']['version'],'1.0.16')
+   self.assertEqual(doc['payload']['version'],'1.0.17')
    for name in z.namelist():self.assertEqual(z.read(name),(BASE/'runtime'/name).read_bytes(),name)
  def test_new_release_is_rejected_by_original_trust_until_owner_installs_new_key(self):
-  raw=(BASE/'recovery/release_1.0.16.json').read_bytes()
+  raw=(BASE/'recovery/release_1.0.17.json').read_bytes()
   with self.assertRaises(self.boot.UpdateError):self.boot.parse_release(raw,self.owner.OLD_KEY)
  def test_recovery_bootstrap_is_identical_to_original(self):
   raw=(BASE/'recovery/bridge_bootstrap.py').read_bytes()
   self.assertEqual(hashlib.sha256(raw).hexdigest(),self.owner.BOOTSTRAP_SHA)
   self.assertEqual(raw,(BASE.parent/'original/bridge_bootstrap.py').read_bytes())
  def test_release_hash_is_pinned_in_owner_installer(self):
-  raw=(BASE/'recovery/release_1.0.16.json').read_bytes()
+  raw=(BASE/'recovery/release_1.0.17.json').read_bytes()
   self.assertEqual(hashlib.sha256(raw).hexdigest(),self.owner.RELEASE_SHA)
  def test_powershell_handoff_pins_exact_download_bytes(self):
   text=(BASE/'recovery/INSTALAR_BREAK_FAKE.ps1').read_text()
@@ -41,12 +41,12 @@ class OwnerRecovery(unittest.TestCase):
   for name,digest in pins.items():
    self.assertEqual(hashlib.sha256((BASE/'recovery'/name).read_bytes()).hexdigest(),digest,name)
  def test_staging_does_not_activate_or_overwrite_original_signed_version(self):
-  raw=(BASE/'recovery/release_1.0.16.json').read_bytes()
+  raw=(BASE/'recovery/release_1.0.17.json').read_bytes()
   with TemporaryDirectory() as temp:
    root=Path(temp);old=root/'current_runtime.json';old.write_text('{"dir":"000014-1.0.14"}')
    store=self.boot.ReleaseStore(root,self.owner.NEW_KEY);slug=store.install(raw)
    self.assertEqual(old.read_text(),'{"dir":"000014-1.0.14"}')
-   self.assertEqual(slug,'000016-1.0.16')
+   self.assertEqual(slug,'000017-1.0.17')
  def test_material_configuration_is_required_and_only_hashed(self):
   with TemporaryDirectory() as temp:
    root=Path(temp)

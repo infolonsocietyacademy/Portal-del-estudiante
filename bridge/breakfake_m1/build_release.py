@@ -1,4 +1,4 @@
-"""Build a launcher-compatible release using the ORIGINAL private signing key.
+"""Build a launcher-compatible release using the configured private signing key.
 
 Never accepts a replacement trust root or changes the installed launcher/channel.
 Run locally: python build_release.py --key /private/path/key.pem --output release.json
@@ -21,11 +21,11 @@ def build(key_path,public_key_path):
     from cryptography.hazmat.primitives import hashes,serialization
     from cryptography.hazmat.primitives.asymmetric import padding,rsa
     key=serialization.load_pem_private_key(Path(key_path).read_bytes(),password=None)
-    if not isinstance(key,rsa.RSAPrivateKey):raise ValueError('ORIGINAL_RSA_KEY_REQUIRED')
+    if not isinstance(key,rsa.RSAPrivateKey):raise ValueError('RSA_KEY_REQUIRED')
     expected=json.loads(Path(public_key_path).read_text())
     pub=key.public_key().public_numbers()
     if pub.n!=int(expected['n'],16) or pub.e!=expected['e']:
-        raise ValueError('KEY_DOES_NOT_MATCH_INSTALLED_LAUNCHER')
+        raise ValueError('KEY_DOES_NOT_MATCH_SELECTED_PUBLIC_KEY')
     files={};archive=io.BytesIO()
     with zipfile.ZipFile(archive,'w',compression=zipfile.ZIP_DEFLATED) as z:
         for p in sorted((ROOT/'runtime').rglob('*')):
@@ -36,7 +36,7 @@ def build(key_path,public_key_path):
             info.compress_type=zipfile.ZIP_DEFLATED
             z.writestr(info,raw)
     raw=archive.getvalue()
-    payload=dict(schema=1,sequence=16,version='1.0.16',launcher=1,session_schema=1,
+    payload=dict(schema=1,sequence=17,version='1.0.17',launcher=1,session_schema=1,
                  archive=base64.b64encode(raw).decode(),archive_sha256=hashlib.sha256(raw).hexdigest(),files=files)
     signature=key.sign(canonical(payload),padding.PKCS1v15(),hashes.SHA256())
     return canonical(dict(payload=payload,signature=base64.b64encode(signature).decode()))

@@ -19,7 +19,7 @@ $token = [Text.Encoding]::UTF8.GetString($clearBytes)
 $headers = @{ Authorization = ('Bearer ' + $token); Accept = 'application/vnd.github+json'; 'User-Agent' = 'OLFX-Owner-Recovery/1'; 'X-GitHub-Api-Version' = '2022-11-28' }
 $base = 'https://api.github.com/repos/infolonsocietyacademy/Portal-del-estudiante/contents/bridge/breakfake_m1/recovery/'
 $items = @(
-    @{ Name = 'install_owner.py'; Sha256 = 'cb0a598c730c4241cde21020f17ac5f260755ab1bad3211c6a62708e8d6b1c22' },
+    @{ Name = 'install_owner.py'; Sha256 = '4bc56efd10716e15a49e89f06210e02ae66128d86092c1f4c132690b8bc77151' },
     @{ Name = 'bridge_bootstrap.py'; Sha256 = '5ce19d70698bc35bcc89dc58f400a8742419c1aa92ee4c34acb4f780540bd526' }
 )
 try {

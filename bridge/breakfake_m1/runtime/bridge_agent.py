@@ -22,7 +22,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-VERSION = "1.0.16"
+VERSION = "1.0.17"
 ROOT = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "OLFX_MT5_BRIDGE"
 try:
     _mailbox = json.loads((ROOT / "mailbox.json").read_text(encoding="utf-8"))
