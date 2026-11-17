@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.11",
   "state": "online",
-  "updated_at": "2026-11-17T02:02:16+00:00",
+  "updated_at": "2026-11-17T02:03:20+00:00",
   "gold_strategy": {
     "schema": 1,
     "version": "1.0.10",
@@ -29,7 +29,7 @@
     "snapshot_fresh": false
   },
   "updater": {
-    "state": "restarting"
+    "state": "running"
   },
   "diagnostics": {
     "scope": "recent_logs",
