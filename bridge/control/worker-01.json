@@ -613,6 +613,11 @@
       "id": "start-breakfake-m1-tp1-mwk9qyom",
       "action": "demo_gold",
       "expires_at": "2026-11-17T06:00:42.934Z"
+    },
+    {
+      "id": "verify-breakfake-m1-live-mwk9sb8s",
+      "action": "demo_structure_status",
+      "expires_at": "2026-11-17T05:56:45.868Z"
     }
   ]
 }
