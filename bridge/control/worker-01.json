@@ -538,6 +538,11 @@
       "id": "xau-m1-backtest-30d-mwk35hbx",
       "action": "gold_backtest_30d",
       "expires_at": "2026-11-17T02:56:02.973Z"
+    },
+    {
+      "id": "backtest-progress-mwk36co1",
+      "action": "gold_backtest_status",
+      "expires_at": "2026-11-17T02:56:43.585Z"
     }
   ]
 }
