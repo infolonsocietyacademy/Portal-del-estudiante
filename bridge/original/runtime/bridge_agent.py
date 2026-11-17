@@ -22,7 +22,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-VERSION = "1.0.11"
+VERSION = "1.0.12"
 ROOT = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "OLFX_MT5_BRIDGE"
 try:
     _mailbox = json.loads((ROOT / "mailbox.json").read_text(encoding="utf-8"))
@@ -31,7 +31,7 @@ except (OSError, ValueError):
 REPO = _mailbox.get("repository", "OWNER/REPOSITORY")
 BRANCH = _mailbox.get("branch", "olfx-mt5-bridge")
 DEVICE = _mailbox.get("device", "worker-01")
-ACTIONS = {"ping", "diagnose", "compile", "backtest", "demo_roundtrip", "demo_structure", "demo_structure_status", "demo_gold", "demo_gold_once", "demo_gold_stop"}
+ACTIONS = {"ping", "diagnose", "compile", "backtest", "demo_roundtrip", "demo_structure", "demo_structure_status", "demo_gold", "demo_gold_once", "demo_gold_stop", "gold_backtest_30d", "gold_backtest_status"}
 ROOT = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "OLFX_MT5_BRIDGE"
 
 
@@ -79,7 +79,7 @@ def validate_task(job, current=None):
     require(re.fullmatch(r"[a-zA-Z0-9_-]{1,64}", str(job.get("id", ""))), "INVALID_TASK_ID")
     require(job.get("action") in ACTIONS, "ACTION_NOT_ALLOWED")
     require(utc_date(job.get("expires_at")) > (current or datetime.now(timezone.utc)), "TASK_EXPIRED")
-    if job["action"] in {"ping", "diagnose", "demo_roundtrip", "demo_structure", "demo_structure_status", "demo_gold", "demo_gold_once", "demo_gold_stop"}:
+    if job["action"] in {"ping", "diagnose", "demo_roundtrip", "demo_structure", "demo_structure_status", "demo_gold", "demo_gold_once", "demo_gold_stop", "gold_backtest_30d", "gold_backtest_status"}:
         require(set(job) <= {"id", "action", "expires_at"}, "UNEXPECTED_TASK_FIELD")
         return job
     require(re.fullmatch(r"bridge/eas/[A-Za-z0-9_-]{1,64}\.mq5", str(job.get("source_path", ""))), "INVALID_SOURCE_PATH")
@@ -465,6 +465,10 @@ def find_fresh_report(terminal, stem, since_epoch):
 def status_snapshot(root, state):
     value = {"schema": 1, "version": VERSION, "state": state, "updated_at": now()}
     if state == "online":
+        from gold_backtest import status as backtest_status
+        backtest = backtest_status(root)
+        if backtest:
+            value["backtest"] = backtest
         from gold_scalp import status
         scalp = status(root)
         if scalp:
@@ -501,6 +505,14 @@ def tester_ini(job, local_demo=None):
 
 
 def execute(job, root, gh):
+    if job["action"] == "gold_backtest_30d":
+        from gold_backtest import start
+        return start(job, root, sys.modules[__name__])
+    if job["action"] == "gold_backtest_status":
+        from gold_backtest import status
+        value = status(root)
+        require(value is not None, "NO_BACKTEST_RESULT")
+        return value
     if job["action"] == "ping":
         return {"code": "PONG", "version": VERSION}
     if job["action"] == "demo_roundtrip":
