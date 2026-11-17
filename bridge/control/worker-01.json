@@ -478,6 +478,16 @@
       "id": "verify-20261117-0024-diagnose",
       "action": "diagnose",
       "expires_at": "2026-11-17T00:32:00Z"
+    },
+    {
+      "id": "restore-20261117-0057-ping",
+      "action": "ping",
+      "expires_at": "2026-11-17T01:05:00Z"
+    },
+    {
+      "id": "restore-20261117-0057-diagnose",
+      "action": "diagnose",
+      "expires_at": "2026-11-17T01:05:00Z"
     }
   ]
 }
