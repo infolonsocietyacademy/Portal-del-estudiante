@@ -1,0 +1,57 @@
+OLFX INTEGRADO 2.1.0 - WINDOWS - SOLO DEMO
+
+Una actualizacion de migracion para el Bridge y Residente ya configurados.
+Instala un unico arranque: INICIAR_OLFX.cmd.
+Mantiene separados PANEL_ORDENES.cmd (manual) y ESTRATEGIA.cmd (estructura).
+
+ANTES DE INSTALAR
+- Deja terminar las posiciones, ordenes y solicitudes activas.
+- Usa el mismo usuario de Windows de la instalacion actual.
+- OLFX CONNECT y los MT5 de los estudiantes permanecen funcionando.
+- El instalador comprueba la cuenta DEMO y no envia operaciones.
+
+INSTALAR
+1. Extrae todo el ZIP y abre la carpeta OLFX_ACTUALIZACION_INTEGRADA.
+2. Ejecuta INSTALAR_ACTUALIZACION.cmd.
+3. El instalador verifica archivos, solicita parada ordenada y cierra SOLO
+   la copia propia mt5-test cuando la cuenta esta sin posiciones ni ordenes.
+4. Crea mt5-execution reutilizando LOCALMENTE los ejecutables, datos y
+   configuracion privada de esa DEMO. No copia perfiles de EAs.
+   Ninguna credencial se publica ni se envia a otro servicio.
+5. mt5-test queda para compilar/backtesting; mt5-execution para las ordenes.
+6. El diagnostico verifica que la nueva terminal sea la DEMO autorizada.
+   Si MT5 bloquea trading Python, hay que habilitarlo en esa copia DEMO.
+7. Se abre INICIAR_OLFX.cmd, que mantiene Bridge y Residente funcionando.
+8. Los accesos quedan en el escritorio y en %LOCALAPPDATA%\OLFX_MT5_BRIDGE.
+
+USAR
+- INICIAR_OLFX.cmd: un solo arranque y supervision de ambos procesos.
+- PANEL_ORDENES.cmd: comprar/vender manualmente, SL/TP y cierres propios.
+- ESTRATEGIA.cmd: logica actual de ruptura confirmada M1/M5.
+- DIAGNOSTICO_OLFX.cmd: muestra procesos, permisos y edad del precio.
+- DETENER_OLFX.cmd: solicita parada ordenada. Las posiciones propias siguen
+  gestionandose hasta terminar; no fuerza liquidacion por cerrar el menu.
+- Mantiene limites actuales: DEMO, XAUUSD autorizado, tres solicitudes
+  activas, 1 lote o 2% de riesgo por solicitud.
+- Si un precio no es reciente, se bloquean nuevas entradas.
+- No garantiza ganancias ni que exista siempre una senal o cotizacion.
+- Cerrar las ventanas o reiniciar Windows puede interrumpir los timers
+  locales; SL/TP del broker permanecen. Este paquete no configura inicio
+  automatico de Windows sin solicitarlo.
+
+ACTUALIZACIONES
+- Conserva el actualizador firmado original y su clave publica.
+- La parte integrada tambien comprueba firmas con la misma clave publica.
+- Una nueva version integrada debe publicarse FIRMADA en su canal compatible.
+- La instalacion manual inicial fija un baseline local verificado por hashes.
+  El actualizador remoto nunca admite una release sin firma.
+- Aplica actualizaciones al quedar los agentes sin trabajo activo y puede
+  volver a la version anterior si la nueva no confirma su arranque.
+- La clave privada de firma NO esta en la VPS, el ZIP ni el repositorio.
+
+VALIDACION
+Incluye pruebas con broker simulado, bloqueos reales de Windows,
+aislamiento de carpetas, supervisores y verificacion de firmas.
+Una validacion automatizada no demuestra por si sola que todo funcione
+en tu VPS: al instalar se deben comprobar cuenta, permisos y cotizaciones.
+Escribe en el chat "OLFX integrado encendido; verifica ambos agentes".
