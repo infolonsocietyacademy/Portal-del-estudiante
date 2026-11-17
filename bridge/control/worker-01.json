@@ -2,5 +2,16 @@
   "schema": 1,
   "device": "worker-01",
   "enabled": true,
-  "jobs": []
+  "jobs": [
+    {
+      "id": "verify-live-20261117-0406-ping",
+      "action": "ping",
+      "expires_at": "2026-11-17T08:16:00.000Z"
+    },
+    {
+      "id": "verify-live-20261117-0406-strategy",
+      "action": "demo_structure_status",
+      "expires_at": "2026-11-17T08:16:00.000Z"
+    }
+  ]
 }
