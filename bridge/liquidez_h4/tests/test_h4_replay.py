@@ -37,6 +37,28 @@ class H4Replay(unittest.TestCase):
             self.assertAlmostEqual(order['tp']-order['price'],order['price']-order['sl'])
             replay.tick(T+121,order['tp'],order['tp']+.16)
             self.assertEqual(replay.metrics()['wins'],1)
+    def test_replay_opens_after_second_sweep(self):
+        with TemporaryDirectory() as tmp:
+            info = FakeMT5(lambda: T, Path(tmp)).info
+            info.trade_contract_size = 100.
+            rows = [bar(T+i*60) for i in range(-120, 1)] + [
+                bar(T+60, 2000., 2001., 1996., 1997.),  # Failed first sweep.
+                bar(T+120),  # Closes inside and arms the retry.
+                bar(T+180, 1999., 2001., 1997., 2000.),
+            ]
+            native = [bar(T-i*14400, h=2002., l=1998.) for i in range(8, 0, -1)]
+            broker = ReplayBroker(rows, info, tmp, native_h4=native)
+            config = dict(symbol='XAUUSD', size_mode='fixed', fixed_lots=.05, risk_percent=.5,
+                          max_spread_price=.18, max_stop_price=10.)
+            replay = Replay(broker, config, Path(tmp)/'replay')
+            for stamp in (T+60, T+120, T+180):
+                replay.tick(stamp, 2000., 2000.16)
+                self.assertFalse(broker.sent)
+            replay.tick(T+240, 2000., 2000.16)
+            self.assertEqual(len(broker.sent), 1)
+            order = broker.sent[0]
+            self.assertAlmostEqual(order['tp'] - order['price'], order['price'] - order['sl'])
+
     def test_fourteen_day_window_and_read_only_wrapper(self):
         start,end=backtest_window(14,T+73)
         self.assertEqual(end-start,14*86400)
