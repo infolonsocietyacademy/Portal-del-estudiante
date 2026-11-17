@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "id": "verify-live-20261117-0406-ping",
+  "task_sha256": "db6012e3f2fd3ddf92c78169150733efad2ea8b12b5cc0bfe29f8b823993e0af",
+  "status": "succeeded",
+  "started_at": "2026-11-17T08:07:31+00:00",
+  "code": "PONG",
+  "version": "1.0.21",
+  "finished_at": "2026-11-17T08:07:31+00:00"
+}
