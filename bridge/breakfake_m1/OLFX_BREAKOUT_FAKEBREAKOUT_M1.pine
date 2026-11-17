@@ -1,0 +1,259 @@
+//@version=6
+indicator("OLFX | Breakout + Fake Breakout M1", shorttitle="OLFX BF M1", overlay=true, max_lines_count=30, max_labels_count=30)
+
+// USO: abrir un grafico de 1 minuto, pegar en Pine Editor y agregar al grafico.
+// Indicador visual: no ejecuta operaciones y no calcula WinRate.
+// Entrada de referencia = cierre de la vela que confirma la senal.
+// No usa datos futuros, pivotes retrospectivos ni request.security().
+// Fake breakout significa barrido + regreso al rango; NO predice que el trade ganara.
+// Al crear alertas individuales, seleccionar "Una vez por cierre de vela".
+
+string G_RANGE = "1. Rango y confirmacion"
+int rangeLen = input.int(20, "Rango: velas anteriores", minval=5, maxval=200, group=G_RANGE)
+int atrLen = input.int(14, "Periodo ATR", minval=2, maxval=100, group=G_RANGE)
+float breakAtr = input.float(0.10, "Buffer de ruptura / barrido (x ATR)", minval=0.0, maxval=2.0, step=0.05, group=G_RANGE)
+float minBody = input.float(55.0, "Breakout: cuerpo minimo (%)", minval=10, maxval=95, step=5, group=G_RANGE)
+float minCloseStrength = input.float(75.0, "Breakout: cierre cerca del extremo (%)", minval=50, maxval=100, step=5, group=G_RANGE)
+int failBars = input.int(3, "Fake: maximo de velas para regresar", minval=1, maxval=10, group=G_RANGE)
+float minWick = input.float(35.0, "Fake de una vela: mecha minima (%)", minval=10, maxval=90, step=5, group=G_RANGE)
+int cooldown = input.int(3, "Separacion minima entre senales normales", minval=1, maxval=30, group=G_RANGE)
+
+string G_FILTER = "2. Filtros"
+bool enableBreak = input.bool(true, "Senales de breakout", group=G_FILTER)
+bool enableFake = input.bool(true, "Senales de fake breakout", group=G_FILTER)
+bool trendBreak = input.bool(true, "Breakout a favor de EMA", group=G_FILTER)
+bool trendFake = input.bool(false, "Fake a favor de EMA", group=G_FILTER)
+int emaLen = input.int(50, "Periodo EMA", minval=5, maxval=300, group=G_FILTER)
+bool useSession = input.bool(false, "Filtrar por horario de Nueva York", group=G_FILTER)
+string tradeSession = input.session("0800-1200", "Horario NY", group=G_FILTER)
+bool showEMA = input.bool(true, "Mostrar EMA", group=G_FILTER)
+
+string G_LEVELS = "3. Entrada, SL y TP"
+float slAtr = input.float(0.20, "Buffer SL (x ATR)", minval=0.0, maxval=3.0, step=0.05, group=G_LEVELS)
+float rr1 = input.float(1.0, "TP1 (R)", minval=0.25, maxval=10.0, step=0.25, group=G_LEVELS)
+float rr2 = input.float(2.0, "TP2 (R)", minval=0.25, maxval=15.0, step=0.25, group=G_LEVELS)
+float rr3 = input.float(3.0, "TP3 (R)", minval=0.25, maxval=20.0, step=0.25, group=G_LEVELS)
+bool showLevels = input.bool(true, "Mostrar niveles de la ultima senal", group=G_LEVELS)
+int projection = input.int(40, "Proyectar niveles (velas)", minval=5, maxval=250, group=G_LEVELS)
+bool showRange = input.bool(true, "Mostrar limites del rango", group=G_LEVELS)
+bool showDash = input.bool(true, "Mostrar resumen", group=G_LEVELS)
+
+bool isM1 = timeframe.isminutes and timeframe.multiplier == 1
+float ema = ta.ema(close, emaLen)
+// Toda la referencia excluye la vela actual. El ATR tambien esta cerrado.
+float atrRef = ta.atr(atrLen)[1]
+float rangeHi = ta.highest(high, rangeLen)[1]
+float rangeLo = ta.lowest(low, rangeLen)[1]
+float buffer = math.max(nz(atrRef) * breakAtr, syminfo.mintick)
+float stopBuffer = math.max(nz(atrRef) * slAtr, syminfo.mintick)
+bool ready = bar_index >= math.max(rangeLen, atrLen) + 1 and not na(atrRef) and atrRef > 0 and rangeHi > rangeLo
+bool inSession = not useSession or not na(time(timeframe.period, tradeSession, "America/New_York"))
+bool targetsValid = rr1 < rr2 and rr2 < rr3
+bool allowed = isM1 and ready and inSession and targetsValid
+
+float candleRange = math.max(high - low, syminfo.mintick)
+float bodyPct = 100.0 * math.abs(close - open) / candleRange
+float upperWickPct = 100.0 * (high - math.max(open, close)) / candleRange
+float lowerWickPct = 100.0 * (math.min(open, close) - low) / candleRange
+float closeFromLowPct = 100.0 * (close - low) / candleRange
+float closeFromHighPct = 100.0 * (high - close) / candleRange
+bool strongBuy = close > open and bodyPct >= minBody and closeFromLowPct >= minCloseStrength
+bool strongSell = close < open and bodyPct >= minBody and closeFromHighPct >= minCloseStrength
+bool breakLongOk = not trendBreak or close > ema
+bool breakShortOk = not trendBreak or close < ema
+bool fakeLongOk = not trendFake or close > ema
+bool fakeShortOk = not trendFake or close < ema
+
+// El rango se congela cuando hay un cierre fuera de el.
+var int watchSide = 0
+var int watchBar = na
+var float watchHi = na
+var float watchLo = na
+var float watchExtreme = na
+// Evita BUY repetidos en cada nuevo maximo de una misma ruptura.
+var bool bullArmed = true
+var bool bearArmed = true
+var float bullReset = na
+var float bearReset = na
+var int lastSignalBar = na
+
+int signal = 0  // +1/-1 = breakout BUY/SELL; +2/-2 = fake BUY/SELL.
+float signalSL = na
+float signalHi = na
+float signalLo = na
+string signalReason = ""
+bool spacingOk = na(lastSignalBar) or bar_index - lastSignalBar >= cooldown
+
+if barstate.isconfirmed and isM1 and ready
+    // No arrastrar una oportunidad sobre una interrupcion de datos.
+    bool gap = time - time[1] != 60000
+    if gap or not inSession
+        watchSide := 0
+        watchBar := na
+        watchHi := na
+        watchLo := na
+        watchExtreme := na
+        bullArmed := true
+        bearArmed := true
+        bullReset := na
+        bearReset := na
+
+    if not bullArmed and not na(bullReset) and close < bullReset
+        bullArmed := true
+    if not bearArmed and not na(bearReset) and close > bearReset
+        bearArmed := true
+
+    if allowed and not gap
+        // La reversa confirmada de una ruptura previa puede saltar el cooldown.
+        // Siempre es otra vela: nunca marca ruptura y fake en la misma vela.
+        if watchSide != 0
+            int age = bar_index - watchBar
+            watchExtreme := watchSide == 1 ? math.max(watchExtreme, high) : math.min(watchExtreme, low)
+            bool insideFrozen = close < watchHi and close > watchLo
+            bool reclaimSell = watchSide == 1 and age >= 1 and age <= failBars and insideFrozen and close < open and fakeShortOk
+            bool reclaimBuy = watchSide == -1 and age >= 1 and age <= failBars and insideFrozen and close > open and fakeLongOk
+            bool spansFrozen = high > watchHi + buffer and low < watchLo - buffer
+            if enableFake and not spansFrozen and (reclaimBuy or reclaimSell)
+                signal := reclaimBuy ? 2 : -2
+                signalSL := reclaimBuy ? watchExtreme - stopBuffer : watchExtreme + stopBuffer
+                signalHi := watchHi
+                signalLo := watchLo
+                signalReason := "Regreso al rango en " + str.tostring(age) + " vela(s)"
+                lastSignalBar := bar_index
+                watchSide := 0
+            else if age >= failBars or insideFrozen or (watchSide == 1 and close <= watchLo) or (watchSide == -1 and close >= watchHi)
+                watchSide := 0
+
+        // Barrido y regreso en una misma vela sobre el rango previo.
+        bool sweepTop = high > rangeHi + buffer
+        bool sweepBottom = low < rangeLo - buffer
+        bool insideRolling = close < rangeHi and close > rangeLo
+        bool wickFakeSell = sweepTop and not sweepBottom and insideRolling and close < open and upperWickPct >= minWick and fakeShortOk
+        bool wickFakeBuy = sweepBottom and not sweepTop and insideRolling and close > open and lowerWickPct >= minWick and fakeLongOk
+        if signal == 0 and watchSide == 0 and spacingOk and enableFake and (wickFakeBuy or wickFakeSell)
+            signal := wickFakeBuy ? 2 : -2
+            signalSL := wickFakeBuy ? low - stopBuffer : high + stopBuffer
+            signalHi := rangeHi
+            signalLo := rangeLo
+            signalReason := "Barrido y regreso en la misma vela"
+            lastSignalBar := bar_index
+
+        // Solo un intento por lado hasta que el precio vuelve al nivel roto.
+        bool outsideUp = close > rangeHi + buffer and close[1] <= rangeHi and bullArmed
+        bool outsideDn = close < rangeLo - buffer and close[1] >= rangeLo and bearArmed
+        bool spansRolling = sweepTop and sweepBottom
+        if signal == 0 and watchSide == 0 and not spansRolling and (outsideUp or outsideDn)
+            watchSide := outsideUp ? 1 : -1
+            watchBar := bar_index
+            watchHi := rangeHi
+            watchLo := rangeLo
+            watchExtreme := outsideUp ? high : low
+            if outsideUp
+                bullArmed := false
+                bullReset := rangeHi
+            else
+                bearArmed := false
+                bearReset := rangeLo
+            // Una ruptura debil tambien se vigila como posible fake, sin entrada BO.
+            if enableBreak and spacingOk and ((outsideUp and strongBuy and breakLongOk) or (outsideDn and strongSell and breakShortOk))
+                signal := outsideUp ? 1 : -1
+                signalSL := outsideUp ? rangeLo - stopBuffer : rangeHi + stopBuffer
+                signalHi := rangeHi
+                signalLo := rangeLo
+                signalReason := "Cierre fuera del rango + cuerpo confirmado"
+                lastSignalBar := bar_index
+
+// Niveles y alertas: se crean unicamente al cierre de la vela de entrada.
+var array<line> levelLines = array.new<line>()
+var array<label> levelLabels = array.new<label>()
+var float lastEntry = na
+var float lastSL = na
+var float lastTP1 = na
+var float lastTP2 = na
+var float lastTP3 = na
+var string lastType = "ESPERANDO"
+var string lastReason = "Rango: " + str.tostring(rangeLen) + " velas previas"
+var int lastTime = na
+
+f_clearLevels() =>
+    while array.size(levelLines) > 0
+        line.delete(array.pop(levelLines))
+    while array.size(levelLabels) > 0
+        label.delete(array.pop(levelLabels))
+
+f_level(float price, string title, color col) =>
+    line ln = line.new(bar_index, price, bar_index + projection, price, xloc=xloc.bar_index, color=col, width=1)
+    label lb = label.new(bar_index + projection + 1, price, title + "  " + str.tostring(price, format.mintick), xloc=xloc.bar_index, style=label.style_label_left, color=color.new(color.black, 15), textcolor=col, size=size.small)
+    array.push(levelLines, ln)
+    array.push(levelLabels, lb)
+
+bool isBuySignal = signal > 0
+float risk = signal != 0 ? (isBuySignal ? close - signalSL : signalSL - close) : na
+if signal != 0 and (na(risk) or risk < syminfo.mintick)
+    signal := 0
+
+if signal != 0
+    lastEntry := close
+    lastSL := signalSL
+    lastTP1 := close + (isBuySignal ? 1 : -1) * risk * rr1
+    lastTP2 := close + (isBuySignal ? 1 : -1) * risk * rr2
+    lastTP3 := close + (isBuySignal ? 1 : -1) * risk * rr3
+    lastType := (math.abs(signal) == 2 ? "FAKE " : "BREAKOUT ") + (isBuySignal ? "BUY" : "SELL")
+    lastReason := signalReason
+    lastTime := time_close
+    f_clearLevels()
+    if showLevels
+        f_level(lastEntry, "ENTRY", color.aqua)
+        f_level(lastSL, "SL", color.red)
+        f_level(lastTP1, "TP1 " + str.tostring(rr1) + "R", color.lime)
+        f_level(lastTP2, "TP2 " + str.tostring(rr2) + "R", color.lime)
+        f_level(lastTP3, "TP3 " + str.tostring(rr3) + "R", color.lime)
+    string msg = "OLFX | " + syminfo.tickerid + " | 1m | " + lastType + "\nEntry: " + str.tostring(lastEntry, format.mintick) + "\nSL: " + str.tostring(lastSL, format.mintick) + "\nTP1: " + str.tostring(lastTP1, format.mintick) + "\nTP2: " + str.tostring(lastTP2, format.mintick) + "\nTP3: " + str.tostring(lastTP3, format.mintick)
+    alert(msg, alert.freq_once_per_bar_close)
+
+// Solo se mueve el extremo visual derecho. Los precios quedan fijos.
+if barstate.islast and showLevels and array.size(levelLines) > 0
+    for i = 0 to array.size(levelLines) - 1
+        line.set_x2(array.get(levelLines, i), bar_index + projection)
+        label.set_x(array.get(levelLabels, i), bar_index + projection + 1)
+
+plot(showRange and isM1 and ready ? (watchSide != 0 ? watchHi : rangeHi) : na, "Rango HIGH", color=color.new(color.lime, 25), style=plot.style_stepline)
+plot(showRange and isM1 and ready ? (watchSide != 0 ? watchLo : rangeLo) : na, "Rango LOW", color=color.new(color.red, 25), style=plot.style_stepline)
+plot(showEMA and isM1 ? ema : na, "EMA", color=color.orange, linewidth=1)
+plotshape(signal == 1, title="BREAKOUT BUY", text="BREAK\nBUY", style=shape.labelup, location=location.belowbar, color=color.lime, textcolor=color.black, size=size.small)
+plotshape(signal == -1, title="BREAKOUT SELL", text="BREAK\nSELL", style=shape.labeldown, location=location.abovebar, color=color.red, textcolor=color.white, size=size.small)
+plotshape(signal == 2, title="FAKE BUY", text="FAKE\nBUY", style=shape.labelup, location=location.belowbar, color=color.aqua, textcolor=color.black, size=size.small)
+plotshape(signal == -2, title="FAKE SELL", text="FAKE\nSELL", style=shape.labeldown, location=location.abovebar, color=color.fuchsia, textcolor=color.white, size=size.small)
+
+// Las cuatro condiciones tambien aparecen individualmente al crear una alerta.
+alertcondition(signal == 1, "OLFX BREAKOUT BUY M1", "OLFX BREAKOUT BUY | {{ticker}} | 1m | Entry {{close}}")
+alertcondition(signal == -1, "OLFX BREAKOUT SELL M1", "OLFX BREAKOUT SELL | {{ticker}} | 1m | Entry {{close}}")
+alertcondition(signal == 2, "OLFX FAKE BUY M1", "OLFX FAKE BUY | {{ticker}} | 1m | Entry {{close}}")
+alertcondition(signal == -2, "OLFX FAKE SELL M1", "OLFX FAKE SELL | {{ticker}} | 1m | Entry {{close}}")
+
+f_price(float value) =>
+    na(value) ? "--" : str.tostring(value, format.mintick)
+
+var table dash = table.new(position.top_right, 2, 8, border_width=1, border_color=color.new(color.gray, 70))
+if barstate.islast
+    table.clear(dash, 0, 0, 1, 7)
+    if showDash
+        color panel = color.rgb(12, 17, 28)
+        color accent = isM1 and targetsValid ? color.aqua : color.orange
+        string state = not isM1 ? "CAMBIA A 1 MINUTO" : not targetsValid ? "EXIGE TP1 < TP2 < TP3" : not ready ? "CARGANDO HISTORICO" : not inSession ? "FUERA DE HORARIO" : watchSide != 0 ? "VIGILANDO REGRESO AL RANGO" : "ACTIVO | CIERRES 1m"
+        table.cell(dash, 0, 0, "OLFX BF M1", bgcolor=panel, text_color=accent, text_size=size.small)
+        table.cell(dash, 1, 0, state, bgcolor=panel, text_color=accent, text_size=size.small)
+        table.cell(dash, 0, 1, "ULTIMA SENAL", bgcolor=panel, text_color=color.silver)
+        table.cell(dash, 1, 1, lastType, bgcolor=panel, text_color=color.white)
+        table.cell(dash, 0, 2, "ENTRY / SL", bgcolor=panel, text_color=color.silver)
+        table.cell(dash, 1, 2, f_price(lastEntry) + " / " + f_price(lastSL), bgcolor=panel, text_color=color.white)
+        table.cell(dash, 0, 3, "TP1 / TP2 / TP3", bgcolor=panel, text_color=color.silver)
+        table.cell(dash, 1, 3, f_price(lastTP1) + " / " + f_price(lastTP2) + " / " + f_price(lastTP3), bgcolor=panel, text_color=color.lime)
+        table.cell(dash, 0, 4, "MOTIVO", bgcolor=panel, text_color=color.silver)
+        table.cell(dash, 1, 4, lastReason, bgcolor=panel, text_color=color.white, text_size=size.small)
+        table.cell(dash, 0, 5, "CONFIRMADO NY", bgcolor=panel, text_color=color.silver)
+        table.cell(dash, 1, 5, na(lastTime) ? "--" : str.format_time(lastTime, "MM-dd HH:mm", "America/New_York"), bgcolor=panel, text_color=color.white)
+        table.cell(dash, 0, 6, "SL / OBJETIVOS", bgcolor=panel, text_color=color.silver)
+        table.cell(dash, 1, 6, "REFERENCIAS DE LA ULTIMA SENAL", bgcolor=panel, text_color=color.silver, text_size=size.tiny)
+        table.cell(dash, 0, 7, "ESTADISTICAS", bgcolor=panel, text_color=color.silver)
+        table.cell(dash, 1, 7, "SIN BACKTEST / SIN WINRATE", bgcolor=panel, text_color=color.silver, text_size=size.tiny)
