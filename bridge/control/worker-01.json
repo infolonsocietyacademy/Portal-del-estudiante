@@ -523,6 +523,11 @@
       "id": "feed-fixed-start-mwk1sklz",
       "action": "demo_gold",
       "expires_at": "2026-11-17T02:13:01.079Z"
+    },
+    {
+      "id": "feed-live-verify-mwk1u9sg",
+      "action": "demo_structure_status",
+      "expires_at": "2026-11-17T02:14:20.368Z"
     }
   ]
 }
