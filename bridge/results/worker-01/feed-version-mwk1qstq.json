@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "id": "feed-version-mwk1qstq",
+  "task_sha256": "8b3fe68bf0ea6a1332b66c213456827d958c45a5cfe5695540f5c2ac3424164c",
+  "status": "succeeded",
+  "started_at": "2026-11-17T02:02:18+00:00",
+  "code": "PONG",
+  "version": "1.0.11",
+  "finished_at": "2026-11-17T02:02:18+00:00"
+}
