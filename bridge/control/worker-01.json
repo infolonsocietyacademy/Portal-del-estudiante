@@ -528,6 +528,11 @@
       "id": "feed-live-verify-mwk1u9sg",
       "action": "demo_structure_status",
       "expires_at": "2026-11-17T02:14:20.368Z"
+    },
+    {
+      "id": "bt-version-mwk33j6o",
+      "action": "ping",
+      "expires_at": "2026-11-17T02:49:32.064Z"
     }
   ]
 }
