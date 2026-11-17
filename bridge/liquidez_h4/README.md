@@ -42,3 +42,23 @@ El paquete se firma con la identidad instalada existente; no cambia la raiz
 de confianza. La clave privada queda fuera del repositorio y de la VPS.
 Instalacion por el canal automatico existente, seguida de inicio y lectura
 nueva de estado. La publicacion por si sola no confirma la activacion.
+
+## Niveles H4 en MetaTrader 5
+
+[OLFX_Liquidez_H4.mq5](../eas/OLFX_Liquidez_H4.mq5) es un EA de visualización.
+Compílalo en MetaEditor y colócalo en un gráfico del mismo símbolo que usa el bot,
+en la misma instancia de MT5 del Bridge. Usa un gráfico H4 o inferior.
+Muestra el HIGH, el LOW y el 50 % de las últimas tres velas H4 cerradas.
+En modo de pivotes exige una vela cerrada a cada lado y el 50 % acompaña
+a los niveles visibles. Activa `AvisarToques` para recibir avisos locales en MT5.
+
+Con `PublicarAlBridge` activo, el EA guarda los niveles en `MQL5/Files`.
+La versión 1.0.23 del Bridge incorpora una lectura válida y reciente en
+`gold_strategy.h4_levels` cuando el bot M1 está activo. Los tiempos de apertura
+pertenecen a las velas nativas del bróker. La publicación incluye tanto los HIGH
+y LOW como sus marcas de pivote, independientemente de los filtros visuales del gráfico.
+El EA es de lectura. El motor M1 encargado de las órdenes DEMO conserva su
+propia verificación de barridas y su gestión de entradas, SL y TP.
+
+La versión candidata 1.0.23 requiere firmar el paquete con la identidad ya instalada
+y verificar la compilación nativa en MetaEditor antes de actualizar la VPS.

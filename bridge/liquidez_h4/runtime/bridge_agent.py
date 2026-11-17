@@ -4,6 +4,7 @@ Outbound GitHub mailbox. No listener, shell commands, or live order API.
 """
 import argparse
 import base64
+import csv
 import ctypes
 from ctypes import wintypes
 from datetime import datetime, timezone
@@ -22,7 +23,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-VERSION = "1.0.22"
+VERSION = "1.0.23"
 ROOT = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "OLFX_MT5_BRIDGE"
 try:
     _mailbox = json.loads((ROOT / "mailbox.json").read_text(encoding="utf-8"))
@@ -462,6 +463,45 @@ def find_fresh_report(terminal, stem, since_epoch):
     return None
 
 
+def read_h4_levels(terminal, symbol, current_time=None):
+    """Read the optional MetaTrader chart export for the bot's configured symbol."""
+    if not isinstance(symbol, str) or not re.fullmatch(r"[A-Za-z0-9_.-]{1,40}", symbol):
+        return None
+    path = Path(terminal) / "MQL5" / "Files" / ("OLFX_Liquidez_H4_" + symbol + ".csv")
+    current_time = time.time() if current_time is None else current_time
+    try:
+        with path.open("rb") as stream:
+            age = current_time - os.fstat(stream.fileno()).st_mtime
+            if not 0 <= age <= 90:
+                return None
+            contents = stream.read(2049)
+        if len(contents) > 2048:
+            return None
+        rows = list(csv.reader(contents.decode("ascii").splitlines(), strict=True))
+        if len(rows) != 3:
+            return None
+
+        candles = []
+        for row in rows:
+            schema, row_symbol, opened, high, low, mid, pivot_high, pivot_low = row
+            if schema != "1" or row_symbol != symbol or not re.fullmatch(r"[0-9]{1,12}", opened):
+                return None
+            opened = int(opened)
+            high, low, mid = map(float, (high, low, mid))
+            if (opened <= 0 or (candles and opened >= candles[-1]["open_time"])
+                    or not all(math.isfinite(value) for value in (high, low, mid))
+                    or not 0 < low <= high
+                    or not math.isclose(mid, (high + low) / 2, rel_tol=1e-12, abs_tol=1e-9)
+                    or pivot_high not in {"0", "1"} or pivot_low not in {"0", "1"}
+                    or (not candles and (pivot_high != "0" or pivot_low != "0"))):
+                return None
+            candles.append(dict(open_time=opened, high=high, low=low, midpoint=mid,
+                                pivot_high=pivot_high == "1", pivot_low=pivot_low == "1"))
+        return {"source": "MQL5", "timeframe": "H4", "symbol": symbol, "candles": candles}
+    except (OSError, ValueError, csv.Error):
+        return None
+
+
 def status_snapshot(root, state):
     value = {"schema": 1, "version": VERSION, "state": state, "updated_at": now()}
     if state == "online":
@@ -481,7 +521,12 @@ def status_snapshot(root, state):
         except (OSError, ValueError, KeyError):
             pass
         try:
-            value["diagnostics"] = collect_diagnostics(owned_terminal(root))
+            terminal = owned_terminal(root)
+            if scalp and scalp.get("snapshot_fresh"):
+                levels = read_h4_levels(terminal, scalp.get("symbol"))
+                if levels is not None:
+                    value["gold_strategy"]["h4_levels"] = levels
+            value["diagnostics"] = collect_diagnostics(terminal)
         except (BridgeError, OSError, ValueError, KeyError):
             value["diagnostics"] = {"code": "LOCAL_DIAGNOSTICS_UNAVAILABLE"}
     return value
