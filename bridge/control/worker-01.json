@@ -603,6 +603,11 @@
       "id": "replace-old-with-bf1-pause-mwk8000p",
       "action": "demo_gold_stop",
       "expires_at": "2026-11-17T05:11:45.337Z"
+    },
+    {
+      "id": "bf18-update-check-mwk9kn6v",
+      "action": "ping",
+      "expires_at": "2026-11-17T05:50:48.103Z"
     }
   ]
 }
