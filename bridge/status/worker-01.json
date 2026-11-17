@@ -1,6 +1,36 @@
 {
   "schema": 1,
-  "version": "1.0.9",
-  "state": "updating",
-  "updated_at": "2026-11-17T01:24:11+00:00"
+  "version": "1.0.10",
+  "state": "online",
+  "updated_at": "2026-11-17T01:24:13+00:00",
+  "updater": {
+    "state": "restarting"
+  },
+  "diagnostics": {
+    "scope": "recent_logs",
+    "log_files_scanned": 8,
+    "log_read_errors": 0,
+    "log_groups": [
+      "expert",
+      "terminal",
+      "tester"
+    ],
+    "recent_crash_files": 0,
+    "crash_exceptions": [],
+    "observed_log_signals": [
+      "AUTHORIZATION_FAILED",
+      "AUTHORIZED_DEMO",
+      "AUTHORIZED_SERVER",
+      "CONFIG_LOADED",
+      "DEMO_TRADING_ENABLED",
+      "NO_DEMO_GROUPS",
+      "SOCKET_ALREADY_IN_USE",
+      "TERMINAL_SYNCHRONIZED",
+      "TESTER_FINISHED",
+      "TESTER_STARTED"
+    ],
+    "numeric_error_codes": [
+      10009
+    ]
+  }
 }
