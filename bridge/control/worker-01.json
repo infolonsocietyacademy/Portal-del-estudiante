@@ -573,6 +573,21 @@
       "id": "crt5-pause-mwk42cuu",
       "action": "demo_gold_stop",
       "expires_at": "2026-11-17T03:21:36.822Z"
+    },
+    {
+      "id": "crt5-ping-mwk42cuu",
+      "action": "ping",
+      "expires_at": "2026-11-17T03:29:44.500Z"
+    },
+    {
+      "id": "crt5-start-mwk42cuu",
+      "action": "demo_gold",
+      "expires_at": "2026-11-17T03:29:44.500Z"
+    },
+    {
+      "id": "crt5-backtest30d-mwk42cuu",
+      "action": "gold_backtest_30d",
+      "expires_at": "2026-11-17T03:29:44.500Z"
     }
   ]
 }
