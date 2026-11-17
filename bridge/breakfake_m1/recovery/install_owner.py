@@ -21,7 +21,7 @@ ROOT=Path(os.environ.get('LOCALAPPDATA',str(Path.home())))/'OLFX_MT5_BRIDGE'
 RECOVERY=ROOT/'owner-recovery-v1'
 NEW_KEY={'e': 65537, 'n': 'c5672f22ffa86548ceb699f35d9f77feb6b76f1a20234d2b04599c8f0f5994582e6010083fe9dc054c228c51c6e770bdfd8643a8b38a37a90ff5a46f5ae7dd47c984d1b250d3de6e30d6e178b09a9f9bc3b0129b11efdd40e47dcd0425b4c2511e7e021b0da79a46a9620e1aa4aaaa1374c620db056abfc0de7d5528b21b71d294ef36e4934b51f3deed1e3299e3589e51b403fb43d4c0632ff39a7d5a09a52cd939c04a94378c3979e432047d969b0f79964eacfacca30ac3e070119c0c6b0a7afac7c336b0c1fd6d682a4f79a4ef5ffb6f54e939d1c85ad5c31a1c680902a50c2afdb779ebf38303dbaaf26f7e1e7738f208410c3714bbeab7d1872a6511ea36a01b82383ff5af7e55b1fd283bdc0bd6ca54c48de18cf32d221bd575438aab423e78fdeaa54bdf7da5ef821a6dea3d2cf0d8dc3df6dad790e754c8a93bc199fb1edf424826860d5880eeaf063db1f8621aec1b26dc4f078f2000e277aefae9506f782c39efbba1bde4591cd06e9416288d017d775f2b0fad7b3f5853b96844588ec079e9403513b781e466eaaac12f823d9a65c1442b6751f224490fe216a9b8b9d1eea1a7b346d024e9b5c7c5197bff1acd944fc08761277ae4d8815d4b4dd5901e4411e5df2785c7b24a2965e19409b1d3c6d950359659ad2d035bd029a446676f3122e0ae0a6cb9aa6abf53e50f2abab77759844a640b0417967b2fdc09'}
 OLD_KEY={'n': '8f5b86d065e91d96f88e7bbaf5ba6a1ed3dde8729e09813c9b92cd53a7af9f0ae920a37123c34c1c034506f0fd940ab6d98fa172b63304aa0b08892a070d3c395a7db485efce5fb4b892dc6da9937dae7a9fd85bfc0c3dd51170edc2af1461b15f71a5313d13f886c64549b9f8ee6f74cfd4b1331137c7eec9062d8c72209e0083a4ddbe3f3c714b31ee723acf09e006df056fffa992e48ef95cd78896a29639d0e1580cab3b47d223b25cf840a4ecaad6f0b47fe6605cfb2d19d11d662fb33bc448b5fe0c0662391be8d850d1c6d8fde774c539a302e03ca02b1129ef4be7dc6ee79c61a75d50df80c7185e8895e5baa70a0d01ebd7d74285434658b42166ffa32e870a8900c6f24d38bd0a6a9c4e9b213be262488fbdd7a04ed71ef23ebf1cf739193a0d102647ae7a7a8501e0df19aaeac9e0e89f2083f0bf165be100952cfc7dc35b56ec71cf2616602869999d55e875365ffe5107744bd01b33db4820a61b786e0b9c19474109eade7e448a4075e1d27c888ca39aff0e557d36f6e1b8d7', 'e': 65537}
-BOOTSTRAP_SHA='0a038bb4c05fd5fe8977793e391d4f4dc320e285c1601ef22eb099fe618dc94f'
+BOOTSTRAP_SHA='5ce19d70698bc35bcc89dc58f400a8742419c1aa92ee4c34acb4f780540bd526'
 RELEASE_SHA='8705d47026b8d32cc17a7a6a19f9927146740f35b3b598b44fbcf02600f5c791'
 VERSION='1.0.16'
 SLUG='000016-1.0.16'
@@ -231,7 +231,9 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--ref',required=True);args=parser.parse_args()
     try:sys.exit(main(args.ref) or 0)
     except KeyboardInterrupt:
-        print('Parada solicitada; deja el bridge terminar de forma normal.',flush=True);sys.exit(130)
+        if ROOT.is_dir():(ROOT/'STOP').touch()
+        if (ROOT/'gold-scalp-m1').is_dir():(ROOT/'gold-scalp-m1'/'STOP').touch()
+        print('Parada solicitada sin cierres forzosos. Deja MT5 abierto para SL/TP.',flush=True);sys.exit(130)
     except Exception as error:
         print('RECOVERY ERROR: '+(str(error) if isinstance(error,RuntimeError) else type(error).__name__),flush=True)
         sys.exit(1)

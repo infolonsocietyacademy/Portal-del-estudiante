@@ -1,6 +1,7 @@
 import importlib.util
 import hashlib
 import json
+import re
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
@@ -33,6 +34,12 @@ class OwnerRecovery(unittest.TestCase):
  def test_release_hash_is_pinned_in_owner_installer(self):
   raw=(BASE/'recovery/release_1.0.16.json').read_bytes()
   self.assertEqual(hashlib.sha256(raw).hexdigest(),self.owner.RELEASE_SHA)
+ def test_powershell_handoff_pins_exact_download_bytes(self):
+  text=(BASE/'recovery/INSTALAR_BREAK_FAKE.ps1').read_text()
+  pins=dict(re.findall(r"Name = '([^']+)'; Sha256 = '([0-9a-f]{64})'",text))
+  self.assertEqual(set(pins),{'install_owner.py','bridge_bootstrap.py'})
+  for name,digest in pins.items():
+   self.assertEqual(hashlib.sha256((BASE/'recovery'/name).read_bytes()).hexdigest(),digest,name)
  def test_staging_does_not_activate_or_overwrite_original_signed_version(self):
   raw=(BASE/'recovery/release_1.0.16.json').read_bytes()
   with TemporaryDirectory() as temp:

@@ -21,3 +21,13 @@ jobs:
           python-version: '3.12'
       - run: python -m unittest discover -s bridge/breakfake_m1/tests -v
       - run: python -m compileall -q bridge/breakfake_m1/runtime
+      - name: Parse owner PowerShell installer without executing it
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Join-Path $PWD 'bridge/breakfake_m1/recovery/INSTALAR_BREAK_FAKE.ps1'),
+            [ref]$tokens, [ref]$errors) | Out-Null
+          if ($errors.Count) { throw ($errors | Out-String) }

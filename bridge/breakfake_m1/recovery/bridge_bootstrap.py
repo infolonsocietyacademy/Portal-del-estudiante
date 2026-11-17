@@ -272,4 +272,3 @@ if __name__=='__main__':
     except (UpdateError,OSError,ValueError,KeyError):
         print('ERROR: no se pudo verificar o iniciar el Bridge. No se aplico codigo sin verificar.',flush=True);sys.exit(1)
 
-
