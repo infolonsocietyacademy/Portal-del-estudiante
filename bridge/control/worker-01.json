@@ -553,6 +553,16 @@
       "id": "crt-pause-old-mwk3de8r",
       "action": "demo_gold_stop",
       "expires_at": "2026-11-17T03:02:12.219Z"
+    },
+    {
+      "id": "crt-updated-ping-mwk3un5z",
+      "action": "ping",
+      "expires_at": "2026-11-17T03:20:36.935Z"
+    },
+    {
+      "id": "crt-backtest-30d-mwk3un5z",
+      "action": "gold_backtest_30d",
+      "expires_at": "2026-11-17T03:20:36.935Z"
     }
   ]
 }
