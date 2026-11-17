@@ -5,10 +5,10 @@
   "installer_revision": 2,
   "package_folder": "OLFX_ACTUALIZACION_INTEGRADA",
   "zip_path": "OLFX_ACTUALIZACION_INTEGRADA_2.1.0_Windows.zip",
-  "zip_sha256": "c5d3bced15b6a52ff39034bcb314d21f895ca194f284ad3c0fffcb8459c31681",
-  "size": 70902,
-  "source_commit": "0fefd9491960161255ce027220091333bb57d975",
-  "ci_run_url": "https://github.com/infolonsocietyacademy/Portal-del-estudiante/actions/runs/43987537597",
+  "zip_sha256": "bd42deba101d804c0acf4d662558b37fee588c2fe65b26327cc6a914953c5203",
+  "size": 71157,
+  "source_commit": "fabc532f9caef09945b54eec36a7bf53f75e0f15",
+  "ci_run_url": "https://github.com/infolonsocietyacademy/Portal-del-estudiante/actions/runs/43987549734",
   "validation": "Linux and Windows offline tests passed; VPS integration pending installation",
   "download_url": "https://github.com/infolonsocietyacademy/Portal-del-estudiante/raw/olfx-bridge-resident-download/OLFX_ACTUALIZACION_INTEGRADA_2.1.0_Windows.zip"
 }
