@@ -498,6 +498,11 @@
       "id": "gold-sltp-version-20261117-0124",
       "action": "ping",
       "expires_at": "2026-11-17T01:35:00Z"
+    },
+    {
+      "id": "gold-m1-sltp-start-20261117-0125",
+      "action": "demo_gold",
+      "expires_at": "2026-11-17T01:35:00Z"
     }
   ]
 }
