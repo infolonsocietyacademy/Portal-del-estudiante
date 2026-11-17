@@ -563,6 +563,11 @@
       "id": "crt-backtest-30d-mwk3un5z",
       "action": "gold_backtest_30d",
       "expires_at": "2026-11-17T03:20:36.935Z"
+    },
+    {
+      "id": "crt-demo-start-mwk3un5z",
+      "action": "demo_gold",
+      "expires_at": "2026-11-17T03:17:03.118Z"
     }
   ]
 }
