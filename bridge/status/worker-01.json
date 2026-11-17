@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.12",
   "state": "online",
-  "updated_at": "2026-11-17T02:47:39+00:00",
+  "updated_at": "2026-11-17T02:48:44+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "xau-m1-backtest-30d-mwk35hbx",
@@ -65,9 +65,9 @@
   "gold_strategy": {
     "schema": 1,
     "version": "1.0.11",
-    "updated_at": 1794883659.0853293,
-    "code": "WAIT_NEW_CANDLE",
-    "signal_state": "WAIT_NEW_CANDLE",
+    "updated_at": 1794883663.1443787,
+    "code": "PAUSED_SL_TP_ONLY",
+    "signal_state": "PAUSED_SL_TP_ONLY",
     "ready": true,
     "account_type_verified": "demo",
     "symbol": "XAUUSD",
@@ -75,7 +75,7 @@
     "entry_limit": null,
     "hold_seconds": 0,
     "close_policy": "BROKER_SL_TP_ONLY",
-    "paused": false,
+    "paused": true,
     "size_mode": "fixed",
     "fixed_lots": 0.05,
     "risk_percent": 0.5,
@@ -86,12 +86,12 @@
     "net_recorded": -50.85,
     "quote_fresh": true,
     "python_trading_allowed": true,
-    "quote_age_seconds": -7199.915,
-    "adjusted_quote_age_seconds": 0.085,
+    "quote_age_seconds": -7199.856,
+    "adjusted_quote_age_seconds": 0.144,
     "broker_clock_offset_seconds": -7200,
     "advancing_tick_samples": 6,
     "spread_price": 0.16,
-    "snapshot_fresh": true
+    "snapshot_fresh": false
   },
   "updater": {
     "state": "running"
