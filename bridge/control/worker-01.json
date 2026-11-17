@@ -598,6 +598,11 @@
       "id": "status-m5-backtest30-mwk62aew",
       "action": "gold_backtest_status",
       "expires_at": "2026-11-17T04:12:32.888Z"
+    },
+    {
+      "id": "replace-old-with-bf1-pause-mwk8000p",
+      "action": "demo_gold_stop",
+      "expires_at": "2026-11-17T05:11:45.337Z"
     }
   ]
 }
