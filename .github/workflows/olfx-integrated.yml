@@ -1,0 +1,51 @@
+name: OLFX Integrated Bridge checks
+on:
+  push:
+    branches: [olfx-bridge-integrated]
+    paths: ['bridge/integrated/**', '.github/workflows/olfx-integrated.yml']
+  pull_request:
+    branches: [olfx-bridge-local-panel]
+    paths: ['bridge/integrated/**', '.github/workflows/olfx-integrated.yml']
+permissions:
+  contents: read
+jobs:
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 8
+    steps:
+      - name: Preserve package bytes
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install test signing dependency
+        run: python -m pip install cryptography==46.0.3
+      - name: Integrated supervision, signed updates and DEMO regressions
+        run: python -m unittest discover -s bridge/integrated/tests -v
+      - name: Compile Python
+        run: python -m compileall -q bridge/integrated
+      - name: Build and validate existing panel ZIP
+        run: python bridge/integrated/build_package.py --output dist
+  package:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/olfx-bridge-integrated'
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Preserve package bytes
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Publish manual installer to downloads branch
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python bridge/integrated/build_package.py --output dist --publish
