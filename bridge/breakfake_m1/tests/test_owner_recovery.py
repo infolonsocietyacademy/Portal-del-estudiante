@@ -17,13 +17,15 @@ class OwnerRecovery(unittest.TestCase):
  def setUpClass(cls):
   cls.owner=mod('owner_recovery',BASE/'recovery/install_owner.py')
   cls.boot=mod('owner_bootstrap_fixture',BASE/'recovery/bridge_bootstrap.py')
- def test_signed_recovery_release_verifies_and_matches_all_runtime_files(self):
+ def test_archived_recovery_release_verifies_its_signed_manifest(self):
   raw=(BASE/'recovery/release_1.0.17.json').read_bytes()
   doc,archive=self.boot.parse_release(raw,self.owner.NEW_KEY)
   import zipfile,io
   with zipfile.ZipFile(io.BytesIO(archive)) as z:
    self.assertEqual(doc['payload']['version'],'1.0.17')
-   for name in z.namelist():self.assertEqual(z.read(name),(BASE/'runtime'/name).read_bytes(),name)
+   self.assertEqual(set(z.namelist()),set(doc['payload']['files']))
+   for name in z.namelist():
+    self.assertEqual(hashlib.sha256(z.read(name)).hexdigest(),doc['payload']['files'][name]['sha256'],name)
  def test_new_release_is_rejected_by_original_trust_until_owner_installs_new_key(self):
   raw=(BASE/'recovery/release_1.0.17.json').read_bytes()
   with self.assertRaises(self.boot.UpdateError):self.boot.parse_release(raw,self.owner.OLD_KEY)

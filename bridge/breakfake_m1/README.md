@@ -1,6 +1,6 @@
 # Breakout + Fake Breakout M1: SL estructural y TP1
 
-Estado: versión 1.0.17 firmada y recuperación local preparada. **La instalación en la VPS sigue pendiente de ejecutar la recuperación en Windows.** La estrategia anterior fue pausada desde el bridge. Guardar este código no instala por sí mismo el nuevo motor.
+Estado: versión 1.0.18 firmada con la clave original aceptada por el bridge instalado. Se recuperó una copia válida del firmante original: la actualización puede aplicarse por el canal automático existente, sin cambiar la clave pública de la VPS. La activación se confirma únicamente con una lectura nueva del bridge y del worker M1. La estrategia anterior permanece pausada hasta verificar el cambio.
 
 ## Orden solicitada
 
@@ -27,22 +27,18 @@ Se eliminó el motor CRT H1/M5 del runtime nuevo. Se rechazan nuevas órdenes CR
 
 `python -m unittest discover -s bridge/breakfake_m1/tests -v`
 
-60 pruebas distintas (51 del motor y 9 de recuperación) con bróker simulado: tipos de señal, SL estructurales en compras y ventas, spread, tick del bróker, distancia mínima, límite máximo de SL, riesgo porcentual, TP1 completo, disparos bid/ask, cuenta DEMO, netting, rechazo de órdenes, envíos inciertos y reinicios.
+63 pruebas distintas (51 del motor, 9 de la recuperación archivada y 3 de la versión firmada actual) con bróker simulado: tipos de señal, SL estructurales en compras y ventas, spread, tick del bróker, distancia mínima, límite máximo de SL, riesgo porcentual, TP1 completo, disparos bid/ask, cuenta DEMO, netting, rechazo de órdenes, envíos inciertos y reinicios.
 
 `pine_signal_cases.json` contiene 1,000 velas de prueba evaluadas con el bloque de señales del Pine original mediante su AST y ATR/EMA de referencia. Coincidieron las 44 señales y sus SL. La prueba repite esta comparación después de restauraciones de estado. Esto verifica correspondencia lógica; **no es compilación de TradingView, backtest histórico ni prueba de rentabilidad**.
 
 `python -m compileall -q bridge/breakfake_m1/runtime`
 
-## Recuperación e instalación desde Windows
+## Actualización automática por el bridge existente
 
-La clave de firma anterior no está disponible. Se preparó una nueva identidad de firma de actualizaciones y un instalador que debe ejecutar el propietario localmente. La clave privada se conserva separada y no se publica ni se copia a la VPS.
+La versión actual está en `releases/release_1.0.18.json` y en el canal oficial de actualizaciones. Está firmada con la identidad original. La clave privada no se publica ni se copia a la VPS. Las pruebas verifican que el launcher original acepta la firma y que el archivo contiene exactamente el runtime probado.
 
-La recuperación verifica un commit inmutable y los hashes del instalador y del launcher; verifica además la firma RSA del runtime. Antes de cambiar el runtime exige que la cuenta siga siendo DEMO, emparejada y sin posiciones/órdenes abiertas. Conserva cuenta, token, configuración y lote. Guarda el puntero y el launcher originales para volver al bridge anterior con las entradas pausadas si falla el arranque.
+El bridge valida la firma y los hashes, instala en una versión aislada y cambia de motor cuando queda libre. Se conserva la configuración existente. Después de observar la versión nueva, se envía el inicio normal de la estrategia por el buzón.
 
-Solo después de la verificación local instala la nueva clave pública de actualizaciones y activa el motor M1/TP1. Esto es una recuperación de confianza explícita desde Windows; el actualizador anterior rechazará la nueva firma hasta completar ese paso local. No se omite la verificación de firmas.
+La carpeta `recovery` conserva el procedimiento alternativo preparado antes de localizar la clave original. Es un archivo histórico; no es necesario ejecutarlo para la actualización actual.
 
-`recovery/install_owner.py` no puede ejecutarse por el buzón de órdenes del bridge anterior. El propietario debe ejecutar una vez el comando de PowerShell preparado. Después el bridge vuelve a recibir actualizaciones firmadas automáticamente con la nueva identidad.
-
-No ejecutar los CMD viejos que invoquen directamente una versión anterior. El punto de arranque recuperado es `%LOCALAPPDATA%\OLFX_MT5_BRIDGE\INICIAR_BRIDGE_ACTUAL.cmd`; los launchers originales activos que se logre identificar también conservan su ruta y actualizan su clave pública con respaldo.
-
-La instalación solo se confirma al observar `BREAKOUT_FAKEBREAKOUT_M1_TP1`, periodo M1, objetivo 1R, cuenta DEMO y estado operativo en una lectura nueva de la VPS.
+La instalación solo se confirma al observar versión 1.0.18, `BREAKOUT_FAKEBREAKOUT_M1_TP1`, periodo M1, objetivo 1R, cuenta DEMO y estado operativo en una lectura nueva de la VPS.
