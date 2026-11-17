@@ -1,0 +1,26 @@
+name: Original Bridge M1 SL-TP checks
+on:
+  push:
+    branches: [olfx-mt5-bridge]
+    paths: ['bridge/original/**', 'bridge/updates/releases/1.0.10.json', '.github/workflows/olfx-original-scalp.yml']
+permissions:
+  contents: read
+jobs:
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 6
+    steps:
+      - name: Preserve signed package bytes
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Simulate broker and verify existing launcher signature
+        run: python -m unittest discover -s bridge/original/tests -v
+      - name: Compile original Bridge sources
+        run: python -m compileall -q bridge/original/runtime
