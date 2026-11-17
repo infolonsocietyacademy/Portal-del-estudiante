@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "id": "backtest-progress-mwk36co1",
+  "task_sha256": "1146aa89b33ac9180d48a9e0d738c023ec90f5cbe2ebed91c3350ab5a25e1533",
+  "status": "succeeded",
+  "started_at": "2026-11-17T02:42:29+00:00",
+  "job_id": "xau-m1-backtest-30d-mwk35hbx",
+  "phase": "REPLAYING_REAL_TICKS",
+  "updated_at": 1794883347.6336188,
+  "requested_days": 30,
+  "progress_percent": 28.33,
+  "chunks": 34,
+  "closed_trades": 219,
+  "ticks": 2015639,
+  "snapshot_fresh": true,
+  "finished_at": "2026-11-17T02:42:29+00:00"
+}
