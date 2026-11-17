@@ -513,6 +513,11 @@
       "id": "pause-for-feed-fix-mwk1dnna",
       "action": "demo_gold_stop",
       "expires_at": "2026-11-17T02:01:25.174Z"
+    },
+    {
+      "id": "feed-version-mwk1qstq",
+      "action": "ping",
+      "expires_at": "2026-11-17T02:11:38.414Z"
     }
   ]
 }
