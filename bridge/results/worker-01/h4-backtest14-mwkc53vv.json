@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "id": "h4-backtest14-mwkc53vv",
+  "task_sha256": "85a8a903a40fa208a6193770429ba417cfcd8e68a03312cc7b22b7386b492202",
+  "status": "succeeded",
+  "started_at": "2026-11-17T06:53:07+00:00",
+  "code": "BACKTEST_14D_STARTED",
+  "job_id": "h4-backtest14-mwkc53vv",
+  "days": 14,
+  "symbol": "XAUUSD",
+  "mode": "READ_ONLY_MARKET_DATA",
+  "finished_at": "2026-11-17T06:53:07+00:00"
+}
