@@ -34,8 +34,13 @@ class BrokerTest(unittest.TestCase):
                       self.terminal, self.cfg, self.now)
 
     def job(self, jid, **extra):
-        return {"id":jid,"action":"trade","expires_at":datetime.fromtimestamp(self.now()+120,timezone.utc).isoformat(),
-                "symbol":"XAUUSD","direction":"buy","timeframe":"M1","hold_seconds":0,**extra}
+        result={"id":jid,"action":"trade","expires_at":datetime.fromtimestamp(self.now()+120,timezone.utc).isoformat(),
+                "symbol":"XAUUSD","direction":"buy","hold_seconds":0,"sl_distance":2.,**extra}
+        if result['direction'] in {'structure','crt','alpha'}:
+            result.pop('sl_distance',None)
+            result.setdefault('timeframe','M5')
+            result.setdefault('signal_bar',int(self.now())//300*300-300)
+        return result
 
     def opened(self, jid):
         self.engine.accept(self.job(jid))
@@ -43,8 +48,8 @@ class BrokerTest(unittest.TestCase):
         self.engine.tick()
 
     def bars(self, bearish=False):
-        bar = int(self.now())-60
-        rows = [{"time":bar-i*60,"open":2000.,"high":2000.5,"low":1999.8,"close":2000.} for i in range(96)]
+        bar = int(self.now())//300*300-300
+        rows = [{"time":bar-i*300,"open":2000.,"high":2000.5,"low":1999.8,"close":2000.} for i in range(96)]
         rows[0].update(open=2000.95,high=2001.3,low=2000.8,close=2001.2)
         rows[1].update(high=2001.,close=2000.9)
         rows[4]["high"],rows[12]["high"] = 2001.,2000.8
@@ -108,9 +113,9 @@ class BrokerTest(unittest.TestCase):
         self.assertGreater(r["tp"],r["price"])
         self.assertAlmostEqual((r["tp"]-r["price"])/(r["price"]-r["sl"]),2.,places=2)
 
-    def test_confirmed_manual_structure_command_opens_and_deduplicates(self):
+    def test_confirmed_m5_structure_command_opens_and_deduplicates(self):
         self.bars()
-        j=self.job('structure-check',direction='structure',signal_bar=int(self.now())-60)
+        j=self.job('structure-check',direction='structure',signal_bar=int(self.now())//300*300-300)
         self.engine.accept(j);self.engine.tick();self.engine.tick()
         self.assertEqual(len(self.m.sent),1)
         self.make().accept(j)
@@ -118,7 +123,7 @@ class BrokerTest(unittest.TestCase):
 
     def test_bearish_structure_command_sends_sell(self):
         self.bars(bearish=True)
-        self.engine.accept(self.job('sell-structure',direction='structure',signal_bar=int(self.now())-60))
+        self.engine.accept(self.job('sell-structure',direction='structure',signal_bar=int(self.now())//300*300-300))
         self.engine.tick()
         self.assertEqual(len(self.m.sent),1)
         self.assertEqual(self.m.sent[0]['type'],self.m.ORDER_TYPE_SELL)

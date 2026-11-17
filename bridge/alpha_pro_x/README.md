@@ -14,6 +14,7 @@ Integración candidata 1.0.15 preparada a partir del runtime firmado 1.0.14.
 - Una segunda entrada por idea. El núcleo permite Continuation y Retest; el adaptador utiliza Continuation como el código enviado. En oro la distancia de referencia es 0.25 en precio, heredada de la fórmula del indicador; no significa una ganancia garantizada de $25.
 - Una orden distinta por entrada con su SL estructural y TP de 2R. TP1 y TP3 se conservan como referencias en las señales. La segunda entrada usa SL a mitad del nuevo entry y el SL original.
 - Se preservan validación de spread, precio reciente, lote, distancia máxima de SL, permisos DEMO, restricciones de netting y reconciliación de envíos inciertos.
+- Bloqueo de M1 en la recepción y ejecución de órdenes automáticas, incluidas las pendientes de versiones anteriores. Toda señal automática exige una vela M5 identificada y cerrada. Las órdenes manuales con SL explícito conservan su vía independiente.
 - Cursores y órdenes persistidos antes del envío evitan repetir señales al reiniciar. El arranque no ejecuta señales históricas.
 - Backtesting por ticks preparado con el mismo motor combinado; sin backtest histórico nuevo ejecutado en la VPS.
 
@@ -33,7 +34,7 @@ Estas decisiones mantienen la regla previamente solicitada: cerrar únicamente a
 
 `python -m unittest discover -s bridge/alpha_pro_x/tests -v`
 
-71 pruebas locales con bróker simulado: compras, ventas, filtro, retest, add-on único, reversas, sesiones completas, cambio de hora, reloj del bróker, cursor persistente, reinicio, cuenta DEMO, lotaje, órdenes manuales, continuidad CRT, SL/TP y replay bid/ask. Incluye construcción con una clave efímera de prueba y rechazo de claves que no corresponden al launcher original. Ninguna prueba conecta con MetaTrader real.
+76 pruebas locales con bróker simulado: compras, ventas, filtro, retest, add-on único, reversas, sesiones completas, cambio de hora, reloj del bróker, cursor persistente, reinicio, cuenta DEMO, lotaje, órdenes manuales, continuidad CRT, SL/TP y replay bid/ask. Incluye construcción con una clave efímera de prueba y rechazo de claves que no corresponden al launcher original. Ninguna prueba conecta con MetaTrader real.
 
 Para compilar: `python -m compileall -q bridge/alpha_pro_x/runtime`.
 

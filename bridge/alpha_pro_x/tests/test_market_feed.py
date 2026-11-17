@@ -78,7 +78,7 @@ class StructureClockTest(unittest.TestCase):
     make=regression.BrokerTest.make
     bars=regression.BrokerTest.bars
 
-    def test_live_server_clock_quote_and_m1_signal_are_compared_in_same_domain(self):
+    def test_live_server_clock_quote_and_m5_signal_are_compared_in_same_domain(self):
         self.engine.feed=MarketFeed(self.now,self.now)
         self.m.symbol_info_tick=lambda *_:NS(time=self.now()+7200,time_msc=int((self.now()+7200)*1000),bid=2001.05,ask=2001.25)
         for _ in range(3):
@@ -89,7 +89,7 @@ class StructureClockTest(unittest.TestCase):
         for row in self.m.rows:row['time']+=7200
         from datetime import datetime,timezone
         job={'id':'offset-structure','action':'trade','expires_at':datetime.fromtimestamp(self.now()+60,timezone.utc).isoformat(),
-             'symbol':'XAUUSD','direction':'structure','timeframe':'M1','signal_bar':int(self.now())+7200-60,'hold_seconds':0}
+             'symbol':'XAUUSD','direction':'structure','timeframe':'M5','signal_bar':int(self.now())//300*300+7200-300,'hold_seconds':0}
         self.engine.accept(job);self.engine.tick()
         self.assertEqual(len(self.m.sent),1)
         self.assertIn('sl',self.m.sent[0])

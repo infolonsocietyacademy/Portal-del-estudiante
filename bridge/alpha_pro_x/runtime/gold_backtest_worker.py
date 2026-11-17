@@ -88,7 +88,7 @@ def run(jid):
         missing=len(expected_minutes-replay.covered)
         complete=bool(expected_minutes) and missing==0 and replay.history_skips==0 and min(expected_minutes)<=start+3*86400 and max(expected_minutes)>=end-3*86400
         result={'schema':1,'code':'BACKTEST_30D_COMPLETE','job_id':jid,'model':'historical bid/ask ticks; production CRT H1 MSS M5 retest plus ALPHA PRO X M5 engine', 'strategy':'CRT_H1_MSS_M5_RETEST + ALPHA_PRO_X_M5',
-                'symbol':symbol,'period':'M5','days_requested':30,
+                'symbol':symbol,'period':'M5','automatic_entry_timeframe':'M5','days_requested':30,
                 'start_utc':datetime.fromtimestamp(start_utc,timezone.utc).isoformat(),
                 'end_utc':datetime.fromtimestamp(end_utc,timezone.utc).isoformat(),
                 'config':config,'rr':2,'hold_seconds':0,'entry_limit':None,'close_policy':'BROKER_SL_TP_ONLY',

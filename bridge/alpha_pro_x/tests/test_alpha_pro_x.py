@@ -130,6 +130,36 @@ class Integration(unittest.TestCase):
         return dict(id='alpha-test',action='trade',expires_at=datetime.fromtimestamp(self.now()+60,timezone.utc).isoformat(),
                     symbol='XAUUSD',direction='alpha',timeframe='M5',signal_bar=self.rows[-1]['time'],
                     alpha_key=context(self.rows)['events'][0]['key'],hold_seconds=0,signal_timeout_seconds=60,rr=2.)
+    def test_automatic_m1_entries_are_rejected_for_every_strategy(self):
+        for direction in ('structure','crt','alpha'):
+            job=self.job();job['direction']=direction;job['timeframe']='M1'
+            with self.subTest(direction=direction),self.assertRaisesRegex(Fault,'AUTOMATED_ENTRIES_M5_ONLY'):
+                self.engine.accept(job)
+        self.assertFalse(self.mt.sent)
+    def test_unconfirmed_m5_signal_timestamp_is_rejected(self):
+        job=self.job();job['signal_bar']+=60
+        with self.assertRaisesRegex(Fault,'CONFIRMED_M5_SIGNAL_REQUIRED'):
+            self.engine.accept(job)
+    def test_pending_legacy_m1_order_cannot_bypass_execution_guard(self):
+        job=self.job();self.engine.accept(job)
+        state=self.engine.states[job['id']]
+        state['job']['timeframe']='M1'
+        self.engine.save(state)
+        restarted=Engine(self.mt,self.root/'state',dict(login='123',server='Axi-Demo'),self.root,self.cfg,self.now)
+        restarted.tick()
+        self.assertFalse(self.mt.sent)
+        self.assertEqual(restarted.states[job['id']]['code'],'AUTOMATED_ENTRIES_M5_ONLY')
+        self.assertEqual(restarted.states[job['id']]['phase'],'failed')
+    def test_forming_m5_candle_is_never_an_entry(self):
+        self.clock[0]-=1
+        self.engine.accept(self.job());self.engine.tick()
+        self.assertFalse(self.mt.sent)
+        self.assertEqual(self.engine.states['alpha-test']['code'],'WAIT_FRESH_SIGNAL')
+    def test_direction_buy_without_explicit_manual_stop_cannot_bypass_strategy(self):
+        job=self.job();job['direction']='buy'
+        with self.assertRaisesRegex(Fault,'EXPLICIT_MANUAL_STOP_REQUIRED'):
+            self.engine.accept(job)
+
     def test_engine_sends_real_request_with_structural_stop(self):
         self.engine.accept(self.job());self.engine.tick()
         self.assertEqual(len(self.mt.sent),1)

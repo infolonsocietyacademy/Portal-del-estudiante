@@ -121,7 +121,7 @@ def health(engine, code, paused=False):
     return {"schema": 1, "version": VERSION, "updated_at": time.time(),
             "code": code if diagnostic["trade_ready"] else diagnostic["code"], "signal_state":code,
             "ready": diagnostic["trade_ready"], "account_type_verified": "demo",
-            "symbol": engine.config["symbol"], "period": "M5", "strategy": "CRT_H1_MSS_M5_RETEST + ALPHA_PRO_X_M5", "alpha_signal_state": getattr(engine,"alpha_signal_state","ALPHA_WAIT_NEW_CANDLE"), "crt_timeframe": "H1", "entry_limit": None,
+            "symbol": engine.config["symbol"], "period": "M5", "strategy": "CRT_H1_MSS_M5_RETEST + ALPHA_PRO_X_M5", "alpha_signal_state": getattr(engine,"alpha_signal_state","ALPHA_WAIT_NEW_CANDLE"), "crt_timeframe": "H1", "entry_limit": None, "automatic_entry_timeframe": "M5",
             "hold_seconds": 0, "close_policy": "BROKER_SL_TP_ONLY", "paused": paused,
             "size_mode": engine.config["size_mode"], "fixed_lots": engine.config["fixed_lots"],
             "risk_percent": engine.config["risk_percent"], "active_commands": len(live),

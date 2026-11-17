@@ -47,7 +47,7 @@ class FakeMT5:
         self.info=NS(currency_base="XAU",currency_profit="USD",trade_stops_level=10,point=0.01,
                      trade_tick_size=0.01,digits=2,volume_min=0.01,volume_max=100.,volume_step=0.01,
                      filling_mode=1,trade_exemode=2)
-        self.rows=[{"time":int(now())-60*(96-i),"open":2000.,"high":2001.,"low":1999.,"close":2000.} for i in range(96)]
+        self.rows=[{"time":int(now())//300*300-300*(96-i),"open":2000.,"high":2001.,"low":1999.,"close":2000.} for i in range(96)]
     def account_info(self): return self.account
     def terminal_info(self): return self.terminal
     def positions_get(self,**kw):

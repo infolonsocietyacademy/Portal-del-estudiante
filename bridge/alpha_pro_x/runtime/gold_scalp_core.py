@@ -47,6 +47,11 @@ def validate(job, symbol, now=None):
         need(job.get("direction") in {"buy", "sell", "structure", "crt", "alpha"}, "INVALID_DIRECTION")
         manual = job.get("direction") in {"buy", "sell"} and "sl_distance" in job
         need(job.get("timeframe") in {"M1", "M5"} or (manual and "timeframe" not in job), "INVALID_TIMEFRAME")
+        if not manual:
+            need(job.get('timeframe') == 'M5', 'AUTOMATED_ENTRIES_M5_ONLY')
+            need(job['direction'] in {'structure','crt','alpha'}, 'EXPLICIT_MANUAL_STOP_REQUIRED')
+            need(type(job.get('signal_bar')) is int and job['signal_bar'] > 0 and job['signal_bar']%300 == 0,
+                 'CONFIRMED_M5_SIGNAL_REQUIRED')
         if "sl_distance" in job:
             need(manual and finite(job["sl_distance"], 0.1, 50.0), "INVALID_MANUAL_STOP")
         if "tp_distance" in job:
@@ -350,6 +355,10 @@ class Engine:
         if account.margin_mode != m.ACCOUNT_MARGIN_MODE_RETAIL_HEDGING:
             need(not positions and not orders, "NETTING_POSITION_CONFLICT")
         manual = job["direction"] in {"buy","sell"} and "sl_distance" in job
+        if not manual:
+            need(job.get('timeframe') == 'M5', 'AUTOMATED_ENTRIES_M5_ONLY')
+            need(job.get('direction') in {'structure','crt','alpha'}, 'EXPLICIT_MANUAL_STOP_REQUIRED')
+            need(type(job.get('signal_bar')) is int and job['signal_bar']%300 == 0, 'CONFIRMED_M5_SIGNAL_REQUIRED')
         side, swing, level = 0, 0.0, 0.0
         gap = info.trade_stops_level*info.point + tick.ask-tick.bid + 2*info.point
         if manual:
@@ -444,7 +453,7 @@ class Engine:
             request = self.request(state)
         except Fault as exc:
             state["code"] = str(exc)
-            if str(exc) in {"DEMO_ONLY","ACCOUNT_CHANGED","WRONG_TERMINAL","NETTING_POSITION_CONFLICT","VOLUME_OUTSIDE_LIMIT","FIXED_LOTS_NOT_ON_BROKER_STEP","ORDER_CHECK_REJECTED","UNSUPPORTED_FILLING","INVALID_TICK_SIZE","INVALID_VOLUME_METADATA","WRONG_SYMBOL","SYMBOL_UNAVAILABLE","RISK_BUDGET_EXCEEDED","MANUAL_STOP_OUTSIDE_BROKER_LIMIT","MANUAL_TARGET_OUTSIDE_BROKER_LIMIT"}:
+            if str(exc) in {"DEMO_ONLY","ACCOUNT_CHANGED","WRONG_TERMINAL","NETTING_POSITION_CONFLICT","VOLUME_OUTSIDE_LIMIT","FIXED_LOTS_NOT_ON_BROKER_STEP","ORDER_CHECK_REJECTED","UNSUPPORTED_FILLING","INVALID_TICK_SIZE","INVALID_VOLUME_METADATA","WRONG_SYMBOL","SYMBOL_UNAVAILABLE","RISK_BUDGET_EXCEEDED","MANUAL_STOP_OUTSIDE_BROKER_LIMIT","MANUAL_TARGET_OUTSIDE_BROKER_LIMIT","AUTOMATED_ENTRIES_M5_ONLY","EXPLICIT_MANUAL_STOP_REQUIRED","CONFIRMED_M5_SIGNAL_REQUIRED"}:
                 state["phase"] = "failed"
             self.save(state)
             return

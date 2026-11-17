@@ -18,7 +18,8 @@ class ReplayTest(unittest.TestCase):
 
     def paper(self):
         self.bars();self.m.info.trade_contract_size=100.
-        return ReplayBroker(self.m.rows,self.m.info,self.root/'paper-terminal',offset=-7200)
+        rows=[{**r,'time':r['time']+k*60} for r in self.m.rows for k in range(5)]
+        return ReplayBroker(rows,self.m.info,self.root/'paper-terminal',offset=-7200)
 
     def request(self,magic=123,side=0,sl=1999.,tp=2001.):
         return {'action':1,'magic':magic,'symbol':'XAUUSD','volume':.05,'type':side,
@@ -62,10 +63,10 @@ class ReplayTest(unittest.TestCase):
 
     def test_replay_does_not_read_unclosed_or_future_bars(self):
         b=self.paper();b.advance(self.now(),2000.,2000.2)
-        visible=b.copy_rates_from_pos('XAUUSD',1,1,96)
-        self.assertTrue(all(r['time']+60<=self.now() for r in visible))
-        b.server_time-=60
-        earlier=b.copy_rates_from_pos('XAUUSD',1,1,96)
+        visible=b.copy_rates_from_pos('XAUUSD',5,1,96)
+        self.assertTrue(all(r['time']+300<=self.now() for r in visible))
+        b.server_time-=300
+        earlier=b.copy_rates_from_pos('XAUUSD',5,1,96)
         self.assertLess(max(r['time'] for r in earlier),max(r['time'] for r in visible))
 
     def test_production_alpha_signal_engine_is_used_in_replay(self):
@@ -92,7 +93,7 @@ class ReplayTest(unittest.TestCase):
         live=Engine(b,self.root/'live-fixture',{'login':1,'server':'REPLAY-DEMO'},b.terminal,self.cfg,b.clock)
         replay=ReplayEngine(b,self.root/'memory-fixture',{'login':1,'server':'REPLAY-DEMO'},b.terminal,self.cfg,b.clock)
         live.feed=ReplayClock(b);replay.feed=ReplayClock(b)
-        job={'id':'same','action':'trade','symbol':'XAUUSD','direction':'buy','timeframe':'M1','hold_seconds':0,
+        job={'id':'same','action':'trade','symbol':'XAUUSD','direction':'buy','sl_distance':2.,'hold_seconds':0,
              'expires_at':datetime.fromtimestamp(b.clock()+60,timezone.utc).isoformat()}
         live.accept(job);replay.accept(job)
         self.assertEqual(live.request(live.states['same']),replay.request(replay.states['same']))
