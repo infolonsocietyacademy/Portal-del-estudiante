@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "id": "ping-buytest-20261117-001",
+  "task_sha256": "106a204c5e06cd623b61ccb4a83113f1897807045bb9b49c6364194e3791e0c2",
+  "status": "succeeded",
+  "started_at": "2026-11-17T07:59:13+00:00",
+  "code": "PONG",
+  "version": "1.0.21",
+  "finished_at": "2026-11-17T07:59:13+00:00"
+}
