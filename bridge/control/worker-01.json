@@ -12,6 +12,16 @@
       "id": "liqh4-change-mwkb7om0-ping",
       "action": "ping",
       "expires_at": "2026-11-17T07:26:42.648Z"
+    },
+    {
+      "id": "liqh4-start-mwkbfe9t",
+      "action": "demo_gold",
+      "expires_at": "2026-11-17T07:02:42.497Z"
+    },
+    {
+      "id": "liqh4-start-mwkbfe9t-verify",
+      "action": "demo_structure_status",
+      "expires_at": "2026-11-17T07:02:42.497Z"
     }
   ]
 }
