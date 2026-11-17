@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "id": "bt-version-mwk33j6o",
+  "task_sha256": "7bcdd5d6c56209dfc8e261049a6d0bd5027752c5c81d53649a693d7a55086ff0",
+  "status": "succeeded",
+  "started_at": "2026-11-17T02:40:22+00:00",
+  "code": "PONG",
+  "version": "1.0.12",
+  "finished_at": "2026-11-17T02:40:22+00:00"
+}
