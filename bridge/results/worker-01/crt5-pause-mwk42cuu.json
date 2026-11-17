@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "id": "crt5-pause-mwk42cuu",
+  "task_sha256": "1c8ac42ea5c49b516bf1a4f47b41ddde49f3da27fb9276cba656f9bd21ffe5ef",
+  "status": "succeeded",
+  "started_at": "2026-11-17T03:07:45+00:00",
+  "code": "DEMO_GOLD_ENTRIES_PAUSED_SL_TP_RETAINED",
+  "finished_at": "2026-11-17T03:07:45+00:00"
+}
