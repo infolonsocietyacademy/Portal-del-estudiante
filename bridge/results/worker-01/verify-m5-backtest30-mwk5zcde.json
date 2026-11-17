@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "id": "verify-m5-backtest30-mwk5zcde",
+  "task_sha256": "d8de570bca055cf392ad1aac78b273f527ca4e3563ee22146891a3951536c031",
+  "status": "succeeded",
+  "started_at": "2026-11-17T04:01:09+00:00",
+  "code": "BACKTEST_30D_STARTED",
+  "job_id": "verify-m5-backtest30-mwk5zcde",
+  "days": 30,
+  "symbol": "XAUUSD",
+  "mode": "READ_ONLY_MARKET_DATA",
+  "finished_at": "2026-11-17T04:01:09+00:00"
+}
