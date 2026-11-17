@@ -568,6 +568,11 @@
       "id": "crt-demo-start-mwk3un5z",
       "action": "demo_gold",
       "expires_at": "2026-11-17T03:17:03.118Z"
+    },
+    {
+      "id": "crt5-pause-mwk42cuu",
+      "action": "demo_gold_stop",
+      "expires_at": "2026-11-17T03:21:36.822Z"
     }
   ]
 }
