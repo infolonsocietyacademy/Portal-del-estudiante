@@ -468,6 +468,16 @@
       "id": "health-bridge-doctor-mwjwzyz4",
       "action": "diagnose",
       "expires_at": "2026-11-16T23:58:48.208Z"
+    },
+    {
+      "id": "verify-20261117-0024-ping",
+      "action": "ping",
+      "expires_at": "2026-11-17T00:32:00Z"
+    },
+    {
+      "id": "verify-20261117-0024-diagnose",
+      "action": "diagnose",
+      "expires_at": "2026-11-17T00:32:00Z"
     }
   ]
 }
