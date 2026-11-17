@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "id": "liqh4-change-mwkb7om0-pause",
+  "task_sha256": "26d2b3e81e479c1f0830aab16b8ddcf6ea73a0f1177ec9f4279feda81f79f1ef",
+  "status": "succeeded",
+  "started_at": "2026-11-17T06:27:04+00:00",
+  "code": "DEMO_GOLD_ENTRIES_PAUSED_SL_TP_RETAINED",
+  "finished_at": "2026-11-17T06:27:04+00:00"
+}
