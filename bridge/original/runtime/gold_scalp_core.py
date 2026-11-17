@@ -7,7 +7,7 @@ from pathlib import Path
 import re
 import time
 
-VERSION = "1.0.10"
+VERSION = "1.0.11"
 LIVE_PHASES = {"waiting", "submitted", "open", "closing", "uncertain"}
 FINAL_PHASES = {"done", "failed"}
 
@@ -127,6 +127,7 @@ def atomic(path, value):
 class Engine:
     def __init__(self, mt5, state_dir, expected, terminal, config, clock=time.time):
         self.mt5, self.clock = mt5, clock
+        self.feed = None
         self.dir = Path(state_dir)
         self.dir.mkdir(parents=True, exist_ok=True)
         self.expected, self.terminal, self.config = expected, str(Path(terminal).resolve()), config
@@ -184,15 +185,23 @@ class Engine:
             safe["diagnostics"]=state["diagnostics"]
         return safe
 
+    def market_fresh(self, tick):
+        if self.feed is not None:
+            return self.feed.observe(tick)
+        return tick is not None and abs(self.clock()-float(tick.time)) <= 10
+
+    def market_now(self):
+        return self.feed.server_now() if self.feed is not None else self.clock()
+
     def diagnostics(self):
         account=self.guard()
         info=self.mt5.terminal_info()
         tick=self.mt5.symbol_info_tick(self.config["symbol"])
         age=None if tick is None else round(self.clock()-float(tick.time),3)
         spread=None if tick is None else round(float(tick.ask)-float(tick.bid),8)
-        fresh=age is not None and abs(age)<=10 and spread is not None and spread>0
+        fresh=self.market_fresh(tick) and spread is not None and spread>0
         permissions=bool(info.trade_allowed and not info.tradeapi_disabled and account.trade_allowed and account.trade_expert)
-        return {"terminal_connected":True,"account_type_verified":"demo","python_trading_allowed":permissions,
+        return {**(self.feed.summary() if self.feed is not None else {}),"terminal_connected":True,"account_type_verified":"demo","python_trading_allowed":permissions,
                 "quote_age_seconds":age,"spread_price":spread,"quote_fresh":fresh,
                 "trade_ready":permissions and fresh and spread<=self.config["max_spread_price"],
                 "code":"RESIDENT_READY" if permissions and fresh and spread<=self.config["max_spread_price"] else "PYTHON_TRADING_DISABLED" if not permissions else "QUOTE_STALE" if not fresh else "SPREAD_FILTER"}
@@ -238,7 +247,7 @@ class Engine:
         info, tick = m.symbol_info(symbol), m.symbol_info_tick(symbol)
         need(info is not None and tick is not None and finite(tick.bid,1e-9,1e9) and finite(tick.ask,tick.bid+1e-12,1e9), "QUOTE_UNAVAILABLE")
         need(info.currency_base == "XAU" and info.currency_profit == "USD", "WRONG_SYMBOL")
-        need(abs(self.clock() - tick.time) <= 10, "WAIT_FRESH_QUOTE")
+        need(self.market_fresh(tick), "WAIT_FRESH_QUOTE")
         need(tick.ask - tick.bid <= self.config["max_spread_price"], "WAIT_SPREAD")
         positions, orders = self.read_account(state)
         if account.margin_mode != m.ACCOUNT_MARGIN_MODE_RETAIL_HEDGING:
@@ -268,7 +277,7 @@ class Engine:
                 self.save(state)
                 side, swing, level = structure_signal(rates)
                 need(side != 0, "WAIT_STRUCTURE")
-                need(0 <= self.clock() - rates[0]["time"] - seconds <= 10, "WAIT_FRESH_SIGNAL")
+                need(0 <= self.market_now() - rates[0]["time"] - seconds <= 10, "WAIT_FRESH_SIGNAL")
             else:
                 side = 1 if job["direction"] == "buy" else -1
             entry = float(tick.ask if side > 0 else tick.bid)
@@ -343,8 +352,9 @@ class Engine:
 
     def history(self, state):
         m = self.mt5
-        start = datetime.fromtimestamp(state["created_at"]-60,timezone.utc)
-        end = datetime.fromtimestamp(self.clock()+60,timezone.utc)
+        offset = self.market_now()-self.clock()
+        start = datetime.fromtimestamp(min(state["created_at"],state["created_at"]+offset)-60,timezone.utc)
+        end = datetime.fromtimestamp(max(self.clock(),self.market_now())+60,timezone.utc)
         deals = m.history_deals_get(start,end)
         need(deals is not None, "HISTORY_UNAVAILABLE")
         entries = [d for d in deals if d.magic == magic_for(state["id"]) and d.symbol == state["job"]["symbol"] and d.entry == m.DEAL_ENTRY_IN]
@@ -358,7 +368,7 @@ class Engine:
         if positions:
             state.update(phase="open",code="POSITION_OPEN",floating_profit=round(sum(p.profit+p.swap for p in positions),2))
             p=positions[0]
-            state.update(open_price=float(p.price_open),volume=max(state.get("volume",0),sum(float(item.volume) for item in positions)),remaining_volume=sum(float(item.volume) for item in positions),held_seconds=max(0,int(self.clock()-p.time)))
+            state.update(open_price=float(p.price_open),volume=max(state.get("volume",0),sum(float(item.volume) for item in positions)),remaining_volume=sum(float(item.volume) for item in positions),held_seconds=max(0,int(self.market_now()-p.time)))
             if not state.get("entry_logged"):
                 state["entry_logged"] = True
                 self.event(state,"APERTURA_CONFIRMADA",symbol=p.symbol,side=state.get("side"),volume=float(p.volume),price=float(p.price_open))

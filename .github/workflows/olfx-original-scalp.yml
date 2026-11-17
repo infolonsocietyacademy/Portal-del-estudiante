@@ -2,7 +2,7 @@ name: Original Bridge M1 SL-TP checks
 on:
   push:
     branches: [olfx-mt5-bridge]
-    paths: ['bridge/original/**', 'bridge/updates/releases/1.0.10.json', '.github/workflows/olfx-original-scalp.yml']
+    paths: ['bridge/original/**', 'bridge/updates/releases/**', '.github/workflows/olfx-original-scalp.yml']
 permissions:
   contents: read
 jobs:

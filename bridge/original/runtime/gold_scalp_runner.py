@@ -34,6 +34,8 @@ class Strategy:
                     engine.save(state)
         engine.tick()
         account = engine.guard(trade=True)
+        if not engine.market_fresh(engine.mt5.symbol_info_tick(engine.config["symbol"])):
+            return "WAIT_FRESH_QUOTE"
         rows = engine.bars({"symbol": engine.config["symbol"], "timeframe": "M1"})
         bar = rows[0]["time"]
         if self.last_bar is None:
@@ -47,7 +49,7 @@ class Strategy:
         atomic(self.cursor, {"last_bar": bar})
         if paused:
             return "PAUSED_SL_TP_ONLY"
-        if not 0 <= engine.clock() - bar - 60 <= 10:
+        if not 0 <= engine.market_now() - bar - 60 <= 10:
             return "WAIT_FRESH_SIGNAL"
         side, _, _ = structure_signal(rows)
         if not side:
@@ -56,7 +58,7 @@ class Strategy:
         import hashlib
         pin = hashlib.sha256((str(account.login)+"@"+account.server).encode()).hexdigest()[:12]
         job = {"id": "m1-"+pin+"-"+str(bar), "action": "trade",
-               "expires_at": datetime.fromtimestamp(bar+120, timezone.utc).isoformat(),
+               "expires_at": datetime.fromtimestamp(engine.clock()+60, timezone.utc).isoformat(),
                "symbol": engine.config["symbol"], "direction": "structure", "timeframe": "M1",
                "signal_bar": bar, "hold_seconds": 0, "signal_timeout_seconds": 60, "rr": 2.0}
         engine.accept(job)
@@ -83,6 +85,10 @@ def connect(mt5, root):
             raise Fault("EXECUTION_DATA_PATH_MISMATCH")
         engine = Engine(mt5, root / "gold-scalp-m1" / "state", expected, terminal, config)
         engine.guard(trade=True)
+        if not mt5.symbol_select(config["symbol"], True):
+            raise Fault("SYMBOL_UNAVAILABLE")
+        from market_feed import MarketFeed
+        engine.feed = MarketFeed()
         if not pin.is_file():
             atomic(pin, expected)
         return engine
@@ -95,7 +101,8 @@ def health(engine, code, paused=False):
     live = [s for s in engine.states.values() if s["job"]["action"] == "trade" and s["phase"] not in {"done", "failed"}]
     diagnostic = engine.diagnostics()
     return {"schema": 1, "version": VERSION, "updated_at": time.time(),
-            "code": code, "ready": diagnostic["trade_ready"], "account_type_verified": "demo",
+            "code": code if diagnostic["trade_ready"] else diagnostic["code"], "signal_state":code,
+            "ready": diagnostic["trade_ready"], "account_type_verified": "demo",
             "symbol": engine.config["symbol"], "period": "M1", "entry_limit": None,
             "hold_seconds": 0, "close_policy": "BROKER_SL_TP_ONLY", "paused": paused,
             "size_mode": engine.config["size_mode"], "fixed_lots": engine.config["fixed_lots"],
@@ -105,6 +112,11 @@ def health(engine, code, paused=False):
             "closed_commands": sum(s["code"] == "POSITION_CLOSED" for s in engine.states.values()),
             "net_recorded": round(sum(s.get("profit", 0) for s in engine.states.values()), 2),
             "quote_fresh": diagnostic["quote_fresh"], "python_trading_allowed": diagnostic["python_trading_allowed"],
+            "quote_age_seconds":diagnostic.get("quote_age_seconds"),
+            "adjusted_quote_age_seconds":diagnostic.get("adjusted_quote_age_seconds"),
+            "broker_clock_offset_seconds":diagnostic.get("broker_clock_offset_seconds"),
+            "advancing_tick_samples":diagnostic.get("advancing_tick_samples"),
+            "spread_price":diagnostic.get("spread_price"),
             "nonce": os.environ.get("OLFX_SCALP_NONCE", "")}
 
 
