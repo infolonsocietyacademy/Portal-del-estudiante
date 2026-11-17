@@ -593,6 +593,11 @@
       "id": "verify-m5-backtest30-mwk5zcde",
       "action": "gold_backtest_30d",
       "expires_at": "2026-11-17T04:15:15.458Z"
+    },
+    {
+      "id": "status-m5-backtest30-mwk62aew",
+      "action": "gold_backtest_status",
+      "expires_at": "2026-11-17T04:12:32.888Z"
     }
   ]
 }
