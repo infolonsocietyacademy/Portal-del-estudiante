@@ -1,4 +1,4 @@
-"""Read-only historical market download and isolated in-memory 30-day replay."""
+"""Read-only historical market download and isolated 14/30-day in-memory replay."""
 from datetime import datetime,timezone
 import json
 import math
@@ -24,7 +24,14 @@ class ReadOnlyMarket:
         return getattr(self.module,name)
 
 
-def run(jid):
+def backtest_window(days, now=None):
+    if type(days) is not int or days not in (14,30):
+        raise RuntimeError('INVALID_BACKTEST_DAYS')
+    end_utc=int(time.time() if now is None else now)//60*60
+    return end_utc-days*86400,end_utc
+
+
+def run(jid,days=30):
     import bridge_agent as api
     import MetaTrader5 as module
     market=ReadOnlyMarket(module)
@@ -51,9 +58,9 @@ def run(jid):
             tick=market.symbol_info_tick(symbol)
             if tick is None or abs(time.time()-tick.time)>10:raise RuntimeError('BACKTEST_CLOCK_NOT_VERIFIED')
             offset=0
-        end_utc=int(time.time())//60*60;start_utc=end_utc-30*86400
+        start_utc,end_utc=backtest_window(days)
         start,end=start_utc-offset,end_utc-offset
-        progress('FETCHING_M1_HISTORY',requested_days=30)
+        progress('FETCHING_M1_HISTORY',requested_days=days)
         rows=market.copy_rates_range(symbol,module.TIMEFRAME_M1,int(start-5*86400),int(end-60))
         if rows is None or len(rows)<100:raise RuntimeError('BACKTEST_INSUFFICIENT_M1_HISTORY')
         rows=[{k:int(r[k]) if k=='time' else float(r[k]) for k in ('time','open','high','low','close')} for r in rows]
@@ -72,7 +79,7 @@ def run(jid):
         chunks=0;empty_chunks=0;cursor=start
         while cursor<end:
             stop=min(cursor+6*3600,end)
-            progress('REPLAYING_REAL_TICKS',requested_days=30,progress_percent=round(100*(cursor-start)/(end-start),2),
+            progress('REPLAYING_REAL_TICKS',requested_days=days,progress_percent=round(100*(cursor-start)/(end-start),2),
                      chunks=chunks,closed_trades=len(broker.closed),ticks=replay.tick_count)
             ticks=market.copy_ticks_range(symbol,int(cursor),int(stop),module.COPY_TICKS_ALL)
             if ticks is None:
@@ -87,8 +94,8 @@ def run(jid):
         metrics=replay.metrics()
         missing=len(expected_minutes-replay.covered)
         complete=bool(expected_minutes) and missing==0 and replay.history_skips==0 and min(expected_minutes)<=start+3*86400 and max(expected_minutes)>=end-3*86400
-        result={'schema':1,'code':'BACKTEST_30D_COMPLETE','job_id':jid,'model':'historical bid/ask ticks; production M1 breakout/fake-breakout engine with TP1 1R', 'strategy':'BREAKOUT_FAKEBREAKOUT_M1_TP1',
-                'symbol':symbol,'period':'M1','days_requested':30,
+        result={'schema':1,'code':f'BACKTEST_{days}D_COMPLETE','job_id':jid,'model':'historical bid/ask ticks; production M1 breakout/fake-breakout engine with TP1 1R', 'strategy':'BREAKOUT_FAKEBREAKOUT_M1_TP1',
+                'symbol':symbol,'period':'M1','days_requested':days,
                 'start_utc':datetime.fromtimestamp(start_utc,timezone.utc).isoformat(),
                 'end_utc':datetime.fromtimestamp(end_utc,timezone.utc).isoformat(),
                 'config':config,'rr':1,'hold_seconds':0,'entry_limit':None,'close_policy':'BROKER_SL_TP_ONLY',
@@ -100,7 +107,7 @@ def run(jid):
                 'empty_6h_chunks':empty_chunks,'metrics':metrics}
         atomic(folder/'result.json',result)
         progress('COMPLETE',result=result)
-        print('OLFX BACKTEST 30D COMPLETO: '+str(metrics['win_rate_percent'])+'% | cerradas '+str(metrics['closed_trades']),flush=True)
+        print(f'OLFX BACKTEST {days}D COMPLETO: '+str(metrics['win_rate_percent'])+'% | cerradas '+str(metrics['closed_trades']),flush=True)
     except Exception as exc:
         code=str(exc) if isinstance(exc,RuntimeError) else 'BACKTEST_LOCAL_ERROR_'+type(exc).__name__
         progress('FAILED',code=code)
@@ -110,6 +117,11 @@ def run(jid):
 
 
 if __name__=='__main__':
+    import argparse
     import re
-    if len(sys.argv)!=2 or not re.fullmatch(r'[A-Za-z0-9_-]{1,64}',sys.argv[1]):raise SystemExit('INVALID_BACKTEST_ID')
-    run(sys.argv[1])
+    parser=argparse.ArgumentParser()
+    parser.add_argument('job_id')
+    parser.add_argument('--days',type=int,choices=(14,30),default=30)
+    args=parser.parse_args()
+    if not re.fullmatch(r'[A-Za-z0-9_-]{1,64}',args.job_id):raise SystemExit('INVALID_BACKTEST_ID')
+    run(args.job_id,args.days)
