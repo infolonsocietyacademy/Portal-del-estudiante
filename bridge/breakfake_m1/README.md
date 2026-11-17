@@ -1,6 +1,6 @@
 # Breakout + Fake Breakout M1: SL estructural y TP1
 
-Estado: integración candidata 1.0.16, preparada a partir del runtime firmado 1.0.14. **No instalada en la VPS.** El canal sigue en la release firmada anterior porque la clave privada original de actualización no está disponible. Guardar este código no cambia el runtime instalado.
+Estado: versión 1.0.16 firmada y recuperación local preparada. **La instalación en la VPS sigue pendiente de ejecutar la recuperación en Windows.** La estrategia anterior fue pausada desde el bridge. Guardar este código no instala por sí mismo el nuevo motor.
 
 ## Orden solicitada
 
@@ -27,14 +27,22 @@ Al instalar esta candidata, el worker automático utilizaría esta estrategia M1
 
 `python -m unittest discover -s bridge/breakfake_m1/tests -v`
 
-47 pruebas distintas con bróker simulado: tipos de señal, SL estructurales en compras y ventas, spread, tick del bróker, distancia mínima, límite máximo de SL, riesgo porcentual, TP1 completo, disparos bid/ask, cuenta DEMO, netting, rechazo de órdenes, envíos inciertos y reinicios.
+55 pruebas distintas (47 del motor y 8 de recuperación) con bróker simulado: tipos de señal, SL estructurales en compras y ventas, spread, tick del bróker, distancia mínima, límite máximo de SL, riesgo porcentual, TP1 completo, disparos bid/ask, cuenta DEMO, netting, rechazo de órdenes, envíos inciertos y reinicios.
 
 `pine_signal_cases.json` contiene 1,000 velas de prueba evaluadas con el bloque de señales del Pine original mediante su AST y ATR/EMA de referencia. Coincidieron las 44 señales y sus SL. La prueba repite esta comparación después de restauraciones de estado. Esto verifica correspondencia lógica; **no es compilación de TradingView, backtest histórico ni prueba de rentabilidad**.
 
 `python -m compileall -q bridge/breakfake_m1/runtime`
 
-## Instalación pendiente
+## Recuperación e instalación desde Windows
 
-`build_release.py` prepara la release 1.0.16 (secuencia 16) solo si la clave privada proporcionada coincide con la clave pública del launcher original. No incluye ni publica claves privadas ni datos de cuenta. No cambia automáticamente el canal y no sustituye el mecanismo de confianza del actualizador.
+La clave de firma anterior no está disponible. Se preparó una nueva identidad de firma de actualizaciones y un instalador que debe ejecutar el propietario localmente. La clave privada se conserva separada y no se publica ni se copia a la VPS.
 
-Falta recuperar el entorno de firma original, publicar la release verificada y observar un estado nuevo de la VPS que confirme `BREAKOUT_FAKEBREAKOUT_M1_TP1`, periodo M1 y objetivo 1R. Hasta entonces la VPS continúa con CRT de la versión anterior.
+La recuperación verifica un commit inmutable y los hashes del instalador y del launcher; verifica además la firma RSA del runtime. Antes de cambiar el runtime exige que la cuenta siga siendo DEMO, emparejada y sin posiciones/órdenes abiertas. Conserva cuenta, token, configuración y lote. Guarda el puntero y el launcher originales para volver al bridge anterior con las entradas pausadas si falla el arranque.
+
+Solo después de la verificación local instala la nueva clave pública de actualizaciones y activa el motor M1/TP1. Esto es una recuperación de confianza explícita desde Windows; el actualizador anterior rechazará la nueva firma hasta completar ese paso local. No se omite la verificación de firmas.
+
+`recovery/install_owner.py` no puede ejecutarse por el buzón de órdenes del bridge anterior. El propietario debe ejecutar una vez el comando de PowerShell preparado. Después el bridge vuelve a recibir actualizaciones firmadas automáticamente con la nueva identidad.
+
+No ejecutar los CMD viejos que invoquen directamente una versión anterior. El punto de arranque recuperado es `%LOCALAPPDATA%\OLFX_MT5_BRIDGE\INICIAR_BRIDGE_ACTUAL.cmd`; los launchers originales activos que se logre identificar también conservan su ruta y actualizan su clave pública con respaldo.
+
+La instalación solo se confirma al observar `BREAKOUT_FAKEBREAKOUT_M1_TP1`, periodo M1, objetivo 1R, cuenta DEMO y estado operativo en una lectura nueva de la VPS.
