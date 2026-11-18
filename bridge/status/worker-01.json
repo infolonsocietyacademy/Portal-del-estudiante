@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.30",
   "state": "online",
-  "updated_at": "2026-11-18T21:46:28+00:00",
+  "updated_at": "2026-11-18T21:47:30+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "range90-chunks-1794990312505",
@@ -113,10 +113,10 @@
     "range_low": 26930.25,
     "sl_50": 27032.4,
     "daily_attempt_consumed": true,
-    "snapshot_fresh": true
+    "snapshot_fresh": false
   },
   "updater": {
-    "state": "running"
+    "state": "download_rejected_or_unavailable"
   },
   "diagnostics": {
     "scope": "recent_logs",
