@@ -46,14 +46,14 @@ function renderLicenseList(){
    const user=ownerFor(l),id=l.id;
    let actions="";
    if(l.status!=="revoked")actions+=actionButton("data-license-reveal",id,"Ver licencia","licenseViewAction");
-   if(l.status==="available"){
-    if(!l.issued_to)actions+=actionButton("data-license-assign",id,"Asignar estudiante","licenseAssignAction");
-    actions+='<button type="button" class="adminSmallButton" data-license-edit="'+escape(id)+'" data-license-days="'+Number(l.duration_days)+'">Editar días</button>';
-    actions+=actionButton("data-license-revoke",id,"Revocar","licenseRevokeAction");
+   if(l.status==="available"&&!l.issued_to)actions+=actionButton("data-license-assign",id,"Asignar estudiante","licenseAssignAction");
+   if(l.status==="available"||(l.status==="redeemed"&&l.is_current!==false)){
+    actions+='<button type="button" class="adminSmallButton" data-license-edit="'+escape(id)+'" data-license-days="'+Number(l.duration_days)+'">'+(l.status==="redeemed"?"Editar vencimiento":"Editar días")+'</button>';
    }
+   if(["available","redeemed"].includes(l.status))actions+=actionButton("data-license-revoke",id,"Revocar","licenseRevokeAction");
    if(l.status==="revoked")actions+=actionButton("data-license-delete",id,"Eliminar","olonLicenseDelete");
-   const expiry=l.status==="available"?"Al activar":l.status==="revoked"?"—":shortDate(user?.expires_at);
-   return '<tr data-license-row="'+escape(id)+'"'+(assignmentId===id?' class="licenseAssignmentSelected"':'')+'><td>'+identityCell(user,l.status==="available"&&user?"Pendiente de activar":null)+'</td><td><span class="licenseMaskedCode">•••• '+escape(l.code_hint||"—")+'</span></td><td>'+Number(l.duration_days)+'</td><td><span class="licenseDate">'+escape(expiry)+'</span>'+(l.status==="redeemed"&&user?.expires_at?'<small class="licenseDateHint">Acceso actual</small>':'')+'</td><td><span class="licenseStatusBadge" data-state="'+escape(l.status)+'">'+escape(licenseStatusLabel(l.status))+'</span></td><td><div class="licenseTableActions">'+actions+'</div></td></tr>';
+   const expiry=l.status==="available"?"Al activar":l.status==="revoked"?"—":l.is_current===false?"Licencia anterior":shortDate(l.access_expires_at||user?.expires_at);
+   return '<tr data-license-row="'+escape(id)+'"'+(assignmentId===id?' class="licenseAssignmentSelected"':'')+'><td>'+identityCell(user,l.status==="available"&&user?"Pendiente de activar":null)+'</td><td><span class="licenseMaskedCode">•••• '+escape(l.code_hint||"—")+'</span></td><td>'+Number(l.duration_days)+'</td><td><span class="licenseDate">'+escape(expiry)+'</span>'+(l.status==="redeemed"&&l.is_current!==false&&user?.expires_at?'<small class="licenseDateHint">Acceso actual</small>':'')+'</td><td><span class="licenseStatusBadge" data-state="'+escape(l.status)+'">'+escape(l.status==="redeemed"&&l.is_current===false?"Activada anterior":licenseStatusLabel(l.status))+'</span></td><td><div class="licenseTableActions">'+actions+'</div></td></tr>';
   }).join("")||'<tr><td colspan="6" class="licenseTableEmpty">No hay licencias con estos filtros.</td></tr>';
  }else{
   $("olonLicenseStudents").innerHTML=students.slice(offset,offset+licensePageSize).map(u=>'<tr><td>'+identityCell(u)+'</td><td>'+escape(shortDate(u.expires_at))+'</td><td><span class="licenseStatusBadge" data-state="'+escape(u.phase)+'">'+escape(phase(u.phase))+'</span></td><td>'+escape(u.pending_payment?"Comprobante pendiente":"—")+'</td><td><div class="licenseTableActions">'+actionButton("data-license-new-for",u.id,"Crear licencia")+(u.phase==="eligible"&&!u.pending_payment?actionButton("data-license-review",u.id,"Revisar eliminación","olonLicenseDelete"):"")+'</div></td></tr>').join("")||'<tr><td colspan="5" class="licenseTableEmpty">No hay estudiantes con esta búsqueda.</td></tr>';
@@ -238,6 +238,10 @@ async function adminRefresh(){
 }
 async function generate(e){e?.preventDefault();if(!adminAuthorized())return;const btn=$("olonLicenseGenerate");const d=String($("olonLicenseDays")?.value||"").trim(),days=Number(d);if(!/^\d{1,3}$/.test(d)||!Number.isInteger(days)||days<1||days>365){note("olonLicenseAdminFeedback","Escribe una duración de 1 a 365 días.",true);return;}if(!String($("olonLicenseAssign")?.value||""))return note("olonLicenseAdminFeedback","Selecciona el estudiante que recibirá la licencia.",true);if(btn)btn.disabled=true;try{const r=await call("generate",{days,quantity:Number($("olonLicenseQuantity")?.value||1),issued_to:String($("olonLicenseAssign")?.value||"")});showGenerated(r.licenses||[]);closeCreate();note("olonLicenseAdminFeedback","Licencias creadas. Copia los códigos para compartirlos con su estudiante.");await adminRefresh();$("olonLicenseResult")?.scrollIntoView({behavior:"smooth",block:"nearest"});}catch(e){note("olonLicenseAdminFeedback",e.message,true);}finally{if(btn)btn.disabled=false;}}
 async function editDays(id,previous,creating=false){
+ const license=allLicenses.find(l=>l.id===id);
+ const active=!creating&&license?.status==="redeemed";
+ if(!adminAuthorized()||(!creating&&(!license||license.status==="revoked"||active&&license.is_current===false)))return;
+ const expiry=active?(license.access_expires_at||ownerFor(license)?.expires_at):null;
  // Editor visual: el calendario calcula días a partir de hoy en Puerto Rico.
  // La fecha indicada es ilustrativa si el código se activa hoy sin saldo previo.
  const inPR=new Intl.DateTimeFormat("en-US",{timeZone:"America/Puerto_Rico",year:"numeric",month:"2-digit",day:"2-digit"});
@@ -247,21 +251,25 @@ async function editDays(id,previous,creating=false){
  const addDays=(v,n)=>new Date(parseISO(v).getTime()+n*86400000).toISOString().slice(0,10);
  const diff=v=>Math.round((parseISO(v).getTime()-parseISO(today).getTime())/86400000);
  const max=addDays(today,365);
+ if(active&&expiry){
+  const currentDateParts=Object.fromEntries(inPR.formatToParts(new Date(expiry)).map(x=>[x.type,x.value]));
+  previous=diff(currentDateParts.year+"-"+currentDateParts.month+"-"+currentDateParts.day);
+ }
  let selected=addDays(today,Math.max(1,Math.min(365,Number(previous)||15)));
  let month=selected.slice(0,7);
  const dialog=document.createElement("dialog");
  dialog.className="olonLicenseCalendarDialog";
  dialog.setAttribute("aria-label",creating?"Elegir días de acceso con calendario":"Editar días de licencia con calendario");
  dialog.innerHTML='<div class="olonLicenseCalendarInner">'+
-  '<div class="olonLicenseCalendarHead"><div><small>OLFX / LICENSE MANAGER</small><h3>'+(creating?"Elegir días de acceso":"Editar días de licencia") +'</h3></div><button type="button" class="olonLicenseCalendarClose" data-cal-close aria-label="Cerrar calendario">×</button></div>'+
+  '<div class="olonLicenseCalendarHead"><div><small>OLFX / LICENSE MANAGER</small><h3>'+(creating?"Elegir días de acceso":active?"Editar vencimiento activo":"Editar días de licencia") +'</h3></div><button type="button" class="olonLicenseCalendarClose" data-cal-close aria-label="Cerrar calendario">×</button></div>'+
   '<p class="olonLicenseCalendarIntro">Selecciona una fecha en el calendario. Se calcularán automáticamente los días de acceso a partir de hoy (hora de Puerto Rico).</p>'+
   '<div class="olonLicenseCalendarNav"><button type="button" data-cal-prev aria-label="Mes anterior">‹</button><strong id="olonLicenseCalendarMonth"></strong><button type="button" data-cal-next aria-label="Mes siguiente">›</button></div>'+
   '<div class="olonLicenseCalendarWeek" aria-hidden="true"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>'+
   '<div class="olonLicenseCalendarGrid" role="grid" aria-label="Días disponibles para la licencia"></div>'+
   '<div class="olonLicenseCalendarSummary"><span>Fecha elegida <b id="olonLicenseCalendarDate"></b></span><span>Duración nueva <b id="olonLicenseCalendarDays"></b></span></div>'+
-  '<p class="olonLicenseCalendarHelp">'+(creating?"Esta fecha determina cuántos días durará cada licencia nueva, contando desde hoy en Puerto Rico. El vencimiento real dependerá de cuándo se active y de los días acumulados.":"La fecha muestra cuándo vencería si se activa hoy sin días restantes. Si el estudiante aún tiene días pagados, se acumularán. Al editar, el código anterior será reemplazado por uno nuevo.")+'</p>'+
+  '<p class="olonLicenseCalendarHelp">'+(creating?"Esta fecha determina cuántos días durará cada licencia nueva, contando desde hoy en Puerto Rico. El vencimiento real dependerá de cuándo se active y de los días acumulados.":active?"El acceso activo vencerá en la fecha elegida, a la hora de este cambio (Puerto Rico). Los días se cuentan desde hoy y sustituyen el vencimiento actual; no se suman. No necesita otro código.":"La fecha muestra cuándo vencería si se activa hoy sin días restantes. Si el estudiante aún tiene días pagados, se acumularán. Al editar, el código anterior será reemplazado por uno nuevo.")+'</p>'+
   '<p class="olonLicenseCalendarError" role="alert" hidden></p>'+
-  '<div class="olonLicenseCalendarActions"><button type="button" class="adminSmallButton" data-cal-close>Cancelar</button><button type="button" class="btn" data-cal-save>'+(creating?"Confirmar días":"Guardar y generar nuevo código")+'</button></div>'+
+  '<div class="olonLicenseCalendarActions"><button type="button" class="adminSmallButton" data-cal-close>Cancelar</button><button type="button" class="btn" data-cal-save>'+(creating?"Confirmar días":active?"Guardar vencimiento":"Guardar y generar nuevo código")+'</button></div>'+
   '</div>';
  document.body.append(dialog);
  const q=selector=>dialog.querySelector(selector);
@@ -315,9 +323,9 @@ async function editDays(id,previous,creating=false){
     dialog.close();return;
    }
    const result=await call("edit_days",{id,days});
-   showGenerated([{id,code:result.code,days}]);
+   if(result.code)showGenerated([{id,code:result.code,days}]);
    dialog.close();
-   note("olonLicenseAdminFeedback","Licencia actualizada a "+days+" días. Copia el código nuevo ahora; el anterior fue invalidado.");
+   note("olonLicenseAdminFeedback",result.active?"Vencimiento actualizado: "+shortDate(result.expires_at)+". El estudiante conserva la misma licencia.":"Licencia actualizada a "+days+" días. Copia el código nuevo ahora; el anterior fue invalidado.");
    await adminRefresh();
   }catch(e){showError(e.message||"No se pudo editar la licencia.");save.disabled=false;}
  });
@@ -326,7 +334,18 @@ async function editDays(id,previous,creating=false){
  if(typeof dialog.showModal==="function")dialog.showModal();else dialog.setAttribute("open","");
 }
 async function deleteRevoked(id){if(!confirm("¿Eliminar definitivamente esta licencia revocada? Los estudiantes y sus datos no se eliminan."))return;try{await call("delete_revoked",{id});await adminRefresh();note("olonLicenseAdminFeedback","Licencia revocada eliminada.");}catch(e){note("olonLicenseAdminFeedback",e.message||"No se pudo eliminar.",true);}}
-async function revoke(id){if(!confirm("¿Revocar esta licencia sin utilizar?"))return;try{await call("revoke",{id});await adminRefresh();note("olonLicenseAdminFeedback","Licencia revocada.");}catch(e){note("olonLicenseAdminFeedback",e.message,true);}}
+async function revoke(id){
+ const license=allLicenses.find(l=>l.id===id);if(!license||!adminAuthorized())return;
+ const active=license.status==="redeemed"&&license.is_current!==false;
+ const name=ownerFor(license)?.full_name||"el estudiante";
+ const message=active?"¿Revocar la licencia activa de "+name+"? Su acceso VIP se suspenderá al comprobar de nuevo la licencia. Sus datos e historial se conservan.":license.status==="redeemed"?"¿Revocar esta licencia anterior? El acceso de la renovación actual se conserva.":"¿Revocar esta licencia sin utilizar?";
+ if(!confirm(message))return;
+ try{
+  const result=await call("revoke",{id});
+  const refreshed=await adminRefresh();
+  note("olonLicenseAdminFeedback",(result.access_revoked?"Licencia revocada. El acceso VIP quedó suspendido; los datos del estudiante se conservan.":"Licencia revocada.")+(refreshed?"":" Presiona Actualizar para recargar la tabla."),!refreshed);
+ }catch(e){note("olonLicenseAdminFeedback",e.message,true);}
+}
 function init(){
  const durationValue=Number($("olonLicenseDays")?.value)||15;
  const pickerDate=new Date(Date.now()+durationValue*86400000);
@@ -395,7 +414,10 @@ function init(){
     }else if(currentUser?.role==="student")void status(true);
    }).observe(portal,{attributes:true,attributeFilter:["class"]});
   }
-  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&currentUser?.role==="student")void status();});
+  // Recheck visible student access so administrative revocations take effect
+ // without requiring logout, navigation or a manual refresh.
+ setInterval(()=>{if(!document.hidden&&currentUser?.role==="student"&&!portal?.classList.contains("hidden"))void status(true);},60000);
+ document.addEventListener("visibilitychange",()=>{if(!document.hidden&&currentUser?.role==="student")void status(true);});
   window.addEventListener("focus",()=>{if(currentUser?.role==="student")void status();});
   document.addEventListener("click",event=>{
   if(!document.body.classList.contains("olonLicenseRenewalRequired")&&!document.body.classList.contains("olonLicenseChecking"))return;
