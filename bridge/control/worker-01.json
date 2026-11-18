@@ -92,6 +92,11 @@
       "id": "no-trades-20261118063904-status",
       "action": "demo_structure_status",
       "expires_at": "2026-11-18T06:49:04.031Z"
+    },
+    {
+      "id": "nas-switch-ping-1794984872734",
+      "action": "ping",
+      "expires_at": "2026-11-18T07:04:32.734Z"
     }
   ]
 }
