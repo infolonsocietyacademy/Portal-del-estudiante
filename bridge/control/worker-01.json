@@ -72,6 +72,11 @@
       "id": "m5-initial-check-20261118040514",
       "action": "demo_structure_status",
       "expires_at": "2026-11-18T04:15:14.616Z"
+    },
+    {
+      "id": "m5-final-health-20261118040654",
+      "action": "demo_structure_status",
+      "expires_at": "2026-11-18T04:11:54.502Z"
     }
   ]
 }
