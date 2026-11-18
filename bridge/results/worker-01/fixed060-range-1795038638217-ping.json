@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "id": "fixed060-range-1795038638217-ping",
+  "task_sha256": "9a0534a7ebb4fbf3686577e9a7b1f0ea6d5060198bafe669977e07db63f450c4",
+  "status": "succeeded",
+  "started_at": "2026-11-18T21:51:16+00:00",
+  "code": "PONG",
+  "version": "1.0.31",
+  "finished_at": "2026-11-18T21:51:16+00:00"
+}
