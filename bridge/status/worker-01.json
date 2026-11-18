@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.27",
   "state": "online",
-  "updated_at": "2026-11-18T07:56:07+00:00",
+  "updated_at": "2026-11-18T07:57:09+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "range30-backtest-1794988096737",
@@ -69,7 +69,7 @@
         "skipped_history_minutes": 0
       }
     },
-    "snapshot_fresh": true
+    "snapshot_fresh": false
   },
   "gold_strategy": {
     "schema": 1,
