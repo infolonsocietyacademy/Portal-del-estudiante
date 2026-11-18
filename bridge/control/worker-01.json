@@ -138,6 +138,16 @@
       "id": "range27-status-1794988019339",
       "action": "demo_structure_status",
       "expires_at": "2026-11-18T08:06:59.339Z"
+    },
+    {
+      "id": "range27-ready-1794988096737",
+      "action": "demo_structure_status",
+      "expires_at": "2026-11-18T08:18:16.737Z"
+    },
+    {
+      "id": "range30-backtest-1794988096737",
+      "action": "gold_backtest_30d",
+      "expires_at": "2026-11-18T08:18:16.737Z"
     }
   ]
 }
