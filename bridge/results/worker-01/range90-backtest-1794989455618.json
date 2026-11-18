@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "id": "range90-backtest-1794989455618",
+  "task_sha256": "5934424e1d11c46e4e09ee1220bf5261ea6e935fc2d381f9c26f66c799e4bec7",
+  "status": "succeeded",
+  "started_at": "2026-11-18T08:11:46+00:00",
+  "code": "BACKTEST_90D_STARTED",
+  "job_id": "range90-backtest-1794989455618",
+  "days": 90,
+  "symbol": "LOCAL_CONFIG",
+  "mode": "READ_ONLY_MARKET_DATA",
+  "finished_at": "2026-11-18T08:11:47+00:00"
+}
