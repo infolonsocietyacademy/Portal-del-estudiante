@@ -102,6 +102,12 @@
       "id": "nas100-probe-1794985074044",
       "action": "nas100_probe",
       "expires_at": "2026-11-18T07:07:54.044Z"
+    },
+    {
+      "id": "nas100-activate-1794985172578",
+      "action": "nas100_activate",
+      "symbol": "USTECH",
+      "expires_at": "2026-11-18T07:09:32.578Z"
     }
   ]
 }
