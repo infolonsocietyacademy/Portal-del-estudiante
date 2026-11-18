@@ -97,6 +97,11 @@
       "id": "nas-switch-ping-1794984872734",
       "action": "ping",
       "expires_at": "2026-11-18T07:04:32.734Z"
+    },
+    {
+      "id": "nas100-probe-1794985074044",
+      "action": "nas100_probe",
+      "expires_at": "2026-11-18T07:07:54.044Z"
     }
   ]
 }
