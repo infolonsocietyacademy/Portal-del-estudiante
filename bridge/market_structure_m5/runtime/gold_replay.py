@@ -66,7 +66,7 @@ class ReplayBroker:
     def account_info(self):
         floating=sum(p.profit for p in self.pos)
         return NS(login=1,server='REPLAY-DEMO',trade_mode=0,trade_allowed=True,trade_expert=True,
-                  margin_mode=2,equity=self.balance+floating)
+                  margin_mode=2,currency='USD',equity=self.balance+floating)
     def symbol_select(self,*_):return True
     def symbol_info(self,*_):return self.info
     def symbol_info_tick(self,*_):return self.quote

@@ -1,4 +1,4 @@
-"""M5 structure and retest, closed M5 entries, paired DEMO only, SL/TP1 exits."""
+"""M5 structure and retest, gold or Nasdaq-100, paired DEMO only, SL/TP1 exits."""
 from datetime import datetime, timezone
 import json
 import os
@@ -54,7 +54,7 @@ def health(engine, code, paused=False):
             "ready": diagnostic["trade_ready"], "account_type_verified": "demo",
             "symbol": engine.config["symbol"], "period": "M5", "strategy": "MARKET_STRUCTURE_M5_RETEST_TP1", "target": "TP1", "target_r": 1.0, "entry_limit": None, "max_simultaneous_positions": 1,
             "hold_seconds": 0, "close_policy": "BROKER_SL_TP_ONLY", "paused": paused,
-            "size_mode": engine.config["size_mode"], "fixed_lots": engine.config["fixed_lots"],
+            "size_mode": engine.config["size_mode"], "fixed_lots": engine.config["fixed_lots"], "max_risk_cash":engine.config.get("max_risk_cash"),
             "risk_percent": engine.config["risk_percent"], "active_commands": len(live),
             "open_positions": sum(s.get("owned_open_positions", 0) for s in live),
             "entry_attempts": sum(s.get("requested_volume", 0) > 0 for s in engine.states.values()),
@@ -83,7 +83,7 @@ def run():
                 state["cancel"] = True
                 engine.save(state)
         strategy = Strategy(engine, DATA)
-        print("OLFX ESTRUCTURA M5 / BOS + RETEST / TP1 1R XAUUSD DEMO; una posicion a la vez; salidas SOLO SL/TP.", flush=True)
+        print("OLFX ESTRUCTURA M5 / BOS + RETEST / TP1 1R DEMO; una posicion a la vez; salidas SOLO SL/TP.", flush=True)
         last_display = 0
         while True:
             paused = (DATA / "STOP").exists() or (ROOT / "STOP").exists()

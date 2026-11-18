@@ -6,8 +6,9 @@ import math
 from pathlib import Path
 import re
 import time
+from asset_spec import metadata_matches
 
-VERSION = "1.0.24"
+VERSION = "1.0.26"
 LIVE_PHASES = {"waiting", "submitted", "open", "closing", "uncertain"}
 FINAL_PHASES = {"done", "failed"}
 
@@ -257,7 +258,7 @@ class Engine:
         need(m.symbol_select(symbol, True), "SYMBOL_UNAVAILABLE")
         info, tick = m.symbol_info(symbol), m.symbol_info_tick(symbol)
         need(info is not None and tick is not None and finite(tick.bid,1e-9,1e9) and finite(tick.ask,tick.bid+1e-12,1e9), "QUOTE_UNAVAILABLE")
-        need(info.currency_base == "XAU" and info.currency_profit == "USD", "WRONG_SYMBOL")
+        need(metadata_matches(symbol, info), "WRONG_SYMBOL")
         need(self.market_fresh(tick), "WAIT_FRESH_QUOTE")
         need(tick.ask - tick.bid <= self.config["max_spread_price"], "WAIT_SPREAD")
         positions, orders = self.read_account(state)
@@ -333,7 +334,12 @@ class Engine:
         mode = "fixed" if "lots" in job else "risk" if "risk_percent" in job else self.config["size_mode"]
         fixed = job.get("lots",self.config["fixed_lots"])
         budget = account.equity*job.get("risk_percent",self.config["risk_percent"])/100
+        if "max_risk_cash" in self.config:
+            need(getattr(account, 'currency', None) == 'USD', "USD_ACCOUNT_REQUIRED")
+            budget = min(budget, self.config["max_risk_cash"])
         volume = lots_for(mode,fixed,budget,per_lot,float(info.volume_min),float(info.volume_max),float(info.volume_step))
+        if "max_risk_cash" in self.config:
+            need(volume * per_lot <= self.config["max_risk_cash"] + 1e-7, "RISK_BUDGET_EXCEEDED")
         request = {"action":m.TRADE_ACTION_DEAL,"symbol":symbol,"volume":volume,"type":order_type,"price":entry,
                    "sl":sl,"tp":tp,"deviation":20,"magic":magic_for(state["id"]),"comment":("OLFX TP1 " if job["direction"]=="structure_retest" else "OLFX R2 ")+state["id"][-18:],"type_time":m.ORDER_TIME_GTC}
         fills = []

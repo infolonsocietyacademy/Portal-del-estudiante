@@ -8,6 +8,7 @@ import hashlib
 import json
 import math
 from pathlib import Path
+from asset_spec import asset_kind
 
 STRATEGY = "MARKET_STRUCTURE_M5_RETEST_TP1"
 
@@ -28,7 +29,7 @@ def convert(rows):
 
 class SignalState:
     def __init__(self, symbol="XAUUSD", tick=.01, state=None):
-        if not isinstance(symbol, str) or not symbol.startswith("XAUUSD"):
+        if asset_kind(symbol) is None:
             raise ValueError("MS5_SYMBOL_NOT_APPROVED")
         if type(tick) not in (int, float) or not math.isfinite(tick) or tick <= 0:
             raise ValueError("MS5_INVALID_TICK")
@@ -159,7 +160,9 @@ class SignalState:
 class Strategy:
     def __init__(self, engine, directory):
         self.engine = engine
-        self.path = Path(directory) / "market-structure-m5-v1.json"
+        symbol = engine.config["symbol"]
+        suffix = "" if asset_kind(symbol) == "gold" else "-" + hashlib.sha256(symbol.encode()).hexdigest()[:12]
+        self.path = Path(directory) / ("market-structure-m5-v1" + suffix + ".json")
         info = engine.mt5.symbol_info(engine.config["symbol"])
         if info is None:
             raise ValueError("MS5_SYMBOL_UNAVAILABLE")

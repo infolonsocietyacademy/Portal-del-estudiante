@@ -22,7 +22,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-VERSION = "1.0.25"
+VERSION = "1.0.26"
 ROOT = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "OLFX_MT5_BRIDGE"
 try:
     _mailbox = json.loads((ROOT / "mailbox.json").read_text(encoding="utf-8"))
@@ -31,7 +31,7 @@ except (OSError, ValueError):
 REPO = _mailbox.get("repository", "OWNER/REPOSITORY")
 BRANCH = _mailbox.get("branch", "olfx-mt5-bridge")
 DEVICE = _mailbox.get("device", "worker-01")
-ACTIONS = {"ping", "diagnose", "compile", "backtest", "demo_roundtrip", "demo_structure", "demo_structure_status", "demo_gold", "demo_gold_once", "demo_gold_stop", "gold_backtest_14d", "gold_backtest_30d", "gold_backtest_status"}
+ACTIONS = {"ping", "diagnose", "compile", "backtest", "demo_roundtrip", "demo_structure", "demo_structure_status", "demo_gold", "demo_gold_once", "demo_gold_stop", "gold_backtest_14d", "gold_backtest_30d", "gold_backtest_status", "nas100_probe", "nas100_activate"}
 ROOT = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "OLFX_MT5_BRIDGE"
 
 
@@ -74,12 +74,17 @@ def utc_date(text):
 
 def validate_task(job, current=None):
     require(isinstance(job, dict), "INVALID_TASK")
-    allowed = {"id", "action", "expires_at", "source_path", "source_ref", "source_sha256", "test"}
+    allowed = {"id", "action", "expires_at", "source_path", "source_ref", "source_sha256", "test", "symbol"}
     require(not set(job) - allowed, "UNKNOWN_TASK_FIELD")
     require(re.fullmatch(r"[a-zA-Z0-9_-]{1,64}", str(job.get("id", ""))), "INVALID_TASK_ID")
     require(job.get("action") in ACTIONS, "ACTION_NOT_ALLOWED")
     require(utc_date(job.get("expires_at")) > (current or datetime.now(timezone.utc)), "TASK_EXPIRED")
-    if job["action"] in {"ping", "diagnose", "demo_roundtrip", "demo_structure", "demo_structure_status", "demo_gold", "demo_gold_once", "demo_gold_stop", "gold_backtest_14d", "gold_backtest_30d", "gold_backtest_status"}:
+    if job["action"] == "nas100_activate":
+        from asset_spec import asset_kind
+        require(set(job) <= {"id", "action", "expires_at", "symbol"}, "UNEXPECTED_TASK_FIELD")
+        require(asset_kind(job.get("symbol")) == "nas100", "NAS100_SYMBOL_REQUIRED")
+        return job
+    if job["action"] in {"ping", "diagnose", "demo_roundtrip", "demo_structure", "demo_structure_status", "demo_gold", "demo_gold_once", "demo_gold_stop", "gold_backtest_14d", "gold_backtest_30d", "gold_backtest_status", "nas100_probe", "nas100_activate"}:
         require(set(job) <= {"id", "action", "expires_at"}, "UNEXPECTED_TASK_FIELD")
         return job
     require(re.fullmatch(r"bridge/eas/[A-Za-z0-9_-]{1,64}\.mq5", str(job.get("source_path", ""))), "INVALID_SOURCE_PATH")
@@ -505,6 +510,9 @@ def tester_ini(job, local_demo=None):
 
 
 def execute(job, root, gh):
+    if job["action"] in {"nas100_probe", "nas100_activate"}:
+        from nas100_switch import execute
+        return execute(job, root, sys.modules[__name__])
     if job["action"] in {"gold_backtest_14d", "gold_backtest_30d"}:
         from gold_backtest import start
         return start(job,root,sys.modules[__name__],days=14 if job["action"]=="gold_backtest_14d" else 30)

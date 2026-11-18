@@ -9,6 +9,7 @@ import time
 from types import SimpleNamespace as NS
 from gold_scalp_core import atomic
 from gold_settings import load_gold_settings
+from asset_spec import metadata_matches
 from gold_replay import ReplayBroker,Replay
 
 ROOT=Path(os.environ.get('LOCALAPPDATA',str(Path.home())))/'OLFX_MT5_BRIDGE'
@@ -72,8 +73,8 @@ def run(jid,days=30):
         if len([r for r in native_m5 if r["time"]+300<=start])<512:
             raise RuntimeError("BACKTEST_NATIVE_M5_WARMUP_INCOMPLETE")
         meta=market.symbol_info(symbol)
-        if meta is None or meta.currency_base!='XAU' or meta.currency_profit!='USD':raise RuntimeError('BACKTEST_SYMBOL_METADATA_INVALID')
-        names=('currency_base','currency_profit','trade_stops_level','point','trade_tick_size','digits',
+        if not metadata_matches(symbol,meta):raise RuntimeError('BACKTEST_SYMBOL_METADATA_INVALID')
+        names=('description','currency_base','currency_profit','trade_stops_level','point','trade_tick_size','digits',
                'volume_min','volume_max','volume_step','filling_mode','trade_exemode','trade_contract_size')
         metadata=NS(**{k:getattr(meta,k) for k in names})
         tick=market.symbol_info_tick(symbol)

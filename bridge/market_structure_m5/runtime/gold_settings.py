@@ -3,23 +3,31 @@ import json
 import math
 from pathlib import Path
 import re
+from asset_spec import asset_kind
 
 DEFAULTS = dict(schema=1, symbol="XAUUSD", size_mode="fixed", fixed_lots=0.01,
                 risk_percent=0.5, max_spread_price=0.60, max_stop_price=20.0)
 
 
 def validate_gold_settings(data):
-    if not isinstance(data, dict) or set(data) != set(DEFAULTS) or type(data.get("schema")) is not int or data["schema"] != 1:
+    if not isinstance(data, dict) or set(data) not in (set(DEFAULTS), set(DEFAULTS) | {"max_risk_cash"}) or type(data.get("schema")) is not int or data["schema"] != 1:
         raise ValueError("CONFIG_XAUUSD_INVALIDA")
-    if not isinstance(data["symbol"],str) or not re.fullmatch(r"XAUUSD(?:[._-]?[A-Za-z0-9]{1,8})?",data["symbol"]):
+    if asset_kind(data["symbol"]) is None:
         raise ValueError("SIMBOLO_XAUUSD_INVALIDO")
     if data["size_mode"] not in ("fixed","percent"):
         raise ValueError("MODO_LOTE_INVALIDO")
+    nas = asset_kind(data["symbol"]) == "nas100"
     for name, low, high in (("fixed_lots",0.001,1.0),("risk_percent",0.05,2.0),
-                            ("max_spread_price",0.01,5.0),("max_stop_price",0.10,50.0)):
+                            ("max_spread_price",0.01,10.0 if nas else 5.0),("max_stop_price",0.10,300.0 if nas else 50.0)):
         val=data[name]
         if type(val) not in (int,float) or not math.isfinite(val) or not low<=val<=high:
             raise ValueError("CONFIG_FUERA_DE_LIMITE_"+name.upper())
+    if "max_risk_cash" in data:
+        val = data["max_risk_cash"]
+        if type(val) not in (int,float) or not math.isfinite(val) or not 0 < val <= 50:
+            raise ValueError("MAX_RISK_CASH_INVALID")
+    if nas and "max_risk_cash" not in data:
+        raise ValueError("NAS100_CASH_RISK_LIMIT_REQUIRED")
     return dict(data)
 
 
