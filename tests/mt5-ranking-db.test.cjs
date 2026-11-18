@@ -15,6 +15,7 @@ async function fixture(fn){
 before(async()=>{
   await db.exec(fs.readFileSync(path.join(__dirname,'fixtures/mt5-ranking.sql'),'utf8'));
   await db.exec(migration);
+  await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/20261118124545_positive_period_top_traders.sql'),'utf8'));
   await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/20261115074220_private_ranking_exclusion_policy.sql'),'utf8'));
   await db.query('INSERT INTO private.olon_ranking_exclusions(student_id,reason) VALUES($1,$2)',[user(2),'Owner test account']);
 });
@@ -103,4 +104,34 @@ test('exclusion RLS still denies clients if a future table grant is introduced',
   await db.exec('SET LOCAL ROLE authenticated');
   assert.equal((await sql('SELECT * FROM private.olon_ranking_exclusions')).length,0);
   await assert.rejects(db.query('INSERT INTO private.olon_ranking_exclusions(student_id,reason) VALUES($1,$2)',[user(3),'Unauthorized change']),{code:'42501'});
+}));
+
+
+test('podiums exclude losses, breakeven and profits erased by costs in every period',()=>fixture(async()=>{
+  for(const profit of [-10,0,4,5]){
+    await db.query("UPDATE public.olon_mt_deals SET profit=$1 WHERE student_id=$2 AND deal_id='closure'",[profit,user(3)]);
+    for(const [period,key] of [['weekly','2026-W46'],['monthly','2026-11'],['annual','2026']]){
+      const rows=(await db.query('SELECT * FROM private.olon_compute_automatic_top3($1,$2)',[period,key])).rows;
+      assert.deepEqual(rows.map(r=>[r.rank,r.student_id]),[[1,user(4)]]);
+    }
+    const performance=(await sql(`SELECT * FROM public.olon_admin_student_performance('all',NULL) WHERE student_id='${user(3)}'`))[0];
+    assert.equal(Number(performance.net),profit-5,'negative and zero results remain in financial reports');
+  }
+}));
+test('podiums remain empty when every eligible trader loses or breaks even',()=>fixture(async()=>{
+  await db.exec("UPDATE public.olon_mt_deals SET profit=5 WHERE deal_id='closure'");
+  for(const [period,key] of [['weekly','2026-W46'],['monthly','2026-11'],['annual','2026']]){
+    assert.equal((await db.query('SELECT * FROM private.olon_compute_automatic_top3($1,$2)',[period,key])).rows.length,0);
+  }
+}));
+test('profitability is evaluated separately for the selected week, month and year',()=>fixture(async()=>{
+  await db.exec(`INSERT INTO public.olon_mt_deals
+    (student_id,provider_account_id,vault_account_id,deal_id,deal_type,entry_type,occurred_at,broker_time,profit)
+    SELECT student_id,provider_account_id,vault_account_id,'earlier-loss','DEAL_TYPE_BUY','DEAL_ENTRY_OUT',
+      '2026-11-02 03:00Z','2026-11-02 05:00:00',-30
+    FROM public.olon_own_accounts WHERE student_id='${user(3)}'`);
+  assert.deepEqual((await sql("SELECT * FROM private.olon_compute_automatic_top3('weekly','2026-W46')")).map(r=>r.student_id),[user(3),user(4)]);
+  for(const [period,key] of [['monthly','2026-11'],['annual','2026']]){
+    assert.deepEqual((await db.query('SELECT * FROM private.olon_compute_automatic_top3($1,$2)',[period,key])).rows.map(r=>[r.rank,r.student_id]),[[1,user(4)]]);
+  }
 }));

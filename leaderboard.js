@@ -45,7 +45,10 @@
       p_period_type:period,p_period_key:key
     });
     if(error)throw error;
-    return data||[];
+    // Keep the public podium and admin preview positive, including stale API responses.
+    return (data||[]).filter(row=>Number.isFinite(Number(row.return_pct))&&Number(row.return_pct)>0)
+      .sort((a,b)=>Number(a.rank)-Number(b.rank)).slice(0,3)
+      .map((row,index)=>({...row,rank:index+1}));
   }
   function renderPodium(records,period,key){
     const holder=$("olonLeaderboard");if(!holder)return;
@@ -68,7 +71,7 @@
     }
     $("olonLeaderboardPeriod").textContent=label(period,key);
     $("olonLeaderboardEmpty").hidden=records.length>0;
-    if(records.length===0)$("olonLeaderboardEmpty").textContent="Aún no hay cuentas MT conectadas, sincronizadas y elegibles para este período.";
+    if(records.length===0)$("olonLeaderboardEmpty").textContent="Aún no hay traders elegibles con rentabilidad positiva en este período.";
   }
   async function loadPodiumPhotos(records,request){
     // Fetch only uploaded photos belonging to real-name, currently ranked students.
@@ -170,7 +173,7 @@
       const detail=document.createElement("span");detail.className="olonRankPreviewStudent";
       const name=document.createElement("strong");name.textContent=item?.display_name||"Puesto disponible";
       const note=document.createElement("small");
-      note.textContent=item?"Calculado automáticamente con los trades registrados":"No hay otro estudiante elegible";
+      note.textContent=item?"Calculado automáticamente con los trades registrados":"No hay otro estudiante elegible con rentabilidad positiva";
       detail.append(name,note);
       const score=document.createElement("strong");score.className="olonRankPreviewPercent";
       score.textContent=item?percent(item.return_pct):"—";
@@ -195,7 +198,7 @@
       renderAdmin(rows,period,key);
       if(msg)msg.textContent=rows.length?
         "Clasificación automática: "+rows.length+" puesto(s). No requiere aprobación ni publicación.":
-        "No hay cuentas MT activas y sincronizadas con operaciones cerradas y capital válido en este período.";
+        "No hay cuentas MT elegibles con rentabilidad positiva en este período.";
     }catch(error){
       if(request!==state.adminRequest)return;
       renderAdmin([],period,key);
