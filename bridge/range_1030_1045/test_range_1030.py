@@ -69,9 +69,10 @@ class RangeTests(unittest.TestCase):
         self.poll(self.start+960,109)
         self.poll(self.start+970,112)
         self.assertEqual(self.b.sent,[])
-    def test_restart_below_high_can_wait_for_new_break(self):
-        self.poll(self.start+950,109)
-        self.assertEqual(self.poll(self.start+952,110.1),"RANGE_BUY_ACCEPTED")
+    def test_late_restart_below_high_also_skips_uncertain_first_break(self):
+        self.assertEqual(self.poll(self.start+950,109),"RANGE_MISSED_BREAKOUT_SKIPPED")
+        self.poll(self.start+952,110.1)
+        self.assertEqual(self.b.sent,[])
     def test_paused_first_break_is_consumed(self):
         self.arm()
         self.assertEqual(self.poll(self.start+902,110.1,paused=True),"RANGE_PAUSED_BREAKOUT_CONSUMED")
