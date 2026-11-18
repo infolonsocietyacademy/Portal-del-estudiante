@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.25",
   "state": "online",
-  "updated_at": "2026-11-18T06:11:57+00:00",
+  "updated_at": "2026-11-18T06:13:00+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "bt-ms5-retest-14d-20261118041459",
@@ -70,7 +70,7 @@
   "gold_strategy": {
     "schema": 1,
     "version": "1.0.24",
-    "updated_at": 1794982317.5943594,
+    "updated_at": 1794982379.644869,
     "code": "MS5_WAIT_STRUCTURE",
     "signal_state": "MS5_WAIT_STRUCTURE",
     "ready": true,
@@ -95,8 +95,8 @@
     "net_recorded": -50.85,
     "quote_fresh": true,
     "python_trading_allowed": true,
-    "quote_age_seconds": -7199.406,
-    "adjusted_quote_age_seconds": 0.594,
+    "quote_age_seconds": -7199.355,
+    "adjusted_quote_age_seconds": 0.645,
     "broker_clock_offset_seconds": -7200,
     "advancing_tick_samples": 6,
     "spread_price": 0.16,
