@@ -178,6 +178,11 @@
       "id": "range90-backtest-1794989455618",
       "action": "gold_backtest_90d",
       "expires_at": "2026-11-18T08:40:55.618Z"
+    },
+    {
+      "id": "range90-history-retry-1794989685797",
+      "action": "gold_backtest_90d",
+      "expires_at": "2026-11-18T08:34:45.797Z"
     }
   ]
 }
