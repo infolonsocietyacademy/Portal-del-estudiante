@@ -52,6 +52,11 @@
       "id": "permissions-check-20261118034654",
       "action": "demo_structure_status",
       "expires_at": "2026-11-18T03:56:54.257Z"
+    },
+    {
+      "id": "healthy-final-20261118034801",
+      "action": "demo_structure_status",
+      "expires_at": "2026-11-18T03:53:01.090Z"
     }
   ]
 }
