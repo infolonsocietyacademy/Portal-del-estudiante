@@ -1,6 +1,65 @@
 {
   "schema": 1,
-  "version": "1.0.26",
-  "state": "updating",
-  "updated_at": "2026-11-18T07:46:37+00:00"
+  "version": "1.0.27",
+  "state": "online",
+  "updated_at": "2026-11-18T07:46:38+00:00",
+  "gold_strategy": {
+    "schema": 1,
+    "version": "1.0.26",
+    "updated_at": 1794985450.4239573,
+    "code": "MS5_WAIT_STRUCTURE",
+    "signal_state": "MS5_WAIT_STRUCTURE",
+    "ready": true,
+    "account_type_verified": "demo",
+    "symbol": "USTECH",
+    "period": "M5",
+    "strategy": "MARKET_STRUCTURE_M5_RETEST_TP1",
+    "target": "TP1",
+    "target_r": 1.0,
+    "entry_limit": null,
+    "max_simultaneous_positions": 1,
+    "hold_seconds": 0,
+    "close_policy": "BROKER_SL_TP_ONLY",
+    "paused": false,
+    "size_mode": "percent",
+    "fixed_lots": 0.05,
+    "max_risk_cash": 50.0,
+    "risk_percent": 0.5,
+    "active_commands": 0,
+    "open_positions": 0,
+    "entry_attempts": 2,
+    "closed_commands": 2,
+    "net_recorded": -50.85,
+    "quote_fresh": true,
+    "python_trading_allowed": true,
+    "quote_age_seconds": -7199.577,
+    "adjusted_quote_age_seconds": 0.423,
+    "broker_clock_offset_seconds": -7200,
+    "advancing_tick_samples": 6,
+    "spread_price": 0.8,
+    "snapshot_fresh": false
+  },
+  "updater": {
+    "state": "restarting"
+  },
+  "diagnostics": {
+    "scope": "recent_logs",
+    "log_files_scanned": 4,
+    "log_read_errors": 0,
+    "log_groups": [
+      "terminal",
+      "tester"
+    ],
+    "recent_crash_files": 0,
+    "crash_exceptions": [],
+    "observed_log_signals": [
+      "AUTHORIZED_DEMO",
+      "AUTHORIZED_SERVER",
+      "CONFIG_LOADED",
+      "DEMO_TRADING_ENABLED",
+      "SOCKET_ALREADY_IN_USE",
+      "TERMINAL_SYNCHRONIZED"
+    ],
+    "numeric_error_codes": []
+  }
 }
