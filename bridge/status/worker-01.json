@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.26",
   "state": "online",
-  "updated_at": "2026-11-18T07:03:09+00:00",
+  "updated_at": "2026-11-18T07:04:11+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "bt-nas100-m5-14d-1794985275523",
@@ -66,12 +66,12 @@
         "skipped_history_minutes": 0
       }
     },
-    "snapshot_fresh": true
+    "snapshot_fresh": false
   },
   "gold_strategy": {
     "schema": 1,
     "version": "1.0.26",
-    "updated_at": 1794985388.479166,
+    "updated_at": 1794985450.4239573,
     "code": "MS5_WAIT_STRUCTURE",
     "signal_state": "MS5_WAIT_STRUCTURE",
     "ready": true,
@@ -97,8 +97,8 @@
     "net_recorded": -50.85,
     "quote_fresh": true,
     "python_trading_allowed": true,
-    "quote_age_seconds": -7199.521,
-    "adjusted_quote_age_seconds": 0.479,
+    "quote_age_seconds": -7199.577,
+    "adjusted_quote_age_seconds": 0.423,
     "broker_clock_offset_seconds": -7200,
     "advancing_tick_samples": 6,
     "spread_price": 0.8,
