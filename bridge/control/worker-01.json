@@ -203,6 +203,21 @@
       "id": "restore-demo-after-restart-1794990538848",
       "action": "demo_gold",
       "expires_at": "2026-11-18T08:48:58.848Z"
+    },
+    {
+      "id": "diagnose-no-trade-1795037913219-ping",
+      "action": "ping",
+      "expires_at": "2026-11-18T21:53:33.219Z"
+    },
+    {
+      "id": "diagnose-no-trade-1795037913219-diagnose",
+      "action": "diagnose",
+      "expires_at": "2026-11-18T21:53:33.219Z"
+    },
+    {
+      "id": "diagnose-no-trade-1795037913219-demo_structure_status",
+      "action": "demo_structure_status",
+      "expires_at": "2026-11-18T21:53:33.219Z"
     }
   ]
 }
