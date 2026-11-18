@@ -32,6 +32,16 @@
       "id": "repair-20261118032619-demo_structure_status",
       "action": "demo_structure_status",
       "expires_at": "2026-11-18T03:41:19.948Z"
+    },
+    {
+      "id": "repair-resume-20261118033542",
+      "action": "demo_gold",
+      "expires_at": "2026-11-18T03:45:42.473Z"
+    },
+    {
+      "id": "repair-check-20261118033542",
+      "action": "demo_structure_status",
+      "expires_at": "2026-11-18T03:45:42.473Z"
     }
   ]
 }
