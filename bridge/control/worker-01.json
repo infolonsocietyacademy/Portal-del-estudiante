@@ -148,6 +148,11 @@
       "id": "range30-backtest-1794988096737",
       "action": "gold_backtest_30d",
       "expires_at": "2026-11-18T08:18:16.737Z"
+    },
+    {
+      "id": "range-restart-guard-pause-1794988273668",
+      "action": "demo_gold_stop",
+      "expires_at": "2026-11-18T08:11:13.668Z"
     }
   ]
 }
