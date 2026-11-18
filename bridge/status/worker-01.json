@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.31",
   "state": "online",
-  "updated_at": "2026-11-18T21:51:10+00:00",
+  "updated_at": "2026-11-18T21:52:18+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "range90-chunks-1794990312505",
@@ -73,11 +73,11 @@
   },
   "gold_strategy": {
     "schema": 1,
-    "version": "1.0.28",
-    "updated_at": 1795038387.853429,
-    "code": "STRATEGY_HEALTH_STALE",
+    "version": "1.0.31",
+    "updated_at": 1795038738.07514,
+    "code": "RANGE_DAILY_ATTEMPT_CONSUMED",
     "signal_state": "RANGE_DAILY_ATTEMPT_CONSUMED",
-    "ready": false,
+    "ready": true,
     "account_type_verified": "demo",
     "symbol": "USTECH",
     "period": "M1",
@@ -89,8 +89,8 @@
     "hold_seconds": 0,
     "close_policy": "BROKER_SL_TP_ONLY",
     "paused": false,
-    "size_mode": "percent",
-    "fixed_lots": 0.05,
+    "size_mode": "fixed",
+    "fixed_lots": 0.6,
     "max_risk_cash": 50.0,
     "risk_percent": 0.5,
     "active_commands": 0,
@@ -98,13 +98,13 @@
     "entry_attempts": 2,
     "closed_commands": 2,
     "net_recorded": -50.85,
-    "quote_fresh": false,
+    "quote_fresh": true,
     "python_trading_allowed": true,
-    "quote_age_seconds": -7199.147,
-    "adjusted_quote_age_seconds": 0.853,
+    "quote_age_seconds": -7199.925,
+    "adjusted_quote_age_seconds": 0.075,
     "broker_clock_offset_seconds": -7200,
     "advancing_tick_samples": 6,
-    "spread_price": 0.7,
+    "spread_price": 0.8,
     "range_timezone": "America/New_York",
     "range_start": "10:30",
     "range_end": "10:45",
@@ -113,11 +113,13 @@
     "range_low": 26930.25,
     "sl_50": 27032.4,
     "daily_attempt_consumed": true,
-    "snapshot_fresh": false,
-    "last_worker_code": "RANGE_DAILY_ATTEMPT_CONSUMED"
+    "snapshot_fresh": true
   },
   "strategy_service": {
-    "enabled": false
+    "enabled": true,
+    "code": "WORKER_HEALTHY",
+    "updated_at": 1795038738.4350767,
+    "worker_locked": true
   },
   "updater": {
     "state": "running"
