@@ -188,6 +188,16 @@
       "id": "updater30-ping-1794990172196",
       "action": "ping",
       "expires_at": "2026-11-18T08:42:52.196Z"
+    },
+    {
+      "id": "range30-verified-ping-1794990312505",
+      "action": "ping",
+      "expires_at": "2026-11-18T08:55:12.505Z"
+    },
+    {
+      "id": "range90-chunks-1794990312505",
+      "action": "gold_backtest_90d",
+      "expires_at": "2026-11-18T08:55:12.505Z"
     }
   ]
 }
