@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "id": "no-trades-20261118063904-ping",
+  "task_sha256": "f0f9273cf92875aa4b850ce06a1fc3d2a83fec7b66efefd6baaf45e0375e0376",
+  "status": "succeeded",
+  "started_at": "2026-11-18T06:39:52+00:00",
+  "code": "PONG",
+  "version": "1.0.25",
+  "finished_at": "2026-11-18T06:39:52+00:00"
+}
