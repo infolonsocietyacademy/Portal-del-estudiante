@@ -31,6 +31,7 @@ async function fixture({licenses,students,user,registration=false}={}){
    if(body.action==='delete_revoked')records.splice(records.findIndex(l=>l.id===body.id),1);
    if(body.action==='generate')result={licenses:[{id:'new',code:'TEST-CODE-ONLY',days:body.days}]};
    if(body.action==='reveal')result={code:'TEST-REVEALED-CODE'};
+   if(body.action==='edit_days')result={active:true,days:body.days,expires_at:new Date(Date.now()+body.days*86400000).toISOString()};
   }
   return {ok:true,json:async()=>result};
  };
@@ -46,7 +47,8 @@ test('VIP table joins students, escapes text and limits actions by license state
  const q=await fixture();try{
   assert.equal(q.d.querySelectorAll('#olonLicenseList tr').length,4);
   assert.equal(q.d.getElementById('olonLicenseTotal').textContent,'4');
-  assert.equal(q.d.querySelector('[data-license-row="l-active"] [data-license-revoke]'),null);
+  assert.ok(q.d.querySelector('[data-license-row="l-active"] [data-license-revoke]'));
+  assert.ok(q.d.querySelector('[data-license-row="l-active"] [data-license-edit]'));
   assert.equal(q.d.querySelector('[data-license-row="l-assigned"] [data-license-assign]'),null);
   assert.ok(q.d.querySelector('[data-license-row="l-unassigned"] [data-license-assign]'));
   assert.ok(q.d.querySelector('[data-license-row="l-revoked"] [data-license-delete]'));
@@ -127,5 +129,37 @@ test('a failed assignment stays editable and never reports success',async()=>{
   assert.equal(q.d.getElementById('olonLicenseInlineAssign').hidden,false);
   assert.match(q.d.getElementById('olonLicenseAssignmentFeedback').textContent,/ya fue asignada/);
   assert.equal(q.d.getElementById('olonLicenseSaveAssignment').disabled,false);
+ }finally{q.close();}
+});
+
+test('active licenses edit their expiry without displaying a replacement code',async()=>{
+ const q=await fixture();try{
+  q.records[0].access_expires_at=new Date(Date.now()+10*86400000).toISOString();q.records[0].is_current=true;await q.w.olonLicense.adminRefresh();
+  click(q,'[data-license-edit="l-active"]');
+  const dialog=q.d.querySelector('.olonLicenseCalendarDialog');assert.match(dialog.textContent,/Editar vencimiento activo/);
+  assert.match(dialog.textContent,/no se suman/);
+  const next=[...dialog.querySelectorAll('[data-date]:not(:disabled)')].find(b=>b.getAttribute('aria-selected')!=='true');assert.ok(next);next.click();
+  dialog.querySelector('[data-cal-save]').click();await tick();await tick();
+  assert.equal(q.calls.filter(c=>c.action==='edit_days').length,1);
+  assert.equal(q.d.getElementById('olonLicenseResult').hidden,true);
+  assert.match(q.d.getElementById('olonLicenseAdminFeedback').textContent,/Vencimiento actualizado/);
+ }finally{q.close();}
+});
+test('active revocation explains access suspension and cancellation sends no request',async()=>{
+ const q=await fixture();try{
+  let message;q.w.confirm=text=>{message=text;return false;};
+  click(q,'[data-license-revoke="l-active"]');await tick();
+  assert.match(message,/acceso VIP se suspenderá/);
+  assert.equal(q.calls.some(c=>c.action==='revoke'),false);
+  q.w.confirm=()=>true;click(q,'[data-license-revoke="l-active"]');await tick();await tick();
+  assert.equal(q.calls.filter(c=>c.action==='revoke').length,1);
+ }finally{q.close();}
+});
+test('historical redeemed codes can be revoked but cannot edit the newer access term',async()=>{
+ const q=await fixture();try{
+  q.records[0].is_current=false;await q.w.olonLicense.adminRefresh();
+  const row=q.d.querySelector('[data-license-row="l-active"]');
+  assert.equal(row.querySelector('[data-license-edit]'),null);assert.ok(row.querySelector('[data-license-revoke]'));
+  assert.match(row.textContent,/Licencia anterior/);assert.match(row.textContent,/Activada anterior/);
  }finally{q.close();}
 });
