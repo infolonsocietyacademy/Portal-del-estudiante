@@ -36,7 +36,7 @@ class ReplayBroker:
     DEAL_ENTRY_OUT=1
     DEAL_ENTRY_OUT_BY=3
 
-    def __init__(self,rows,info,terminal,offset=0,deposit=10000.,margin_ratio=0.,native_h4=None):
+    def __init__(self,rows,info,terminal,offset=0,deposit=10000.,margin_ratio=0.,native_h4=None,native_m5=None):
         self.rows,self.info,self.terminal,self.offset=rows,info,str(Path(terminal).resolve()),offset
         self.times=[int(r['time']) for r in rows]
         self.rows4=list(native_h4 or [])
@@ -52,6 +52,11 @@ class ReplayBroker:
             self.rows5.append(dict(time=stamp,open=group[0]['open'],high=max(r['high'] for r in group),
                                    low=min(r['low'] for r in group),close=group[-1]['close']))
         self.times5=[r['time'] for r in self.rows5]
+        if native_m5 is not None:
+            self.rows5=list(native_m5)
+            self.times5=[int(r['time']) for r in self.rows5]
+            if any(a>=b for a,b in zip(self.times5,self.times5[1:])):
+                raise ValueError('NON_MONOTONIC_NATIVE_M5_HISTORY')
         self.server_time=0.;self.quote=None;self.pos=[];self.deals=[];self.closed=[];self.sent=[]
         self.balance=deposit;self.margin_ratio=margin_ratio;self.next_ticket=1
         self.peak=deposit;self.drawdown=0.;self.max_open=0

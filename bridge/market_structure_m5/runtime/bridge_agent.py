@@ -22,7 +22,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-VERSION = "1.0.24"
+VERSION = "1.0.25"
 ROOT = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "OLFX_MT5_BRIDGE"
 try:
     _mailbox = json.loads((ROOT / "mailbox.json").read_text(encoding="utf-8"))
@@ -467,7 +467,7 @@ def status_snapshot(root, state):
     if state == "online":
         from gold_backtest import status as backtest_status
         backtest=backtest_status(root)
-        if backtest and backtest.get("strategy")=="LIQUIDEZ_H4_M1_TP1":
+        if backtest and backtest.get("strategy")=="MARKET_STRUCTURE_M5_RETEST_TP1":
             value["backtest"]=backtest
         from gold_scalp import status
         scalp = status(root)
@@ -505,8 +505,14 @@ def tester_ini(job, local_demo=None):
 
 
 def execute(job, root, gh):
-    if job["action"] in {"gold_backtest_14d", "gold_backtest_30d", "gold_backtest_status"}:
-        return {"code": "MS5_BACKTEST_NOT_IMPLEMENTED", "strategy": "MARKET_STRUCTURE_M5_RETEST_TP1"}
+    if job["action"] in {"gold_backtest_14d", "gold_backtest_30d"}:
+        from gold_backtest import start
+        return start(job,root,sys.modules[__name__],days=14 if job["action"]=="gold_backtest_14d" else 30)
+    if job["action"]=="gold_backtest_status":
+        from gold_backtest import status
+        value=status(root)
+        require(value is not None,"NO_BACKTEST_RESULT")
+        return value
     if job["action"] == "ping":
         return {"code": "PONG", "version": VERSION}
     if job["action"] == "demo_roundtrip":

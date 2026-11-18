@@ -27,7 +27,7 @@ class ReadOnlyMarket:
 def backtest_window(days, now=None):
     if type(days) is not int or days not in (14,30):
         raise RuntimeError('INVALID_BACKTEST_DAYS')
-    end_utc=int(time.time() if now is None else now)//60*60
+    end_utc=int(time.time() if now is None else now)//300*300
     return end_utc-days*86400,end_utc
 
 
@@ -38,7 +38,7 @@ def run(jid,days=30):
     folder=DATA/jid;folder.mkdir(parents=True,exist_ok=True)
     lock=api.singleton(DATA)
     def progress(phase,**fields):
-        atomic(folder/'progress.json',{'schema':1,'job_id':jid,'phase':phase,'strategy':'LIQUIDEZ_H4_M1_TP1','updated_at':time.time(),**fields})
+        atomic(folder/'progress.json',{'schema':1,'job_id':jid,'phase':phase,'strategy':'MARKET_STRUCTURE_M5_RETEST_TP1','updated_at':time.time(),**fields})
     try:
         progress('CONNECTING_READ_ONLY')
         terminal=api.owned_terminal(ROOT)
@@ -65,11 +65,12 @@ def run(jid,days=30):
         if rows is None or len(rows)<100:raise RuntimeError('BACKTEST_INSUFFICIENT_M1_HISTORY')
         rows=[{k:int(r[k]) if k=='time' else float(r[k]) for k in ('time','open','high','low','close')} for r in rows]
         rows.sort(key=lambda r:r['time'])
-        raw_h4=market.copy_rates_range(symbol,module.TIMEFRAME_H4,int(start-15*86400),int(end))
-        if raw_h4 is None or len(raw_h4)<4:raise RuntimeError("BACKTEST_NATIVE_H4_HISTORY_REQUIRED")
-        native_h4=[{k:int(r[k]) if k=="time" else float(r[k]) for k in ("time","open","high","low","close")} for r in raw_h4]
-        native_h4.sort(key=lambda r:r["time"])
-        if native_h4[0]["time"]>start-4*14400:raise RuntimeError("BACKTEST_NATIVE_H4_WARMUP_INCOMPLETE")
+        raw_m5=market.copy_rates_range(symbol,module.TIMEFRAME_M5,int(start-10*86400),int(end-300))
+        if raw_m5 is None or len(raw_m5)<512:raise RuntimeError("BACKTEST_NATIVE_M5_HISTORY_REQUIRED")
+        native_m5=[{k:int(r[k]) if k=="time" else float(r[k]) for k in ("time","open","high","low","close")} for r in raw_m5]
+        native_m5.sort(key=lambda r:r["time"])
+        if len([r for r in native_m5 if r["time"]+300<=start])<512:
+            raise RuntimeError("BACKTEST_NATIVE_M5_WARMUP_INCOMPLETE")
         meta=market.symbol_info(symbol)
         if meta is None or meta.currency_base!='XAU' or meta.currency_profit!='USD':raise RuntimeError('BACKTEST_SYMBOL_METADATA_INVALID')
         names=('currency_base','currency_profit','trade_stops_level','point','trade_tick_size','digits',
@@ -78,9 +79,11 @@ def run(jid,days=30):
         tick=market.symbol_info_tick(symbol)
         margin=market.order_calc_margin(0,symbol,meta.volume_min,tick.ask) if tick is not None else None
         ratio=margin/(meta.volume_min*tick.ask) if margin is not None and tick.ask>0 else 0.
-        broker=ReplayBroker(rows,metadata,folder,offset=offset,margin_ratio=ratio,native_h4=native_h4)
+        broker=ReplayBroker(rows,metadata,folder,offset=offset,margin_ratio=ratio,native_m5=native_m5)
         replay=Replay(broker,config,folder)
         expected_minutes={r['time'] for r in rows if start<=r['time']<end}
+        expected_m5={stamp//300*300 for stamp in expected_minutes}
+        missing_m5=expected_m5-{r['time'] for r in native_m5}
         chunks=0;empty_chunks=0;cursor=start
         while cursor<end:
             stop=min(cursor+6*3600,end)
@@ -98,9 +101,9 @@ def run(jid,days=30):
             chunks+=1;cursor=stop
         metrics=replay.metrics()
         missing=len(expected_minutes-replay.covered)
-        complete=bool(expected_minutes) and missing==0 and replay.history_skips==0 and min(expected_minutes)<=start+3*86400 and max(expected_minutes)>=end-3*86400
-        result={'schema':1,'code':f'BACKTEST_{days}D_COMPLETE','job_id':jid,'model':'historical bid/ask ticks; native broker H4 liquidity sweeps, production closed-M1 entry engine, TP1 1R', 'strategy':'LIQUIDEZ_H4_M1_TP1',
-                'symbol':symbol,'period':'M1','days_requested':days,
+        complete=bool(expected_minutes) and missing==0 and not missing_m5 and replay.history_skips==0 and min(expected_minutes)<=start+3*86400 and max(expected_minutes)>=end-3*86400
+        result={'schema':1,'code':f'BACKTEST_{days}D_COMPLETE','job_id':jid,'model':'historical bid/ask ticks; native broker closed M5 structure, BOS and later retest; unchanged production entry engine; TP1 1R', 'strategy':'MARKET_STRUCTURE_M5_RETEST_TP1',
+                'symbol':symbol,'period':'M5','days_requested':days,
                 'start_utc':datetime.fromtimestamp(start_utc,timezone.utc).isoformat(),
                 'end_utc':datetime.fromtimestamp(end_utc,timezone.utc).isoformat(),
                 'config':config,'rr':1,'hold_seconds':0,'entry_limit':None,'close_policy':'BROKER_SL_TP_ONLY',
@@ -109,7 +112,7 @@ def run(jid,days=30):
                 'execution_model':'market entry at first polled quote after signal; gap SL at quote; TP at level',
                 'coverage_complete':complete,'m1_minutes':len(expected_minutes),'missing_tick_minutes':missing,
                 'tick_coverage_percent':round(100*(len(expected_minutes)-missing)/len(expected_minutes),4) if expected_minutes else 0,
-                'empty_6h_chunks':empty_chunks,'native_h4_bars':len(native_h4),'metrics':metrics}
+                'empty_6h_chunks':empty_chunks,'native_m5_bars':len(native_m5),'missing_native_m5_bars':len(missing_m5),'strategy_version':'1.0.24','metrics':metrics}
         atomic(folder/'result.json',result)
         progress('COMPLETE',result=result)
         print(f'OLFX BACKTEST {days}D COMPLETO: '+str(metrics['win_rate_percent'])+'% | cerradas '+str(metrics['closed_trades']),flush=True)

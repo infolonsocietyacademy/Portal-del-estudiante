@@ -39,7 +39,7 @@ def build(key_path,public_key_path):
     if pub.n!=int(expected['n'],16) or pub.e!=expected['e']:
         raise ValueError('KEY_DOES_NOT_MATCH_SELECTED_PUBLIC_KEY')
     raw, files = pack_runtime()
-    payload=dict(schema=1,sequence=24,version='1.0.24',launcher=1,session_schema=1,
+    payload=dict(schema=1,sequence=25,version='1.0.25',launcher=1,session_schema=1,
                  archive=base64.b64encode(raw).decode(),archive_sha256=hashlib.sha256(raw).hexdigest(),files=files)
     signature=key.sign(canonical(payload),padding.PKCS1v15(),hashes.SHA256())
     return canonical(dict(payload=payload,signature=base64.b64encode(signature).decode()))

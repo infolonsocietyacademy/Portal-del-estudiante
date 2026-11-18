@@ -49,3 +49,20 @@ Se verifica con bridge/original/bridge_bootstrap.py.
 Los backtests del motor anterior no se atribuyen a esta estrategia.
 La activación requiere observar versión 1.0.24, estrategia M5, cotizaciones
 frescas y permisos activos; publicar el paquete no confirma su instalación.
+
+## Backtest de ticks | bridge 1.0.25
+
+Añade acciones de backtest de 14/30 días y consulta de progreso para esta
+estrategia, sin modificar el motor activo 1.0.24. Usa velas M5 nativas
+cerradas, 512 velas de calentamiento y ticks históricos bid/ask. El replay
+ejecuta el mismo motor de entradas, estado y SL/TP contra un bróker en memoria.
+El acceso al MT5 real es de lectura: no se expone order_send ni order_check.
+
+Reporta cobertura, operaciones cerradas, WinRate, beneficio bruto, profit
+factor, drawdown de balance y posiciones abiertas al finalizar. No modela
+comisión, swap ni slippage de mercado; utiliza términos actuales de margen.
+Las barras M1 sirven para auditar cobertura de ticks, nunca para sustituir
+las velas M5 nativas de la estrategia. La ventana termina en un cierre M5.
+
+24 pruebas offline incluyen causalidad M5, retest posterior, protección de
+reinicios, réplica del TP con ticks y bloqueo del API real de órdenes.
