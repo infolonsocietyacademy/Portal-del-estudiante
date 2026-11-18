@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "id": "range90-history-retry-1794989685797",
+  "task_sha256": "86b7d63bc151816021babaf484174a3b9e262ee474179df9dbca802bacf93b29",
+  "status": "succeeded",
+  "started_at": "2026-11-18T08:15:56+00:00",
+  "code": "BACKTEST_90D_STARTED",
+  "job_id": "range90-history-retry-1794989685797",
+  "days": 90,
+  "symbol": "LOCAL_CONFIG",
+  "mode": "READ_ONLY_MARKET_DATA",
+  "finished_at": "2026-11-18T08:15:57+00:00"
+}
