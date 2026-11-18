@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "id": "updater30-ping-1794990172196",
+  "task_sha256": "349b5299fd686e6ceb9dcf9530950439a584eceda7eb80da3257722543f524d6",
+  "status": "succeeded",
+  "started_at": "2026-11-18T08:23:12+00:00",
+  "code": "PONG",
+  "version": "1.0.29",
+  "finished_at": "2026-11-18T08:23:12+00:00"
+}
