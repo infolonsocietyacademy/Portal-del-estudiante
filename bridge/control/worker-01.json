@@ -17,6 +17,21 @@
       "id": "h4-backtest14-mwl75drs",
       "action": "gold_backtest_14d",
       "expires_at": "2026-11-17T21:50:43.000Z"
+    },
+    {
+      "id": "repair-20261118032619-ping",
+      "action": "ping",
+      "expires_at": "2026-11-18T03:41:19.948Z"
+    },
+    {
+      "id": "repair-20261118032619-diagnose",
+      "action": "diagnose",
+      "expires_at": "2026-11-18T03:41:19.948Z"
+    },
+    {
+      "id": "repair-20261118032619-demo_structure_status",
+      "action": "demo_structure_status",
+      "expires_at": "2026-11-18T03:41:19.948Z"
     }
   ]
 }
