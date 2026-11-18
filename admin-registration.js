@@ -215,6 +215,42 @@ async function reject(id){
  catch(e){status("No se pudo rechazar: "+String(e.message||e),true);}
  finally{busy=false;await refresh();}
 }
+function createStudent(){
+ if(!isAdmin()||document.getElementById("licenseStudentCreateDialog"))return;
+ const dialog=document.createElement("dialog");dialog.id="licenseStudentCreateDialog";dialog.className="olonLicenseCalendarDialog";
+ dialog.setAttribute("aria-labelledby","licenseStudentCreateTitle");
+ dialog.innerHTML='<div class="olonLicenseCalendarInner"><div class="olonLicenseCalendarHead"><div><small>OLON / ESTUDIANTES</small><h3 id="licenseStudentCreateTitle">Agregar estudiante</h3></div><button type="button" class="olonLicenseCalendarClose" data-create-close aria-label="Cerrar">×</button></div><p class="olonLicenseCalendarIntro">Crea la cuenta y luego asígnale una licencia VIP. La contraseña temporal aparecerá al terminar.</p><form class="licenseStudentCreateForm"><label>Nombre completo<input name="name" autocomplete="name" minlength="2" maxlength="120" required></label><label>Correo electrónico<input name="email" type="email" autocomplete="email" maxlength="254" required></label><label class="licenseStudentConfirm"><input type="checkbox" name="verified" required><span>Confirmo que este correo pertenece al estudiante.</span></label><p role="status" class="olonLicenseCalendarError" hidden></p><div class="olonLicenseCalendarActions"><button type="button" class="adminSmallButton" data-create-close>Cancelar</button><button type="submit" class="btn">Crear estudiante</button></div></form></div>';
+ document.body.append(dialog);let saving=false;
+ const form=dialog.querySelector("form"),feedback=form.querySelector('[role="status"]');
+ dialog.querySelectorAll("[data-create-close]").forEach(button=>button.addEventListener("click",()=>{if(!saving)dialog.close();}));
+ dialog.addEventListener("cancel",event=>{if(saving)event.preventDefault();});
+ dialog.addEventListener("close",()=>{form.reset();dialog.remove();},{once:true});
+ form.addEventListener("submit",async event=>{
+  event.preventDefault();if(saving||!isAdmin()||!form.reportValidity())return;
+  const name=form.elements.namedItem("name").value.trim().replace(/\s+/g," ");
+  const email=form.elements.namedItem("email").value.trim().toLowerCase();
+  if(window.olonAdmin?.students?.().some(u=>String(u.email).toLowerCase()===email)){
+   feedback.hidden=false;feedback.textContent="Ya existe un estudiante con ese correo. Puedes seleccionarlo al crear la licencia.";return;
+  }
+  saving=true;feedback.hidden=false;feedback.textContent="Creando estudiante…";
+  const controls=dialog.querySelectorAll("button,input");controls.forEach(c=>c.disabled=true);
+  try{
+   // Reuse the registration gateway; never create Auth users from the browser.
+   await call("apply",{name,email});
+   const result=await call("list");
+   const request=(result.requests||[]).find(r=>r.status==="pending"&&String(r.email).toLowerCase()===email);
+   if(!request)throw Error("No se encontró una solicitud pendiente. Si la cuenta ya existe, actualiza la lista de estudiantes.");
+   const account=await call("approve",{id:request.id});
+   dialog.close();showCredentials(account);
+   document.dispatchEvent(new CustomEvent("olon:student-created",{detail:{email}}));
+   void refresh();void window.olonAdmin?.refresh().catch(()=>{});
+  }catch(error){feedback.hidden=false;feedback.textContent=error.message||"No se pudo crear el estudiante.";}
+  finally{saving=false;controls.forEach(c=>c.disabled=false);}
+ });
+ if(typeof dialog.showModal==="function")dialog.showModal();else dialog.setAttribute("open","");
+ form.elements.namedItem("name").focus();
+}
+
 function go(){
  if(!isAdmin())return;
  const target=$("adminRequestsBlock");if(!target)return;
@@ -232,6 +268,6 @@ function install(){
  // Keep new access requests visible without requiring an admin page reload.
  setInterval(()=>{if(!document.hidden&&!section.classList.contains("hidden")&&isAdmin())void refresh();},6000);
 }
-window.olonRequests={refresh,go,manageAccount};
+window.olonRequests={refresh,go,manageAccount,createStudent};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install);else install();
 })();
