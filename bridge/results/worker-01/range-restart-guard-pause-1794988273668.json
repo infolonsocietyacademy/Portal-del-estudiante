@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "id": "range-restart-guard-pause-1794988273668",
+  "task_sha256": "56435aca8339d3ad21c62e113aeeb821792f7d932f9e804bbb243b91353afe74",
+  "status": "succeeded",
+  "started_at": "2026-11-18T07:52:00+00:00",
+  "code": "DEMO_GOLD_ENTRIES_PAUSED_SL_TP_RETAINED",
+  "finished_at": "2026-11-18T07:52:00+00:00"
+}
