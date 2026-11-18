@@ -77,6 +77,11 @@
       "id": "m5-final-health-20261118040654",
       "action": "demo_structure_status",
       "expires_at": "2026-11-18T04:11:54.502Z"
+    },
+    {
+      "id": "bt-ms5-retest-14d-20261118041459",
+      "action": "gold_backtest_14d",
+      "expires_at": "2026-11-18T04:44:59.107Z"
     }
   ]
 }
