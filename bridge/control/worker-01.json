@@ -62,6 +62,16 @@
       "id": "m5-change-pause-20261118035159",
       "action": "demo_gold_stop",
       "expires_at": "2026-11-18T04:01:59.459Z"
+    },
+    {
+      "id": "m5-activate-20261118040514",
+      "action": "demo_gold",
+      "expires_at": "2026-11-18T04:15:14.616Z"
+    },
+    {
+      "id": "m5-initial-check-20261118040514",
+      "action": "demo_structure_status",
+      "expires_at": "2026-11-18T04:15:14.616Z"
     }
   ]
 }
