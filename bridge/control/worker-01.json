@@ -198,6 +198,11 @@
       "id": "range90-chunks-1794990312505",
       "action": "gold_backtest_90d",
       "expires_at": "2026-11-18T08:55:12.505Z"
+    },
+    {
+      "id": "restore-demo-after-restart-1794990538848",
+      "action": "demo_gold",
+      "expires_at": "2026-11-18T08:48:58.848Z"
     }
   ]
 }
