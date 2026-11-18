@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "id": "nas100-probe-1794985074044",
+  "task_sha256": "95af8281c500fd53221ae3a0032e155e4f8e5c0000eef231ca07be291e19d989",
+  "status": "succeeded",
+  "started_at": "2026-11-18T06:58:38+00:00",
+  "code": "NAS100_SYMBOLS_READ_ONLY",
+  "current_symbol": "XAUUSD",
+  "account_type_verified": "demo",
+  "candidates": [
+    {
+      "name": "NAS100.fs",
+      "description": "NASDAQ 100 E-mini Futures derived CFD",
+      "currency_profit": "USD",
+      "trade_mode": 4,
+      "trade_contract_size": 20.0,
+      "trade_tick_size": 0.01,
+      "trade_tick_value": 0.2,
+      "volume_min": 0.01,
+      "volume_max": 20.0,
+      "volume_step": 0.01,
+      "trade_stops_level": 1,
+      "point": 0.01,
+      "digits": 2,
+      "atr_m5": 29.8485714285715,
+      "bid": 0.0,
+      "ask": 0.0,
+      "spread_price": 0.0
+    },
+    {
+      "name": "USTECH",
+      "description": "US Tech 100 Index Cash CFD (1 Lot=1 USD per 1.00 pip)",
+      "currency_profit": "USD",
+      "trade_mode": 4,
+      "trade_contract_size": 1.0,
+      "trade_tick_size": 0.01,
+      "trade_tick_value": 0.01,
+      "volume_min": 0.1,
+      "volume_max": 250.0,
+      "volume_step": 0.1,
+      "trade_stops_level": 1,
+      "point": 0.01,
+      "digits": 2,
+      "atr_m5": 29.807142857142804,
+      "bid": 0.0,
+      "ask": 0.0,
+      "spread_price": 0.0
+    }
+  ],
+  "finished_at": "2026-11-18T06:58:55+00:00"
+}
