@@ -1,0 +1,98 @@
+/* VIP manager: a single accessible table, scoped to the administrator. */
+@layer adminGithub {
+ #portal.admin-mode #olonLicenseAdminBlock {min-width:0!important;padding:0!important;font-size:12px!important;color:var(--agh-text)!important}
+ #portal.admin-mode #olonLicenseAdminBlock [hidden] {display:none!important}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerHeader {display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;margin:0 0 22px!important}
+ #portal.admin-mode #olonLicenseAdminBlock h3 {font-size:24px!important;line-height:1.3!important;margin:0 0 8px!important}
+ #portal.admin-mode #olonLicenseAdminBlock h4 {font-size:14px!important;margin:0 0 6px!important;color:var(--agh-text)!important}
+ #portal.admin-mode #olonLicenseAdminBlock p {color:var(--agh-muted)!important;font-size:11px!important;line-height:1.7!important;margin:0}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerActions {display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+ #portal.admin-mode #olonLicenseAdminBlock button {white-space:nowrap;font-size:11px!important;letter-spacing:0!important;text-transform:none!important;touch-action:manipulation}
+ #portal.admin-mode #olonLicenseAdminBlock button:disabled {opacity:.5!important;cursor:default!important}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerStats {display:flex;flex-wrap:wrap;gap:0;margin:0 0 22px!important;padding:12px 0!important;background:var(--agh-subtle)!important;border:1px solid var(--agh-border)!important;border-radius:6px!important}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerStats>span {flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:4px 14px;border-right:1px solid var(--agh-border);white-space:nowrap;color:var(--agh-muted);font-size:11px}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerStats>span:last-child {border-right:0}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerStats b {font-size:18px!important;color:var(--agh-text)!important;font-variant-numeric:tabular-nums}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerTabs {display:flex;gap:14px;border-bottom:1px solid var(--agh-border);margin-bottom:18px}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerTabs button {padding:10px 14px!important;border:0!important;border-bottom:2px solid transparent!important;border-radius:0!important;background:transparent!important;color:var(--agh-muted)!important;font-size:12px!important}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerTabs button[aria-selected=true] {color:var(--agh-text)!important;border-bottom-color:var(--agh-link)!important;font-weight:600!important}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerToolbar {display:flex;align-items:end;flex-wrap:wrap;gap:10px;margin:0 0 16px}
+ #portal.admin-mode #olonLicenseAdminBlock label {display:grid;gap:6px;font-size:10px!important;min-width:0;color:var(--agh-muted)!important}
+ #portal.admin-mode #olonLicenseAdminBlock input:not([type=hidden]),#portal.admin-mode #olonLicenseAdminBlock select {min-height:36px!important;width:100%;padding:8px 10px!important;border:1px solid var(--agh-border)!important;background:var(--agh-bg)!important;color:var(--agh-text)!important;border-radius:6px!important;font:inherit!important;font-size:12px!important;box-shadow:none!important}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerSearch {flex:1;min-width:200px}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerToolbar>label:not(.licenseManagerSearch) {min-width:130px}
+ #portal.admin-mode #olonLicenseAdminBlock #olonLicenseRefresh {height:36px!important;min-width:38px!important;font-size:18px!important}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseTableScroll {max-width:100%;overflow-x:auto;border:1px solid var(--agh-border);border-radius:6px;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerTable {width:100%!important;min-width:950px;table-layout:auto;border-collapse:collapse!important;background:var(--agh-bg)!important;margin:0!important;font-size:11px!important}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerTable thead {background:var(--agh-subtle)!important}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerTable th {text-align:left!important;padding:13px 14px!important;border:0!important;border-bottom:1px solid var(--agh-border)!important;font-size:11px!important;font-weight:600!important;color:var(--agh-text)!important;white-space:nowrap}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerTable td {text-align:left!important;vertical-align:middle;padding:14px!important;border:0!important;border-bottom:1px solid var(--agh-border)!important;color:var(--agh-text)!important;background:transparent!important;font-size:11px!important}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerTable tr:last-child td {border-bottom:0!important}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerTable tbody tr:hover {background:var(--agh-subtle)!important}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerTable tr.licenseAssignmentSelected {background:color-mix(in srgb,var(--agh-link) 13%,var(--agh-bg))!important;box-shadow:inset 3px 0 var(--agh-link)}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseStudentIdentity {display:flex;align-items:center;gap:10px;min-width:195px}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseStudentIdentity>div {min-width:0}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseStudentIdentity strong {display:block;font-size:11px!important;color:var(--agh-text)!important;max-width:240px;overflow-wrap:anywhere}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseStudentIdentity small {display:block;font-size:10px!important;color:var(--agh-muted)!important;max-width:240px;overflow-wrap:anywhere;margin-top:5px}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseStudentAvatar {display:grid;place-items:center;width:32px;height:32px;border-radius:50%;flex:none;background:var(--agh-hover);color:var(--agh-text);font-size:11px}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseMaskedCode,#portal.admin-mode #olonLicenseAdminBlock .licenseDate {white-space:nowrap;font-variant-numeric:tabular-nums}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseDateHint {display:block;font-size:9px!important;color:var(--agh-muted)!important;margin-top:5px}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseStatusBadge {display:inline-block;padding:3px 7px;border:1px solid var(--agh-border);border-radius:5px;color:var(--agh-muted);font-size:10px;white-space:nowrap}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseStatusBadge[data-state=available] {border-color:var(--agh-link);color:var(--agh-link)}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseStatusBadge:is([data-state=redeemed],[data-state=active]) {border-color:var(--agh-green);color:var(--agh-green)}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseStatusBadge:is([data-state=revoked],[data-state=eligible]) {border-color:var(--agh-danger);color:var(--agh-danger)}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseStatusBadge:is([data-state=grace],[data-state=legacy_due]) {border-color:var(--agh-warning);color:var(--agh-warning)}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseTableActions {display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-width:255px;max-width:360px}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseTableActions button {min-height:30px!important;padding:5px 8px!important;font-size:10px!important}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseViewAction {border-color:transparent!important;color:var(--agh-link)!important;background:transparent!important}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseAssignAction {border-color:var(--agh-link)!important;color:var(--agh-link)!important;background:transparent!important}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseRevokeAction {border-color:var(--agh-warning)!important;color:var(--agh-warning)!important;background:transparent!important}
+ #portal.admin-mode #olonLicenseAdminBlock .olonLicenseDelete {border-color:var(--agh-danger)!important;color:var(--agh-danger)!important;background:transparent!important}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseTableEmpty {text-align:center!important;padding:35px!important;color:var(--agh-muted)!important}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerPagination {display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin:14px 0 22px;color:var(--agh-muted);font-size:10px}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerPagination>div {display:flex;align-items:center;gap:10px}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerEditor {background:var(--agh-subtle)!important;padding:18px!important;margin:0 0 20px!important;border:1px solid var(--agh-border)!important;border-radius:6px!important}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseEditorHeading {display:flex;justify-content:space-between;gap:12px;align-items:start;margin-bottom:16px}
+ #portal.admin-mode #olonLicenseAdminBlock .olonLicenseForm {display:grid!important;grid-template-columns:minmax(200px,2fr) minmax(180px,1.5fr) 80px auto!important;gap:12px!important;align-items:end!important;margin-top:14px!important}
+ #portal.admin-mode #olonLicenseAdminBlock .olonLicenseDateTrigger {display:flex;align-items:center;justify-content:space-between;width:100%;min-height:44px!important;padding:7px 10px!important;border:1px solid var(--agh-border)!important;border-radius:6px!important;background:var(--agh-bg)!important;color:var(--agh-text)!important}
+ #portal.admin-mode #olonLicenseAdminBlock .olonLicenseDurationLabel {display:block;font-size:10px;color:var(--agh-muted);margin-bottom:6px}
+ #portal.admin-mode #olonLicenseAdminBlock .olonLicenseDateText {display:grid;gap:4px;text-align:left}
+ #portal.admin-mode #olonLicenseAdminBlock .olonLicenseDateText strong {font-size:11px!important}
+ #portal.admin-mode #olonLicenseAdminBlock .olonLicenseDateText small {font-size:10px;color:var(--agh-muted)}
+ #portal.admin-mode #olonLicenseAdminBlock .olonLicenseFeedback {padding:12px!important;margin:0 0 14px!important;border:1px solid var(--agh-border)!important;color:var(--agh-text)!important;background:var(--agh-subtle)!important;border-radius:6px!important}
+ #portal.admin-mode #olonLicenseAdminBlock .olonLicenseFeedback[data-error=true] {color:var(--agh-danger)!important;border-color:var(--agh-danger)!important}
+ #portal.admin-mode #olonLicenseAdminBlock #olonGeneratedCodes {display:block;width:100%;margin:0 0 12px!important;resize:vertical}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseInlineAssign {display:grid;grid-template-columns:minmax(160px,1fr) minmax(240px,2fr);gap:16px;align-items:start}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseInlineFields {display:grid;gap:10px;min-width:0}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseInlineAssign>.licenseManagerActions {grid-column:2}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseInlineAssign>.olonLicenseFeedback {grid-column:1/-1}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseManagerFootnote {padding-top:12px!important;border-top:1px solid var(--agh-border);font-size:10px!important}
+ #portal.admin-mode #olonLicenseAdminBlock .licenseSrOnly {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+ body:has(#portal.admin-mode) .licenseStudentCreateForm {display:grid;gap:15px}
+ body:has(#portal.admin-mode) .licenseStudentCreateForm label {display:grid;gap:6px;font-size:12px}
+ body:has(#portal.admin-mode) .licenseStudentCreateForm input:not([type=checkbox]) {padding:10px;font-size:16px}
+ body:has(#portal.admin-mode) .licenseStudentCreateForm .licenseStudentConfirm {display:flex;align-items:start;gap:10px;font-size:11px;line-height:1.7}
+ body:has(#portal.admin-mode) .licenseStudentCreateForm .licenseStudentConfirm input {margin-top:5px}
+ @media(max-width:1100px) {
+  #portal.admin-mode #olonLicenseAdminBlock .olonLicenseForm {grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
+  #portal.admin-mode #olonLicenseAdminBlock .licenseManagerStats>span {flex:1 1 130px;padding:7px 10px;font-size:10px}
+ }
+ @media(max-width:600px) {
+  #portal.admin-mode #olonLicenseAdminBlock h3 {font-size:20px!important}
+  #portal.admin-mode #olonLicenseAdminBlock .licenseManagerHeader>.licenseManagerActions {width:100%}
+  #portal.admin-mode #olonLicenseAdminBlock .licenseManagerHeader button {flex:1;min-height:42px!important}
+  #portal.admin-mode #olonLicenseAdminBlock .licenseManagerStats {padding:6px 0!important}
+  #portal.admin-mode #olonLicenseAdminBlock .licenseManagerStats>span {flex-basis:45%;justify-content:start;border:0;padding-left:14px}
+  #portal.admin-mode #olonLicenseAdminBlock .licenseManagerSearch {flex-basis:100%}
+  #portal.admin-mode #olonLicenseAdminBlock .licenseManagerToolbar>label:not(.licenseManagerSearch) {min-width:0;flex:1}
+  #portal.admin-mode #olonLicenseAdminBlock input:not([type=hidden]),#portal.admin-mode #olonLicenseAdminBlock select {font-size:16px!important;min-height:42px!important}
+  #portal.admin-mode #olonLicenseAdminBlock .licenseTableActions button {min-height:40px!important}
+  #portal.admin-mode #olonLicenseAdminBlock .licenseManagerPagination button {min-height:40px!important}
+  #portal.admin-mode #olonLicenseAdminBlock .licenseInlineAssign,#portal.admin-mode #olonLicenseAdminBlock .olonLicenseForm {grid-template-columns:minmax(0,1fr)!important}
+  #portal.admin-mode #olonLicenseAdminBlock .licenseInlineAssign>.licenseManagerActions {grid-column:1}
+ }
+}
+@layer adminGithub {
+ #portal.admin-mode .olAdminMain:has(#olAdminView-olonLicenseAdminBlock:not([hidden])) .olAdminWorkspaceTopbar {padding-bottom:16px!important}
+ #portal.admin-mode .olAdminMain:has(#olAdminView-olonLicenseAdminBlock:not([hidden])) .olAdminWorkspaceTopbar :is(h2,p) {display:none!important}
+}

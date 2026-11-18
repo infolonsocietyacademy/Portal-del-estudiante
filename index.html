@@ -46,7 +46,7 @@
 <link rel="stylesheet" href="./admin-billing.css?v=20261110-student-billing-nav-1">
 <link rel="stylesheet" href="./admin-shell.css?v=20261110-executive-ui-2">
 <link rel="stylesheet" href="./admin-rebates.css?v=20261111-annual-selector-2">
-<link rel="stylesheet" href="./admin-performance.css?v=20261108-student-perf-1"><link rel="stylesheet" href="./license-ui.css?v=20261114-github-flat-4">
+<link rel="stylesheet" href="./admin-performance.css?v=20261108-student-perf-1"><link rel="stylesheet" href="./license-ui.css?v=20261118-vip-table-1">
 <noscript><style>#olonLoader{display:none}</style></noscript>
 
 <style id="olon-rescue-css">
@@ -81,6 +81,7 @@ body{overflow-y:visible!important;overscroll-behavior-y:auto!important;-webkit-o
 <link rel="stylesheet" href="./copy-trade.css?v=20261115-coming-soon-1">
 <link rel="stylesheet" href="./maintenance.css?v=20261114-boot-screen-restored-4">
 <link rel="stylesheet" href="./admin-github.css?v=20261116-admin-workspace-1">
+<link rel="stylesheet" href="./license-table.css?v=20261118-vip-table-1">
 <link rel="stylesheet" href="./student-github.css?v=20261115-flat-workspace-1">
 </head>
 <body class="trader-themed olonMaintenancePending">
@@ -1214,38 +1215,47 @@ window.addEventListener("load", () => {
         </div>
         <footer class="rebateHistory"><h5>Últimos 10 reportes · actualizar o eliminar con vista previa</h5><div id="rebateReportRows"></div></footer>
       </section>
-      <section id="olonLicenseAdminBlock" class="adminWorkspaceCard olonLicensePanel" aria-labelledby="olonLicenseAdminHeading">
-  <header class="olonLicenseHero">
-    <div class="olonLicenseHeroTop"><span class="olonLicenseHeroKicker">OLFX / ACCESS CONTROL</span><span class="olonLicenseSecureTag">● GESTIÓN SEGURA</span></div>
-    <div class="olonLicenseHeroTitle"><div><h3 id="olonLicenseAdminHeading">Licencias VIP</h3><p>Asigna accesos personales, controla vencimientos y administra códigos de forma segura. Los datos de los estudiantes permanecen intactos.</p></div><button type="button" class="adminSmallButton" id="olonLicenseRefresh">↻ Actualizar</button></div>
+      <section id="olonLicenseAdminBlock" class="adminWorkspaceCard olonLicensePanel olonLicenseManager" aria-labelledby="olonLicenseAdminHeading">
+  <header class="licenseManagerHeader">
+    <div><h3 id="olonLicenseAdminHeading">Licencias VIP</h3><p>Administra licencias y estudiantes desde una sola tabla.</p></div>
+    <div class="licenseManagerActions"><button type="button" class="adminSmallButton" id="olonLicenseAddStudent">+ Agregar estudiante</button><button type="button" class="btn" id="olonLicenseToggleCreate" aria-expanded="false" aria-controls="olonLicenseCreatePanel">+ Crear licencia</button></div>
   </header>
-  <div class="olonLicenseStats" aria-label="Resumen de licencias">
-    <div><small>Disponibles</small><b id="olonLicenseAvailable">—</b><span>Listas para activar</span></div>
-    <div><small>Activadas</small><b id="olonLicenseRedeemedCount">—</b><span>Asignadas y usadas</span></div>
-    <div><small>Revocadas</small><b id="olonLicenseRevokedCount">—</b><span>Se pueden eliminar</span></div>
-    <div><small>Vencidas / por revisar</small><b id="olonLicenseGrace">—</b><span>Accesos pendientes</span></div>
+  <div class="licenseManagerStats" aria-label="Resumen de licencias">
+    <span><b id="olonLicenseTotal">—</b> licencias</span><span><b id="olonLicenseRedeemedCount">—</b> activadas</span><span><b id="olonLicenseAvailable">—</b> disponibles</span><span><b id="olonLicenseRevokedCount">—</b> revocadas</span><span><b id="olonLicenseGrace">—</b> accesos por revisar</span>
   </div>
-  <div class="olonLicenseCreate">
-    <div class="olonLicenseSectionTitle"><div><span>01 / NUEVO ACCESO</span><h4>Generar licencia VIP</h4><p>Primero selecciona el estudiante; la licencia quedará vinculada exclusivamente a su cuenta.</p></div></div>
+  <section id="olonLicenseCreatePanel" class="licenseManagerEditor" aria-labelledby="olonLicenseCreateHeading" hidden>
+    <div class="licenseEditorHeading"><div><h4 id="olonLicenseCreateHeading">Crear licencia VIP</h4><p>Selecciona el estudiante y los días de acceso.</p></div><button type="button" class="adminSmallButton" id="olonLicenseCancelCreate">Cerrar</button></div>
     <div class="olonLicenseForm"><label class="olonLicenseStudentSelect">Estudiante destinatario<select id="olonLicenseAssign" required><option value="">Selecciona el estudiante</option></select></label>
-    <div class="olonLicenseDurationSelect"><span class="olonLicenseDurationLabel">Duración de acceso</span><button type="button" id="olonLicenseDatePicker" class="olonLicenseDateTrigger" aria-haspopup="dialog" aria-label="Elegir días de acceso usando calendario"><span class="olonLicenseDateText"><strong id="olonLicenseSelectedDate">Seleccionar fecha</strong><small id="olonLicenseSelectedDays">15 días</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="20" height="20"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/></svg></button><input id="olonLicenseDays" type="hidden" value="15"></div>
-    <label class="olonLicenseQuantity">Cantidad<input id="olonLicenseQuantity" type="number" min="1" max="25" value="1"></label><button type="button" class="btn olonLicenseGenerateBtn" id="olonLicenseGenerate">+ Generar licencia</button></div>
-    <p id="olonLicenseAdminFeedback" class="olonLicenseFeedback" role="status" aria-live="polite" hidden></p>
-    <div id="olonLicenseResult" class="olonLicenseResult" hidden>
-      <div class="olonLicenseResultHead"><div><strong>Licencias nuevas listas</strong><small>Por seguridad, los códigos completos se muestran solo al crearse. Copia y guárdalos.</small></div><span>GENERADAS</span></div>
-      <textarea id="olonGeneratedCodes" readonly spellcheck="false" aria-label="Códigos completos de licencias recién generadas"></textarea>
-      <div class="olonLicenseResultActions"><button type="button" class="btn" id="olonLicenseCopy">⧉ Copiar códigos</button><button type="button" class="adminSmallButton" id="olonLicenseSelectCodes">Seleccionar texto</button></div>
-    </div>
+    <div class="olonLicenseDurationSelect"><span class="olonLicenseDurationLabel">Duración de acceso</span><button type="button" id="olonLicenseDatePicker" class="olonLicenseDateTrigger" aria-haspopup="dialog" aria-label="Elegir días de acceso usando calendario"><span class="olonLicenseDateText"><strong id="olonLicenseSelectedDate">Seleccionar fecha</strong><small id="olonLicenseSelectedDays">15 días</small></span><span aria-hidden="true">▦</span></button><input id="olonLicenseDays" type="hidden" value="15"></div>
+    <label class="olonLicenseQuantity">Cantidad<input id="olonLicenseQuantity" type="number" min="1" max="25" value="1"></label><button type="button" class="btn olonLicenseGenerateBtn" id="olonLicenseGenerate">Crear licencia</button></div>
+  </section>
+  <p id="olonLicenseAdminFeedback" class="olonLicenseFeedback" role="status" aria-live="polite" hidden></p>
+  <div id="olonLicenseResult" class="licenseManagerEditor" hidden>
+    <div class="licenseEditorHeading"><div><h4>Licencias listas para copiar</h4><p>Comparte cada código únicamente con su estudiante.</p></div></div>
+    <textarea id="olonGeneratedCodes" rows="3" readonly spellcheck="false" aria-label="Códigos de licencia generados"></textarea>
+    <div class="licenseManagerActions"><button type="button" class="btn" id="olonLicenseCopy">Copiar códigos</button><button type="button" class="adminSmallButton" id="olonLicenseSelectCodes">Seleccionar texto</button><button type="button" class="adminSmallButton" id="olonLicenseHideCodes">Ocultar códigos</button></div>
   </div>
-  <div class="olonLicenseColumns">
-    <div class="olonLicenseCatalog">
-      <div class="olonLicenseSectionTitle"><div><span>02 / CONTROL DE CÓDIGOS</span><h4>Registro de licencias</h4></div></div>
-      <div class="olonLicenseFilters"><label class="olonLicenseFilterSearch" for="olonLicenseSearch">Buscar<input id="olonLicenseSearch" type="search" placeholder="Estudiante o últimos dígitos"></label><label for="olonLicenseFilter">Estado<select id="olonLicenseFilter"><option value="all">Todas</option><option value="available">Disponibles</option><option value="redeemed">Activadas</option><option value="revoked">Revocadas</option></select></label></div>
-      <div class="olonLicenseTableHead" aria-hidden="true"><span>LICENCIA / ESTUDIANTE</span><span style="text-align:right">ACCIONES</span></div><div id="olonLicenseList" aria-live="polite">Consultando…</div>
-    </div>
-    <div class="olonLicenseStudentPane"><div class="olonLicenseSectionTitle"><div><span>03 / SEGUIMIENTO</span><h4>Estudiantes y vencimientos</h4></div></div><div class="olonLicenseTableHead olonLicenseStudentHead" aria-hidden="true"><span>ESTUDIANTE / VENCIMIENTO</span><span style="text-align:right">GESTIÓN</span></div><div id="olonLicenseStudents">Consultando…</div></div>
+  <div class="licenseManagerTabs" role="tablist" aria-label="Gestión de licencias y estudiantes"><button type="button" id="olonLicenseTabLicenses" role="tab" aria-selected="true" aria-controls="olonLicenseCatalog">Licencias</button><button type="button" id="olonLicenseTabStudents" role="tab" aria-selected="false" aria-controls="olonLicenseStudentPane" tabindex="-1">Estudiantes</button></div>
+  <div class="licenseManagerToolbar">
+    <label class="licenseManagerSearch" for="olonLicenseSearch"><span class="licenseSrOnly">Buscar estudiante o licencia</span><input id="olonLicenseSearch" type="search" placeholder="Buscar estudiante o licencia…" autocomplete="off"></label>
+    <label id="olonLicenseStateControl">Estado<select id="olonLicenseFilter"><option value="all">Todos</option><option value="available">Disponibles</option><option value="redeemed">Activadas</option><option value="revoked">Revocadas</option></select></label>
+    <label id="olonLicenseDurationControl">Duración<select id="olonLicenseDurationFilter"><option value="all">Todas</option></select></label>
+    <button type="button" class="adminSmallButton" id="olonLicenseRefresh" aria-label="Actualizar licencias y estudiantes" title="Actualizar">↻</button>
   </div>
-  <p class="olonLicenseFooterNote">Las licencias activadas no pueden eliminarse. Las revocadas se pueden retirar del registro de licencias sin eliminar estudiantes ni su historial. Los eventos de auditoría se conservan.</p>
+  <div id="olonLicenseCatalog" role="tabpanel" aria-labelledby="olonLicenseTabLicenses">
+    <div class="licenseTableScroll" role="region" aria-label="Tabla de licencias VIP, desliza para ver todas las columnas" tabindex="0"><table class="licenseManagerTable"><caption class="licenseSrOnly">Licencias VIP y acciones disponibles según su estado</caption><thead><tr><th scope="col">Estudiante</th><th scope="col">Licencia</th><th scope="col">Días</th><th scope="col">Vencimiento actual</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead><tbody id="olonLicenseList"><tr><td colspan="6">Consultando licencias…</td></tr></tbody></table></div>
+  </div>
+  <div id="olonLicenseStudentPane" role="tabpanel" aria-labelledby="olonLicenseTabStudents" hidden>
+    <div class="licenseTableScroll" role="region" aria-label="Tabla de estudiantes y vencimientos" tabindex="0"><table class="licenseManagerTable"><caption class="licenseSrOnly">Estudiantes y estado actual de su acceso</caption><thead><tr><th scope="col">Estudiante</th><th scope="col">Vencimiento</th><th scope="col">Acceso</th><th scope="col">Pago</th><th scope="col">Acciones</th></tr></thead><tbody id="olonLicenseStudents"><tr><td colspan="5">Consultando estudiantes…</td></tr></tbody></table></div>
+  </div>
+  <div class="licenseManagerPagination"><span id="olonLicenseCount" role="status" aria-live="polite">Consultando…</span><div><button type="button" class="adminSmallButton" id="olonLicensePrevious" disabled>Anterior</button><span id="olonLicensePage">1 / 1</span><button type="button" class="adminSmallButton" id="olonLicenseNext" disabled>Siguiente</button></div></div>
+  <form id="olonLicenseInlineAssign" class="licenseManagerEditor licenseInlineAssign" aria-labelledby="olonLicenseInlineAssignHeading" hidden>
+    <div><h4 id="olonLicenseInlineAssignHeading">Asignar estudiante</h4><p id="olonLicenseInlineIdentity"></p></div>
+    <div class="licenseInlineFields"><label for="olonLicenseInlineSearch">Buscar estudiante<input id="olonLicenseInlineSearch" type="search" placeholder="Nombre o correo" autocomplete="off"></label><label for="olonLicenseInlineStudent">Estudiante<select id="olonLicenseInlineStudent" required><option value="">Selecciona el estudiante</option></select></label></div>
+    <div class="licenseManagerActions"><button type="submit" class="btn" id="olonLicenseSaveAssignment">Guardar asignación</button><button type="button" class="adminSmallButton" id="olonLicenseCancelAssignment">Cancelar</button></div>
+    <p id="olonLicenseAssignmentFeedback" class="olonLicenseFeedback" role="status" hidden></p>
+  </form>
+  <p class="licenseManagerFootnote">El vencimiento mostrado corresponde al acceso actual del estudiante. Solo se revocan licencias sin activar. Eliminar una licencia revocada no elimina al estudiante ni su historial.</p>
 </section><section class="adminWorkspaceCard" id="adminRequestsBlock" aria-labelledby="adminRequestsHeading">
         <div class="adminWorkspaceCardHead">
           <div><span class="adminSectionEyebrow">SOLICITUDES / NUEVOS ACCESOS</span><h4 id="adminRequestsHeading">Solicitudes de inscripción <span class="adminRequestCount" id="adminRequestCount">0</span></h4><p>Registros recibidos aunque el correo automático de Supabase esté limitado.</p></div>
@@ -1537,7 +1547,7 @@ window.addEventListener("load", () => {
 <link rel="stylesheet" href="./olon-myfxbook.css?v=20261111-1">
 <script src="./olon-myfxbook.js?v=20261111-1" defer></script>
 <script src="./admin-performance.js?v=20261115-real-trader-ranking-2" defer></script>
-<script src="./admin-registration.js?v=20261110-admin-sections-1" defer></script><script src="./license-ui.js?v=20261115-student-menu-cleanup-1" defer></script>
+<script src="./admin-registration.js?v=20261118-vip-table-1" defer></script><script src="./license-ui.js?v=20261118-vip-table-1" defer></script>
 <script src="./password-settings.js?v=20261107-security-hardening" defer></script>
 
 <script>
