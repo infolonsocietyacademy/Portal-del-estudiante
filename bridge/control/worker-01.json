@@ -218,6 +218,11 @@
       "id": "diagnose-no-trade-1795037913219-demo_structure_status",
       "action": "demo_structure_status",
       "expires_at": "2026-11-18T21:53:33.219Z"
+    },
+    {
+      "id": "approved-recover-range-1795038063010",
+      "action": "demo_gold",
+      "expires_at": "2026-11-18T21:51:03.010Z"
     }
   ]
 }
