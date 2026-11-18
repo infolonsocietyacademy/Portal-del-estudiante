@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.26",
   "state": "online",
-  "updated_at": "2026-11-18T06:59:56+00:00",
+  "updated_at": "2026-11-18T07:01:03+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "bt-ms5-retest-14d-20261118041459",
@@ -69,13 +69,13 @@
   },
   "gold_strategy": {
     "schema": 1,
-    "version": "1.0.24",
-    "updated_at": 1794985023.4814644,
+    "version": "1.0.26",
+    "updated_at": 1794985263.8239238,
     "code": "MS5_WAIT_STRUCTURE",
     "signal_state": "MS5_WAIT_STRUCTURE",
     "ready": true,
     "account_type_verified": "demo",
-    "symbol": "XAUUSD",
+    "symbol": "USTECH",
     "period": "M5",
     "strategy": "MARKET_STRUCTURE_M5_RETEST_TP1",
     "target": "TP1",
@@ -85,8 +85,9 @@
     "hold_seconds": 0,
     "close_policy": "BROKER_SL_TP_ONLY",
     "paused": false,
-    "size_mode": "fixed",
+    "size_mode": "percent",
     "fixed_lots": 0.05,
+    "max_risk_cash": 50.0,
     "risk_percent": 0.5,
     "active_commands": 0,
     "open_positions": 0,
@@ -95,12 +96,12 @@
     "net_recorded": -50.85,
     "quote_fresh": true,
     "python_trading_allowed": true,
-    "quote_age_seconds": -7199.519,
-    "adjusted_quote_age_seconds": 0.481,
+    "quote_age_seconds": -7199.176,
+    "adjusted_quote_age_seconds": 0.824,
     "broker_clock_offset_seconds": -7200,
     "advancing_tick_samples": 6,
-    "spread_price": 0.16,
-    "snapshot_fresh": false
+    "spread_price": 0.8,
+    "snapshot_fresh": true
   },
   "updater": {
     "state": "running"
