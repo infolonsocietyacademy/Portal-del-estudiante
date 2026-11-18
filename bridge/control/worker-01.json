@@ -153,6 +153,21 @@
       "id": "range-restart-guard-pause-1794988273668",
       "action": "demo_gold_stop",
       "expires_at": "2026-11-18T08:11:13.668Z"
+    },
+    {
+      "id": "range28-start-1794988752966",
+      "action": "demo_gold",
+      "expires_at": "2026-11-18T08:19:12.966Z"
+    },
+    {
+      "id": "range28-ping-1794988752966",
+      "action": "ping",
+      "expires_at": "2026-11-18T08:19:12.966Z"
+    },
+    {
+      "id": "range28-status-1794988752966",
+      "action": "demo_structure_status",
+      "expires_at": "2026-11-18T08:19:12.966Z"
     }
   ]
 }
