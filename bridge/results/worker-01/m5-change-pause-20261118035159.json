@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "id": "m5-change-pause-20261118035159",
+  "task_sha256": "40ebda5b18f4dd426fc3172df28d4e846ac31653ca0b89f024e882b432554028",
+  "status": "succeeded",
+  "started_at": "2026-11-18T03:52:19+00:00",
+  "code": "DEMO_GOLD_ENTRIES_PAUSED_SL_TP_RETAINED",
+  "finished_at": "2026-11-18T03:52:19+00:00"
+}
