@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "id": "range90-chunks-1794990312505",
+  "task_sha256": "33739e2b8f3c38abeefc4ab1ac233dbbb43ebcb90ea3de3a5996c18223b67850",
+  "status": "succeeded",
+  "started_at": "2026-11-18T08:25:59+00:00",
+  "code": "BACKTEST_90D_STARTED",
+  "job_id": "range90-chunks-1794990312505",
+  "days": 90,
+  "symbol": "LOCAL_CONFIG",
+  "mode": "READ_ONLY_MARKET_DATA",
+  "finished_at": "2026-11-18T08:25:59+00:00"
+}
