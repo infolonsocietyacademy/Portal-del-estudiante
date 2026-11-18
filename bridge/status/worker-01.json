@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.21",
   "state": "online",
-  "updated_at": "2026-11-18T00:46:16+00:00",
+  "updated_at": "2026-11-18T00:47:17+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "h4-backtest14-mwl75drs",
@@ -105,7 +105,7 @@
   },
   "diagnostics": {
     "scope": "recent_logs",
-    "log_files_scanned": 5,
+    "log_files_scanned": 4,
     "log_read_errors": 0,
     "log_groups": [
       "expert",
@@ -120,12 +120,8 @@
       "CONFIG_LOADED",
       "DEMO_TRADING_ENABLED",
       "SOCKET_ALREADY_IN_USE",
-      "TERMINAL_SYNCHRONIZED",
-      "TESTER_FINISHED",
-      "TESTER_STARTED"
+      "TERMINAL_SYNCHRONIZED"
     ],
-    "numeric_error_codes": [
-      10009
-    ]
+    "numeric_error_codes": []
   }
 }
