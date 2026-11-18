@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.30",
   "state": "online",
-  "updated_at": "2026-11-18T08:24:53+00:00",
+  "updated_at": "2026-11-18T08:25:55+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "range90-history-retry-1794989685797",
@@ -57,7 +57,7 @@
     "snapshot_fresh": false
   },
   "updater": {
-    "state": "restarting"
+    "state": "running"
   },
   "diagnostics": {
     "scope": "recent_logs",
