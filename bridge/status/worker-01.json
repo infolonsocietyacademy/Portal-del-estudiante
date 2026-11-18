@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.21",
   "state": "online",
-  "updated_at": "2026-11-18T03:48:08+00:00",
+  "updated_at": "2026-11-18T03:49:12+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "h4-backtest14-mwl75drs",
@@ -68,7 +68,7 @@
   "gold_strategy": {
     "schema": 1,
     "version": "1.0.21",
-    "updated_at": 1794973687.890215,
+    "updated_at": 1794973751.3340893,
     "code": "LIQH4_WAIT_NEW_CANDLE",
     "signal_state": "LIQH4_WAIT_NEW_CANDLE",
     "ready": true,
@@ -93,8 +93,8 @@
     "net_recorded": -50.85,
     "quote_fresh": true,
     "python_trading_allowed": true,
-    "quote_age_seconds": -7199.11,
-    "adjusted_quote_age_seconds": 0.89,
+    "quote_age_seconds": -7199.666,
+    "adjusted_quote_age_seconds": 0.334,
     "broker_clock_offset_seconds": -7200,
     "advancing_tick_samples": 6,
     "spread_price": 0.16,
