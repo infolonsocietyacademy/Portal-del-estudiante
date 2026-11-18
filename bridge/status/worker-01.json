@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.28",
   "state": "online",
-  "updated_at": "2026-11-18T08:08:02+00:00",
+  "updated_at": "2026-11-18T08:09:04+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "range30-backtest-1794988096737",
@@ -74,7 +74,7 @@
   "gold_strategy": {
     "schema": 1,
     "version": "1.0.28",
-    "updated_at": 1794989282.588535,
+    "updated_at": 1794989344.366795,
     "code": "RANGE_WAIT_1030_NY",
     "signal_state": "RANGE_WAIT_1030_NY",
     "ready": true,
@@ -100,8 +100,8 @@
     "net_recorded": -50.85,
     "quote_fresh": true,
     "python_trading_allowed": true,
-    "quote_age_seconds": -7199.411,
-    "adjusted_quote_age_seconds": 0.589,
+    "quote_age_seconds": -7199.633,
+    "adjusted_quote_age_seconds": 0.367,
     "broker_clock_offset_seconds": -7200,
     "advancing_tick_samples": 6,
     "spread_price": 0.8,
