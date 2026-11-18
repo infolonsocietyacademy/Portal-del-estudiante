@@ -113,6 +113,16 @@
       "id": "bt-nas100-m5-14d-1794985275523",
       "action": "gold_backtest_14d",
       "expires_at": "2026-11-18T07:31:15.523Z"
+    },
+    {
+      "id": "range-pause-1794987525780",
+      "action": "demo_gold_stop",
+      "expires_at": "2026-11-18T07:58:45.780Z"
+    },
+    {
+      "id": "range-ping-1794987525780",
+      "action": "ping",
+      "expires_at": "2026-11-18T07:58:45.780Z"
     }
   ]
 }
