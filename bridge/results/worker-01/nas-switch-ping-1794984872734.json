@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "id": "nas-switch-ping-1794984872734",
+  "task_sha256": "2dc26a094d83a90b534ea4ea84d2c0d66460177de7a1e32d667f8b9f439068b7",
+  "status": "succeeded",
+  "started_at": "2026-11-18T06:55:25+00:00",
+  "code": "PONG",
+  "version": "1.0.25",
+  "finished_at": "2026-11-18T06:55:25+00:00"
+}
