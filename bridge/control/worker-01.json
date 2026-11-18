@@ -123,6 +123,21 @@
       "id": "range-ping-1794987525780",
       "action": "ping",
       "expires_at": "2026-11-18T07:58:45.780Z"
+    },
+    {
+      "id": "range-start-1794988019339",
+      "action": "demo_gold",
+      "expires_at": "2026-11-18T08:06:59.339Z"
+    },
+    {
+      "id": "range27-ping-1794988019339",
+      "action": "ping",
+      "expires_at": "2026-11-18T08:06:59.339Z"
+    },
+    {
+      "id": "range27-status-1794988019339",
+      "action": "demo_structure_status",
+      "expires_at": "2026-11-18T08:06:59.339Z"
     }
   ]
 }
