@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "id": "repair-resume-20261118033542",
+  "task_sha256": "c90708bf054e24b73a74b25e49a888c456b3c571d62082089f0fdcb868aec3f2",
+  "status": "failed",
+  "started_at": "2026-11-18T03:36:23+00:00",
+  "code": "PYTHON_TRADING_DISABLED",
+  "finished_at": "2026-11-18T03:36:43+00:00"
+}
