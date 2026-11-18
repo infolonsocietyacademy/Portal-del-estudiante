@@ -2,24 +2,24 @@
   "schema": 1,
   "version": "1.0.30",
   "state": "online",
-  "updated_at": "2026-11-18T08:29:05+00:00",
+  "updated_at": "2026-11-18T08:30:09+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "range90-chunks-1794990312505",
     "phase": "REPLAYING_REAL_TICKS",
     "strategy": "NY_RANGE_1030_1045_BUY_TP1",
-    "updated_at": 1794990541.4601734,
+    "updated_at": 1794990608.1191688,
     "requested_days": 90,
-    "progress_percent": 15.82,
-    "chunks": 57,
-    "closed_trades": 10,
-    "ticks": 4490286,
+    "progress_percent": 23.03,
+    "chunks": 83,
+    "closed_trades": 15,
+    "ticks": 6230569,
     "snapshot_fresh": true
   },
   "gold_strategy": {
     "schema": 1,
     "version": "1.0.28",
-    "updated_at": 1794990262.9091916,
+    "updated_at": 1794990608.8555474,
     "code": "RANGE_WAIT_1030_NY",
     "signal_state": "RANGE_WAIT_1030_NY",
     "ready": true,
@@ -45,8 +45,8 @@
     "net_recorded": -50.85,
     "quote_fresh": true,
     "python_trading_allowed": true,
-    "quote_age_seconds": -7199.091,
-    "adjusted_quote_age_seconds": 0.909,
+    "quote_age_seconds": -7199.144,
+    "adjusted_quote_age_seconds": 0.856,
     "broker_clock_offset_seconds": -7200,
     "advancing_tick_samples": 6,
     "spread_price": 0.8,
@@ -58,7 +58,7 @@
     "range_low": null,
     "sl_50": null,
     "daily_attempt_consumed": false,
-    "snapshot_fresh": false
+    "snapshot_fresh": true
   },
   "updater": {
     "state": "running"
