@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "path": "bridge/updates/releases/1.0.26.json",
-  "ref": "40a631f84fd14385c3af56d9d400a3ae707a9df4",
-  "sha256": "0a1ec93ecc5f69804f3bf8cc73135d57662ec21a4534dae7d5a832ddf63a34f3"
+  "path": "bridge/updates/releases/1.0.27.json",
+  "ref": "2a43b61dd65c50bdb75eecc0057f43804c9284b8",
+  "sha256": "f9bd0895b2a89fd13d33c3a6126fa314e34915856581affdf5e25a0985906dd0"
 }
