@@ -223,6 +223,22 @@
       "id": "approved-recover-range-1795038063010",
       "action": "demo_gold",
       "expires_at": "2026-11-18T21:51:03.010Z"
+    },
+    {
+      "id": "fixed060-range-1795038638217",
+      "action": "range_configure",
+      "fixed_lots": 0.6,
+      "expires_at": "2026-11-18T22:05:38.218Z"
+    },
+    {
+      "id": "fixed060-range-1795038638217-status",
+      "action": "demo_structure_status",
+      "expires_at": "2026-11-18T22:05:38.218Z"
+    },
+    {
+      "id": "fixed060-range-1795038638217-ping",
+      "action": "ping",
+      "expires_at": "2026-11-18T22:05:38.218Z"
     }
   ]
 }
