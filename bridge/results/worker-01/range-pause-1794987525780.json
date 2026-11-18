@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "id": "range-pause-1794987525780",
+  "task_sha256": "66bcfce0a01af104390b27da1981e71364da76ab60d9d023b9ec6da2da8831d4",
+  "status": "succeeded",
+  "started_at": "2026-11-18T07:39:18+00:00",
+  "code": "DEMO_GOLD_ENTRIES_PAUSED_SL_TP_RETAINED",
+  "finished_at": "2026-11-18T07:39:18+00:00"
+}
