@@ -2,7 +2,7 @@
 (() => {
   "use strict";
   const $ = id => document.getElementById(id);
-  const VIEW_IDS = ["adminOverviewBlock", "adminStudentsBlock", "adminRequestsBlock", "olonLicenseAdminBlock", "olonRankingAdmin", "olonPerformanceBlock", "adminBillingBlock", "adminRebatesBlock", "adminReminderBlock", "olonMaintenanceAdminBlock"];
+  const VIEW_IDS = ["adminOverviewBlock", "adminStudentsBlock", "adminRequestsBlock", "olonLicenseAdminBlock", "olonRankingAdmin", "olonPerformanceBlock", "adminMt5AccountsBlock", "adminBillingBlock", "adminRebatesBlock", "adminReminderBlock", "olonMaintenanceAdminBlock"];
   const MENU = [
     {group:"General",id:"adminOverviewBlock",icon:"overview",name:"Resumen",desc:"Actividad y prioridades de la academia",tab:"overview"},
     {group:"Academia",id:"adminStudentsBlock",icon:"people",name:"Estudiantes",desc:"Directorio, membresías y acceso",tab:"people"},
@@ -12,7 +12,8 @@
     {group:"Finanzas",id:"adminBillingBlock",icon:"invoice",name:"Facturación",desc:"Facturas, pagos y cuentas por cobrar",tab:"finance"},
     {id:"adminRebatesBlock",icon:"chart",name:"Volumen y rebates",desc:"Importa y consulta los reportes del bróker",tab:"finance"},
     {route:"academyAdminVipPage",icon:"receipt",name:"Comprobantes VIP",desc:"Revisa los comprobantes de membresía",tab:"finance"},
-    {group:"Trading",route:"olonOwnAdminPage",icon:"connect",name:"OLFX CONNECT",desc:"Equipos y sincronización de cuentas MT5",tab:"trading"},
+    {group:"Trading",id:"adminMt5AccountsBlock",icon:"connect",name:"Cuentas MT5",desc:"Identifica al dueño de cada cuenta y revisa su conexión",tab:"trading"},
+    {route:"olonOwnAdminPage",icon:"connect",name:"OLFX CONNECT",desc:"Equipos y sincronización de cuentas MT5",tab:"trading"},
     {id:"olonPerformanceBlock",icon:"pulse",name:"Rendimiento",desc:"Resultados de los traders por período",tab:"trading"},
     {id:"olonRankingAdmin",icon:"star",name:"Ranking",desc:"Clasificaciones semanales, mensuales y anuales",tab:"trading"},
     {group:"Comunicación",route:"adminChat",icon:"message",name:"Mensajes",desc:"Conversaciones privadas con estudiantes",counter:"adminNavUnread",tab:"overview"},
@@ -232,6 +233,7 @@
       closeMenu();
       if(options.scroll!==false)shell.scrollIntoView({behavior:"auto",block:"start"});
       if(options.focus)$("olAdminWorkspaceTitle").focus({preventScroll:true});
+      if(id==="adminMt5AccountsBlock")void window.olonAdminMt5?.activate?.();
       if(id==="adminBillingBlock")window.olonBilling?.activate?.();
       if(id==="adminRebatesBlock")window.olonRebates?.activate?.();
       if(id==="adminRequestsBlock")void window.olonRequests?.refresh?.();

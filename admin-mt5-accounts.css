@@ -1,0 +1,32 @@
+/* Account directory, scoped to preserve the existing administration appearance. */
+#adminMt5AccountsBlock{font-family:var(--agh-font,monospace);color:var(--agh-text,#f0f6fc);min-width:0}
+#adminMt5AccountsBlock [hidden]{display:none!important}
+#adminMt5AccountsBlock .amtMetrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:24px 0}
+#adminMt5AccountsBlock .amtMetrics>div{display:flex;align-items:center;gap:14px;padding:20px;border:1px solid var(--agh-border,#30363d);border-radius:8px;background:var(--agh-subtle,#151b23)}
+#adminMt5AccountsBlock .amtMetrics strong{font-size:1.7rem;color:var(--agh-link,#4493f8)}
+#adminMt5AccountsBlock .amtToolbar{display:flex;flex-wrap:wrap;align-items:end;gap:14px;margin-bottom:12px}
+#adminMt5AccountsBlock .amtToolbar label:first-child{flex:1 1 280px}
+#adminMt5AccountsBlock .amtToolbar label{display:grid;gap:6px;flex:0 1 230px}
+#adminMt5AccountsBlock .amtTableWrap{max-width:100%;overflow-x:auto;border:1px solid var(--agh-border,#30363d);border-radius:8px}
+#adminMt5AccountsBlock .amtTable{width:100%;min-width:850px;border-collapse:collapse;text-align:left;background:var(--agh-bg,#0d1117)}
+#adminMt5AccountsBlock .amtTable :is(th,td){padding:15px 16px;border-bottom:1px solid var(--agh-border,#30363d);vertical-align:middle;font-size:.875rem}
+#adminMt5AccountsBlock .amtTable th{background:var(--agh-subtle,#151b23);font-weight:600;white-space:nowrap}
+#adminMt5AccountsBlock .amtTable tr:last-child td{border-bottom:0}
+#adminMt5AccountsBlock .amtTable tr[data-selected="true"]{outline:2px solid var(--agh-link,#4493f8);outline-offset:-2px;background:var(--agh-subtle,#151b23)}
+#adminMt5AccountsBlock small{display:block;margin-top:5px;color:var(--agh-muted,#9198a1);font-size:.875rem;overflow-wrap:anywhere}
+#adminMt5AccountsBlock .amtBadge{display:inline-block;border:1px solid var(--agh-border,#30363d);border-radius:6px;padding:4px 8px;white-space:nowrap}
+#adminMt5AccountsBlock .amtBadge.active{color:var(--agh-green,#3fb950);border-color:currentColor;background:var(--agh-success-bg,#112b1b)}
+#adminMt5AccountsBlock .amtBadge:is(.warning,.waiting,.registered){color:var(--agh-warning,#d29922);border-color:currentColor;background:var(--agh-warning-bg,#2b2314)}
+#adminMt5AccountsBlock .amtPrimary{color:var(--agh-link,#4493f8)}
+#adminMt5AccountsBlock .amtDetail{border:1px solid var(--agh-border,#30363d);border-radius:8px;padding:20px;margin-top:24px;background:var(--agh-subtle,#151b23)}
+#adminMt5AccountsBlock dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;margin:20px 0}
+#adminMt5AccountsBlock dl>div{min-width:0}
+#adminMt5AccountsBlock dt{color:var(--agh-muted,#9198a1);font-size:.875rem;margin-bottom:8px}
+#adminMt5AccountsBlock dd{margin:0;overflow-wrap:anywhere;font-size:.95rem}
+#adminMt5AccountsBlock .amtActions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:20px 0}
+#adminMt5AccountsBlock :is(#amtError,[data-error="true"]){color:var(--agh-danger,#ff7b72)!important}
+#portal.admin-mode #adminMt5AccountsBlock :is(button,input,select,label,p){font-size:.875rem!important}
+#portal.admin-mode #adminMt5AccountsBlock h3{font-size:1.5rem!important}
+#portal.admin-mode #adminMt5AccountsBlock :is(input,select,button){min-height:44px!important}
+#portal.admin-mode #adminMt5AccountsBlock .btn:not(.secondary){background:#0969da!important;border-color:#0969da!important;color:white!important}
+@media(max-width:600px){#adminMt5AccountsBlock .amtMetrics{gap:8px}#adminMt5AccountsBlock .amtMetrics>div{display:grid;padding:12px;gap:6px}#adminMt5AccountsBlock .amtMetrics span{font-size:.8rem}#adminMt5AccountsBlock .amtToolbar label{flex:1 1 100%}#adminMt5AccountsBlock .amtDetail{padding:14px}#adminMt5AccountsBlock dl{grid-template-columns:1fr}#adminMt5AccountsBlock .amtActions button{flex:1 1 180px}}
