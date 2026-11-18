@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.31",
   "state": "online",
-  "updated_at": "2026-11-18T22:45:02+00:00",
+  "updated_at": "2026-11-18T22:46:04+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "range90-chunks-1794990312505",
@@ -74,7 +74,7 @@
   "gold_strategy": {
     "schema": 1,
     "version": "1.0.31",
-    "updated_at": 1795041901.175495,
+    "updated_at": 1795041964.073266,
     "code": "QUOTE_STALE",
     "signal_state": "RANGE_WAIT_FRESH_QUOTE",
     "ready": false,
@@ -100,8 +100,8 @@
     "net_recorded": -50.85,
     "quote_fresh": false,
     "python_trading_allowed": true,
-    "quote_age_seconds": -4437.825,
-    "adjusted_quote_age_seconds": 2762.175,
+    "quote_age_seconds": -4374.927,
+    "adjusted_quote_age_seconds": 2825.073,
     "broker_clock_offset_seconds": -7200,
     "advancing_tick_samples": 6,
     "spread_price": 0.8,
@@ -118,7 +118,7 @@
   "strategy_service": {
     "enabled": true,
     "code": "WORKER_HEALTHY",
-    "updated_at": 1795041902.1687694,
+    "updated_at": 1795041964.3033097,
     "worker_locked": true
   },
   "updater": {
