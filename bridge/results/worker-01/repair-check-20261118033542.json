@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "id": "repair-check-20261118033542",
+  "task_sha256": "ed25c6190c8db75d3bbf54d59a58330147d846c609a614cf1da8dac5adc509bb",
+  "status": "succeeded",
+  "started_at": "2026-11-18T03:36:44+00:00",
+  "version": "1.0.21",
+  "code": "PYTHON_TRADING_DISABLED",
+  "ready": false,
+  "updated_at": 1794973003.189732,
+  "snapshot_fresh": true,
+  "finished_at": "2026-11-18T03:36:44+00:00"
+}
