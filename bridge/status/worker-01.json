@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.30",
   "state": "online",
-  "updated_at": "2026-11-18T10:33:04+00:00",
+  "updated_at": "2026-11-18T10:34:06+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "range90-chunks-1794990312505",
@@ -74,7 +74,7 @@
   "gold_strategy": {
     "schema": 1,
     "version": "1.0.28",
-    "updated_at": 1794997983.5501027,
+    "updated_at": 1794998045.3436913,
     "code": "RANGE_WAIT_1030_NY",
     "signal_state": "RANGE_WAIT_1030_NY",
     "ready": true,
@@ -100,8 +100,8 @@
     "net_recorded": -50.85,
     "quote_fresh": true,
     "python_trading_allowed": true,
-    "quote_age_seconds": -7199.45,
-    "adjusted_quote_age_seconds": 0.55,
+    "quote_age_seconds": -7199.656,
+    "adjusted_quote_age_seconds": 0.344,
     "broker_clock_offset_seconds": -7200,
     "advancing_tick_samples": 6,
     "spread_price": 0.8,
