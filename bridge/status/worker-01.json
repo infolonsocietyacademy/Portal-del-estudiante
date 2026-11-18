@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.28",
   "state": "online",
-  "updated_at": "2026-11-18T07:59:41+00:00",
+  "updated_at": "2026-11-18T08:00:49+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "range30-backtest-1794988096737",
@@ -73,10 +73,10 @@
   },
   "gold_strategy": {
     "schema": 1,
-    "version": "1.0.27",
-    "updated_at": 1794988320.8127363,
-    "code": "RANGE_PAUSED",
-    "signal_state": "RANGE_PAUSED",
+    "version": "1.0.28",
+    "updated_at": 1794988849.1357388,
+    "code": "RANGE_WAIT_1030_NY",
+    "signal_state": "RANGE_WAIT_1030_NY",
     "ready": true,
     "account_type_verified": "demo",
     "symbol": "USTECH",
@@ -88,7 +88,7 @@
     "max_simultaneous_positions": 1,
     "hold_seconds": 0,
     "close_policy": "BROKER_SL_TP_ONLY",
-    "paused": true,
+    "paused": false,
     "size_mode": "percent",
     "fixed_lots": 0.05,
     "max_risk_cash": 50.0,
@@ -100,8 +100,8 @@
     "net_recorded": -50.85,
     "quote_fresh": true,
     "python_trading_allowed": true,
-    "quote_age_seconds": -7199.187,
-    "adjusted_quote_age_seconds": 0.813,
+    "quote_age_seconds": -7198.864,
+    "adjusted_quote_age_seconds": 1.136,
     "broker_clock_offset_seconds": -7200,
     "advancing_tick_samples": 6,
     "spread_price": 0.8,
@@ -113,7 +113,7 @@
     "range_low": null,
     "sl_50": null,
     "daily_attempt_consumed": false,
-    "snapshot_fresh": false
+    "snapshot_fresh": true
   },
   "updater": {
     "state": "running"
