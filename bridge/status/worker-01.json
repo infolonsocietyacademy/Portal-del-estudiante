@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.24",
   "state": "online",
-  "updated_at": "2026-11-18T04:10:33+00:00",
+  "updated_at": "2026-11-18T04:11:34+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "h4-backtest14-mwl75drs",
@@ -68,7 +68,7 @@
   "gold_strategy": {
     "schema": 1,
     "version": "1.0.24",
-    "updated_at": 1794975032.5688698,
+    "updated_at": 1794975094.496569,
     "code": "MS5_WAIT_RETEST",
     "signal_state": "MS5_WAIT_RETEST",
     "ready": true,
@@ -93,8 +93,8 @@
     "net_recorded": -50.85,
     "quote_fresh": true,
     "python_trading_allowed": true,
-    "quote_age_seconds": -7199.431,
-    "adjusted_quote_age_seconds": 0.569,
+    "quote_age_seconds": -7199.503,
+    "adjusted_quote_age_seconds": 0.497,
     "broker_clock_offset_seconds": -7200,
     "advancing_tick_samples": 6,
     "spread_price": 0.16,
