@@ -168,6 +168,16 @@
       "id": "range28-status-1794988752966",
       "action": "demo_structure_status",
       "expires_at": "2026-11-18T08:19:12.966Z"
+    },
+    {
+      "id": "range90-ping-1794989455618",
+      "action": "ping",
+      "expires_at": "2026-11-18T08:40:55.618Z"
+    },
+    {
+      "id": "range90-backtest-1794989455618",
+      "action": "gold_backtest_90d",
+      "expires_at": "2026-11-18T08:40:55.618Z"
     }
   ]
 }
