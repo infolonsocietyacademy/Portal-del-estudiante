@@ -183,6 +183,11 @@
       "id": "range90-history-retry-1794989685797",
       "action": "gold_backtest_90d",
       "expires_at": "2026-11-18T08:34:45.797Z"
+    },
+    {
+      "id": "updater30-ping-1794990172196",
+      "action": "ping",
+      "expires_at": "2026-11-18T08:42:52.196Z"
     }
   ]
 }
