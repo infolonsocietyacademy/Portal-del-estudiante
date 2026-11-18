@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "id": "bt-nas100-m5-14d-1794985275523",
+  "task_sha256": "eae055f05c66f63612a1a5b216fa46fbfb4a4012e95ec3698ee569c6bd41e1f4",
+  "status": "succeeded",
+  "started_at": "2026-11-18T07:02:07+00:00",
+  "code": "BACKTEST_14D_STARTED",
+  "job_id": "bt-nas100-m5-14d-1794985275523",
+  "days": 14,
+  "symbol": "XAUUSD",
+  "mode": "READ_ONLY_MARKET_DATA",
+  "finished_at": "2026-11-18T07:02:07+00:00"
+}
