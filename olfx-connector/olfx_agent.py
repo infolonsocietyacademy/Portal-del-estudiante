@@ -8,6 +8,8 @@ import os
 import sys
 import time
 import shutil
+import hashlib
+from contextlib import contextmanager
 import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -23,6 +25,9 @@ SERVER_URL = "https://xanhhfashgkyrvphprts.supabase.co/functions/v1/olon-own-con
 POLL_SECONDS = 15  # Detecta nuevas conexiones rápidamente, sin sincronizar todo cada 15 s.
 DAILY_SECONDS = 86400  # Refrescar cuentas ya sincronizadas una vez al día.
 ERROR_RETRY_SECONDS = 1800  # Los errores no se reintentan automáticamente sin control.
+AGENT_VERSION = "20261119-history-v2"
+HISTORY_START = datetime(1970, 1, 1, tzinfo=timezone.utc)
+HISTORY_RETRY_DELAYS = (2, 4, 8, 8)
 MAX_DEALS_PER_BATCH = 150
 AUTOUPDATE_SECONDS = 300  # Comprueba GitHub cada 5 min, sin interrumpir lotes MT5.
 AUTOUPDATE_RESTART_CODE = 75
@@ -38,7 +43,7 @@ def config():
     return cfg
 
 def api(action: str, data: dict | None = None, token: str = "", timeout: int = 90):
-    headers = {"Content-Type": "application/json"}
+    headers = {"Content-Type": "application/json", "User-Agent": "OLFXConnect/" + AGENT_VERSION}
     if token:
         headers["x-olfx-agent-token"] = token
     with httpx.Client(timeout=timeout) as client:
@@ -128,7 +133,84 @@ def deals_payload(deals):
         })
     return out
 
+@contextmanager
+def terminal_session(mt5_path: str):
+    """Serialize readers sharing one terminal; never store account credentials."""
+    HOME.mkdir(parents=True, exist_ok=True)
+    terminal_id = hashlib.sha256(os.path.normcase(os.path.abspath(mt5_path)).encode()).hexdigest()[:24]
+    lock = open(HOME / ("terminal-" + terminal_id + ".lock"), "a+b")
+    locked = False
+    try:
+        if lock.seek(0, 2) == 0:
+            lock.write(b"0")
+            lock.flush()
+        deadline = time.monotonic() + 90
+        while not locked:
+            lock.seek(0)
+            try:
+                if os.name == "nt":
+                    import msvcrt
+                    msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                locked = True
+            except OSError:
+                if time.monotonic() >= deadline:
+                    raise RuntimeError("Otra lectura está usando este terminal MT5. Reintenta al terminar.")
+                time.sleep(1)
+        yield
+    finally:
+        if locked:
+            lock.seek(0)
+            if os.name == "nt":
+                import msvcrt
+                msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                import fcntl
+                fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
+        lock.close()
+
+
+def verified_account(mt5, login: str, server: str):
+    account = mt5.account_info()
+    if account is None or str(account.login) != login or str(account.server).casefold() != server.casefold():
+        raise RuntimeError("MT5 devolvió otra cuenta o un servidor diferente; datos rechazados.")
+    return account
+
+
+def read_complete_history(mt5, login: str, server: str):
+    """Wait for two stable full-history reads after switching broker accounts."""
+    previous = None
+    for attempt in range(len(HISTORY_RETRY_DELAYS) + 1):
+        verified_account(mt5, login, server)
+        history = mt5.history_deals_get(HISTORY_START, datetime.now(timezone.utc))
+        account = verified_account(mt5, login, server)
+        if history is not None:
+            raw = deals_payload(history)
+            signature = frozenset((d["deal_id"], d["occurred_at"], d["profit"], d["commission"], d["swap"], d["fee"]) for d in raw)
+            if raw and signature == previous:
+                return raw, account
+            previous = signature
+            # Empty reads are retried through the entire warm-up window. A funded
+            # account with no broker deals cannot certify a complete accounting history.
+            if attempt == len(HISTORY_RETRY_DELAYS) and not raw and not history:
+                if float(account.balance) == 0 and float(account.equity) == 0:
+                    return [], account
+                raise RuntimeError("MT5 devolvió historial vacío con balance disponible. La importación no se confirmó; abre Todo el historial en el MT5 del VPS y reintenta.")
+        else:
+            previous = None
+        if attempt < len(HISTORY_RETRY_DELAYS):
+            time.sleep(HISTORY_RETRY_DELAYS[attempt])
+    raise RuntimeError("MT5 no terminó de cargar un historial estable. La importación no se confirmó; reintenta la sincronización.")
+
+
 def sync_account(mt5, item: dict, cfg: dict):
+    with terminal_session(cfg["mt5_path"]):
+        _sync_account_locked(mt5, item, cfg)
+
+
+def _sync_account_locked(mt5, item: dict, cfg: dict):
     info = decrypt(item["encrypted_payload"])
     login = str(info["login"])
     server = str(info["brokerServer"])
@@ -140,19 +222,12 @@ def sync_account(mt5, item: dict, cfg: dict):
         mt5.shutdown()
         raise RuntimeError("MT5 no pudo iniciar sesión. Verifica servidor y contraseña de inversor.")
     try:
-        account = mt5.account_info()
-        if account is None or str(account.login) != login or str(account.server).casefold()!=server.casefold():
-            raise RuntimeError("MT5 devolvió otra cuenta o un servidor diferente; datos rechazados.")
-        now = datetime.now(timezone.utc)
-        # Primer piloto: importar 365 días. Después, recuperar 7 días por seguridad
-        # para no omitir operaciones si se apaga la computadora.
-        since = now-timedelta(days=7 if item.get("last_sync_at") else 365)
-        history = mt5.history_deals_get(since, now)
-        if history is None:
-            raise RuntimeError("MT5 no pudo consultar el historial de operaciones.")
-        raw=deals_payload(history)
+        # Every explicit refresh reconciles all broker history. An earlier empty
+        # import must never narrow the recovery window to seven days.
+        raw, account = read_complete_history(mt5, login, server)
         print(f"  Cuenta ****{login[-4:]} · {len(raw)} movimientos disponibles")
         for offset in range(0,max(len(raw),1),MAX_DEALS_PER_BATCH):
+            account = verified_account(mt5, login, server)
             batch=raw[offset:offset+MAX_DEALS_PER_BATCH]
             result=api("agent-push",{
                 "accountId":item["id"], "login":login,"server":server,

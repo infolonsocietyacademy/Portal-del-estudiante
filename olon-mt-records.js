@@ -28,7 +28,7 @@
     if(!linked)return;
     const synced=syncState?.last_success_at?new Date(syncState.last_success_at).toLocaleString("es-PR",{timeZone:PR}):"sin sincronizar";
     const coverage=viewingArchive?"Cuenta archivada · solo lectura":account?.source==="olfx-own"
-      ?(syncState?.backfill_done?"OLFX CONNECT · historial disponible (hasta 365 días)":"OLFX CONNECT · sincronización pendiente")
+      ?(syncState?.backfill_done?"OLFX CONNECT · historial disponible":"OLFX CONNECT · sincronización pendiente")
       :syncState?.backfill_done?"Historial importado":"Importando historial antiguo por etapas";
     const extras=!viewingArchive&&syncState?.last_error?" · Error de sincronización: "+safeText(syncState.last_error):"";
     box.textContent="Cuenta MT5 seleccionada: "+safeText(account?.login_masked||"") +" · "+safeText(account?.broker_server||"") +" · "+coverage+(viewingArchive?"":" · Última actualización: "+synced+(account?.source==="olfx-own"?" · Próxima sincronización: cuando Python se ejecute en Windows":" · Próxima sincronización: después del cierre NY, días hábiles"))+" · "+lastRows.length+" movimientos visibles"+extras;

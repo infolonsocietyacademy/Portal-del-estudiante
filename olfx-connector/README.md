@@ -32,7 +32,7 @@ Puedes validar **una cuenta real de Axi MT5**, sin cargar contraseñas ni transf
 
 **Acceso desde iPad:** Los estudiantes y el administrador abren el Portal del Trader en Safari. No necesitan instalar Python ni conectarse por Escritorio Remoto para ver las estadísticas; el agente sí debe ejecutarse en un Windows/VPS encendido para sincronizar.
 
-**Sincronización rápida al conectar una cuenta nueva:** Desde Windows descarga `OLFX_SINCRONIZACION_RAPIDA_WINDOWS.cmd` en la raíz del repositorio y ejecútalo una sola vez. Utiliza la configuración ya guardada en `%LOCALAPPDATA%\\OLFXConnect` y actualiza el agente, sin volver a emparejar ni compartir el token. Mantén la ventana abierta y la computadora encendida. El agente consulta cada **15 segundos** si se han registrado nuevas cuentas MT5. Cuando encuentre una en estado `waiting`, importa su historial de hasta 365 días en lotes de 150; las cuentas ya activas se actualizan una vez cada 24 horas. Si la contraseña de inversor es incorrecta, registra error y no reintenta indefinidamente.
+**Sincronización rápida al conectar una cuenta nueva:** Desde Windows descarga `OLFX_SINCRONIZACION_RAPIDA_WINDOWS.cmd` en la raíz del repositorio y ejecútalo una sola vez. Utiliza la configuración ya guardada en `%LOCALAPPDATA%\\OLFXConnect` y actualiza el agente, sin volver a emparejar ni compartir el token. Mantén la ventana abierta y la computadora encendida. El agente consulta cada **15 segundos** si se han registrado nuevas cuentas MT5. Cuando encuentre una en estado `waiting`, importa todo el historial disponible del bróker en lotes de 150; las cuentas activas se actualizan cuando se solicita desde el portal. Si la contraseña de inversor es incorrecta, registra error y no reintenta indefinidamente.
 
 **Actualización manual:** `py -3.12 olfx_agent.py once` fuerza una sincronización incluso de cuentas activas. **Modo continuo:** `py -3.12 olfx_agent.py watch` o `py -3.12 olfx_agent.py run`; ambos ahora detectan conexiones nuevas rápidamente y refrescan las ya sincronizadas una vez cada 24 horas. Si Windows se apaga, la sincronización se interrumpe. `watch` no instala por sí mismo un servicio de Windows ni crea una tarea programada.
 
@@ -46,11 +46,11 @@ Puedes validar **una cuenta real de Axi MT5**, sin cargar contraseñas ni transf
 7. Si no se conecta, revisa el error y confirma la contraseña de inversor. No envíes credenciales al administrador por mensajes.
 
 ## Qué se obtiene
-Balance y equity, historial (primera sincronización: últimos 365 días; posteriores: se revisan últimos siete días), tipo de movimiento, comisiones, swaps y P&L por operación. El portal conserva los datos de Supabase aun con la PC apagada.
+Balance y equity, todo el historial disponible del bróker en cada actualización solicitada, tipo de movimiento, comisiones, swaps y P&L por operación. El portal conserva los datos de Supabase aun con la PC apagada.
 
 ## Importante
 - La interfaz y la función nueva no utilizan MetaApi ni cobran su licencia. **Las cuentas antiguas de MetaApi y su tarea de sincronización son independientes**, y pueden seguir generando cargos en MetaApi hasta que el administrador cancele sus despliegues y desactive esa tarea; verifica la factura antes de cancelarla.
-- La primera versión NO es multi-MT4 ni garantiza el historial anterior a 365 días. Los rankings con datos incompletos no deben considerarse verificados.
+- El agente admite MT5 y solo puede importar el historial que entregue el bróker. Los rankings con datos incompletos no deben considerarse verificados.
 - El worker Windows **sí requiere** MetaTrader 5 instalado en esa computadora; puede ejecutarse en tu computadora personal sin VPS.
 - Si otro usuario controla el perfil Windows podría leer el archivo de clave privada y el token; protege la cuenta Windows con contraseña y BitLocker si está disponible.
 - No cambies ni borres `private_key.pem` después de enlazar cuentas; si pierdes la clave, los estudiantes deben reconectar sus cuentas.
@@ -82,3 +82,6 @@ Pulsar **Reintentar sincronización** de una cuenta especifica tambien es una or
 
 La autoactualizacion de Python es independiente de los datos: el CMD supervisado puede actualizar codigo desde GitHub cada 5 minutos, pero nunca dispara una sincronizacion MT5 sin una solicitud previa. Si la VPS tiene el agente antiguo, hay que ejecutar una vez el CMD autoactualizable con la nueva version para obtener este comportamiento.
 
+
+
+El lector espera dos lecturas estables al cambiar de cuenta, reintenta historiales vacíos y no confirma una importación vacía si existe balance o equity. Serializa lectores que compartan el mismo terminal. Los errores conservan el historial ya guardado.
