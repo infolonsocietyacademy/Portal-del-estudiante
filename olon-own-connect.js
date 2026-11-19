@@ -240,7 +240,7 @@ function renderAccounts(accounts){
   const primary=txt("button",account.is_primary?"Cuenta principal":"Mostrar en Resumen","btn "+(account.is_primary?"secondary":"metaapi-primary"));
   primary.type="button";primary.disabled=account.is_primary;
   primary.addEventListener("click",()=>void changePrimary(account.id,primary));
-  const remove=txt("button","Desconectar cuenta","btn secondary");
+  const remove=txt("button","Eliminar cuenta","btn secondary");
   remove.type="button";remove.addEventListener("click",()=>void unlink(account.id));
   const retry=txt("button","Reintentar sincronización","btn secondary");retry.type="button";retry.addEventListener("click",()=>void retrySync(account.id,retry));
   const access=txt("button","Actualizar acceso de inversor","btn secondary");access.type="button";access.addEventListener("click",()=>showAccessUpdate(account,card));
@@ -430,7 +430,7 @@ function showAccessUpdate(account,card){
  card.append(form);login.focus();
 }
 async function unlink(accountId){
- if(busy||!accountId||!confirm("¿Desvincular únicamente esta cuenta MT5? El historial sincronizado quedará conservado en Account Vault."))return;
+ if(busy||!accountId||!confirm("¿Eliminar esta conexión MT5? Podrás conectarla nuevamente. Su historial sincronizado se conservará."))return;
  busy=true;
  try{
   await invoke({action:"disconnect",accountId});

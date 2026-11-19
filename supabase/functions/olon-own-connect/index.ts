@@ -180,7 +180,7 @@ Deno.serve(async(req:Request)=>{
    if(ue||!updated)return fail("El token no se pudo renovar. Actualiza la pagina y reintenta.",409);
    return respond({ok:true,agentId:agent.id,agentToken:token});
   }
-  if(["admin-accounts","admin-account-history","admin-retry-sync"].includes(action)){
+  if(["admin-accounts","admin-account-history","admin-retry-sync","admin-delete-account"].includes(action)){
    if(user.role!=="admin")return fail("Permiso denegado",403);
    if(action==="admin-accounts"){
     const page=Math.min(10000,Math.max(0,Math.floor(Number(input.page)||0)));
@@ -200,6 +200,11 @@ Deno.serve(async(req:Request)=>{
     .select("id,student_id,provider_account_id,vault_account_id,status,last_sync_at").eq("id",input.accountId).maybeSingle();
    if(error)return fail("No se pudo consultar la cuenta",503);
    if(!account)return fail("Cuenta no encontrada",404);
+   if(action==="admin-delete-account"){
+    const {data:removed,error:re}=await db.rpc("olon_own_remove_account",{p_account_id:account.id,p_student_id:account.student_id});
+    if(re||!removed)return fail("No se pudo eliminar la cuenta MT5",503);
+    return respond({ok:true,message:"Cuenta eliminada. El estudiante puede conectarla nuevamente; su historial se conserva."});
+   }
    if(action==="admin-retry-sync"){
     if(account.status==="revoked")return fail("El estudiante debe volver a vincular esta cuenta",409);
     if(account.status==="waiting")return respond({ok:true,alreadyWaiting:true});
@@ -350,20 +355,15 @@ Deno.serve(async(req:Request)=>{
    if(!crypt||typeof crypt!=="object"||!b64(crypt.wrappedKey,100,900)||!b64(crypt.iv,12,60)||!b64(crypt.ciphertext,32,3000))return fail("Credenciales cifradas inválidas");
    const {data:agent,error:agentErr}=await db.from("olon_own_agents").select("id").eq("status","paired").order("created_at",{ascending:false}).limit(1);
    if(agentErr||!agent?.length)return fail("Primero configura el agente Windows desde administración",503);
-   const {data:existing,error:ee}=await db.from("olon_own_accounts")
-    .select("id,login_masked,broker_server,status,is_primary").eq("student_id",user.id).neq("status","revoked").limit(11);
-   if(ee)return fail("No se pudieron verificar las cuentas",503);
-   if((existing||[]).length>=10)return fail("Se alcanzó el límite de 10 cuentas MT5 por estudiante",409);
-   if((existing||[]).some(a=>a.broker_server.toLowerCase()===server.toLowerCase()&&a.login_masked.endsWith(login.slice(-4))))
-    return fail("Ya registraste una cuenta con este servidor y los mismos últimos cuatro dígitos",409);
-   const {data:added,error}=await db.from("olon_own_accounts").insert({
-     student_id:user.id,agent_id:agent[0].id,platform:"mt5",broker_server:server,
-     login_masked:"••••"+login.slice(-4),encrypted_payload:crypt,status:"waiting",
-     is_primary:(existing||[]).length===0
-   }).select("id").single();
-   if(error||!added)return fail("No se pudo registrar la cuenta",503);
-   return respond({ok:true,accountId:added.id,queued:true,message:"Cuenta guardada. La verificación y la importación del historial comenzarán automáticamente cuando el conector esté encendido."});
+   const {data:accountId,error}=await db.rpc("olon_own_connect_account",{
+    p_student_id:user.id,p_agent_id:agent[0].id,p_server:server,p_login:login,p_payload:crypt
+   });
+   if(error?.code==="23505")return fail("Esta cuenta MT5 ya está registrada. Elimina primero la conexión existente para volver a conectarla.",409);
+   if(error?.message?.includes("MT5_ACCOUNT_LIMIT"))return fail("Se alcanzó el límite de 10 cuentas MT5 por estudiante",409);
+   if(error||!accountId)return fail("No se pudo registrar la cuenta",503);
+   return respond({ok:true,accountId,queued:true,message:"Cuenta guardada. La verificación y la importación del historial comenzarán automáticamente cuando el conector esté encendido."});
   }
+
   if(action==="select-primary"){
    if(!validUuid(input.accountId))return fail("Selecciona una cuenta MT5 válida",400);
    const {data:target,error:te}=await db.from("olon_own_accounts").select("id,is_primary")
@@ -381,20 +381,12 @@ Deno.serve(async(req:Request)=>{
   }
   if(action==="disconnect"){
    if(!validUuid(input.accountId))return fail("Selecciona la cuenta que quieres desconectar",400);
-   const {data:target,error:te}=await db.from("olon_own_accounts").select("id,is_primary")
-    .eq("id",input.accountId).eq("student_id",user.id).neq("status","revoked").maybeSingle();
-   if(te||!target)return fail("Cuenta no encontrada",404);
-   const {error}=await db.from("olon_own_accounts").update({
-     status:"revoked",is_primary:false,encrypted_payload:{revoked:true},updated_at:new Date().toISOString()
-   }).eq("id",input.accountId).eq("student_id",user.id);
-   if(error)return fail("No se pudo desconectar la cuenta",503);
-   if(target.is_primary){
-    const {data:next}=await db.from("olon_own_accounts").select("id")
-     .eq("student_id",user.id).neq("status","revoked").order("created_at",{ascending:false}).limit(1).maybeSingle();
-    if(next)await db.from("olon_own_accounts").update({is_primary:true}).eq("id",next.id).eq("student_id",user.id);
-   }
+   const {data:removed,error}=await db.rpc("olon_own_remove_account",{p_account_id:input.accountId,p_student_id:user.id});
+   if(error)return fail("No se pudo eliminar la cuenta",503);
+   if(!removed)return fail("Cuenta no encontrada",404);
    return respond({ok:true});
   }
+
   return fail("Acción desconocida");
  }catch(e){console.error("OLFX own connector:",e instanceof Error?e.name:"unexpected");return fail("No se pudo completar la solicitud",503);}
 });

@@ -30,3 +30,5 @@
 #portal.admin-mode #adminMt5AccountsBlock :is(input,select,button){min-height:44px!important}
 #portal.admin-mode #adminMt5AccountsBlock .btn:not(.secondary){background:#0969da!important;border-color:#0969da!important;color:white!important}
 @media(max-width:600px){#adminMt5AccountsBlock .amtMetrics{gap:8px}#adminMt5AccountsBlock .amtMetrics>div{display:grid;padding:12px;gap:6px}#adminMt5AccountsBlock .amtMetrics span{font-size:.8rem}#adminMt5AccountsBlock .amtToolbar label{flex:1 1 100%}#adminMt5AccountsBlock .amtDetail{padding:14px}#adminMt5AccountsBlock dl{grid-template-columns:1fr}#adminMt5AccountsBlock .amtActions button{flex:1 1 180px}}
+
+#adminMt5AccountsBlock .amtDelete{color:var(--agh-danger,#ff7b72)!important;border-color:currentColor!important}

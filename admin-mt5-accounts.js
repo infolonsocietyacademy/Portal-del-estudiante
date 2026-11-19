@@ -39,6 +39,7 @@
       const account=text("td","");account.append(text("strong",a.login_masked));if(a.is_primary)account.append(text("small","Principal","amtPrimary"));
       const status=text("td","");status.append(text("span",state(a),"amtBadge "+(attention(a)?"warning":a.status)));
       const action=text("td","");const button=text("button","Ver detalle","btn");button.type="button";button.dataset.accountId=a.id;button.setAttribute("aria-label","Ver detalle de "+(a.student?.full_name||"estudiante")+" · "+a.login_masked);button.setAttribute("aria-expanded",String(a.id===selected));action.append(button);
+      const remove=text("button","Eliminar","btn secondary amtDelete");remove.type="button";remove.dataset.deleteAccountId=a.id;remove.disabled=working||a.status==="revoked";remove.setAttribute("aria-label","Eliminar cuenta "+a.login_masked+" de "+(a.student?.full_name||"estudiante"));action.append(remove);
       tr.append(student,account,text("td",a.broker_server),status,text("td",date(a.last_sync_at)),action);body.append(tr);
     }
     if(!list.length)empty(body,accounts.length?"No hay cuentas que coincidan con estos filtros.":"Todavía no hay cuentas MT5 registradas.",6);
@@ -54,6 +55,7 @@
     $("amtError").textContent=a.last_error?"Último aviso: "+a.last_error:"";
     $("amtRetry").disabled=working||a.status==="revoked"||a.status==="waiting";
     $("amtRetry").textContent=a.status==="waiting"?"Sincronización solicitada":"Reintentar conexión";
+    $("amtDelete").disabled=working||a.status==="revoked";
     $("amtStudent").disabled=!a.student;
     paint();if(focus)$("amtDetailTitle").focus();
   }
@@ -98,7 +100,7 @@
   }
   $("amtSearch").addEventListener("input",paint);$("amtFilter").addEventListener("change",paint);
   $("amtRefresh").addEventListener("click",()=>void refresh());
-  $("amtRows").addEventListener("click",e=>{const button=e.target.closest("[data-account-id]");if(button&&allowed())detail(button.dataset.accountId,true);});
+  $("amtRows").addEventListener("click",e=>{const remove=e.target.closest("[data-delete-account-id]");if(remove&&allowed()&&!working){detail(remove.dataset.deleteAccountId);$("amtDelete").click();return;}const button=e.target.closest("[data-account-id]");if(button&&allowed())detail(button.dataset.accountId,true);});
   $("amtHistory").addEventListener("click",()=>void history());
   $("amtPrev").addEventListener("click",()=>void history(Math.max(0,historyPage-1)));
   $("amtNext").addEventListener("click",()=>void history(historyPage+1));
@@ -109,10 +111,25 @@
   });
   $("amtRetry").addEventListener("click",async()=>{
     if(!allowed()||working)return;const a=accounts.find(x=>x.id===selected);if(!a||["revoked","waiting"].includes(a.status))return;
-    const user=owner();working=true;$("amtRetry").disabled=true;
+    const user=owner();working=true;detail(selected);
     try{await invoke({action:"admin-retry-sync",accountId:a.id});if(owner()!==user)return;a.status="waiting";a.last_error=null;detail(selected);feedback("Solicitud enviada al agente Windows para "+a.login_masked+". Actualiza estados para comprobar el resultado.");}
     catch(e){if(owner()===user)feedback(e.message,true);}
-    finally{working=false;if(owner()===user)$("amtRetry").disabled=["revoked","waiting"].includes(accounts.find(x=>x.id===selected)?.status);}
+    finally{working=false;if(owner()===user)detail(selected);}
+  });
+  $("amtDelete").addEventListener("click",async()=>{
+    if(!allowed()||working)return;
+    const a=accounts.find(x=>x.id===selected);if(!a||a.status==="revoked")return;
+    if(!window.confirm("¿Eliminar la conexión MT5 "+a.login_masked+" · "+a.broker_server+" de "+(a.student?.full_name||"este estudiante")+"? El estudiante podrá conectarla nuevamente. Su historial se conservará."))return;
+    const user=owner();working=true;detail(selected);
+    try{
+      await invoke({action:"admin-delete-account",accountId:a.id});
+      if(owner()!==user)return;
+      a.status="revoked";a.is_primary=false;a.last_error=null;
+      detail(null);paint();window.olonMtRecords?.invalidate?.();
+      await refresh();
+      if(owner()===user)feedback("Cuenta eliminada. El estudiante ya puede conectarla nuevamente. Su historial se conserva.");
+    }catch(e){if(owner()===user)feedback(e.message,true);}
+    finally{working=false;if(owner()===user)detail(selected);}
   });
   window.olonAdminMt5={activate:refresh};
   new MutationObserver(()=>{

@@ -11,7 +11,21 @@ const actor='10000000-0000-0000-0000-000000000001',student='10000000-0000-0000-0
 const account={id,student_id:student,provider_account_id:'provider',vault_account_id:'vault-a',platform:'mt5',login_masked:'••••4812',broker_server:'Axi-US51-Live',status:'active',is_primary:true,last_sync_at:'2026-11-18T19:00:00Z',last_error:null};
 function fixture(role='admin'){
  let handler;const calls=[],tables={profiles:[{id:actor,role,status:'active'},{id:student,full_name:'María Rivera',email:'maria@example.test'}],olon_own_agents:[{id:'reader-agent',status:'paired',created_by:actor,token_hash:require('node:crypto').createHash('sha256').update('olfx_'+ 'a'.repeat(50)).digest('hex')}],olon_own_accounts:[{...account,agent_id:'reader-agent',encrypted_payload:'SECRET'}],olon_mt_deals:[{id:1,student_id:student,vault_account_id:'vault-a',deal_id:'11',profit:20},{id:2,student_id:student,vault_account_id:'vault-b',deal_id:'22',profit:999}]};
- const db={auth:{getUser:async()=>({data:{user:{id:actor}}})},from(table){
+ const db={async rpc(name,args){
+  calls.push({rpc:name,args});
+  if(name==='olon_own_connect_account'){
+   const identity=args.p_server.trim().toLowerCase()+'|'+args.p_login;
+   if(tables.olon_own_accounts.some(a=>a.status!=='revoked'&&(a.identity_fingerprint===identity||(!a.identity_fingerprint&&a.broker_server.toLowerCase()===args.p_server.toLowerCase()&&a.login_masked.endsWith(args.p_login.slice(-4))))))return {data:null,error:{code:'23505'}};
+   const added={id:'20000000-0000-0000-0000-000000000099',student_id:args.p_student_id,agent_id:args.p_agent_id,platform:'mt5',broker_server:args.p_server,login_masked:'••••'+args.p_login.slice(-4),encrypted_payload:args.p_payload,status:'waiting',is_primary:!tables.olon_own_accounts.some(a=>a.student_id===args.p_student_id&&a.status!=='revoked'),identity_fingerprint:identity};
+   tables.olon_own_accounts.push(added);return {data:added.id,error:null};
+  }
+  if(name==='olon_own_remove_account'){
+   const a=tables.olon_own_accounts.find(a=>a.id===args.p_account_id&&a.student_id===args.p_student_id);
+   if(!a)return {data:false,error:null};
+   a.status='revoked';a.is_primary=false;a.encrypted_payload={revoked:true};return {data:true,error:null};
+  }
+  throw Error('Unexpected RPC '+name);
+ },auth:{getUser:async()=>({data:{user:{id:actor}}})},from(table){
   const q={table,columns:'*',filters:[],range:null,update:null};calls.push(q);
   const b={select(columns,opts){q.columns=columns;q.opts=opts;return b;},eq(k,v){q.filters.push([k,v,true]);return b;},neq(k,v){q.filters.push([k,v,false]);return b;},in(k,v){q.filters.push([k,v,'in']);return b;},order(){return b;},limit(){return b;},range(a,z){q.range=[a,z];return b;},update(value){q.update=value;return b;},insert(value){q.insert=value;return b;},single(){q.single=true;return b;},maybeSingle(){q.single=true;return b;},then(resolve,reject){try{
    if(q.insert){tables[table]??=[];const added={...q.insert,id:'20000000-0000-0000-0000-000000000099'};tables[table].push(added);q.filters.push(['id',added.id,true]);}
@@ -31,7 +45,7 @@ test('admin directory joins owners and never selects credentials',async()=>{
  assert.equal(JSON.stringify(data).includes('SECRET'),false);assert.equal(q.calls.some(c=>c.columns.includes('encrypted_payload')),false);
 });
 test('anonymous and students cannot list, retry, or read administrative history',async()=>{
- for(const action of ['admin-accounts','admin-retry-sync','admin-account-history']){
+ for(const action of ['admin-accounts','admin-retry-sync','admin-account-history','admin-delete-account']){
   const q=fixture('student');assert.equal((await q.request(action,{accountId:id})).status,403);assert.equal(q.calls.some(c=>c.table!=='profiles'),false);
   const anon=fixture();assert.equal((await anon.request(action,{accountId:id},false)).status,401);assert.equal(anon.calls.length,0);
  }
@@ -99,4 +113,35 @@ test('correcting an unverified account queues its first import while verified ac
   const reply=await q.request('update-credentials',{accountId:id,brokerServer:'Axi-US51-Live',login:'12344812',encryptedPayload:{wrappedKey:'A'.repeat(100),iv:'A'.repeat(16),ciphertext:'A'.repeat(40)}});
   assert.equal(reply.status,200);assert.equal((await reply.json()).queued,!lastSync);assert.equal(q.tables.olon_own_accounts[0].status,lastSync?'active':'waiting');
  }
+});
+
+const crypt={wrappedKey:'A'.repeat(100),iv:'A'.repeat(16),ciphertext:'A'.repeat(40)};
+test('admin deletion revokes credentials, preserves history and allows a fresh registration',async()=>{
+ const q=fixture();const originalHistory=JSON.stringify(q.tables.olon_mt_deals);
+ assert.equal((await q.request('admin-delete-account',{accountId:id})).status,200);
+ assert.equal(q.tables.olon_own_accounts[0].status,'revoked');assert.equal(q.tables.olon_own_accounts[0].is_primary,false);
+ assert.deepEqual(q.tables.olon_own_accounts[0].encrypted_payload,{revoked:true});assert.equal(JSON.stringify(q.tables.olon_mt_deals),originalHistory);
+ const reply=await q.request('connect',{platform:'mt5',brokerServer:'Axi-US51-Live',login:'12344812',encryptedPayload:crypt});
+ assert.equal(reply.status,200);assert.equal(q.tables.olon_own_accounts.at(-1).status,'waiting');
+});
+test('duplicates are rejected across students and exact identities allow equal last four digits',async()=>{
+ const q=fixture('student');q.tables.olon_own_accounts[0].identity_fingerprint='axi-us51-live|12344812';
+ let reply=await q.request('connect',{platform:'mt5',brokerServer:'Axi-US51-Live',login:'12344812',encryptedPayload:crypt});assert.equal(reply.status,409);
+ reply=await q.request('connect',{platform:'mt5',brokerServer:'Axi-US51-Live',login:'99994812',encryptedPayload:crypt});assert.equal(reply.status,200);
+});
+test('students cannot delete another owner account or reach admin deletion',async()=>{
+ const q=fixture('student');assert.equal((await q.request('disconnect',{accountId:id})).status,404);assert.equal(q.tables.olon_own_accounts[0].status,'active');
+ assert.equal((await q.request('admin-delete-account',{accountId:id})).status,403);
+});
+test('admin deletion requires confirmation and targets the selected account',async()=>{
+ const dom=new JSDOM(html,{url:'https://portal.test',runScripts:'outside-only'}),w=dom.window,d=w.document,calls=[];
+ try{
+  w.currentUser={id:actor,role:'admin',status:'active'};w.isAdminUser=u=>u.role==='admin';
+  const a={...account,student:{full_name:'María Rivera',email:'maria@example.test'}};
+  w.supabaseClient={functions:{invoke:async(name,{body})=>{calls.push(body);if(body.action==='admin-delete-account')a.status='revoked';return {data:body.action==='admin-accounts'?{accounts:[a],total:1}:{ok:true}};}}};
+  w.eval(ui);await w.olonAdminMt5.activate();d.querySelector('#amtRows button').click();
+  w.confirm=()=>false;d.getElementById('amtDelete').click();await tick();assert.equal(calls.some(c=>c.action==='admin-delete-account'),false);
+  w.confirm=()=>true;d.getElementById('amtDelete').click();await tick();
+  assert.equal(calls.find(c=>c.action==='admin-delete-account').accountId,id);assert.match(d.getElementById('amtFeedback').textContent,/puede conectarla nuevamente/);
+ }finally{w.close();}
 });
