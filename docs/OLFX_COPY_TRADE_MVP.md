@@ -32,3 +32,6 @@ Ruta propuesta: Cuentas MT5 > Copy Trade (solo cuentas verificadas del mismo usu
 
 ## Próximos pasos técnicos
 Identificar frontend y tablas de cuentas MT5 existentes; añadir migración RLS, API autenticada, interfaz de ajustes y worker de ejecución. No modificar el bridge de estrategia actual.
+
+## Decisión confirmada — 19 noviembre 2026
+**Una sola cuenta maestra** por configuración de Copy Trade, que replica a todas las cuentas receptoras propias habilitadas. No se admiten múltiples maestras simultáneas. La cuenta maestra nunca se copia a sí misma. Cada receptora puede tener lotaje y límites independientes. El sistema arranca desactivado y en modo DEMO hasta completar pruebas.
