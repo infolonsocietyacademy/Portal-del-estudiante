@@ -13,7 +13,8 @@ function fixture(role='admin'){
  let handler;const calls=[],tables={profiles:[{id:actor,role,status:'active'},{id:student,full_name:'María Rivera',email:'maria@example.test'}],olon_own_agents:[{id:'reader-agent',status:'paired',created_by:actor,token_hash:require('node:crypto').createHash('sha256').update('olfx_'+ 'a'.repeat(50)).digest('hex')}],olon_own_accounts:[{...account,agent_id:'reader-agent',encrypted_payload:'SECRET'}],olon_mt_deals:[{id:1,student_id:student,vault_account_id:'vault-a',deal_id:'11',profit:20},{id:2,student_id:student,vault_account_id:'vault-b',deal_id:'22',profit:999}]};
  const db={auth:{getUser:async()=>({data:{user:{id:actor}}})},from(table){
   const q={table,columns:'*',filters:[],range:null,update:null};calls.push(q);
-  const b={select(columns,opts){q.columns=columns;q.opts=opts;return b;},eq(k,v){q.filters.push([k,v,true]);return b;},neq(k,v){q.filters.push([k,v,false]);return b;},in(k,v){q.filters.push([k,v,'in']);return b;},order(){return b;},limit(){return b;},range(a,z){q.range=[a,z];return b;},update(value){q.update=value;return b;},maybeSingle(){q.single=true;return b;},then(resolve,reject){try{
+  const b={select(columns,opts){q.columns=columns;q.opts=opts;return b;},eq(k,v){q.filters.push([k,v,true]);return b;},neq(k,v){q.filters.push([k,v,false]);return b;},in(k,v){q.filters.push([k,v,'in']);return b;},order(){return b;},limit(){return b;},range(a,z){q.range=[a,z];return b;},update(value){q.update=value;return b;},insert(value){q.insert=value;return b;},single(){q.single=true;return b;},maybeSingle(){q.single=true;return b;},then(resolve,reject){try{
+   if(q.insert){tables[table]??=[];const added={...q.insert,id:'20000000-0000-0000-0000-000000000099'};tables[table].push(added);q.filters.push(['id',added.id,true]);}
    let data=(tables[table]||[]).filter(r=>q.filters.every(([k,v,kind])=>kind==='in'?v.includes(r[k]):kind?r[k]===v:r[k]!==v));const count=data.length;
    if(q.update)data.forEach(r=>Object.assign(r,q.update));if(q.range)data=data.slice(q.range[0],q.range[1]+1);
    data=data.map(r=>Object.fromEntries(q.columns.split(',').map(k=>[k,r[k]])));
@@ -78,4 +79,24 @@ test('retired reader cannot consume, finish or poison jobs after full-history up
  const reply=await q.request('agent-queue',{},false,{...headers,'user-agent':'OLFXConnect/20261119-history-v2'});
  assert.equal(reply.status,200);assert.equal((await reply.json()).accounts.length,1);
  const unauthorized=fixture();assert.equal((await unauthorized.request('agent-queue',{},false,{'user-agent':'OLFXConnect/20261119-history-v2'})).status,401);
+});
+
+test('new student accounts are queued automatically and keep ownership and encrypted access',async()=>{
+ const q=fixture('student');
+ const encryptedPayload={wrappedKey:'A'.repeat(100),iv:'A'.repeat(16),ciphertext:'A'.repeat(40)};
+ const reply=await q.request('connect',{platform:'mt5',brokerServer:'Axi-US51-Live',login:'12344611',encryptedPayload});
+ assert.equal(reply.status,200);const data=await reply.json();assert.equal(data.queued,true);
+ const saved=q.tables.olon_own_accounts.find(a=>a.id===data.accountId);
+ assert.equal(saved.status,'waiting');assert.equal(saved.student_id,actor);assert.equal(saved.is_primary,true);assert.deepEqual(saved.encrypted_payload,encryptedPayload);
+ const headers={'x-olfx-agent-token':'olfx_'+ 'a'.repeat(50),'user-agent':'OLFXConnect/20261119-history-v2'};
+ const queued=await q.request('agent-queue',{},false,headers);
+ assert.equal(queued.status,200);assert.deepEqual((await queued.json()).accounts.map(a=>a.id),[data.accountId]);
+ const anon=fixture();assert.equal((await anon.request('connect',{platform:'mt5'},false)).status,401);assert.equal(anon.calls.some(c=>c.insert),false);
+});
+test('correcting an unverified account queues its first import while verified accounts keep manual refresh',async()=>{
+ for(const lastSync of [null,'2026-11-18T19:00:00Z']){
+  const q=fixture('student');q.tables.olon_own_accounts[0].student_id=actor;q.tables.olon_own_accounts[0].last_sync_at=lastSync;
+  const reply=await q.request('update-credentials',{accountId:id,brokerServer:'Axi-US51-Live',login:'12344812',encryptedPayload:{wrappedKey:'A'.repeat(100),iv:'A'.repeat(16),ciphertext:'A'.repeat(40)}});
+  assert.equal(reply.status,200);assert.equal((await reply.json()).queued,!lastSync);assert.equal(q.tables.olon_own_accounts[0].status,lastSync?'active':'waiting');
+ }
 });

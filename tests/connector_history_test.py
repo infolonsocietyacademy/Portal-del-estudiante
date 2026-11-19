@@ -114,6 +114,19 @@ class HistoryTests(TestCase):
                 pass
         self.assertTrue(mt5.closed)
 
+    def test_zero_balance_new_account_sends_a_valid_empty_completed_snapshot(self):
+        mt5 = self.reader([()], balance=0)
+        item = dict(id="new-account", broker_server="Axi-US51-Live", encrypted_payload={})
+        with TemporaryDirectory() as folder, patch.object(agent, "HOME", Path(folder)), patch.object(agent, "decrypt", return_value=dict(login="4611", brokerServer="Axi-US51-Live", investorPassword="test")), patch.object(agent.time, "sleep"), patch.object(agent, "api", return_value={}) as api:
+            agent.sync_account(mt5, item, dict(mt5_path="terminal64.exe", agent_token="test"))
+        api.assert_called_once()
+        snapshot = api.call_args.args[1]
+        self.assertEqual(snapshot["deals"], [])
+        self.assertEqual(snapshot["balance"], 0)
+        self.assertTrue(snapshot["finished"])
+        self.assertEqual(snapshot["accountId"], "new-account")
+        self.assertTrue(mt5.closed)
+
     def test_two_readers_cannot_hold_same_terminal(self):
         with TemporaryDirectory() as folder, patch.object(agent, "HOME", Path(folder)):
             with agent.terminal_session("terminal64.exe"):

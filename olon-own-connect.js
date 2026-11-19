@@ -100,6 +100,21 @@ async function readiness(){
 }
 
 let currentAccounts=[], addingAccount=false;
+let pendingStatusTimer=null,pendingStatusOwner=null,pendingStatusDeadline=0;
+function schedulePendingStatus(){
+ if(pendingStatusTimer)clearTimeout(pendingStatusTimer);
+ pendingStatusTimer=null;
+ const owner=typeof currentUser!=="undefined"?currentUser?.id:null;
+ const pending=currentAccounts.some(a=>a.status==="waiting");
+ if(!owner||!pending){pendingStatusOwner=null;pendingStatusDeadline=0;return;}
+ if(pendingStatusOwner!==owner||!pendingStatusDeadline){pendingStatusOwner=owner;pendingStatusDeadline=Date.now()+10*60*1000;}
+ if(document.hidden||$(PAGE)?.classList.contains("hidden")||Date.now()>=pendingStatusDeadline)return;
+ pendingStatusTimer=setTimeout(async()=>{
+  pendingStatusTimer=null;
+  if(typeof currentUser==="undefined"||currentUser?.id!==owner)return;
+  try{if(!document.activeElement?.closest?.(".olfxAccessUpdate"))await status(true);}finally{schedulePendingStatus();}
+ },5000);
+}
 function money(value,currency="USD"){
  if(value==null)return "—";
  const amount=Number(value);if(!Number.isFinite(amount))return "—";
@@ -127,6 +142,7 @@ function accountValue(value,active,unit="money",currency="USD"){
 function renderAccounts(accounts){
  if(!Array.isArray(accounts))throw Error("La respuesta de cuentas MT5 no es válida.");
  currentAccounts=accounts;
+ schedulePendingStatus();
  currentAccount=currentAccounts.find(a=>a.is_primary)||currentAccounts[0]||null;
  const host=$("metaapiAccountsList"),form=$("metaapiConnectForm"),legacy=$("metaapiConnected");
  const add=$("metaapiAddAccount"),badge=$("metaapiConnectionBadge"),steps=qs("#metaapiAccountsPage .metaapi-steps");
@@ -173,7 +189,7 @@ function renderAccounts(accounts){
   if(account.is_primary)card.append(txt("p","★ Esta cuenta alimenta tu Resumen, calendario y resultados","olfxPrimaryCaption"));
   if(account.last_error)card.append(txt("p",(ready?"Aviso de actualización: ":"Error de conexión: ")+account.last_error+" La cuenta sigue registrada.","olfxAccountError"));
   if(!ready){
-   card.append(txt("p","El acceso todavía no está verificado. Pulsa «Actualizar estadísticas» para comprobar el servidor y la contraseña de inversor desde la VPS e importar el historial.","metaapi-muted"));
+   card.append(txt("p",account.status==="waiting"?"Verificando el acceso e importando automáticamente todo el historial disponible. Si la cuenta es nueva y no tiene movimientos, comenzará desde cero.":"El acceso todavía no está verificado. Revisa los datos de conexión y pulsa «Actualizar estadísticas» para reintentar.","metaapi-muted"));
   }
   const grid=document.createElement("div");grid.className="olfxAccountMetrics";
   grid.append(
@@ -275,6 +291,7 @@ async function status(force=false){
  if(busy||statusInFlight||(!force&&Date.now()-lastStatus<12000))return;
  lastStatus=Date.now();
  statusInFlight=true;
+ const previous=currentAccounts.map(a=>({id:a.id,status:a.status,last_sync_at:a.last_sync_at}));
  try{
   const result=await readStatus();
   if(!Array.isArray(result?.accounts))throw Error("Respuesta de cuentas no válida. Se mantiene la lista anterior.");
@@ -285,7 +302,6 @@ async function status(force=false){
    notice("No se pudo confirmar la lista MT5. Se conservan las cuentas mostradas; pulsa Actualizar estadísticas para reintentar.","info");
    return;
   }
-  const previous=currentAccounts.map(a=>({id:a.id,status:a.status,last_sync_at:a.last_sync_at}));
   const newlySynced=next.some(a=>a.status==="active"&&a.last_sync_at
    &&!previous.some(p=>p.id===a.id&&p.last_sync_at===a.last_sync_at));
   if(JSON.stringify(next)!==JSON.stringify(currentAccounts))renderAccounts(next);
@@ -342,10 +358,10 @@ async function connect(){
   // if the subsequent statistics read is unavailable or delayed.
   const linked={
    id:saved.accountId,platform:"mt5",broker_server:server,login_masked:"••••"+login.slice(-4),
-   status:"registered",is_primary:currentAccounts.length===0,last_sync_at:null,last_error:null
+   status:saved.queued?"waiting":"registered",is_primary:currentAccounts.length===0,last_sync_at:null,last_error:null
   };
   renderAccounts([...currentAccounts.filter(a=>a.id!==saved.accountId),linked]);
-  notice("Cuenta registrada. El acceso a MT5 todavía no está verificado. Pulsa «Actualizar estadísticas» para verificar e importar.","info");
+  notice(saved.queued?"Cuenta registrada. La verificación y la importación del historial comenzarán automáticamente. Si no tiene movimientos, comenzará desde cero.":"Cuenta registrada. Pulsa «Actualizar estadísticas» para verificar e importar.","info");
   window.olonMtRecords?.invalidate?.();
   try{
    const result=await readStatus();
@@ -406,9 +422,9 @@ function showAccessUpdate(account,card){
   try{
    const ready=await invoke({action:"agent-ready"});if(!ready.publicKeyPem)throw Error("Agente OLFX no disponible.");
    const encryptedPayload=await securePayload(ready.publicKeyPem,{login:number,investorPassword:secret,platform:"mt5",brokerServer:account.broker_server});
-   await invoke({action:"update-credentials",accountId:account.id,brokerServer:account.broker_server,login:number,encryptedPayload});
+   const saved=await invoke({action:"update-credentials",accountId:account.id,brokerServer:account.broker_server,login:number,encryptedPayload});
    const result=await readStatus();renderAccounts(result.accounts||[]);
-   notice("Credenciales guardadas de forma segura. Cuenta conservada; pulsa «Actualizar estadísticas» cuando quieras sincronizar.","success");
+   notice(saved.queued?"Credenciales guardadas. La primera sincronización se solicitó automáticamente.":"Credenciales guardadas de forma segura. Cuenta conservada; pulsa «Actualizar estadísticas» cuando quieras sincronizar.","success");
   }catch(e){notice(e.message,"error");}finally{pass.value="";busy=false;send.disabled=false;}
  });
  card.append(form);login.focus();
@@ -599,6 +615,7 @@ function init(){
   const visible=!page?.classList.contains("hidden");
   if(visible===pageWasVisible)return; // Ignore visual class changes while scrolling.
   pageWasVisible=visible;
+  schedulePendingStatus();
   if(visible){void status(true);void loadVault();void readiness();}
  };
  if(page)new MutationObserver(onPageVisibility).observe(page,{attributes:true,attributeFilter:["class"]});
@@ -611,8 +628,9 @@ function init(){
    if(visible)void adminStatus();
   }).observe(adminPage,{attributes:true,attributeFilter:["class"]});
  }
+ document.addEventListener("visibilitychange",schedulePendingStatus);
  // MT5 account cards are stable while scrolling. No background 12-second rerender.
- window.addEventListener("pagehide",()=>{if($("metaapiInvestorPassword"))$("metaapiInvestorPassword").value="";});
+ window.addEventListener("pagehide",()=>{if(pendingStatusTimer)clearTimeout(pendingStatusTimer);pendingStatusTimer=null;if($("metaapiInvestorPassword"))$("metaapiInvestorPassword").value="";});
  selectPlatform("mt5");
  onPageVisibility();
 }

@@ -303,11 +303,11 @@ Deno.serve(async(req:Request)=>{
    if(!crypt||typeof crypt!=="object"||!b64(crypt.wrappedKey,100,900)||!b64(crypt.iv,12,60)||!b64(crypt.ciphertext,32,3000))
     return fail("Credenciales cifradas invalidas",400);
    const {data:updated,error:ue}=await db.from("olon_own_accounts")
-    .update({encrypted_payload:crypt,status:target.last_sync_at?"active":"registered",last_error:null,updated_at:new Date().toISOString()})
+    .update({encrypted_payload:crypt,status:target.last_sync_at?"active":"waiting",last_error:null,updated_at:new Date().toISOString()})
     .eq("id",target.id).eq("student_id",user.id).neq("status","revoked")
     .select("id").maybeSingle();
    if(ue||!updated)return fail("No se pudo actualizar el acceso de inversor",503);
-   return respond({ok:true,queued:false,message:"Credenciales guardadas: pulsa Actualizar estadísticas para solicitar la sincronización."});
+   return respond({ok:true,queued:!target.last_sync_at,message:target.last_sync_at?"Credenciales guardadas: pulsa Actualizar estadísticas para solicitar la sincronización.":"Credenciales guardadas. La primera sincronización se solicitó automáticamente."});
   }
   if(action==="refresh-my-accounts"){
    // Solo el estudiante autenticado puede solicitar operaciones de SUS cuentas.
@@ -358,11 +358,11 @@ Deno.serve(async(req:Request)=>{
     return fail("Ya registraste una cuenta con este servidor y los mismos últimos cuatro dígitos",409);
    const {data:added,error}=await db.from("olon_own_accounts").insert({
      student_id:user.id,agent_id:agent[0].id,platform:"mt5",broker_server:server,
-     login_masked:"••••"+login.slice(-4),encrypted_payload:crypt,status:"registered",
+     login_masked:"••••"+login.slice(-4),encrypted_payload:crypt,status:"waiting",
      is_primary:(existing||[]).length===0
    }).select("id").single();
    if(error||!added)return fail("No se pudo registrar la cuenta",503);
-   return respond({ok:true,accountId:added.id,message:"Cuenta guardada. Presiona Actualizar estadísticas para solicitar la primera sincronización MT5."});
+   return respond({ok:true,accountId:added.id,queued:true,message:"Cuenta guardada. La verificación y la importación del historial comenzarán automáticamente cuando el conector esté encendido."});
   }
   if(action==="select-primary"){
    if(!validUuid(input.accountId))return fail("Selecciona una cuenta MT5 válida",400);
