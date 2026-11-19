@@ -19,17 +19,18 @@ function fixture(role='admin'){
    const added={id:'20000000-0000-0000-0000-000000000099',student_id:args.p_student_id,agent_id:args.p_agent_id,platform:'mt5',broker_server:args.p_server,login_masked:'••••'+args.p_login.slice(-4),encrypted_payload:args.p_payload,status:'waiting',is_primary:!tables.olon_own_accounts.some(a=>a.student_id===args.p_student_id&&a.status!=='revoked'),identity_fingerprint:identity};
    tables.olon_own_accounts.push(added);return {data:added.id,error:null};
   }
-  if(name==='olon_own_remove_account'){
+  if(['olon_own_remove_account','olon_own_delete_account'].includes(name)){
    const a=tables.olon_own_accounts.find(a=>a.id===args.p_account_id&&a.student_id===args.p_student_id);
    if(!a)return {data:false,error:null};
+   if(name==='olon_own_delete_account')a.admin_deleted_at=new Date().toISOString();
    a.status='revoked';a.is_primary=false;a.encrypted_payload={revoked:true};return {data:true,error:null};
   }
   throw Error('Unexpected RPC '+name);
  },auth:{getUser:async()=>({data:{user:{id:actor}}})},from(table){
   const q={table,columns:'*',filters:[],range:null,update:null};calls.push(q);
-  const b={select(columns,opts){q.columns=columns;q.opts=opts;return b;},eq(k,v){q.filters.push([k,v,true]);return b;},neq(k,v){q.filters.push([k,v,false]);return b;},in(k,v){q.filters.push([k,v,'in']);return b;},order(){return b;},limit(){return b;},range(a,z){q.range=[a,z];return b;},update(value){q.update=value;return b;},insert(value){q.insert=value;return b;},single(){q.single=true;return b;},maybeSingle(){q.single=true;return b;},then(resolve,reject){try{
+  const b={select(columns,opts){q.columns=columns;q.opts=opts;return b;},eq(k,v){q.filters.push([k,v,true]);return b;},neq(k,v){q.filters.push([k,v,false]);return b;},is(k,v){q.filters.push([k,v,'is']);return b;},in(k,v){q.filters.push([k,v,'in']);return b;},order(){return b;},limit(){return b;},range(a,z){q.range=[a,z];return b;},update(value){q.update=value;return b;},insert(value){q.insert=value;return b;},single(){q.single=true;return b;},maybeSingle(){q.single=true;return b;},then(resolve,reject){try{
    if(q.insert){tables[table]??=[];const added={...q.insert,id:'20000000-0000-0000-0000-000000000099'};tables[table].push(added);q.filters.push(['id',added.id,true]);}
-   let data=(tables[table]||[]).filter(r=>q.filters.every(([k,v,kind])=>kind==='in'?v.includes(r[k]):kind?r[k]===v:r[k]!==v));const count=data.length;
+   let data=(tables[table]||[]).filter(r=>q.filters.every(([k,v,kind])=>kind==='in'?v.includes(r[k]):kind==='is'?(r[k]??null)===v:kind?r[k]===v:r[k]!==v));const count=data.length;
    if(q.update)data.forEach(r=>Object.assign(r,q.update));if(q.range)data=data.slice(q.range[0],q.range[1]+1);
    data=data.map(r=>Object.fromEntries(q.columns.split(',').map(k=>[k,r[k]])));
    return Promise.resolve({data:q.single?data[0]||null:data,error:null,count}).then(resolve,reject);
@@ -138,10 +139,32 @@ test('admin deletion requires confirmation and targets the selected account',asy
  try{
   w.currentUser={id:actor,role:'admin',status:'active'};w.isAdminUser=u=>u.role==='admin';
   const a={...account,student:{full_name:'María Rivera',email:'maria@example.test'}};
-  w.supabaseClient={functions:{invoke:async(name,{body})=>{calls.push(body);if(body.action==='admin-delete-account')a.status='revoked';return {data:body.action==='admin-accounts'?{accounts:[a],total:1}:{ok:true}};}}};
+  w.supabaseClient={functions:{invoke:async(name,{body})=>{calls.push(body);if(body.action==='admin-delete-account')a.admin_deleted_at='now';return {data:body.action==='admin-accounts'?{accounts:a.admin_deleted_at?[]:[a],total:a.admin_deleted_at?0:1}:{ok:true}};}}};
   w.eval(ui);await w.olonAdminMt5.activate();d.querySelector('#amtRows button').click();
   w.confirm=()=>false;d.getElementById('amtDelete').click();await tick();assert.equal(calls.some(c=>c.action==='admin-delete-account'),false);
   w.confirm=()=>true;d.getElementById('amtDelete').click();await tick();
   assert.equal(calls.find(c=>c.action==='admin-delete-account').accountId,id);assert.match(d.getElementById('amtFeedback').textContent,/puede conectarla nuevamente/);
+ }finally{w.close();}
+});
+
+test('administrator can delete and hide links in every status including revoked',async()=>{
+ for(const status of ['active','waiting','registered','error','revoked']){
+  const q=fixture();q.tables.olon_own_accounts[0].status=status;
+  const r=await q.request('admin-delete-account',{accountId:id});assert.equal(r.status,200,status);
+  assert.ok(q.tables.olon_own_accounts[0].admin_deleted_at,status);
+  assert.equal(q.tables.olon_own_accounts[0].status,'revoked');
+  const listed=await (await q.request('admin-accounts')).json();assert.equal(listed.total,0);assert.deepEqual(listed.accounts,[]);
+ }
+});
+test('delete buttons stay enabled for every status including disconnected accounts',async()=>{
+ const dom=new JSDOM(html,{url:'https://portal.test',runScripts:'outside-only'}),w=dom.window,d=w.document;
+ try{
+  w.currentUser={id:actor,role:'admin',status:'active'};w.isAdminUser=u=>u.role==='admin';
+  const accounts=['active','waiting','registered','error','revoked'].map((status,i)=>({...account,id:id.slice(0,-1)+i,status,student:{full_name:'Student '+i}}));
+  w.supabaseClient={functions:{invoke:async()=>({data:{accounts,total:5}})}};
+  w.eval(ui);await w.olonAdminMt5.activate();
+  assert.equal(d.querySelectorAll('[data-delete-account-id]').length,5);
+  for(const button of d.querySelectorAll('[data-delete-account-id]'))assert.equal(button.disabled,false);
+  for(const button of d.querySelectorAll('#amtRows [data-account-id]')){button.click();assert.equal(d.getElementById('amtDelete').disabled,false);}
  }finally{w.close();}
 });

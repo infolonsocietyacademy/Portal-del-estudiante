@@ -187,7 +187,7 @@ Deno.serve(async(req:Request)=>{
     const pageSize=500;
     const {data:accounts,error,count}=await db.from("olon_own_accounts")
      .select("id,student_id,platform,broker_server,login_masked,status,is_primary,last_sync_at,last_error,created_at",{count:"exact"})
-     .order("created_at",{ascending:false}).order("id",{ascending:false}).range(page*pageSize,page*pageSize+pageSize-1);
+     .is("admin_deleted_at",null).order("created_at",{ascending:false}).order("id",{ascending:false}).range(page*pageSize,page*pageSize+pageSize-1);
     if(error)return fail("No se pudieron consultar las cuentas MT5",503);
     const ids=[...new Set((accounts||[]).map(a=>a.student_id))];
     const profiles=ids.length?await db.from("profiles").select("id,full_name,email").in("id",ids):{data:[],error:null};
@@ -201,7 +201,7 @@ Deno.serve(async(req:Request)=>{
    if(error)return fail("No se pudo consultar la cuenta",503);
    if(!account)return fail("Cuenta no encontrada",404);
    if(action==="admin-delete-account"){
-    const {data:removed,error:re}=await db.rpc("olon_own_remove_account",{p_account_id:account.id,p_student_id:account.student_id});
+    const {data:removed,error:re}=await db.rpc("olon_own_delete_account",{p_account_id:account.id,p_student_id:account.student_id});
     if(re||!removed)return fail("No se pudo eliminar la cuenta MT5",503);
     return respond({ok:true,message:"Cuenta eliminada. El estudiante puede conectarla nuevamente; su historial se conserva."});
    }

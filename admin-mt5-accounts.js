@@ -39,7 +39,7 @@
       const account=text("td","");account.append(text("strong",a.login_masked));if(a.is_primary)account.append(text("small","Principal","amtPrimary"));
       const status=text("td","");status.append(text("span",state(a),"amtBadge "+(attention(a)?"warning":a.status)));
       const action=text("td","");const button=text("button","Ver detalle","btn");button.type="button";button.dataset.accountId=a.id;button.setAttribute("aria-label","Ver detalle de "+(a.student?.full_name||"estudiante")+" · "+a.login_masked);button.setAttribute("aria-expanded",String(a.id===selected));action.append(button);
-      const remove=text("button","Eliminar","btn secondary amtDelete");remove.type="button";remove.dataset.deleteAccountId=a.id;remove.disabled=working||a.status==="revoked";remove.setAttribute("aria-label","Eliminar cuenta "+a.login_masked+" de "+(a.student?.full_name||"estudiante"));action.append(remove);
+      const remove=text("button","Eliminar","btn secondary amtDelete");remove.type="button";remove.dataset.deleteAccountId=a.id;remove.disabled=working;remove.setAttribute("aria-label","Eliminar cuenta "+a.login_masked+" de "+(a.student?.full_name||"estudiante"));action.append(remove);
       tr.append(student,account,text("td",a.broker_server),status,text("td",date(a.last_sync_at)),action);body.append(tr);
     }
     if(!list.length)empty(body,accounts.length?"No hay cuentas que coincidan con estos filtros.":"Todavía no hay cuentas MT5 registradas.",6);
@@ -55,7 +55,7 @@
     $("amtError").textContent=a.last_error?"Último aviso: "+a.last_error:"";
     $("amtRetry").disabled=working||a.status==="revoked"||a.status==="waiting";
     $("amtRetry").textContent=a.status==="waiting"?"Sincronización solicitada":"Reintentar conexión";
-    $("amtDelete").disabled=working||a.status==="revoked";
+    $("amtDelete").disabled=working;
     $("amtStudent").disabled=!a.student;
     paint();if(focus)$("amtDetailTitle").focus();
   }
@@ -118,13 +118,13 @@
   });
   $("amtDelete").addEventListener("click",async()=>{
     if(!allowed()||working)return;
-    const a=accounts.find(x=>x.id===selected);if(!a||a.status==="revoked")return;
+    const a=accounts.find(x=>x.id===selected);if(!a)return;
     if(!window.confirm("¿Eliminar la conexión MT5 "+a.login_masked+" · "+a.broker_server+" de "+(a.student?.full_name||"este estudiante")+"? El estudiante podrá conectarla nuevamente. Su historial se conservará."))return;
     const user=owner();working=true;detail(selected);
     try{
       await invoke({action:"admin-delete-account",accountId:a.id});
       if(owner()!==user)return;
-      a.status="revoked";a.is_primary=false;a.last_error=null;
+      accounts=accounts.filter(x=>x.id!==a.id);
       detail(null);paint();window.olonMtRecords?.invalidate?.();
       await refresh();
       if(owner()===user)feedback("Cuenta eliminada. El estudiante ya puede conectarla nuevamente. Su historial se conserva.");
