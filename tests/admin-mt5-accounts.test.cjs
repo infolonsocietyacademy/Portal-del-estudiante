@@ -10,7 +10,7 @@ const edge=stripTypeScriptTypes(fs.readFileSync('supabase/functions/olon-own-con
 const actor='10000000-0000-0000-0000-000000000001',student='10000000-0000-0000-0000-000000000002',id='20000000-0000-0000-0000-000000000001';
 const account={id,student_id:student,provider_account_id:'provider',vault_account_id:'vault-a',platform:'mt5',login_masked:'••••4812',broker_server:'Axi-US51-Live',status:'active',is_primary:true,last_sync_at:'2026-11-18T19:00:00Z',last_error:null};
 function fixture(role='admin'){
- let handler;const calls=[],tables={profiles:[{id:actor,role,status:'active'},{id:student,full_name:'María Rivera',email:'maria@example.test'}],olon_own_accounts:[{...account,encrypted_payload:'SECRET'}],olon_mt_deals:[{id:1,student_id:student,vault_account_id:'vault-a',deal_id:'11',profit:20},{id:2,student_id:student,vault_account_id:'vault-b',deal_id:'22',profit:999}]};
+ let handler;const calls=[],tables={profiles:[{id:actor,role,status:'active'},{id:student,full_name:'María Rivera',email:'maria@example.test'}],olon_own_agents:[{id:'reader-agent',status:'paired',created_by:actor,token_hash:require('node:crypto').createHash('sha256').update('olfx_'+ 'a'.repeat(50)).digest('hex')}],olon_own_accounts:[{...account,agent_id:'reader-agent',encrypted_payload:'SECRET'}],olon_mt_deals:[{id:1,student_id:student,vault_account_id:'vault-a',deal_id:'11',profit:20},{id:2,student_id:student,vault_account_id:'vault-b',deal_id:'22',profit:999}]};
  const db={auth:{getUser:async()=>({data:{user:{id:actor}}})},from(table){
   const q={table,columns:'*',filters:[],range:null,update:null};calls.push(q);
   const b={select(columns,opts){q.columns=columns;q.opts=opts;return b;},eq(k,v){q.filters.push([k,v,true]);return b;},neq(k,v){q.filters.push([k,v,false]);return b;},in(k,v){q.filters.push([k,v,'in']);return b;},order(){return b;},limit(){return b;},range(a,z){q.range=[a,z];return b;},update(value){q.update=value;return b;},maybeSingle(){q.single=true;return b;},then(resolve,reject){try{
@@ -22,7 +22,7 @@ function fixture(role='admin'){
  }};
  const context={console,Request,Response,TextEncoder,Uint8Array,URL,crypto:require('node:crypto').webcrypto,createClient:()=>db,createRemoteJWKSet:()=>({}),jwtVerify:async()=>({payload:{role:'authenticated',sub:actor}}),Deno:{env:{get:k=>({SUPABASE_URL:'https://db.invalid',SUPABASE_SERVICE_ROLE_KEY:'secret-test',SUPABASE_ANON_KEY:'anon-test'})[k]},serve:fn=>handler=fn}};
  vm.runInNewContext(edge,context);
- return {calls,tables,request:(action,extra={},auth=true)=>handler(new Request('https://fn.invalid',{method:'POST',headers:{'Content-Type':'application/json',...(auth?{Authorization:'Bearer signed-token'}:{})},body:JSON.stringify({action,...extra})}))};
+ return {calls,tables,request:(action,extra={},auth=true,headers={})=>handler(new Request('https://fn.invalid',{method:'POST',headers:{'Content-Type':'application/json',...(auth?{Authorization:'Bearer signed-token'}:{}),...headers},body:JSON.stringify({action,...extra})}))};
 }
 test('admin directory joins owners and never selects credentials',async()=>{
  const q=fixture();const r=await q.request('admin-accounts');assert.equal(r.status,200);const data=await r.json();
@@ -63,4 +63,19 @@ test('directory supports multiple accounts, search, details, account history, re
   d.getElementById('amtStudent').click();assert.equal(opened,'adminStudentsBlock');assert.equal(d.getElementById('adminSearch').value,'maria@example.test');
   w.currentUser={id:student,role:'student',status:'active'};d.getElementById('portal').classList.add('hidden');await tick();assert.equal(d.getElementById('amtRows').children.length,0);assert.equal(d.getElementById('amtDetail').hidden,true);
  }finally{w.close();}
+});
+
+test('retired reader cannot consume, finish or poison jobs after full-history upgrade',async()=>{
+ const headers={'x-olfx-agent-token':'olfx_'+ 'a'.repeat(50),'user-agent':'python-httpx/0.28.1'};
+ for(const action of ['agent-queue','agent-push','agent-error']){
+  const q=fixture();const reply=await q.request(action,{accountId:id},false,headers),data=await reply.json();
+  assert.equal(reply.status,action==='agent-push'?409:200);
+  if(action==='agent-queue')assert.deepEqual(data.accounts,[]);
+  if(action==='agent-error')assert.equal(data.ignored,true);
+  assert.equal(q.calls.some(c=>c.table==='olon_own_accounts'),false);
+ }
+ const q=fixture();q.tables.olon_own_accounts[0].status='waiting';
+ const reply=await q.request('agent-queue',{},false,{...headers,'user-agent':'OLFXConnect/20261119-history-v2'});
+ assert.equal(reply.status,200);assert.equal((await reply.json()).accounts.length,1);
+ const unauthorized=fixture();assert.equal((await unauthorized.request('agent-queue',{},false,{'user-agent':'OLFXConnect/20261119-history-v2'})).status,401);
 });

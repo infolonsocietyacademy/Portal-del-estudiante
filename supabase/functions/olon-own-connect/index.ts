@@ -66,6 +66,15 @@ Deno.serve(async(req:Request)=>{
   if(action.startsWith("agent-") && action!=="agent-ready"){
    const agent=await agentAuth(req);
    if(!agent)return fail("Agente no autorizado",401);
+   // Retired readers can still poll after an automatic restart left another
+   // Windows console open. Only the full-history reader may consume or finish
+   // jobs, so a stale process cannot certify an empty account first.
+   const readerVersion=req.headers.get("user-agent")||"";
+   if(["agent-queue","agent-push","agent-error"].includes(action)&&readerVersion!=="OLFXConnect/20261119-history-v2"){
+    if(action==="agent-queue")return respond({accounts:[],upgradeRequired:true,readerRequired:"20261119-history-v2"});
+    if(action==="agent-error")return respond({ok:true,ignored:true,upgradeRequired:true});
+    return fail("Actualiza OLFX CONNECT: el lector antiguo no puede confirmar historiales.",409);
+   }
    if(action==="agent-queue"){
     await db.from("olon_own_agents").update({last_seen_at:new Date().toISOString()}).eq("id",agent.id);
     const {data,error}=await db.from("olon_own_accounts")
