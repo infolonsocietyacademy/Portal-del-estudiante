@@ -78,7 +78,7 @@ body{overflow-y:visible!important;overscroll-behavior-y:auto!important;-webkit-o
 <link rel="stylesheet" href="./olon-own-connect.css?v=20261113-auth-submit-fix-1">
 <link rel="stylesheet" href="./student-sidebar.css?v=20261110-student-rail-1">
 <link rel="stylesheet" href="./student-dashboard.css?v=20261113-unified-summary-1">
-<link rel="stylesheet" href="./copy-trade.css?v=20261115-coming-soon-1">
+<link rel="stylesheet" href="./copy-trade.css?v=20261119-copy-pilot-1">
 <link rel="stylesheet" href="./maintenance.css?v=20261114-boot-screen-restored-4">
 <link rel="stylesheet" href="./admin-mt5-accounts.css?v=20261119-mt5-delete-any-2">
 <link rel="stylesheet" href="./admin-github.css?v=20261116-admin-workspace-1">
@@ -273,7 +273,7 @@ window.addEventListener("load", () => {
       <button type="button" class="portalNavLink studentNav" data-page="historial" onclick="showPage('historial',this)" aria-label="Historial"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 14h3M8 17h7"/></svg></span><span class="portalNavText">Historial</span></button>
       <button type="button" class="portalNavLink studentNav" data-page="academyChecklistPage" onclick="showPage('academyChecklistPage',this)" aria-label="Checklist"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="m7 9 1 1 2-2m2 2h4m-9 6 1 1 2-2m2 2h4"/></svg></span><span class="portalNavText">Checklist</span></button>
       <button type="button" class="portalNavLink terminalPrimaryLink studentNav" data-page="comparacion" onclick="showPage('comparacion',this)" aria-label="Resultados"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V11M10 20V5M16 20v-8M22 20V3"/><path d="M2 20h20"/></svg></span><span class="portalNavText">Resultados</span></button>
-      <button type="button" class="portalNavLink studentNav copyTradeNav" data-page="copyTradePage" onclick="showPage('copyTradePage',this)" aria-label="Copy Trade · Coming soon"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></span><span class="portalNavText">Copy Trade<small class="copyTradeNavStatus">Coming soon</small></span></button>
+      <button type="button" class="portalNavLink studentNav copyTradeNav" data-page="copyTradePage" onclick="showPage('copyTradePage',this)" aria-label="Copy Trade"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></span><span class="portalNavText">Copy Trade<small class="copyTradeNavStatus">Simulación / demo</small></span></button>
       <div class="portalNavGroup studentNav portalNavGroupSecondary">ACADEMIA</div>
       <button type="button" class="portalNavLink studentNav" data-page="newsProPage" onclick="showPage('newsProPage',this)" aria-label="Noticias"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10M7 11h4M13 11h4M7 15h10M7 18h7"/></svg></span><span class="portalNavText">Noticias</span></button>
       <button type="button" class="portalNavLink" data-page="notificationsPage" onclick="showPage('notificationsPage',this)" aria-label="Notificaciones"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></span><span class="portalNavText">Notificaciones</span></button>
@@ -907,15 +907,20 @@ window.addEventListener("load", () => {
     </section>
 
     <section id="copyTradePage" class="page hidden copyTradePage" aria-labelledby="copyTradeTitle">
-      <div class="copyTradePanel">
-        <span class="copyTradeEyebrow">OLON SOCIETY ACADEMY</span>
-        <div class="copyTradeSymbol" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="11" y="21" width="26" height="20" rx="5"/><path d="M17 21v-7a7 7 0 0 1 14 0v7M24 29v5"/></svg></div>
-        <span class="copyTradeStatus">COMING SOON</span>
-        <h2 id="copyTradeTitle">Copy Trade</h2>
-        <p class="copyTradeLead">Una nueva forma de conectar tu experiencia de trading.</p>
-        <p class="copyTradeDescription">Estamos preparando esta sección para la comunidad OLON. Próximamente encontrarás aquí más información sobre Copy Trade.</p>
-        <div class="copyTradeNotice"><span aria-hidden="true">●</span> Función en preparación · Aún no disponible</div>
-      </div>
+      <header class="ctHeader"><div><span class="ctEyebrow">OLFX / MIS CUENTAS</span><h2 id="copyTradeTitle">Copy Trade</h2><p>Una cuenta maestra. Tus demás cuentas, bajo tus ajustes.</p></div><span class="ctBadge">PILOTO · SIMULACIÓN / DEMO</span></header>
+      <div class="ctSummary"><div><span>Estado del grupo</span><strong id="ctState">Sin cargar</strong></div><div><span>Conexión Windows</span><strong id="ctAgent">Sin comprobar</strong><small id="ctUpdated"></small></div></div>
+      <p id="ctFeedback" class="ctFeedback" role="status" aria-live="polite"></p>
+      <div class="ctActions"><button type="button" class="btn secondary" id="ctRefresh">Actualizar estado</button><button type="button" class="btn secondary" id="ctPause" disabled>Pausar grupo</button><button type="button" class="btn" id="ctResume" disabled>Iniciar modo seleccionado</button></div>
+      <form id="ctForm">
+        <fieldset id="ctEditor"><legend class="ctVisuallyHidden">Configuración de Copy Trade</legend>
+          <section class="ctPanel"><h3>Cuenta maestra</h3><p>Abre cada cuenta en su propia instalación de MT5 en Windows. La conexión de estadísticas con clave de inversor es independiente del copiador.</p><div id="ctMaster" class="ctGrid"></div></section>
+          <section class="ctPanel"><h3>Cuentas receptoras</h3><p>Ejemplo: maestra 0.60 lotes × 0.5 = 0.30 lotes en la receptora, sujeto a sus límites. Solo se copian entradas nuevas con SL válido; el TP se copia cuando está definido.</p><div id="ctFollowers"></div><button type="button" class="btn secondary" id="ctAdd">Agregar receptora</button></section>
+          <section class="ctPanel"><h3>Modo de prueba</h3><label>Cómo trabajará el copiador<select id="ctMode"><option value="paper">Simulación · sin enviar órdenes</option><option value="demo">Demo · envía órdenes solo a cuentas demo</option></select></label><p>Las contraseñas permanecen en MetaTrader. El portal guarda números de cuenta, servidores, rutas y ajustes; cada usuario solo ve su propio grupo.</p><p>Pausar detiene las entradas y el seguimiento del copiador. Las posiciones que ya estén abiertas conservan su SL/TP en el bróker. Guarda los ajustes mientras el grupo está pausado.</p></section>
+        </fieldset>
+        <button type="submit" class="btn" id="ctSave">Guardar ajustes y dejar pausado</button>
+      </form>
+      <section class="ctPanel"><h3>Estado de las receptoras</h3><div class="ctTableWrap"><table><thead><tr><th>Cuenta</th><th>Servidor</th><th>Lotaje</th><th>Estado confirmado</th></tr></thead><tbody id="ctStatusRows"></tbody></table></div></section>
+      <details class="ctPanel"><summary>Preparar Windows / VPS</summary><p>Se necesita el agente Copy Trade aparte del sincronizador de estadísticas. Usa <code>copy-trading/INICIAR_COPY_PORTAL.cmd</code> del repositorio en Windows. Reutiliza el emparejamiento OLFX existente y consulta los ajustes de este panel. Mantén terminales distintos para maestra y receptoras, con las cuentas correctas iniciadas. Esta etapa admite simulación y ejecución demo; la ejecución en cuentas reales todavía no está habilitada.</p><p>Cuando el agente confirme la conexión, guarda tus cuentas y pulsa «Iniciar modo seleccionado». Una pausa se confirma al finalizar el ciclo en curso. Los errores detallados quedan en la ventana de Windows.</p></details>
     </section>
 
     <section id="notificationsPage" class="page hidden" aria-labelledby="pushPageTitle">
@@ -1625,6 +1630,7 @@ window.addEventListener("load", () => {
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
 <script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script>
+<script src="./copy-trade.js?v=20261119-copy-pilot-1" defer></script>
 <script src="./olon-own-connect.js?v=20261119-mt5-delete-any-2" defer></script>
 <script src="./mt5-live.js?v=20261114-live-calendar-1" defer></script>
 <script src="./student-dashboard.js?v=20261115-verified-connection-labels-2" defer></script><script src="./portal-reminders.js?v=20261108-reminders-1" defer></script></body>

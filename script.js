@@ -1599,7 +1599,7 @@ function showWelcome(user){
 
   const subtitles = {
     dashboard:"Tu actividad y progreso en la academia.",
-    copyTradePage:"Coming soon · Esta función aún no está disponible.",
+    copyTradePage:"Copia entre tus cuentas · Ajustes de maestra y receptoras.",
     registro:"Registra depósito, ganancia, pérdida y notas del día.",
     historial:"Revisa tus resultados y movimientos de capital.",
     comparacion:"Compara tu mes actual con el mes anterior.",

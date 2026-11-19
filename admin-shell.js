@@ -13,6 +13,7 @@
     {id:"adminRebatesBlock",icon:"chart",name:"Volumen y rebates",desc:"Importa y consulta los reportes del bróker",tab:"finance"},
     {route:"academyAdminVipPage",icon:"receipt",name:"Comprobantes VIP",desc:"Revisa los comprobantes de membresía",tab:"finance"},
     {group:"Trading",id:"adminMt5AccountsBlock",icon:"connect",name:"Cuentas MT5",desc:"Identifica al dueño de cada cuenta y revisa su conexión",tab:"trading"},
+    {route:"copyTradePage",icon:"connect",name:"Copy Trade",desc:"Una maestra y tus cuentas receptoras · piloto",tab:"trading"},
     {route:"olonOwnAdminPage",icon:"connect",name:"OLFX CONNECT",desc:"Equipos y sincronización de cuentas MT5",tab:"trading"},
     {id:"olonPerformanceBlock",icon:"pulse",name:"Rendimiento",desc:"Resultados de los traders por período",tab:"trading"},
     {id:"olonRankingAdmin",icon:"star",name:"Ranking",desc:"Clasificaciones semanales, mensuales y anuales",tab:"trading"},
@@ -130,6 +131,7 @@
     admin.replaceChildren(viewContainer);
     pageHost.append(admin);
     const routePages=MENU.filter(item=>item.route).map(item=>$(item.route)).filter(Boolean);
+    const sharedCopyPage=$("copyTradePage"),sharedCopyParent=sharedCopyPage?.parentNode;
     for(const page of routePages)pageHost.append(page);
     admin.querySelector(".adminCommandBar")?.setAttribute("hidden","");
     nav.replaceChildren();
@@ -276,6 +278,11 @@
       closeMenu();
     },{passive:true});
     function ensureWorkspace(){
+      // Copy Trade is shared with the student's private workspace.
+      if(sharedCopyPage){
+        const parent=isAdmin()?pageHost:sharedCopyParent;
+        if(parent&&sharedCopyPage.parentNode!==parent)parent.append(sharedCopyPage);
+      }
       const visible=[admin,...routePages].find(page=>!page.classList.contains("hidden"));
       const active=!!visible&&isAdmin();
       shell.hidden=!active;
