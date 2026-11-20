@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "id": "lab-discover-20261120061530886",
+  "task_sha256": "fa27a7fb4a7b9db88b896d0a7132b4187abc13155685231fc9a80680cb2ab457",
+  "status": "succeeded",
+  "started_at": "2026-11-20T06:16:07+00:00",
+  "code": "LAB_DISCOVERED",
+  "candidates": [
+    {
+      "id": "584800bcc4ccd8cf",
+      "label": "OLFX_LAB_PYTHON",
+      "busy": false
+    }
+  ],
+  "finished_at": "2026-11-20T06:16:07+00:00"
+}
