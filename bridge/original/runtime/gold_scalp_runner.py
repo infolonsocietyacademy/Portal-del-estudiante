@@ -1,69 +1,18 @@
-"""Continuous M1 structure on the pinned DEMO. Broker SL/TP are the only exits."""
+"""M5 structure and retest, gold or Nasdaq-100, paired DEMO only, SL/TP1 exits."""
 from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
 import sys
 import time
-from gold_scalp_core import Engine, Fault, VERSION, atomic, structure_signal
+from gold_scalp_core import Engine, Fault, VERSION, atomic
 from gold_settings import load_gold_settings
 
 ROOT = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "OLFX_MT5_BRIDGE"
 DATA = ROOT / "gold-scalp-m1"
 
 
-class Strategy:
-    def __init__(self, engine, directory):
-        self.engine = engine
-        self.directory = Path(directory)
-        self.cursor = self.directory / "cursor.json"
-        self.last_bar = None
-        if self.cursor.is_file():
-            value = json.loads(self.cursor.read_text(encoding="utf-8"))
-            if type(value.get("last_bar")) is not int:
-                raise Fault("CORRUPT_STRATEGY_CURSOR")
-            self.last_bar = value["last_bar"]
-
-    def step(self, paused=False):
-        engine = self.engine
-        # Reconcile all positions first. Pausing never creates a close request.
-        if paused:
-            for state in engine.states.values():
-                if state["job"]["action"] == "trade" and state["phase"] == "waiting":
-                    state["cancel"] = True
-                    engine.save(state)
-        engine.tick()
-        account = engine.guard(trade=True)
-        if not engine.market_fresh(engine.mt5.symbol_info_tick(engine.config["symbol"])):
-            return "WAIT_FRESH_QUOTE"
-        rows = engine.bars({"symbol": engine.config["symbol"], "timeframe": "M1"})
-        bar = rows[0]["time"]
-        if self.last_bar is None:
-            self.last_bar = bar
-            atomic(self.cursor, {"last_bar": bar})
-            return "WAIT_NEW_CANDLE"
-        if bar <= self.last_bar:
-            return "PAUSED_SL_TP_ONLY" if paused else "WAIT_NEW_CANDLE"
-        # Persist the closed candle before accepting its intent; replay never sends twice.
-        self.last_bar = bar
-        atomic(self.cursor, {"last_bar": bar})
-        if paused:
-            return "PAUSED_SL_TP_ONLY"
-        if not 0 <= engine.market_now() - bar - 60 <= 10:
-            return "WAIT_FRESH_SIGNAL"
-        side, _, _ = structure_signal(rows)
-        if not side:
-            return "WAIT_STRUCTURE"
-        # Account-specific ID prevents accidental reuse if local state is moved.
-        import hashlib
-        pin = hashlib.sha256((str(account.login)+"@"+account.server).encode()).hexdigest()[:12]
-        job = {"id": "m1-"+pin+"-"+str(bar), "action": "trade",
-               "expires_at": datetime.fromtimestamp(engine.clock()+60, timezone.utc).isoformat(),
-               "symbol": engine.config["symbol"], "direction": "structure", "timeframe": "M1",
-               "signal_bar": bar, "hold_seconds": 0, "signal_timeout_seconds": 60, "rr": 2.0}
-        engine.accept(job)
-        engine.tick()
-        return "SIGNAL_ACCEPTED"
+from range_1030 import Strategy, STRATEGY
 
 
 def connect(mt5, root):
@@ -103,9 +52,9 @@ def health(engine, code, paused=False):
     return {"schema": 1, "version": VERSION, "updated_at": time.time(),
             "code": code if diagnostic["trade_ready"] else diagnostic["code"], "signal_state":code,
             "ready": diagnostic["trade_ready"], "account_type_verified": "demo",
-            "symbol": engine.config["symbol"], "period": "M1", "entry_limit": None,
+            "symbol": engine.config["symbol"], "period": "M1", "strategy": STRATEGY, "target": "TP1", "target_r": 1.0, "entry_limit": 1, "max_simultaneous_positions": 1,
             "hold_seconds": 0, "close_policy": "BROKER_SL_TP_ONLY", "paused": paused,
-            "size_mode": engine.config["size_mode"], "fixed_lots": engine.config["fixed_lots"],
+            "size_mode": engine.config["size_mode"], "fixed_lots": engine.config["fixed_lots"], "max_risk_cash":engine.config.get("max_risk_cash"),
             "risk_percent": engine.config["risk_percent"], "active_commands": len(live),
             "open_positions": sum(s.get("owned_open_positions", 0) for s in live),
             "entry_attempts": sum(s.get("requested_volume", 0) > 0 for s in engine.states.values()),
@@ -128,17 +77,23 @@ def run():
     engine = None
     try:
         engine = connect(mt5, ROOT)
+        # Retire unfilled legacy intents; accepted positions keep their original broker SL/TP.
+        for state in engine.states.values():
+            if state["phase"] == "waiting" and (state["job"].get("direction") != "range_breakout" or state["job"].get("timeframe") != "M1"):
+                state["cancel"] = True
+                engine.save(state)
         strategy = Strategy(engine, DATA)
-        print("OLFX M1: estructura XAUUSD DEMO; sin limite de entradas; salidas SOLO SL/TP.", flush=True)
+        print("OLFX RANGO NY 10:30-10:45 / PRIMER BUY / SL 50% / TP1 1R DEMO; un intento diario; salidas SOLO SL/TP.", flush=True)
         last_display = 0
         while True:
             paused = (DATA / "STOP").exists() or (ROOT / "STOP").exists()
             try:
                 code = strategy.step(paused=paused)
                 snapshot = health(engine, code, paused)
+                snapshot.update(strategy.snapshot())
                 atomic(DATA / "health.json", snapshot)
                 if time.monotonic()-last_display >= 30:
-                    print("OLFX M1 | "+code+" | abiertas: "+str(snapshot["open_positions"])+" | entradas: "+str(snapshot["entry_attempts"])+" | cierre SL/TP", flush=True)
+                    print("OLFX RANGO 10:30 | "+code+" | abiertas: "+str(snapshot["open_positions"])+" | entradas: "+str(snapshot["entry_attempts"])+" | cierre SL/TP", flush=True)
                     last_display = time.monotonic()
                 if paused and not snapshot["active_commands"]:
                     return
@@ -171,3 +126,4 @@ if __name__ == "__main__":
                "updated_at":time.time(),"nonce":os.environ.get("OLFX_SCALP_NONCE","")})
         print("OLFX M1: "+code, flush=True)
         sys.exit(1)
+

@@ -421,3 +421,4 @@ void OnDeinit(const int reason_code)
    EventKillTimer(); draining=true;
    if(OwnPosition()>0) CloseStructure();
 }
+

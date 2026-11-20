@@ -22,7 +22,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-VERSION = "1.0.12"
+VERSION = "1.0.32"
 ROOT = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "OLFX_MT5_BRIDGE"
 try:
     _mailbox = json.loads((ROOT / "mailbox.json").read_text(encoding="utf-8"))
@@ -31,7 +31,10 @@ except (OSError, ValueError):
 REPO = _mailbox.get("repository", "OWNER/REPOSITORY")
 BRANCH = _mailbox.get("branch", "olfx-mt5-bridge")
 DEVICE = _mailbox.get("device", "worker-01")
-ACTIONS = {"ping", "diagnose", "compile", "backtest", "demo_roundtrip", "demo_structure", "demo_structure_status", "demo_gold", "demo_gold_once", "demo_gold_stop", "gold_backtest_30d", "gold_backtest_status"}
+ACTIONS = {"range_configure", "ping", "diagnose", "compile", "backtest", "demo_roundtrip", "demo_structure", "demo_structure_status", "demo_gold", "demo_gold_once", "demo_gold_stop", "gold_backtest_14d", "gold_backtest_30d", "gold_backtest_60d", "gold_backtest_90d", "gold_backtest_status", "nas100_probe", "nas100_activate"}
+from lab_manager import ACTIONS as LAB_ACTIONS
+ACTIONS |= LAB_ACTIONS
+
 ROOT = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "OLFX_MT5_BRIDGE"
 
 
@@ -74,12 +77,27 @@ def utc_date(text):
 
 def validate_task(job, current=None):
     require(isinstance(job, dict), "INVALID_TASK")
-    allowed = {"id", "action", "expires_at", "source_path", "source_ref", "source_sha256", "test"}
+    allowed = {"id", "action", "expires_at", "source_path", "source_ref", "source_sha256", "test", "symbol", "fixed_lots", "candidate_id"}
     require(not set(job) - allowed, "UNKNOWN_TASK_FIELD")
     require(re.fullmatch(r"[a-zA-Z0-9_-]{1,64}", str(job.get("id", ""))), "INVALID_TASK_ID")
     require(job.get("action") in ACTIONS, "ACTION_NOT_ALLOWED")
     require(utc_date(job.get("expires_at")) > (current or datetime.now(timezone.utc)), "TASK_EXPIRED")
-    if job["action"] in {"ping", "diagnose", "demo_roundtrip", "demo_structure", "demo_structure_status", "demo_gold", "demo_gold_once", "demo_gold_stop", "gold_backtest_30d", "gold_backtest_status"}:
+    if job["action"] in LAB_ACTIONS:
+        from lab_manager import validate_job, LabError
+        try: return validate_job(job)
+        except LabError as e: raise BridgeError(str(e)) from None
+    if job["action"] == "range_configure":
+        import math
+        require(set(job) == {"id", "action", "expires_at", "fixed_lots"}, "UNEXPECTED_TASK_FIELD")
+        lots = job["fixed_lots"]
+        require(type(lots) in (int, float) and math.isfinite(lots) and .001 <= lots <= 1., "INVALID_FIXED_LOTS")
+        return job
+    if job["action"] == "nas100_activate":
+        from asset_spec import asset_kind
+        require(set(job) <= {"id", "action", "expires_at", "symbol"}, "UNEXPECTED_TASK_FIELD")
+        require(asset_kind(job.get("symbol")) == "nas100", "NAS100_SYMBOL_REQUIRED")
+        return job
+    if job["action"] in {"ping", "diagnose", "demo_roundtrip", "demo_structure", "demo_structure_status", "demo_gold", "demo_gold_once", "demo_gold_stop", "gold_backtest_14d", "gold_backtest_30d", "gold_backtest_60d", "gold_backtest_90d", "gold_backtest_status", "nas100_probe", "nas100_activate"}:
         require(set(job) <= {"id", "action", "expires_at"}, "UNEXPECTED_TASK_FIELD")
         return job
     require(re.fullmatch(r"bridge/eas/[A-Za-z0-9_-]{1,64}\.mq5", str(job.get("source_path", ""))), "INVALID_SOURCE_PATH")
@@ -466,13 +484,19 @@ def status_snapshot(root, state):
     value = {"schema": 1, "version": VERSION, "state": state, "updated_at": now()}
     if state == "online":
         from gold_backtest import status as backtest_status
-        backtest = backtest_status(root)
-        if backtest:
-            value["backtest"] = backtest
+        backtest=backtest_status(root)
+        if backtest and backtest.get("strategy")=="NY_RANGE_1030_1045_BUY_TP1":
+            value["backtest"]=backtest
         from gold_scalp import status
         scalp = status(root)
         if scalp:
             value["gold_strategy"] = {k:v for k,v in scalp.items() if k != "nonce"}
+        from strategy_service import enabled
+        value["strategy_service"] = {"enabled": enabled(root)}
+        try:
+            value["strategy_service"].update(json.loads((Path(root) / "gold-scalp-m1" / "service-health.json").read_text()))
+        except (OSError, ValueError):
+            pass
         try:
             update_info = json.loads((Path(root) / "update_status.json").read_text(encoding="utf-8"))
             allowed_states = {"running", "restarting", "rolled_back", "engine_stopped", "download_rejected_or_unavailable"}
@@ -484,6 +508,11 @@ def status_snapshot(root, state):
             value["diagnostics"] = collect_diagnostics(owned_terminal(root))
         except (BridgeError, OSError, ValueError, KeyError):
             value["diagnostics"] = {"code": "LOCAL_DIAGNOSTICS_UNAVAILABLE"}
+    try:
+        from lab_manager import status as lab_status
+        value['lab'] = lab_status(root)
+    except Exception:
+        value['lab'] = {'code':'LAB_STATUS_UNAVAILABLE'}
     return value
 
 
@@ -505,13 +534,23 @@ def tester_ini(job, local_demo=None):
 
 
 def execute(job, root, gh):
-    if job["action"] == "gold_backtest_30d":
+    if job["action"] in LAB_ACTIONS:
+        from lab_manager import execute as execute_lab, LabError
+        try: return execute_lab(job,root)
+        except LabError as e: raise BridgeError(str(e)) from None
+    if job["action"] == "range_configure":
+        from strategy_service import configure
+        return configure(job, root, sys.modules[__name__])
+    if job["action"] in {"nas100_probe", "nas100_activate"}:
+        from nas100_switch import execute
+        return execute(job, root, sys.modules[__name__])
+    if job["action"] in {"gold_backtest_14d", "gold_backtest_30d", "gold_backtest_60d", "gold_backtest_90d"}:
         from gold_backtest import start
-        return start(job, root, sys.modules[__name__])
-    if job["action"] == "gold_backtest_status":
+        return start(job,root,sys.modules[__name__],days={"gold_backtest_14d":14,"gold_backtest_30d":30,"gold_backtest_60d":60,"gold_backtest_90d":90}[job["action"]])
+    if job["action"]=="gold_backtest_status":
         from gold_backtest import status
-        value = status(root)
-        require(value is not None, "NO_BACKTEST_RESULT")
+        value=status(root)
+        require(value is not None,"NO_BACKTEST_RESULT")
         return value
     if job["action"] == "ping":
         return {"code": "PONG", "version": VERSION}
@@ -798,6 +837,13 @@ def main():
                 updating = True
                 return 75
             try:
+                from lab_manager import maintain as maintain_lab
+                try:
+                    maintain_lab(ROOT)
+                except Exception:
+                    pass  # Un fallo del Lab no detiene el servicio del bridge.
+                from strategy_service import supervise
+                supervise(ROOT, sys.modules[__name__])
                 if time.monotonic() >= heartbeat:
                     gh.put("bridge/status/" + DEVICE + ".json", status_snapshot(ROOT, "online"))
                     heartbeat = time.monotonic() + 60
@@ -834,3 +880,4 @@ if __name__ == "__main__":
     except Exception:
         print("ERROR LOCAL. Verifica configuracion, permisos y rutas. No se publicaron datos privados.")
         sys.exit(1)
+

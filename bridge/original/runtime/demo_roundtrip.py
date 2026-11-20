@@ -173,3 +173,4 @@ def execute_demo_roundtrip(job, root, api, structure=False, gold=False, gold_onc
     # Keep the terminal open so a demo-only close timer can finish after a transient outage.
     cancel_file.touch()
     raise api.BridgeError("DEMO_RESULT_PENDING_CHECK_DEMO_TERMINAL", {"opened": latest.get("opened") is True, "closed": latest.get("closed") is True})
+

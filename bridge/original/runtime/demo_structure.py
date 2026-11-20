@@ -76,3 +76,4 @@ def cancel_session(root, api):
         return
     path = session_paths(root, api)
     path.with_name(path.name + ".cancel").touch()
+

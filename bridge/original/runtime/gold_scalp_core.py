@@ -6,8 +6,9 @@ import math
 from pathlib import Path
 import re
 import time
+from asset_spec import metadata_matches
 
-VERSION = "1.0.12"
+VERSION = "1.0.32"
 LIVE_PHASES = {"waiting", "submitted", "open", "closing", "uncertain"}
 FINAL_PHASES = {"done", "failed"}
 
@@ -42,9 +43,9 @@ def validate(job, symbol, now=None):
     action = job.get("action")
     allowed = {"id", "action", "expires_at"}
     if action == "trade":
-        allowed |= {"symbol", "direction", "timeframe", "hold_seconds", "signal_timeout_seconds", "lots", "risk_percent", "rr", "sl_distance", "tp_distance", "signal_bar"}
+        allowed |= {"symbol", "direction", "timeframe", "hold_seconds", "signal_timeout_seconds", "lots", "risk_percent", "rr", "sl_distance", "tp_distance", "signal_bar", "ms5_key", "range_key"}
         need(job.get("symbol") == symbol, "SYMBOL_NOT_LOCALLY_APPROVED")
-        need(job.get("direction") in {"buy", "sell", "structure"}, "INVALID_DIRECTION")
+        need(job.get("direction") in {"buy", "sell", "structure", "structure_retest", "range_breakout"}, "INVALID_DIRECTION")
         manual = job.get("direction") in {"buy", "sell"} and "sl_distance" in job
         need(job.get("timeframe") in {"M1", "M5"} or (manual and "timeframe" not in job), "INVALID_TIMEFRAME")
         if "sl_distance" in job:
@@ -53,7 +54,20 @@ def validate(job, symbol, now=None):
             need(manual and finite(job["tp_distance"], 0.1, 250.0), "INVALID_MANUAL_TARGET")
         need(type(job.get("hold_seconds")) is int and job["hold_seconds"] == 0, "BROKER_SL_TP_ONLY")
         if "signal_bar" in job:
-            need(job["direction"] == "structure" and type(job["signal_bar"]) is int and job["signal_bar"] > 0, "INVALID_SIGNAL_BAR")
+            need(job["direction"] in {"structure", "structure_retest", "range_breakout"} and type(job["signal_bar"]) is int and job["signal_bar"] > 0, "INVALID_SIGNAL_BAR")
+        if job['direction']=='structure_retest':
+            need(job.get('timeframe')=='M5' and type(job.get('signal_bar')) is int and job['signal_bar']%300==0,
+                 'MS5_CLOSED_M5_REQUIRED')
+            need(isinstance(job.get('ms5_key'),str) and re.fullmatch(r'[0-9a-f]{24}',job['ms5_key']), 'MS5_EVENT_KEY_REQUIRED')
+            need(job.get('rr')==1.0, 'MS5_TP1_ONE_R_REQUIRED')
+        elif 'ms5_key' in job:
+            raise Fault('MS5_EVENT_KEY_WRONG_DIRECTION')
+        if job['direction'] == 'range_breakout':
+            need(job.get('timeframe') == 'M1' and type(job.get('signal_bar')) is int and job['signal_bar'] % 60 == 0, 'RANGE_M1_REQUIRED')
+            need(isinstance(job.get('range_key'), str) and re.fullmatch(r'[0-9a-f]{24}', job['range_key']), 'RANGE_KEY_REQUIRED')
+            need(job.get('rr') == 1.0, 'RANGE_TP1_ONE_R_REQUIRED')
+        elif 'range_key' in job:
+            raise Fault('RANGE_KEY_WRONG_DIRECTION')
         need(type(job.get("signal_timeout_seconds", 1800)) is int and 30 <= job.get("signal_timeout_seconds", 1800) <= 3600, "INVALID_SIGNAL_TIMEOUT")
         need(not ("lots" in job and "risk_percent" in job), "ONE_SIZE_MODE_REQUIRED")
         if "lots" in job:
@@ -171,12 +185,12 @@ class Engine:
 
     def bars(self, job):
         tf = self.mt5.TIMEFRAME_M1 if job["timeframe"] == "M1" else self.mt5.TIMEFRAME_M5
-        rows = self.mt5.copy_rates_from_pos(job["symbol"], tf, 1, 96)
+        rows = self.mt5.copy_rates_from_pos(job["symbol"], tf, 1, 512 if job.get("direction")=="structure_retest" else 96)
         need(rows is not None and len(rows) >= 64, "WAIT_HISTORY")
         return [{k: float(r[k]) if k != "time" else int(r[k]) for k in ("time", "open", "high", "low", "close")} for r in reversed(rows)]
 
     def summary(self, state):
-        safe = {k: state[k] for k in ("id", "phase", "code", "updated_at", "retcode", "volume", "open_price", "close_price", "profit", "entry_deals", "exit_deals", "owned_open_positions", "floating_profit", "held_seconds", "side", "requested_volume", "remaining_volume") if k in state}
+        safe = {k: state[k] for k in ("id", "phase", "code", "updated_at", "retcode", "volume", "open_price", "close_price", "profit", "entry_deals", "exit_deals", "owned_open_positions", "floating_profit", "held_seconds", "side", "requested_volume", "remaining_volume","submitted_sl","submitted_tp","requested_price","target_r") if k in state}
         safe.update(schema=2, version=VERSION, status="succeeded" if state["phase"] == "done" else "failed" if state["phase"] == "failed" else "running",
                     task_sha256=state["fingerprint"])
         if state["job"]["action"] == "trade":
@@ -213,13 +227,18 @@ class Engine:
             return self.summary(self.states[jid])
         validate(job, self.config["symbol"], self.clock())
         self.guard()
+        if job.get('direction')=='structure_retest':
+            need(not any(v['job'].get('direction')=='structure_retest' and v['job'].get('ms5_key')==job['ms5_key']
+                         for v in self.states.values()), 'MS5_EVENT_ALREADY_CONSUMED')
+        if job.get('direction') == 'range_breakout':
+            need(not any(v['job'].get('direction') == 'range_breakout' and v['job'].get('range_key') == job['range_key'] for v in self.states.values()), 'RANGE_EVENT_ALREADY_CONSUMED')
         state = {"id": jid, "job": job, "fingerprint": fingerprint(job), "phase": "done", "code": "OK", "created_at": self.clock()}
         action = job["action"]
         if action == "trade":
             # No fixed command-count cap. Reconcile each send before the next one.
             state.update(phase="waiting", code="WAIT_SIGNAL", last_bar=0,
                          deadline=min(expiry(job["expires_at"]), self.clock()+job.get("signal_timeout_seconds",1800)))
-            if job["direction"] == "structure":
+            if job["direction"] in {"structure", "structure_retest"}:
                 try:
                     state["last_bar"] = job["signal_bar"] - 1 if "signal_bar" in job else self.bars(job)[0]["time"]
                 except Fault:
@@ -240,22 +259,31 @@ class Engine:
 
     def request(self, state):
         job, m = state["job"], self.mt5
+        need(job.get("direction") not in {"crt", "breakfake", "structure", "liquidez_h4"}, "RETIRED_STRATEGY")
         account = self.guard(trade=True)
         need(not any(other["id"] != state["id"] and other["phase"] in {"submitted", "uncertain"} for other in self.states.values()), "WAIT_RECONCILIATION")
         symbol = job["symbol"]
         need(m.symbol_select(symbol, True), "SYMBOL_UNAVAILABLE")
         info, tick = m.symbol_info(symbol), m.symbol_info_tick(symbol)
         need(info is not None and tick is not None and finite(tick.bid,1e-9,1e9) and finite(tick.ask,tick.bid+1e-12,1e9), "QUOTE_UNAVAILABLE")
-        need(info.currency_base == "XAU" and info.currency_profit == "USD", "WRONG_SYMBOL")
+        need(metadata_matches(symbol, info), "WRONG_SYMBOL")
         need(self.market_fresh(tick), "WAIT_FRESH_QUOTE")
         need(tick.ask - tick.bid <= self.config["max_spread_price"], "WAIT_SPREAD")
         positions, orders = self.read_account(state)
-        if account.margin_mode != m.ACCOUNT_MARGIN_MODE_RETAIL_HEDGING:
+        if job["direction"] in {"structure_retest", "range_breakout"} or account.margin_mode != m.ACCOUNT_MARGIN_MODE_RETAIL_HEDGING:
             need(not positions and not orders, "NETTING_POSITION_CONFLICT")
         manual = job["direction"] in {"buy","sell"} and "sl_distance" in job
         side, swing, level = 0, 0.0, 0.0
         gap = info.trade_stops_level*info.point + tick.ask-tick.bid + 2*info.point
-        if manual:
+        if job['direction'] == 'range_breakout':
+            event = getattr(self, 'range_event', None)
+            need(isinstance(event, dict) and event.get('key') == job['range_key'] and event.get('time') == job['signal_bar'], 'RANGE_EVENT_NOT_VERIFIED')
+            need(0 <= self.clock() - event['utc'] <= 2, 'RANGE_SIGNAL_EXPIRED')
+            need(tick.bid >= event['high'] + info.trade_tick_size - 1e-9, 'RANGE_BREAKOUT_NO_LONGER_VALID')
+            side, entry, swing = 1, float(tick.ask), event['sl']
+            risk, cap = entry - swing, self.config['max_stop_price']
+            need(gap <= risk <= cap, 'RANGE_STOP_OUTSIDE_BROKER_LIMIT')
+        elif manual:
             side = 1 if job["direction"]=="buy" else -1
             entry = float(tick.ask if side>0 else tick.bid)
             risk = float(job["sl_distance"])
@@ -264,7 +292,7 @@ class Engine:
         else:
             rates = self.bars(job)
             atr = closed_atr(rates)
-            if job["direction"] == "structure":
+            if job["direction"] in {"structure", "structure_retest"}:
                 seconds = 60 if job["timeframe"] == "M1" else 300
                 if "signal_bar" in job:
                     need(rates[0]["time"] == job["signal_bar"], "WAIT_SIGNAL_BAR")
@@ -275,8 +303,15 @@ class Engine:
                 need(rates[0]["time"] > state["last_bar"], "WAIT_NEW_CANDLE")
                 state["last_bar"] = rates[0]["time"]
                 self.save(state)
-                side, swing, level = structure_signal(rates)
-                need(side != 0, "WAIT_STRUCTURE")
+                if job['direction']=='structure_retest':
+                    event=getattr(self,'ms5_event',None)
+                    need(isinstance(event,dict) and event.get('key')==job['ms5_key'] and event.get('time')==job['signal_bar'], 'MS5_EVENT_NOT_VERIFIED')
+                    side=event['side']
+                    swing=event['sl_bid']+(tick.ask-tick.bid if side<0 else 0.)
+                    need(side in (-1,1), 'MS5_EVENT_NOT_VERIFIED')
+                else:
+                    side, swing, level = structure_signal(rates)
+                    need(side != 0, "WAIT_STRUCTURE")
                 need(0 <= self.market_now() - rates[0]["time"] - seconds <= 10, "WAIT_FRESH_SIGNAL")
             else:
                 side = 1 if job["direction"] == "buy" else -1
@@ -284,16 +319,34 @@ class Engine:
             if level:
                 need((entry > level if side > 0 else entry < level) and abs(entry-rates[0]["close"]) <= max(0.25*atr,self.config["max_spread_price"]), "WAIT_VALID_ENTRY")
             risk = max(atr, gap, entry-(swing-0.2*atr) if side>0 and swing else (swing+0.2*atr)-entry if side<0 and swing else 1.2*atr)
-            cap = min(4*atr,self.config["max_stop_price"])
+            if job['direction']=='structure_retest':
+                need(abs(entry-event['entry'])<=max(.25*(event['hi']-event['lo']),self.config['max_spread_price']), 'MS5_ENTRY_MOVED_TOO_FAR')
+                risk=side*(entry-swing)
+                need(risk>=gap, 'MS5_STRUCTURAL_STOP_TOO_CLOSE')
+            cap = self.config["max_stop_price"] if job["direction"] == 'structure_retest' else min(4*atr,self.config["max_stop_price"])
             need(finite(risk, 1e-8, cap), "WAIT_STOP_FILTER")
         step = float(info.trade_tick_size)
         need(step > 0, "INVALID_TICK_SIZE")
         sl = round((math.floor((entry-risk)/step) if side>0 else math.ceil((entry+risk)/step))*step, info.digits)
+        if job['direction']=='structure_retest':
+            from decimal import Decimal,ROUND_FLOOR,ROUND_CEILING
+            grid=Decimal(str(step))
+            sl=float((Decimal(str(swing))/grid).to_integral_value(rounding=ROUND_FLOOR if side>0 else ROUND_CEILING)*grid)
+        if job['direction'] == 'range_breakout':
+            sl = float(swing)
         risk = abs(entry-sl)
-        need(risk <= cap + info.point, "WAIT_STOP_FILTER")
+        need(risk <= cap + (0 if job['direction'] in {'structure_retest', 'range_breakout'} else info.point), "WAIT_STOP_FILTER")
         distance = float(job.get("tp_distance",job.get("rr",2.0)*risk))
         need(distance >= gap,"MANUAL_TARGET_OUTSIDE_BROKER_LIMIT")
         tp = round((math.ceil((entry+distance)/step) if side>0 else math.floor((entry-distance)/step))*step,info.digits)
+        if job['direction'] in {'structure_retest', 'range_breakout'}:
+            from decimal import Decimal, ROUND_CEILING, ROUND_FLOOR
+            grid = Decimal(str(step))
+            entry_d=Decimal(str(entry));sl_d=Decimal(str(sl))
+            risk_d=side*(entry_d-sl_d)
+            target_d=entry_d+side*risk_d
+            tp=float((target_d/grid).to_integral_value(rounding=ROUND_CEILING if side>0 else ROUND_FLOOR)*grid)
+            need(side*(entry-sl)>=gap and side*(tp-entry)>=gap, 'MS5_INVALID_PROTECTION')
         order_type = m.ORDER_TYPE_BUY if side>0 else m.ORDER_TYPE_SELL
         loss = m.order_calc_profit(order_type,symbol,float(info.volume_min),entry,sl)
         need(loss is not None and finite(loss,-1e12,-1e-12), "PROFIT_CALC_UNAVAILABLE")
@@ -301,9 +354,14 @@ class Engine:
         mode = "fixed" if "lots" in job else "risk" if "risk_percent" in job else self.config["size_mode"]
         fixed = job.get("lots",self.config["fixed_lots"])
         budget = account.equity*job.get("risk_percent",self.config["risk_percent"])/100
+        if "max_risk_cash" in self.config:
+            need(getattr(account, 'currency', None) == 'USD', "USD_ACCOUNT_REQUIRED")
+            budget = min(budget, self.config["max_risk_cash"])
         volume = lots_for(mode,fixed,budget,per_lot,float(info.volume_min),float(info.volume_max),float(info.volume_step))
+        if "max_risk_cash" in self.config:
+            need(volume * per_lot <= self.config["max_risk_cash"] + 1e-7, "RISK_BUDGET_EXCEEDED")
         request = {"action":m.TRADE_ACTION_DEAL,"symbol":symbol,"volume":volume,"type":order_type,"price":entry,
-                   "sl":sl,"tp":tp,"deviation":20,"magic":magic_for(state["id"]),"comment":"OLFX R2 "+state["id"][-18:],"type_time":m.ORDER_TIME_GTC}
+                   "sl":sl,"tp":tp,"deviation":20,"magic":magic_for(state["id"]),"comment":("OLFX TP1 " if job["direction"] in {"structure_retest", "range_breakout"} else "OLFX R2 ")+state["id"][-18:],"type_time":m.ORDER_TIME_GTC}
         fills = []
         if info.filling_mode & 1:
             fills.append(m.ORDER_FILLING_FOK)
@@ -328,12 +386,15 @@ class Engine:
             request = self.request(state)
         except Fault as exc:
             state["code"] = str(exc)
-            if str(exc) in {"DEMO_ONLY","ACCOUNT_CHANGED","WRONG_TERMINAL","NETTING_POSITION_CONFLICT","VOLUME_OUTSIDE_LIMIT","FIXED_LOTS_NOT_ON_BROKER_STEP","ORDER_CHECK_REJECTED","UNSUPPORTED_FILLING","INVALID_TICK_SIZE","INVALID_VOLUME_METADATA","WRONG_SYMBOL","SYMBOL_UNAVAILABLE","RISK_BUDGET_EXCEEDED","MANUAL_STOP_OUTSIDE_BROKER_LIMIT","MANUAL_TARGET_OUTSIDE_BROKER_LIMIT"}:
+            if str(exc) in {"DEMO_ONLY","ACCOUNT_CHANGED","WRONG_TERMINAL","NETTING_POSITION_CONFLICT","VOLUME_OUTSIDE_LIMIT","FIXED_LOTS_NOT_ON_BROKER_STEP","ORDER_CHECK_REJECTED","UNSUPPORTED_FILLING","INVALID_TICK_SIZE","INVALID_VOLUME_METADATA","WRONG_SYMBOL","SYMBOL_UNAVAILABLE","RISK_BUDGET_EXCEEDED","MANUAL_STOP_OUTSIDE_BROKER_LIMIT","MANUAL_TARGET_OUTSIDE_BROKER_LIMIT","MS5_EVENT_NOT_VERIFIED","MS5_STRUCTURAL_STOP_TOO_CLOSE","MS5_ENTRY_MOVED_TOO_FAR","MS5_INVALID_PROTECTION"}:
                 state["phase"] = "failed"
+            if state['job'].get('direction') == 'range_breakout':
+                state['phase'] = 'failed'
             self.save(state)
             return
         # Persist BEFORE sending. A crash, timeout, restart or upload failure never retries an opening.
-        state.update(phase="submitted", code="OPEN_SUBMITTED", requested_volume=request["volume"], side="BUY" if request["type"]==self.mt5.ORDER_TYPE_BUY else "SELL")
+        state.update(phase="submitted", code="OPEN_SUBMITTED", requested_volume=request["volume"], side="BUY" if request["type"]==self.mt5.ORDER_TYPE_BUY else "SELL",
+                     submitted_sl=request['sl'], submitted_tp=request['tp'], requested_price=request['price'], target_r=state['job'].get('rr',2.0))
         self.save(state)
         self.guard(trade=True)
         result = self.mt5.order_send(request)
@@ -406,4 +467,5 @@ class Engine:
             except Exception:
                 state["code"]="LOCAL_ERROR_CHECK_LOG"
                 self.save(state)
+
 

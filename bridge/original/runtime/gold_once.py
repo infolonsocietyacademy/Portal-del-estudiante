@@ -24,3 +24,4 @@ def verified_gold_once(data,config):
                  max_attempts=1,max_session_minutes=3,volume=values["volume_executed"],
                  open_price=values["open_price"],close_price=values["close_price"],profit=state["net_recorded"],actual_held_seconds=held)
     return state
+

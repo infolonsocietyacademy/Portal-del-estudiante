@@ -20,8 +20,9 @@ def status(root):
     except (OSError,ValueError,KeyError,TypeError):return None
 
 
-def start(job,root,api):
+def start(job,root,api,days=30):
     from gold_scalp import worker_locked
+    api.require(type(days) is int and days in (14,30,60,90),'INVALID_BACKTEST_DAYS')
     root=Path(root);folder=root/'backtests';folder.mkdir(parents=True,exist_ok=True)
     if worker_locked(folder):return {'code':'BACKTEST_ALREADY_RUNNING',**(status(root) or {})}
     candidates=[Path(sys.executable),root/'resident-v2'/'venv'/'Scripts'/'python.exe']
@@ -33,5 +34,5 @@ def start(job,root,api):
     api.atomic_json(folder/'current.json',{'job_id':job['id']})
     script=Path(__file__).resolve().with_name('gold_backtest_worker.py')
     flags=getattr(subprocess,'CREATE_NEW_PROCESS_GROUP',0)|getattr(subprocess,'BELOW_NORMAL_PRIORITY_CLASS',0)
-    subprocess.Popen([str(python),str(script),job['id']],cwd=script.parent,creationflags=flags)
-    return {'code':'BACKTEST_30D_STARTED','job_id':job['id'],'days':30,'symbol':'XAUUSD','mode':'READ_ONLY_MARKET_DATA'}
+    subprocess.Popen([str(python),str(script),job['id'],'--days',str(days)],cwd=script.parent,creationflags=flags)
+    return {'code':f'BACKTEST_{days}D_STARTED','job_id':job['id'],'days':days,'symbol':'LOCAL_CONFIG','mode':'READ_ONLY_MARKET_DATA'}

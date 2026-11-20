@@ -23,3 +23,4 @@ def update_pending(root):
     except (OSError,ValueError):
         return False
     return isinstance(data,dict) and data.get("nonce")==nonce and type(data.get("sequence")) is int and data["sequence"]>0
+

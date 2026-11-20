@@ -85,3 +85,4 @@ def watch_trade_logs(root, api):
             time.sleep(1)
     except KeyboardInterrupt:
         print("Visor de operaciones cerrado. El registrador de MT5 es independiente.")
+

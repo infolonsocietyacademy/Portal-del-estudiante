@@ -13,12 +13,17 @@ def status(root):
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
         data["snapshot_fresh"] = 0 <= time.time()-data["updated_at"] <= 10
+        if not data["snapshot_fresh"]:
+            data.update(ready=False, quote_fresh=False, last_worker_code=data.get("code"),
+                        code="STRATEGY_HEALTH_STALE")
         return data
     except (OSError, ValueError, KeyError, TypeError):
         return None
 
 
 def stop(root):
+    from strategy_service import set_enabled
+    set_enabled(root, False)
     folder = Path(root) / "gold-scalp-m1"
     if folder.exists():
         (folder / "STOP").touch()
@@ -49,6 +54,8 @@ def start(job, root, api):
         api.require(current is not None and current.get("snapshot_fresh"), "SCALP_WORKER_RECONCILE_FIRST")
         # A stop marker must not be silently cleared while old positions remain managed.
         api.require(not (folder / "STOP").exists(), "SCALP_PAUSED_WAIT_SL_TP")
+        from strategy_service import set_enabled
+        set_enabled(root, True)
         return {**current, "code": "DEMO_GOLD_SCALP_ALREADY_RUNNING"}
     # The bounded legacy EA must finish before the new continuous strategy starts.
     manifest = root / "structure-session.json"
@@ -80,6 +87,8 @@ def start(job, root, api):
         current = status(root)
         if current and current.get("nonce") == nonce and current.get("snapshot_fresh"):
             if current.get("account_type_verified") == "demo":
+                from strategy_service import set_enabled
+                set_enabled(root, True)
                 return {**current, "code": "DEMO_GOLD_SCALP_STARTED"}
             if process.poll() is not None or not current.get("ready"):
                 raise api.BridgeError(current.get("code", "SCALP_START_FAILED"))
@@ -89,3 +98,4 @@ def start(job, root, api):
     # A slow first attach is stopped from accepting entries, without liquidating positions.
     stop(root)
     raise api.BridgeError("SCALP_START_NOT_CONFIRMED")
+

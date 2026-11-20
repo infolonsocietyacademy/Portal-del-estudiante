@@ -38,3 +38,4 @@ def verified_gold(data,config,started=False):
     if mode==0 and result["last_volume"] and abs(result["last_volume"]-config["fixed_lots"])>1e-8:
         raise ValueError("GOLD_SIZE_MISMATCH")
     return result
+

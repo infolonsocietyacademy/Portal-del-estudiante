@@ -318,3 +318,4 @@ void OnDeinit(const int reason)
    EventKillTimer();
    if(!closed && OwnPosition()>0) CloseDemo();
 }
+

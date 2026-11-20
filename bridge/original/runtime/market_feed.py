@@ -61,3 +61,4 @@ class MarketFeed:
         return {"quote_age_seconds":None if self.raw_age is None else round(self.raw_age,3),
                 "adjusted_quote_age_seconds":None if self.adjusted_age is None else round(self.adjusted_age,3),
                 "broker_clock_offset_seconds":self.offset,"advancing_tick_samples":len(self.samples)}
+

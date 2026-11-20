@@ -93,3 +93,4 @@ def ask_token(title="OLFX MT5 BRIDGE - Configuracion"):
     if dialog.result is None:
         raise TokenInputError("CONFIGURACION_CANCELADA")
     return dialog.result
+

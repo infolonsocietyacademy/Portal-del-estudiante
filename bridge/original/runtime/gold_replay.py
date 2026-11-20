@@ -19,6 +19,7 @@ class ReplayBroker:
     ACCOUNT_MARGIN_MODE_RETAIL_HEDGING=2
     TIMEFRAME_M1=1
     TIMEFRAME_M5=5
+    TIMEFRAME_H4=16388
     ORDER_TYPE_BUY=0
     ORDER_TYPE_SELL=1
     POSITION_TYPE_BUY=0
@@ -35,9 +36,27 @@ class ReplayBroker:
     DEAL_ENTRY_OUT=1
     DEAL_ENTRY_OUT_BY=3
 
-    def __init__(self,rows,info,terminal,offset=0,deposit=10000.,margin_ratio=0.):
+    def __init__(self,rows,info,terminal,offset=0,deposit=10000.,margin_ratio=0.,native_h4=None,native_m5=None):
         self.rows,self.info,self.terminal,self.offset=rows,info,str(Path(terminal).resolve()),offset
         self.times=[int(r['time']) for r in rows]
+        self.rows4=list(native_h4 or [])
+        self.times4=[r["time"] for r in self.rows4]
+        # Build only complete five-minute candles. Access below excludes the current M5.
+        groups={}
+        for row in rows:
+            groups.setdefault(int(row['time'])//300*300,[]).append(row)
+        self.rows5=[]
+        for stamp,group in sorted(groups.items()):
+            if [int(r['time']) for r in group] != list(range(stamp,stamp+300,60)):
+                continue
+            self.rows5.append(dict(time=stamp,open=group[0]['open'],high=max(r['high'] for r in group),
+                                   low=min(r['low'] for r in group),close=group[-1]['close']))
+        self.times5=[r['time'] for r in self.rows5]
+        if native_m5 is not None:
+            self.rows5=list(native_m5)
+            self.times5=[int(r['time']) for r in self.rows5]
+            if any(a>=b for a,b in zip(self.times5,self.times5[1:])):
+                raise ValueError('NON_MONOTONIC_NATIVE_M5_HISTORY')
         self.server_time=0.;self.quote=None;self.pos=[];self.deals=[];self.closed=[];self.sent=[]
         self.balance=deposit;self.margin_ratio=margin_ratio;self.next_ticket=1
         self.peak=deposit;self.drawdown=0.;self.max_open=0
@@ -47,7 +66,7 @@ class ReplayBroker:
     def account_info(self):
         floating=sum(p.profit for p in self.pos)
         return NS(login=1,server='REPLAY-DEMO',trade_mode=0,trade_allowed=True,trade_expert=True,
-                  margin_mode=2,equity=self.balance+floating)
+                  margin_mode=2,currency='USD',equity=self.balance+floating)
     def symbol_select(self,*_):return True
     def symbol_info(self,*_):return self.info
     def symbol_info_tick(self,*_):return self.quote
@@ -55,10 +74,15 @@ class ReplayBroker:
         return tuple(p for p in self.pos if ('symbol' not in kw or p.symbol==kw['symbol']) and ('ticket' not in kw or p.ticket==kw['ticket']))
     def orders_get(self,**_):return ()
     def copy_rates_from_pos(self,symbol,tf,start,count):
-        assert tf==self.TIMEFRAME_M1 and start==1
-        cutoff=int(self.server_time)//60*60-60
-        end=bisect_right(self.times,cutoff)
-        return self.rows[max(0,end-count):end]
+        assert tf in (self.TIMEFRAME_M1,self.TIMEFRAME_M5,self.TIMEFRAME_H4) and start==1
+        if tf==self.TIMEFRAME_H4:
+            end=bisect_right(self.times4,self.server_time-14400)
+            return self.rows4[max(0,end-count):end]
+        seconds=60 if tf==self.TIMEFRAME_M1 else 300
+        rows,times=(self.rows,self.times) if tf==self.TIMEFRAME_M1 else (self.rows5,self.times5)
+        cutoff=int(self.server_time)//seconds*seconds-seconds
+        end=bisect_right(times,cutoff)
+        return rows[max(0,end-count):end]
     def order_calc_profit(self,side,symbol,volume,entry,exit):
         return (exit-entry)*(1 if side==0 else -1)*volume*self.info.trade_contract_size
     def order_check(self,request):
@@ -146,9 +170,8 @@ class Replay:
             self.pending=any(s['phase'] in {'waiting','submitted','uncertain'} for s in self.engine.active.values())
         elif second!=self.poll_second:
             self.poll_second=second
-            if closed or self.pending:
-                self.engine.tick()
-                self.pending=any(s['phase'] in {'waiting','submitted','uncertain'} for s in self.engine.active.values())
+            self.strategy.step()
+            self.pending=any(s['phase'] in {'waiting','submitted','uncertain'} for s in self.engine.active.values())
         elif closed:
             self.engine.tick()
             self.pending=any(s['phase'] in {'waiting','submitted','uncertain'} for s in self.engine.active.values())
