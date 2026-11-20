@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.39",
   "state": "online",
-  "updated_at": "2026-11-20T07:44:09+00:00",
+  "updated_at": "2026-11-20T07:45:13+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "range90-chunks-1794990312505",
@@ -74,7 +74,7 @@
   "gold_strategy": {
     "schema": 1,
     "version": "1.0.31",
-    "updated_at": 1795160649.6872978,
+    "updated_at": 1795160712.9158216,
     "code": "RANGE_WAIT_1030_NY",
     "signal_state": "RANGE_WAIT_1030_NY",
     "ready": true,
@@ -100,8 +100,8 @@
     "net_recorded": -50.85,
     "quote_fresh": true,
     "python_trading_allowed": true,
-    "quote_age_seconds": -7199.313,
-    "adjusted_quote_age_seconds": 0.687,
+    "quote_age_seconds": -7199.085,
+    "adjusted_quote_age_seconds": 0.915,
     "broker_clock_offset_seconds": -7200,
     "advancing_tick_samples": 6,
     "spread_price": 0.8,
@@ -118,7 +118,7 @@
   "strategy_service": {
     "enabled": true,
     "code": "WORKER_HEALTHY",
-    "updated_at": 1795160649.811541,
+    "updated_at": 1795160713.5417504,
     "worker_locked": true
   },
   "updater": {
@@ -148,22 +148,41 @@
     "code": "LAB_STATUS",
     "version": "1.0.39",
     "attached": true,
-    "installed_version": "1.0.38",
-    "busy": false,
+    "installed_version": "1.0.39",
+    "busy": true,
     "update_pending": false,
     "configuration": {
       "required": [],
       "invalid": []
     },
     "progress": {
-      "phase": "VERIFICANDO_TICKS_HISTORICOS",
-      "updated_at": "2026-11-20T07:34:11.264491+00:00"
+      "phase": "OPTIMIZANDO",
+      "updated_at": "2026-11-20T07:45:13.163268+00:00",
+      "last_day": "2026-03-27",
+      "expected_minutes": 325,
+      "found_tick_minutes": 325,
+      "found_bar_minutes": 1,
+      "processed_days": 25,
+      "total_days": 126,
+      "candidates": 32,
+      "incomplete_days": 1,
+      "best_training": {
+        "trades": 24,
+        "wins": 12,
+        "winrate": 0.5,
+        "wilson95_lower": 0.3142713162776308,
+        "net": -156.59900000002418,
+        "profit_factor": 0.7209121206180222,
+        "no_losses": false,
+        "max_drawdown_pct": 2.8396124961959033,
+        "open_trades": 0
+      }
     },
     "worker": {
-      "state": "FAILED",
+      "state": "RUNNING",
       "mode": "autopilot",
-      "code": "LAB_TICK_QUERY_CLOCK_NOT_VERIFIED",
-      "updated_at": "2026-11-20T07:34:11.284047+00:00"
+      "code": "LAB_JOB_RUNNING",
+      "updated_at": "2026-11-20T07:45:12.149526+00:00"
     }
   }
 }
