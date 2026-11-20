@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "id": "lab-autopilot-20261120065632506",
+  "task_sha256": "328c011f77943d6a887ba481a75bd4e441cb3dc809046ad930ed6be3a3ea1f5a",
+  "status": "succeeded",
+  "started_at": "2026-11-20T06:57:08+00:00",
+  "code": "LAB_JOB_STARTED",
+  "mode": "autopilot",
+  "finished_at": "2026-11-20T06:57:09+00:00"
+}
