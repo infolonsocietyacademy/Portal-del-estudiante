@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.32",
   "state": "online",
-  "updated_at": "2026-11-20T06:17:08+00:00",
+  "updated_at": "2026-11-20T06:18:17+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "range90-chunks-1794990312505",
@@ -74,7 +74,7 @@
   "gold_strategy": {
     "schema": 1,
     "version": "1.0.31",
-    "updated_at": 1795155428.3795607,
+    "updated_at": 1795155497.2663589,
     "code": "RANGE_WAIT_1030_NY",
     "signal_state": "RANGE_WAIT_1030_NY",
     "ready": true,
@@ -100,8 +100,8 @@
     "net_recorded": -50.85,
     "quote_fresh": true,
     "python_trading_allowed": true,
-    "quote_age_seconds": -7199.62,
-    "adjusted_quote_age_seconds": 0.38,
+    "quote_age_seconds": -7199.734,
+    "adjusted_quote_age_seconds": 0.266,
     "broker_clock_offset_seconds": -7200,
     "advancing_tick_samples": 6,
     "spread_price": 0.8,
@@ -118,7 +118,7 @@
   "strategy_service": {
     "enabled": true,
     "code": "WORKER_HEALTHY",
-    "updated_at": 1795155428.629657,
+    "updated_at": 1795155497.3852844,
     "worker_locked": true
   },
   "updater": {
@@ -142,8 +142,17 @@
     "numeric_error_codes": []
   },
   "lab": {
-    "code": "LAB_NOT_ATTACHED",
+    "code": "LAB_STATUS",
     "version": "1.0.32",
-    "attached": false
+    "attached": true,
+    "installed_version": "1.0.32",
+    "busy": false,
+    "update_pending": false,
+    "worker": {
+      "state": "FAILED",
+      "mode": "doctor",
+      "code": "LAB_CONFIG_REQUIRED",
+      "updated_at": "2026-11-20T06:17:14.457277+00:00"
+    }
   }
 }
