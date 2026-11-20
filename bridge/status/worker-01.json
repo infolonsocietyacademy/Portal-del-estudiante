@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.39",
   "state": "online",
-  "updated_at": "2026-11-20T23:01:00+00:00",
+  "updated_at": "2026-11-20T23:02:02+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "range90-chunks-1794990312505",
@@ -74,7 +74,7 @@
   "gold_strategy": {
     "schema": 1,
     "version": "1.0.39",
-    "updated_at": 1795215660.3574247,
+    "updated_at": 1795215722.259236,
     "code": "QUOTE_STALE",
     "signal_state": "RANGE_WAIT_FRESH_QUOTE",
     "ready": false,
@@ -100,8 +100,8 @@
     "net_recorded": -50.85,
     "quote_fresh": false,
     "python_trading_allowed": true,
-    "quote_age_seconds": -3478.643,
-    "adjusted_quote_age_seconds": -3478.643,
+    "quote_age_seconds": -3416.741,
+    "adjusted_quote_age_seconds": -3416.741,
     "broker_clock_offset_seconds": null,
     "advancing_tick_samples": 1,
     "spread_price": 0.8,
@@ -118,7 +118,7 @@
   "strategy_service": {
     "enabled": true,
     "code": "WORKER_HEALTHY",
-    "updated_at": 1795215660.5876842,
+    "updated_at": 1795215722.5792131,
     "worker_locked": true
   },
   "updater": {
@@ -129,19 +129,14 @@
   },
   "diagnostics": {
     "scope": "recent_logs",
-    "log_files_scanned": 2,
+    "log_files_scanned": 1,
     "log_read_errors": 0,
     "log_groups": [
       "terminal"
     ],
     "recent_crash_files": 0,
     "crash_exceptions": [],
-    "observed_log_signals": [
-      "AUTHORIZED_DEMO",
-      "AUTHORIZED_SERVER",
-      "DEMO_TRADING_ENABLED",
-      "TERMINAL_SYNCHRONIZED"
-    ],
+    "observed_log_signals": [],
     "numeric_error_codes": []
   },
   "lab": {
