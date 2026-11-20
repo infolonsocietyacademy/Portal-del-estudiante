@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.39",
   "state": "online",
-  "updated_at": "2026-11-20T07:49:21+00:00",
+  "updated_at": "2026-11-20T07:50:22+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "range90-chunks-1794990312505",
@@ -74,7 +74,7 @@
   "gold_strategy": {
     "schema": 1,
     "version": "1.0.31",
-    "updated_at": 1795160960.920864,
+    "updated_at": 1795161022.1980941,
     "code": "RANGE_WAIT_1030_NY",
     "signal_state": "RANGE_WAIT_1030_NY",
     "ready": true,
@@ -100,8 +100,8 @@
     "net_recorded": -50.85,
     "quote_fresh": true,
     "python_trading_allowed": true,
-    "quote_age_seconds": -7199.079,
-    "adjusted_quote_age_seconds": 0.921,
+    "quote_age_seconds": -7199.802,
+    "adjusted_quote_age_seconds": 0.198,
     "broker_clock_offset_seconds": -7200,
     "advancing_tick_samples": 6,
     "spread_price": 0.8,
@@ -118,7 +118,7 @@
   "strategy_service": {
     "enabled": true,
     "code": "WORKER_HEALTHY",
-    "updated_at": 1795160961.1358557,
+    "updated_at": 1795161022.8657033,
     "worker_locked": true
   },
   "updater": {
@@ -149,40 +149,22 @@
     "version": "1.0.39",
     "attached": true,
     "installed_version": "1.0.39",
-    "busy": true,
+    "busy": false,
     "update_pending": false,
     "configuration": {
       "required": [],
       "invalid": []
     },
     "progress": {
-      "phase": "OPTIMIZANDO",
-      "updated_at": "2026-11-20T07:49:21.052638+00:00",
-      "last_day": "2026-08-10",
-      "expected_minutes": 325,
-      "found_tick_minutes": 325,
-      "found_bar_minutes": 1,
-      "processed_days": 117,
-      "total_days": 126,
-      "candidates": 32,
-      "incomplete_days": 1,
-      "best_training": {
-        "trades": 115,
-        "wins": 65,
-        "winrate": 0.5652173913043478,
-        "wilson95_lower": 0.4739559762173702,
-        "net": -174.17600000011544,
-        "profit_factor": 0.922465940630591,
-        "no_losses": false,
-        "max_drawdown_pct": 5.359878446992424,
-        "open_trades": 0
-      }
+      "phase": "RECHAZADA_ENTRENAMIENTO",
+      "updated_at": "2026-11-20T07:49:39.473961+00:00",
+      "costs_verified": false
     },
     "worker": {
-      "state": "RUNNING",
+      "state": "COMPLETE",
       "mode": "autopilot",
-      "code": "LAB_JOB_RUNNING",
-      "updated_at": "2026-11-20T07:49:12.855702+00:00"
+      "code": "LAB_AUTOPILOT_FINISHED",
+      "updated_at": "2026-11-20T07:49:39.476069+00:00"
     }
   }
 }
