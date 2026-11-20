@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.35",
   "state": "online",
-  "updated_at": "2026-11-20T07:09:04+00:00",
+  "updated_at": "2026-11-20T07:10:07+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "range90-chunks-1794990312505",
@@ -74,7 +74,7 @@
   "gold_strategy": {
     "schema": 1,
     "version": "1.0.31",
-    "updated_at": 1795158543.656628,
+    "updated_at": 1795158607.703854,
     "code": "RANGE_WAIT_1030_NY",
     "signal_state": "RANGE_WAIT_1030_NY",
     "ready": true,
@@ -100,8 +100,8 @@
     "net_recorded": -50.85,
     "quote_fresh": true,
     "python_trading_allowed": true,
-    "quote_age_seconds": -7199.343,
-    "adjusted_quote_age_seconds": 0.657,
+    "quote_age_seconds": -7199.296,
+    "adjusted_quote_age_seconds": 0.704,
     "broker_clock_offset_seconds": -7200,
     "advancing_tick_samples": 6,
     "spread_price": 0.8,
@@ -118,7 +118,7 @@
   "strategy_service": {
     "enabled": true,
     "code": "WORKER_HEALTHY",
-    "updated_at": 1795158544.4423523,
+    "updated_at": 1795158607.9092247,
     "worker_locked": true
   },
   "updater": {
@@ -145,27 +145,23 @@
     "code": "LAB_STATUS",
     "version": "1.0.35",
     "attached": true,
-    "installed_version": "1.0.34",
+    "installed_version": "1.0.35",
     "busy": false,
     "update_pending": false,
     "configuration": {
-      "required": [
-        "commission_roundtrip_per_lot",
-        "slippage_points_per_side",
-        "max_spread_points",
-        "time_confirmed"
-      ],
+      "required": [],
       "invalid": []
     },
     "progress": {
-      "phase": "VERIFICANDO_MT5_Y_HORARIO",
-      "updated_at": "2026-11-20T06:57:11.492296+00:00"
+      "phase": "HISTORIAL_O_EJECUCION_INCOMPLETA",
+      "updated_at": "2026-11-20T07:09:14.204326+00:00",
+      "candidates": 32
     },
     "worker": {
       "state": "FAILED",
       "mode": "autopilot",
-      "code": "LAB_JOB_FAILED_SEE_LOCAL_LOG",
-      "updated_at": "2026-11-20T06:57:13.539485+00:00"
+      "code": "LAB_AUTO_ValueError_L162",
+      "updated_at": "2026-11-20T07:09:14.217139+00:00"
     }
   }
 }
