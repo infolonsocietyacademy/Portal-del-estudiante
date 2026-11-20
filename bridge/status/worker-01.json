@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.39",
   "state": "online",
-  "updated_at": "2026-11-20T07:42:06+00:00",
+  "updated_at": "2026-11-20T07:43:07+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "range90-chunks-1794990312505",
@@ -74,7 +74,7 @@
   "gold_strategy": {
     "schema": 1,
     "version": "1.0.31",
-    "updated_at": 1795160525.1142733,
+    "updated_at": 1795160587.931147,
     "code": "RANGE_WAIT_1030_NY",
     "signal_state": "RANGE_WAIT_1030_NY",
     "ready": true,
@@ -100,8 +100,8 @@
     "net_recorded": -50.85,
     "quote_fresh": true,
     "python_trading_allowed": true,
-    "quote_age_seconds": -7198.886,
-    "adjusted_quote_age_seconds": 1.114,
+    "quote_age_seconds": -7199.069,
+    "adjusted_quote_age_seconds": 0.931,
     "broker_clock_offset_seconds": -7200,
     "advancing_tick_samples": 6,
     "spread_price": 0.8,
@@ -118,11 +118,11 @@
   "strategy_service": {
     "enabled": true,
     "code": "WORKER_HEALTHY",
-    "updated_at": 1795160526.0419471,
+    "updated_at": 1795160587.9541886,
     "worker_locked": true
   },
   "updater": {
-    "state": "restarting",
+    "state": "running",
     "version": "1.0.39",
     "failed_sequence": 37,
     "failure_code": "ENGINE_STARTUP_FAILED"
