@@ -249,6 +249,27 @@
       "id": "lab-discover-20261120061530886",
       "action": "lab_discover",
       "expires_at": "2026-11-20T06:45:30.886Z"
+    },
+    {
+      "id": "lab-attach-20261120061658746",
+      "action": "lab_attach",
+      "expires_at": "2026-11-20T06:46:58.746Z",
+      "candidate_id": "584800bcc4ccd8cf"
+    },
+    {
+      "id": "lab-update-20261120061658746",
+      "action": "lab_update",
+      "expires_at": "2026-11-20T06:46:58.746Z"
+    },
+    {
+      "id": "lab-doctor-20261120061658746",
+      "action": "lab_doctor",
+      "expires_at": "2026-11-20T06:46:58.746Z"
+    },
+    {
+      "id": "lab-status-20261120061658746",
+      "action": "lab_status",
+      "expires_at": "2026-11-20T06:46:58.746Z"
     }
   ]
 }
