@@ -244,6 +244,11 @@
       "id": "lab32-ping-20261120061038077",
       "action": "ping",
       "expires_at": "2026-11-21T06:10:38.077Z"
+    },
+    {
+      "id": "lab-discover-20261120061530886",
+      "action": "lab_discover",
+      "expires_at": "2026-11-20T06:45:30.886Z"
     }
   ]
 }
