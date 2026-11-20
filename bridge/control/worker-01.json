@@ -275,6 +275,11 @@
       "id": "lab-autopilot-20261120065632506",
       "action": "lab_autopilot",
       "expires_at": "2026-11-20T07:56:32.506Z"
+    },
+    {
+      "id": "lab-auto35-20261120070853308",
+      "action": "lab_autopilot",
+      "expires_at": "2026-11-20T08:08:53.308Z"
     }
   ]
 }
