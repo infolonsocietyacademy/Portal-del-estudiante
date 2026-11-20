@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.39",
   "state": "online",
-  "updated_at": "2026-11-20T07:46:15+00:00",
+  "updated_at": "2026-11-20T07:47:17+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "range90-chunks-1794990312505",
@@ -74,7 +74,7 @@
   "gold_strategy": {
     "schema": 1,
     "version": "1.0.31",
-    "updated_at": 1795160774.971104,
+    "updated_at": 1795160837.0919366,
     "code": "RANGE_WAIT_1030_NY",
     "signal_state": "RANGE_WAIT_1030_NY",
     "ready": true,
@@ -100,8 +100,8 @@
     "net_recorded": -50.85,
     "quote_fresh": true,
     "python_trading_allowed": true,
-    "quote_age_seconds": -7199.029,
-    "adjusted_quote_age_seconds": 0.971,
+    "quote_age_seconds": -7199.908,
+    "adjusted_quote_age_seconds": 0.092,
     "broker_clock_offset_seconds": -7200,
     "advancing_tick_samples": 6,
     "spread_price": 0.8,
@@ -118,7 +118,7 @@
   "strategy_service": {
     "enabled": true,
     "code": "WORKER_HEALTHY",
-    "updated_at": 1795160775.389942,
+    "updated_at": 1795160837.302906,
     "worker_locked": true
   },
   "updater": {
@@ -156,25 +156,25 @@
       "invalid": []
     },
     "progress": {
-      "phase": "OPTIMIZANDO",
-      "updated_at": "2026-11-20T07:46:15.066170+00:00",
-      "last_day": "2026-05-06",
+      "phase": "DESCARGANDO_CONTEXTO_DE_TICKS_REALES",
+      "updated_at": "2026-11-20T07:47:16.127634+00:00",
+      "last_day": "2026-06-10",
       "expected_minutes": 325,
       "found_tick_minutes": 325,
       "found_bar_minutes": 1,
-      "processed_days": 52,
+      "processed_days": 75,
       "total_days": 126,
       "candidates": 32,
       "incomplete_days": 1,
       "best_training": {
-        "trades": 50,
-        "wins": 26,
-        "winrate": 0.52,
-        "wilson95_lower": 0.38511512258808434,
-        "net": -274.47500000005857,
-        "profit_factor": 0.7497321571040573,
+        "trades": 73,
+        "wins": 43,
+        "winrate": 0.589041095890411,
+        "wilson95_lower": 0.4744901519219834,
+        "net": -37.4090000000778,
+        "profit_factor": 0.9728236943618542,
         "no_losses": false,
-        "max_drawdown_pct": 3.5922154552239096,
+        "max_drawdown_pct": 3.787820298573173,
         "open_trades": 0
       }
     },
@@ -182,7 +182,7 @@
       "state": "RUNNING",
       "mode": "autopilot",
       "code": "LAB_JOB_RUNNING",
-      "updated_at": "2026-11-20T07:46:12.295308+00:00"
+      "updated_at": "2026-11-20T07:47:12.448767+00:00"
     }
   }
 }
