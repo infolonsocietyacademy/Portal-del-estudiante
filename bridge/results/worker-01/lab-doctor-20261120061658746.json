@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "id": "lab-doctor-20261120061658746",
+  "task_sha256": "8f8739df58bcf152d1bdf33249c2018ded6a4218995d974ed0412043086df5fb",
+  "status": "succeeded",
+  "started_at": "2026-11-20T06:17:13+00:00",
+  "code": "LAB_JOB_STARTED",
+  "mode": "doctor",
+  "finished_at": "2026-11-20T06:17:13+00:00"
+}
