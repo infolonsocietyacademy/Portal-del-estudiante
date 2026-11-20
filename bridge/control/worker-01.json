@@ -270,6 +270,11 @@
       "id": "lab-status-20261120061658746",
       "action": "lab_status",
       "expires_at": "2026-11-20T06:46:58.746Z"
+    },
+    {
+      "id": "lab-autopilot-20261120065632506",
+      "action": "lab_autopilot",
+      "expires_at": "2026-11-20T07:56:32.506Z"
     }
   ]
 }
