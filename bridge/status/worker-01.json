@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.38",
   "state": "online",
-  "updated_at": "2026-11-20T07:34:06+00:00",
+  "updated_at": "2026-11-20T07:35:10+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "range90-chunks-1794990312505",
@@ -74,7 +74,7 @@
   "gold_strategy": {
     "schema": 1,
     "version": "1.0.31",
-    "updated_at": 1795160046.0628774,
+    "updated_at": 1795160109.8763237,
     "code": "RANGE_WAIT_1030_NY",
     "signal_state": "RANGE_WAIT_1030_NY",
     "ready": true,
@@ -100,8 +100,8 @@
     "net_recorded": -50.85,
     "quote_fresh": true,
     "python_trading_allowed": true,
-    "quote_age_seconds": -7199.937,
-    "adjusted_quote_age_seconds": 0.063,
+    "quote_age_seconds": -7199.124,
+    "adjusted_quote_age_seconds": 0.876,
     "broker_clock_offset_seconds": -7200,
     "advancing_tick_samples": 6,
     "spread_price": 0.8,
@@ -118,7 +118,7 @@
   "strategy_service": {
     "enabled": true,
     "code": "WORKER_HEALTHY",
-    "updated_at": 1795160046.7869453,
+    "updated_at": 1795160110.222556,
     "worker_locked": true
   },
   "updater": {
@@ -148,7 +148,7 @@
     "code": "LAB_STATUS",
     "version": "1.0.38",
     "attached": true,
-    "installed_version": "1.0.36",
+    "installed_version": "1.0.38",
     "busy": false,
     "update_pending": false,
     "configuration": {
@@ -156,15 +156,14 @@
       "invalid": []
     },
     "progress": {
-      "phase": "HISTORIAL_O_EJECUCION_INCOMPLETA",
-      "updated_at": "2026-11-20T07:19:55.128068+00:00",
-      "candidates": 32
+      "phase": "VERIFICANDO_TICKS_HISTORICOS",
+      "updated_at": "2026-11-20T07:34:11.264491+00:00"
     },
     "worker": {
       "state": "FAILED",
       "mode": "autopilot",
-      "code": "LAB_TICK_MINUTES_INCOMPLETE",
-      "updated_at": "2026-11-20T07:19:55.141195+00:00"
+      "code": "LAB_TICK_QUERY_CLOCK_NOT_VERIFIED",
+      "updated_at": "2026-11-20T07:34:11.284047+00:00"
     }
   }
 }
