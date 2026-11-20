@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "id": "lab-attach-20261120061658746",
+  "task_sha256": "c174224dd39958f7b510f4f65dc5168c9cb13a3090dc85a3740f94daf1cefb83",
+  "status": "succeeded",
+  "started_at": "2026-11-20T06:17:10+00:00",
+  "code": "LAB_ATTACHED",
+  "finished_at": "2026-11-20T06:17:10+00:00"
+}
