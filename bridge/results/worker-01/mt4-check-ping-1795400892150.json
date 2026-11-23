@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "id": "mt4-check-ping-1795400892150",
+  "task_sha256": "f7628db39f961ad7af25f6717a576bfd15c591a111b4766dd98313143c4f5911",
+  "status": "succeeded",
+  "started_at": "2026-11-23T02:29:03+00:00",
+  "code": "PONG",
+  "version": "1.0.39",
+  "finished_at": "2026-11-23T02:29:03+00:00"
+}
