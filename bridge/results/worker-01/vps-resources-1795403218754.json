@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "id": "vps-resources-1795403218754",
+  "task_sha256": "a44565b607526d8d9c8bd4be9d6403b475fc3e172efa8051c735d6c1b5890f0a",
+  "status": "succeeded",
+  "started_at": "2026-11-23T03:08:07+00:00",
+  "code": "LESS_THAN_3GB_FREE_RAM",
+  "mt5_prepared": true,
+  "finished_at": "2026-11-23T03:08:07+00:00"
+}
