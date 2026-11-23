@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "id": "mt4-v40-discover-1795401936487",
+  "task_sha256": "10e50c3dc76054fed1bee631e41f5c6648ae03dddaf32d7d232bb350b0416e81",
+  "status": "succeeded",
+  "started_at": "2026-11-23T02:46:22+00:00",
+  "code": "MT4_DISCOVERED",
+  "candidates": [
+    {
+      "id": "d42a5a0f512a9885",
+      "label": "MetaTrader 4",
+      "running": true,
+      "active_folder_verified": true
+    }
+  ],
+  "process_query_ok": true,
+  "finished_at": "2026-11-23T02:46:23+00:00"
+}
