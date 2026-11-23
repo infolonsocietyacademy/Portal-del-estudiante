@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.40",
   "state": "online",
-  "updated_at": "2026-11-23T02:46:18+00:00",
+  "updated_at": "2026-11-23T02:47:24+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "range90-chunks-1794990312505",
@@ -74,7 +74,7 @@
   "gold_strategy": {
     "schema": 1,
     "version": "1.0.39",
-    "updated_at": 1795401977.9402797,
+    "updated_at": 1795402044.739014,
     "code": "RANGE_WAIT_M1_HISTORY",
     "signal_state": "RANGE_WAIT_M1_HISTORY",
     "ready": true,
@@ -100,8 +100,8 @@
     "net_recorded": -50.85,
     "quote_fresh": true,
     "python_trading_allowed": true,
-    "quote_age_seconds": -7199.06,
-    "adjusted_quote_age_seconds": 0.94,
+    "quote_age_seconds": -7199.261,
+    "adjusted_quote_age_seconds": 0.739,
     "broker_clock_offset_seconds": -7200,
     "advancing_tick_samples": 6,
     "spread_price": 0.8,
@@ -118,7 +118,7 @@
   "strategy_service": {
     "enabled": true,
     "code": "WORKER_HEALTHY",
-    "updated_at": 1795401978.8983252,
+    "updated_at": 1795402044.843755,
     "worker_locked": true
   },
   "updater": {
@@ -168,6 +168,16 @@
     }
   },
   "mt4": {
-    "code": "MT4_NOT_CHECKED"
+    "updated_at": 1795401983.1761851,
+    "code": "MT4_DISCOVERED",
+    "candidates": [
+      {
+        "id": "d42a5a0f512a9885",
+        "label": "MetaTrader 4",
+        "running": true,
+        "active_folder_verified": true
+      }
+    ],
+    "process_query_ok": true
   }
 }
