@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "id": "mt4-v40-status-1795402009155",
+  "task_sha256": "2db0b9186aaa3d527eaf8cb120e780dd5cf5e950062b127b5034e99585a07b9f",
+  "status": "succeeded",
+  "started_at": "2026-11-23T02:47:28+00:00",
+  "code": "MT4_STATUS",
+  "attached": true,
+  "version": "1.0.40",
+  "candidate_id": "d42a5a0f512a9885",
+  "label": "MetaTrader 4",
+  "experts": [
+    {
+      "filename": "MACD Sample.ex4",
+      "size": 10676,
+      "sha256": "5bef310f74c2bc38c51375e93c44426ea39886607569c53b3e4b4ee158ba39c6"
+    },
+    {
+      "filename": "Moving Average.ex4",
+      "size": 14966,
+      "sha256": "fa0ffb7351fe60245672e9c02f406c7dd8af75cab9455b20179d989b772b25b0"
+    },
+    {
+      "filename": "Supertrend_EA_Max2Trades.ex4",
+      "size": 16010,
+      "sha256": "e177d954a78726c446fe8a08c3d12857a6a92ec05fcbbf42d7cd572dcd08141c"
+    }
+  ],
+  "presets": [
+    {
+      "filename": "mrshawkdj30 .set",
+      "size": 242,
+      "sha256": "6fe51b1dcf91479ebf91a186c89ffb9f1e115cb2677ec6ee5d04838383891e9c"
+    }
+  ],
+  "chart_settings_verified": false,
+  "finished_at": "2026-11-23T02:47:28+00:00"
+}
