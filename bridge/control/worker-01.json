@@ -310,6 +310,17 @@
       "id": "mt4-v40-discover-1795401936487",
       "action": "mt4_discover",
       "expires_at": "2026-11-23T03:15:36.487Z"
+    },
+    {
+      "id": "mt4-v40-attach-1795402009155",
+      "action": "mt4_attach",
+      "candidate_id": "d42a5a0f512a9885",
+      "expires_at": "2026-11-23T03:16:49.155Z"
+    },
+    {
+      "id": "mt4-v40-status-1795402009155",
+      "action": "mt4_status",
+      "expires_at": "2026-11-23T03:16:49.155Z"
     }
   ]
 }
