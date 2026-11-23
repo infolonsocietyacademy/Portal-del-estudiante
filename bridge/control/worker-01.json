@@ -295,6 +295,11 @@
       "id": "lab-auto39-20261120074322136",
       "action": "lab_autopilot",
       "expires_at": "2026-11-20T08:43:22.136Z"
+    },
+    {
+      "id": "mt4-check-ping-1795400892150",
+      "action": "ping",
+      "expires_at": "2026-11-23T02:38:12.150Z"
     }
   ]
 }
