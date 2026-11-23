@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "id": "mt4-v40-ping-1795401936487",
+  "task_sha256": "543b26dc450db8c04c545803c08da4177b3305495ec6ce4c3be1de48cebfe06f",
+  "status": "succeeded",
+  "started_at": "2026-11-23T02:46:20+00:00",
+  "code": "PONG",
+  "version": "1.0.40",
+  "finished_at": "2026-11-23T02:46:20+00:00"
+}
