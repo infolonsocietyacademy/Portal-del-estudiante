@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "1.0.39",
   "state": "online",
-  "updated_at": "2026-11-23T00:50:01+00:00",
+  "updated_at": "2026-11-23T00:51:03+00:00",
   "backtest": {
     "schema": 1,
     "job_id": "range90-chunks-1794990312505",
@@ -74,9 +74,9 @@
   "gold_strategy": {
     "schema": 1,
     "version": "1.0.39",
-    "updated_at": 1795395000.1949573,
-    "code": "RANGE_INCOMPLETE_15_M1_BARS",
-    "signal_state": "RANGE_INCOMPLETE_15_M1_BARS",
+    "updated_at": 1795395062.2278512,
+    "code": "RANGE_WAIT_M1_HISTORY",
+    "signal_state": "RANGE_WAIT_M1_HISTORY",
     "ready": true,
     "account_type_verified": "demo",
     "symbol": "USTECH",
@@ -100,8 +100,8 @@
     "net_recorded": -50.85,
     "quote_fresh": true,
     "python_trading_allowed": true,
-    "quote_age_seconds": -7199.805,
-    "adjusted_quote_age_seconds": 0.195,
+    "quote_age_seconds": -7199.772,
+    "adjusted_quote_age_seconds": 0.228,
     "broker_clock_offset_seconds": -7200,
     "advancing_tick_samples": 6,
     "spread_price": 0.8,
@@ -118,7 +118,7 @@
   "strategy_service": {
     "enabled": true,
     "code": "WORKER_HEALTHY",
-    "updated_at": 1795395001.1966467,
+    "updated_at": 1795395063.1410606,
     "worker_locked": true
   },
   "updater": {
