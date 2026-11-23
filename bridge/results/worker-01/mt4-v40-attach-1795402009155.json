@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "id": "mt4-v40-attach-1795402009155",
+  "task_sha256": "7bde4cce8dd6620e12a7b48369cc6e66f9238d1d1015141ae7ba7b06e4306900",
+  "status": "succeeded",
+  "started_at": "2026-11-23T02:47:26+00:00",
+  "code": "MT4_ATTACHED",
+  "candidate_id": "d42a5a0f512a9885",
+  "label": "MetaTrader 4",
+  "finished_at": "2026-11-23T02:47:26+00:00"
+}
