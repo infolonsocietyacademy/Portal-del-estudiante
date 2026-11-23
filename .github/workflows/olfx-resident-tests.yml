@@ -1,0 +1,46 @@
+name: OLFX Resident offline tests
+on:
+  push:
+    branches: [olfx-bridge-resident-v2]
+    paths: ['bridge/resident/**', '.github/workflows/olfx-resident-tests.yml']
+  pull_request:
+    branches: [olfx-mt5-bridge]
+    paths: ['bridge/resident/**', '.github/workflows/olfx-resident-tests.yml']
+permissions:
+  contents: read
+jobs:
+  offline-tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 8
+    steps:
+      - name: Preserve exact package bytes
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Offline broker simulations
+        run: python -m unittest discover -s bridge/resident/tests -v
+      - name: Compile all Python
+        run: python -m compileall -q bridge/resident
+      - name: Parse Windows installer
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $syntaxErrors = $null
+          $syntaxTokens = $null
+          [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $PWD 'bridge/resident/INSTALAR.ps1'), [ref]$syntaxTokens, [ref]$syntaxErrors) | Out-Null
+          if ($syntaxErrors.Count -gt 0) { $syntaxErrors | Write-Error; exit 1 }
+      - name: Verify package manifest
+        shell: python
+        run: |
+          import hashlib, json
+          from pathlib import Path
+          root = Path("bridge/resident")
+          data = json.loads((root/"manifest.json").read_text())
+          for name, expected in data["files"].items():
+              assert hashlib.sha256((root/name).read_bytes()).hexdigest() == expected, name
