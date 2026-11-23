@@ -300,6 +300,16 @@
       "id": "mt4-check-ping-1795400892150",
       "action": "ping",
       "expires_at": "2026-11-23T02:38:12.150Z"
+    },
+    {
+      "id": "mt4-v40-ping-1795401936487",
+      "action": "ping",
+      "expires_at": "2026-11-23T03:15:36.487Z"
+    },
+    {
+      "id": "mt4-v40-discover-1795401936487",
+      "action": "mt4_discover",
+      "expires_at": "2026-11-23T03:15:36.487Z"
     }
   ]
 }
