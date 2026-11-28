@@ -78,6 +78,7 @@ body{overflow-y:visible!important;overscroll-behavior-y:auto!important;-webkit-o
 <link rel="stylesheet" href="./olon-own-connect.css?v=20261113-auth-submit-fix-1">
 <link rel="stylesheet" href="./student-sidebar.css?v=20261110-student-rail-1">
 <link rel="stylesheet" href="./student-dashboard.css?v=20261113-unified-summary-1">
+<link rel="stylesheet" href="./proptraderz.css?v=20261128-1">
 <link rel="stylesheet" href="./copy-trade.css?v=20261119-copy-pilot-1">
 <link rel="stylesheet" href="./maintenance.css?v=20261114-boot-screen-restored-4">
 <link rel="stylesheet" href="./admin-mt5-accounts.css?v=20261119-mt5-delete-any-2">
@@ -274,6 +275,7 @@ window.addEventListener("load", () => {
       <button type="button" class="portalNavLink studentNav" data-page="academyChecklistPage" onclick="showPage('academyChecklistPage',this)" aria-label="Checklist"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="m7 9 1 1 2-2m2 2h4m-9 6 1 1 2-2m2 2h4"/></svg></span><span class="portalNavText">Checklist</span></button>
       <button type="button" class="portalNavLink terminalPrimaryLink studentNav" data-page="comparacion" onclick="showPage('comparacion',this)" aria-label="Resultados"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V11M10 20V5M16 20v-8M22 20V3"/><path d="M2 20h20"/></svg></span><span class="portalNavText">Resultados</span></button>
       <button type="button" class="portalNavLink studentNav copyTradeNav" data-page="copyTradePage" onclick="showPage('copyTradePage',this)" aria-label="Copy Trade"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></span><span class="portalNavText">Copy Trade<small class="copyTradeNavStatus">Simulación / demo</small></span></button>
+      <button type="button" class="portalNavLink" data-page="propTraderzPage" onclick="showPage('propTraderzPage',this)" aria-label="PropTraderz · GEX y Expected Move"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18M7 14l4-5 4 3 5-7"/></svg></span><span class="portalNavText">PropTraderz · GEX</span></button>
       <div class="portalNavGroup studentNav portalNavGroupSecondary">ACADEMIA</div>
       <button type="button" class="portalNavLink studentNav" data-page="newsProPage" onclick="showPage('newsProPage',this)" aria-label="Noticias"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10M7 11h4M13 11h4M7 15h10M7 18h7"/></svg></span><span class="portalNavText">Noticias</span></button>
       <button type="button" class="portalNavLink" data-page="notificationsPage" onclick="showPage('notificationsPage',this)" aria-label="Notificaciones"><span class="portalNavIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></span><span class="portalNavText">Notificaciones</span></button>
@@ -1014,6 +1016,25 @@ window.addEventListener("load", () => {
       </div>
     </section>
 
+    <section id="propTraderzPage" class="page hidden" aria-labelledby="ptzTitle">
+      <div class="ptzHeading">
+        <div><h2 id="ptzTitle">PropTraderz</h2><p>Consulta GEX y Expected Move, selecciona tu mercado y copia los niveles para TradingView desde la herramienta.</p></div>
+        <span class="ptzProvider">Fuente: PropTraderz</span>
+      </div>
+      <div class="ptzToolbar">
+        <div class="ptzControls" role="group" aria-label="Herramienta de PropTraderz">
+          <button type="button" class="btn secondary" data-ptz-tool="analyzer" aria-pressed="true" aria-controls="ptzFrameHost">Market Analyzer</button>
+          <button type="button" class="btn secondary" data-ptz-tool="terminal" aria-pressed="false" aria-controls="ptzFrameHost">GEX Terminal</button>
+        </div>
+        <div class="ptzControls">
+          <button type="button" class="btn secondary" id="ptzReload">Recargar</button>
+          <button type="button" class="btn secondary" id="ptzFullscreen" aria-pressed="false">Pantalla completa</button>
+        </div>
+      </div>
+      <p id="ptzStatus" role="status" aria-live="polite">Selecciona una herramienta para consultar los datos de PropTraderz.</p>
+      <div id="ptzFrameHost" class="ptzFrameHost"></div>
+    </section>
+
     <section id="newsProPage" class="page hidden" aria-labelledby="marketNewsTitle">
       <header class="marketNewsHero">
         <div class="marketNewsIntro">
@@ -1630,6 +1651,7 @@ window.addEventListener("load", () => {
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
 <script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script>
+<script src="./proptraderz.js?v=20261128-1" defer></script>
 <script src="./copy-trade.js?v=20261119-copy-pilot-1" defer></script>
 <script src="./olon-own-connect.js?v=20261119-mt5-delete-any-2" defer></script>
 <script src="./mt5-live.js?v=20261114-live-calendar-1" defer></script>
