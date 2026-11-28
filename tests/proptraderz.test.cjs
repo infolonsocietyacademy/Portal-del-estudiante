@@ -69,3 +69,40 @@ test('a changed or unavailable provider shows a retry message without loading th
   try {s.enter();await tick();assert.match(s.w.document.getElementById('ptzStatus').textContent,/Recargar/);assert.equal(s.view.childNodes.length,0);assert.equal(s.page.querySelector('iframe'),null);}
   finally {s.dom.window.close();}
 });
+
+test('Copy for TradingView exports numeric CSV while Copy Levels preserves the original block', async () => {
+  const block = '── NQ KEY LEVELS | 2026-11-28 ──\nGEX Flip: 26,641 → Price BELOW flip = MM amplifying moves\nGEX Flip 0DTE: 26,122\nCall Resistance: 26,132, 26,232\nPut Support: 26,032, 25,531\nExpected Move Daily (±625)\nHigh: 26,659 ← upper bound for today\nLow: 25,409\nExpected Move Weekly (±1,396)\nHigh: 27,430\nLow: 24,638\nSource: PropTraderz.com | IBKR';
+  const html = fixture.replace('data-copy="GEX Flip: 100"', 'data-copy="' + block + '"');
+  const s = setup(async()=>({ok:true,json:async()=>({content:{rendered:html}})}));
+  let copied='';
+  try {
+    Object.defineProperty(s.w.navigator,'clipboard',{value:{writeText:async text=>{copied=text;}}});
+    s.enter(); await tick();
+    assert.equal(s.view.querySelectorAll('.ptz-tv-btn').length,1);
+    s.view.querySelector('.ptz-tv-btn').click(); await tick();
+    assert.equal(copied, [
+      'NQ,yellow,dashed,-2,GEX Flip,26641;',
+      'NQ,yellow,dotted,-2,GEX Flip 0DTE,26122;',
+      'NQ,red,solid,-2,Call Resistance,26132,26232;',
+      'NQ,lime,solid,-2,Put Support,26032,25531;',
+      'NQ,white,dashed,-2,EM Daily High,26659;',
+      'NQ,white,dashed,-2,EM Daily Low,25409;',
+      'NQ,orange,dashed,-2,EM Weekly High,27430;',
+      'NQ,orange,dashed,-2,EM Weekly Low,24638;'
+    ].join('\n'));
+    assert.match(s.w.document.getElementById('ptzStatus').textContent,/Formato TradingView copiado/);
+    s.view.querySelector('.nqp-copy-btn:not(.ptz-tv-btn)').click(); await tick();
+    assert.equal(copied,block);
+    s.w.document.getElementById('ptzReload').click();await tick();
+    assert.equal(s.view.querySelectorAll('.ptz-tv-btn').length,1,'reload must not duplicate buttons');
+  } finally {s.dom.window.close();}
+});
+test('TradingView clipboard failures show the permission error without claiming a successful copy', async () => {
+  const html=fixture.replace('data-copy="GEX Flip: 100"','data-copy="── GC KEY LEVELS | 2026-11-28 ──\nGEX Flip: 3,663.71"');
+  const s=setup(async()=>({ok:true,json:async()=>({content:{rendered:html}})}));
+  try {
+    Object.defineProperty(s.w.navigator,'clipboard',{value:{writeText:async()=>{throw new Error('Denied');}}});
+    s.enter();await tick();s.view.querySelector('.ptz-tv-btn').click();await tick();
+    assert.match(s.w.document.getElementById('ptzStatus').textContent,/no permitió copiar/);
+  } finally {s.dom.window.close();}
+});

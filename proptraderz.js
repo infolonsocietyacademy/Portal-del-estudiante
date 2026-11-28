@@ -36,6 +36,7 @@
     const style = document.createElement('style');
     style.textContent = css + '\n:host{display:block;color:#f0f0f8} button{font-family:inherit} button:focus-visible{outline:3px solid #25d5b5;outline-offset:2px} [id^="nqp_"] .nqp-tab-pane{display:block!important} [id^="nqp_"] .nqp-gex-lbl,[id^="nqp_"] .nqp-gex-lvl,[id^="nqp_"] .nqp-gex-val,[id^="nqp_"] .nqp-ds-pill,[id^="nqp_"] .nqp-gex-pill,[id^="nqp_"] .nqp-copy-btn{font-size:max(14px,1em)}';
     style.textContent += '\n[id^="nqp_"] .nqp-sec{padding:0;background:transparent;border:0;border-radius:0} [id^="nqp_"] .nqp-gex-card,[id^="nqp_"] .nqp-gex-em-box{border-radius:8px} [id^="nqp_"] .nqp-gex-pill,[id^="nqp_"] .nqp-ds-pill,[id^="nqp_"] .nqp-copy-btn{border-radius:5px}';
+    style.textContent += '\n[id^="nqp_"] .nqp-copy-btn{margin:8px 8px 0 0}';
     style.textContent = style.textContent.replaceAll('[id^="nqp_"]', '#' + source.id);
     const root = document.createElement('div');
     root.id = source.id;
@@ -66,12 +67,71 @@
       root.querySelectorAll('[id*="_ds_meta_"]').forEach(meta => { meta.style.display = meta.id === root.id + '_ds_meta_' + dataset ? 'flex' : 'none'; });
       updateMarkets();
     }));
-    root.querySelectorAll('.nqp-copy-btn').forEach(button => button.addEventListener('click', async () => {
+    // The public content API omits the provider's page-level TradingView button.
+    // Build the text export locally; never execute provider scripts.
+    const numbers = value => (value.match(/[0-9]+(?:,[0-9]{3})*(?:\.[0-9]+)?/g) || []).map(token => token.replaceAll(',', ''));
+    function tradingViewExport(button) {
+      const raw = button.dataset.copy || '';
+      const ticker = raw.match(/──\s*([A-Z0-9!]+)\s+KEY LEVELS/i)?.[1]?.toUpperCase();
+      if (!ticker) return '';
+      const rows = [];
+      const add = (color, pattern, label, values) => {if (values.length) rows.push([ticker, color, pattern, '-2', label, ...values].join(',') + ';');};
+      const types = {
+        'GEX FLIP': ['yellow', 'dashed', 'GEX Flip', true],
+        'GEX FLIP 0DTE': ['yellow', 'dotted', 'GEX Flip 0DTE', true],
+        'CALL RESISTANCE': ['red', 'solid', 'Call Resistance'],
+        'CALL RESISTANCE 0DTE': ['red', 'dotted', 'Call Res 0DTE'],
+        'PUT SUPPORT': ['lime', 'solid', 'Put Support'],
+        'PUT SUPPORT 0DTE': ['lime', 'dotted', 'Put Sup 0DTE'],
+        'RESISTANCE (NET GEX)': ['red', 'dashed', 'Resistance net GEX'],
+        'SUPPORT (NET GEX)': ['lime', 'dashed', 'Support net GEX']
+      };
+      let period = '';
+      for (const line of raw.split('\n')) {
+        if (/^\s*Expected Move Daily/i.test(line)) {period = 'Daily'; continue;}
+        if (/^\s*Expected Move Weekly/i.test(line)) {period = 'Weekly'; continue;}
+        const split = line.indexOf(':');
+        if (split < 0) continue;
+        const key = line.slice(0, split).trim().toUpperCase();
+        const values = numbers(line.slice(split + 1));
+        const type = types[key];
+        if (type) add(type[0], type[1], type[2], type[3] ? values.slice(0, 1) : values);
+        else if (period && (key === 'HIGH' || key === 'LOW')) add(period === 'Daily' ? 'white' : 'orange', 'dashed', 'EM ' + period + ' ' + (key === 'HIGH' ? 'High' : 'Low'), values.slice(0, 1));
+      }
+      const extras = {
+        VOLTRIGGER: ['yellow', 'solid', 'Vol Trigger'], RISKPIVOT: ['yellow', 'dashed', 'Risk Pivot'],
+        CTRANS: ['red', 'dotted', 'cTrans'], PTRANS: ['lime', 'dotted', 'pTrans'],
+        'DEXD+': ['aqua', 'dashed', 'DEX D+'], 'DEXD-': ['aqua', 'dashed', 'DEX D−'],
+        CHARMMAGNET: ['fuchsia', 'dashed', 'Charm Magnet'], PINSTRIKE: ['fuchsia', 'solid', 'Pin Strike'], MAXPAIN: ['fuchsia', 'dotted', 'Max Pain']
+      };
+      button.closest('.nqp-gex-card')?.querySelectorAll('.nqp-gex-row').forEach(row => {
+        const label = row.querySelector('.nqp-gex-lbl')?.cloneNode(true);
+        label?.querySelectorAll('.nqp-tip').forEach(node => node.remove());
+        const key = (label?.textContent || '').replaceAll('−', '-').replace(/[^a-z0-9+\-]/gi, '').toUpperCase();
+        const type = extras[key];
+        if (type) add(type[0], type[1], type[2], numbers(row.querySelector('.nqp-gex-val')?.textContent || '').slice(0, 1));
+      });
+      return rows.join('\n');
+    }
+    async function copyLevels(value, message) {
+      if (!value) {status.textContent = 'Esta tarjeta no tiene niveles disponibles para copiar.'; return;}
       try {
-        await navigator.clipboard.writeText(button.dataset.copy || '');
-        status.textContent = 'Niveles copiados para TradingView.';
+        await navigator.clipboard.writeText(value);
+        status.textContent = message;
       } catch { status.textContent = 'El navegador no permitió copiar los niveles. Revisa el permiso del portapapeles.'; }
-    }));
+    }
+    root.querySelectorAll('.ptz-tv-btn').forEach(button => button.remove());
+    root.querySelectorAll('.nqp-copy-btn').forEach(button => {
+      button.addEventListener('click', () => copyLevels(button.dataset.copy || '', 'Bloque de niveles copiado para OLFX.'));
+      if (!tradingViewExport(button)) return;
+      const tvButton = document.createElement('button');
+      tvButton.type = 'button';
+      tvButton.className = 'nqp-copy-btn ptz-tv-btn';
+      tvButton.textContent = '📈 Copy for TradingView';
+      tvButton.title = 'Copia los niveles en formato TradingView, compatible con OLFX DATA V1.5';
+      tvButton.addEventListener('click', () => copyLevels(tradingViewExport(button), 'Formato TradingView copiado. Pégalo en la DATA de OLFX V1.5 o en un indicador compatible.'));
+      button.after(tvButton);
+    });
     root.querySelector('.nqp-gex-pill.active')?.click();
     root.querySelector('.nqp-ds-pill.active')?.click();
     return source.querySelector('.nqp-hdr-sub')?.textContent.trim();
