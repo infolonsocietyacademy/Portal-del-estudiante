@@ -6,6 +6,11 @@
   const markets={nq:'NQ · Nasdaq',es:'ES · S&P 500',ym:'YM · Dow Jones',gc:'GC · Gold',cl:'CL · Oil',spx:'SPX',ndx:'NDX',spy:'SPY',qqq:'QQQ',dia:'DIA'};
   let chart=null, series=null, lineSeries=null, lines=[], data=null, request=null, resize=null, library=null, frame=0, overlayRows=[], overlayOwner=null;
   const enabled=new Set(['walls','flip','dealer','pin','em']);
+  const compactQuery=window.matchMedia?.('(max-width: 640px), (max-height: 500px) and (max-width: 1000px)');
+  const compact=()=>compactQuery?.matches ?? window.innerWidth<=640;
+  const chartOffset=()=>compact()?6:28;
+  const layerSettings=document.querySelector('.gexLayerSettings');
+  if(layerSettings)layerSettings.open=!compact();
   const visible=()=>window.olfxMarketAccess?.allowed()===true&&!$('portal').classList.contains('hidden') && !page.classList.contains('hidden') && !panel.hidden;
   const fmt=n=>core.validNumber(n)?n.toLocaleString('en-US',{maximumFractionDigits:2}):'—';
   const stamp=t=>new Intl.DateTimeFormat('es-PR',{timeZone:'America/Puerto_Rico',dateStyle:'medium',timeStyle:'short'}).format(new Date(t*1000));
@@ -28,7 +33,7 @@
   }
   function createChart() {
     if (chart) return;
-    chart=window.LightweightCharts.createChart($('gexChart'),{autoSize:true,height:560,rightPriceScale:{minimumWidth:85,borderVisible:false},timeScale:{timeVisible:true,secondsVisible:false,borderVisible:false,rightOffset:28,tickMarkFormatter:(t,type)=>new Intl.DateTimeFormat('en-US',{timeZone:'America/Puerto_Rico',...(type<=2?{month:'short',day:'numeric'}:{hour:'2-digit',minute:'2-digit',hourCycle:'h23'})}).format(new Date(t*1000))},localization:{locale:'es-PR',timeFormatter:t=>stamp(t)+' PR'},crosshair:{mode:0}});
+    chart=window.LightweightCharts.createChart($('gexChart'),{autoSize:true,rightPriceScale:{minimumWidth:compact()?64:85,borderVisible:false},timeScale:{timeVisible:true,secondsVisible:false,borderVisible:false,rightOffset:chartOffset(),tickMarkFormatter:(t,type)=>new Intl.DateTimeFormat('en-US',{timeZone:'America/Puerto_Rico',...(type<=2?{month:'short',day:'numeric'}:{hour:'2-digit',minute:'2-digit',hourCycle:'h23'})}).format(new Date(t*1000))},localization:{locale:'es-PR',timeFormatter:t=>stamp(t)+' PR'},crosshair:{mode:0},handleScroll:{vertTouchDrag:false,horzTouchDrag:true},handleScale:{pinch:true}});
     series=chart.addCandlestickSeries({upColor:'#2ca883',downColor:'#d76878',wickUpColor:'#2ca883',wickDownColor:'#d76878',borderVisible:false,priceLineVisible:false});
     lineSeries=chart.addLineSeries({color:'#c7a456',lineWidth:2,priceLineVisible:false});
     chart.timeScale().subscribeVisibleLogicalRangeChange(scheduleProfile);
@@ -96,7 +101,7 @@
     const levels=core.levels(current).filter(l=>enabled.has(l.group));
     const priceOwner=candles.length?series:lineSeries;
     overlayOwner=priceOwner;overlayRows=core.exposure(current.gex_strikes);
-    levels.forEach(l=>lines.push({owner:priceOwner,line:priceOwner.createPriceLine({price:l.price,color:tone(l),lineWidth:l.group==='flip'?2:1,lineStyle:l.group==='em'||l.group==='zero'?2:0,axisLabelVisible:true,title:l.label})}));
+    levels.forEach(l=>lines.push({label:l.label,owner:priceOwner,line:priceOwner.createPriceLine({price:l.price,color:tone(l),lineWidth:l.group==='flip'?2:1,lineStyle:l.group==='em'||l.group==='zero'?2:0,axisLabelVisible:true,title:compact()?'':l.label})}));
     $('gexLevelList').replaceChildren();
     levels.sort((a,b)=>b.price-a.price).forEach(l=>{
       const row=document.createElement('div'),label=document.createElement('span'),price=document.createElement('strong');
@@ -110,7 +115,8 @@
     $('gexFlip').textContent=fmt(core.levels(current).find(l=>l.label==='GEX Flip')?.price);
     if (fit) {
       chart.priceScale('right').applyOptions({autoScale:true});
-      if (candles.length>1) chart.timeScale().setVisibleLogicalRange({from:Math.max(0,candles.length-100),to:candles.length+28});
+      const count=compact()?Math.max(20,Math.min(60,Math.floor((($('gexChart').clientWidth||320)-64)/6))):100;
+      if (candles.length>1) chart.timeScale().setVisibleLogicalRange({from:Math.max(0,candles.length-count),to:candles.length+chartOffset()});
       else chart.timeScale().fitContent();
     }
     const barTime=candles.at(-1)?.time;
@@ -157,10 +163,35 @@
     if (terminal) load();else stop();
   }
   const chartPanel=$('gexChartPanel'), chartFullscreen=$('gexChartFullscreen');
-  let nativeChartFullscreen=false;
+  let nativeChartFullscreen=false,screenFocus=null,screenScroll=0,screenEpoch=0;
+  function syncScreenViewport(){
+    if(!chartPanel.classList.contains('gexChartExpanded'))return;
+    const viewport=window.visualViewport;
+    chartPanel.style.setProperty('--gex-screen-height',(viewport?.height||window.innerHeight)+'px');
+    chartPanel.style.setProperty('--gex-screen-width',(viewport?.width||window.innerWidth)+'px');
+    chartPanel.style.setProperty('--gex-screen-top',(viewport?.offsetTop||0)+'px');
+    chartPanel.style.setProperty('--gex-screen-left',(viewport?.offsetLeft||0)+'px');
+    scheduleProfile();
+  }
+  function syncChartLayout(){
+    if(chart){
+      chart.applyOptions({rightPriceScale:{minimumWidth:compact()?64:85},timeScale:{rightOffset:chartOffset()}});
+      lines.forEach(l=>l.line.applyOptions({title:compact()?'':l.label}));
+    }
+    syncScreenViewport();scheduleProfile();
+  }
+  compactQuery?.addEventListener('change',()=>{if(layerSettings&&!chartPanel.classList.contains('gexChartExpanded'))layerSettings.open=!compact();syncChartLayout();});
+  window.addEventListener('resize',syncChartLayout);
+  window.visualViewport?.addEventListener('resize',syncScreenViewport);
+  window.visualViewport?.addEventListener('scroll',syncScreenViewport);
   function resetChartScreen(){
+    const wasOpen=chartPanel.classList.contains('gexChartExpanded');screenEpoch++;
     chartPanel.classList.remove('gexChartExpanded');document.body.classList.remove('gexChartScreenOpen');
-    chartFullscreen.textContent='Solo gráfica · Pantalla completa';chartFullscreen.setAttribute('aria-pressed','false');nativeChartFullscreen=false;scheduleProfile();
+    chartPanel.removeAttribute('role');chartPanel.removeAttribute('aria-modal');chartPanel.removeAttribute('aria-label');
+    ['height','width','top','left'].forEach(key=>chartPanel.style.removeProperty('--gex-screen-'+key));
+    chartFullscreen.textContent='Pantalla completa';chartFullscreen.setAttribute('aria-label','Ver solo la gráfica en pantalla completa');chartFullscreen.setAttribute('aria-pressed','false');nativeChartFullscreen=false;
+    if(wasOpen){window.scrollTo?.(0,screenScroll);if(screenFocus?.isConnected)screenFocus.focus({preventScroll:true});screenFocus=null;}
+    scheduleProfile();
   }
   function exitChartScreen(){
     if(document.fullscreenElement===chartPanel)void document.exitFullscreen().catch(()=>{});
@@ -169,13 +200,26 @@
   chartFullscreen.addEventListener('click',async()=>{
     if(!visible())return;
     if(chartPanel.classList.contains('gexChartExpanded')){exitChartScreen();return;}
+    const epoch=++screenEpoch;screenFocus=document.activeElement;screenScroll=window.scrollY;
+    if(layerSettings)layerSettings.open=false;
     chartPanel.classList.add('gexChartExpanded');document.body.classList.add('gexChartScreenOpen');
-    chartFullscreen.textContent='Salir de pantalla completa';chartFullscreen.setAttribute('aria-pressed','true');
-    if(chartPanel.requestFullscreen){try{nativeChartFullscreen=true;await chartPanel.requestFullscreen();}catch{nativeChartFullscreen=false;}}
-    scheduleProfile();
+    chartPanel.setAttribute('role','dialog');chartPanel.setAttribute('aria-modal','true');chartPanel.setAttribute('aria-label','Gráfica GEX en pantalla completa');
+    chartFullscreen.textContent='Salir';chartFullscreen.setAttribute('aria-label','Salir de pantalla completa');chartFullscreen.setAttribute('aria-pressed','true');
+    syncScreenViewport();chartFullscreen.focus({preventScroll:true});
+    if(chartPanel.requestFullscreen){try{nativeChartFullscreen=true;await chartPanel.requestFullscreen();if(epoch!==screenEpoch&&document.fullscreenElement===chartPanel)await document.exitFullscreen();}catch{nativeChartFullscreen=false;}}
+    syncScreenViewport();scheduleProfile();
   });
   document.addEventListener('fullscreenchange',()=>{if(nativeChartFullscreen&&document.fullscreenElement!==chartPanel)resetChartScreen();else scheduleProfile();});
-  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&chartPanel.classList.contains('gexChartExpanded'))exitChartScreen();});
+  document.addEventListener('keydown',event=>{
+    if(!chartPanel.classList.contains('gexChartExpanded'))return;
+    if(event.key==='Escape'){exitChartScreen();return;}
+    if(event.key==='Tab'){
+      const controls=[...chartPanel.querySelectorAll('button,select,input,summary,a[href]')].filter(el=>el.getClientRects().length&&!el.disabled);
+      const first=controls[0],last=controls.at(-1);
+      if(event.shiftKey&&(document.activeElement===first||!chartPanel.contains(document.activeElement))){event.preventDefault();last?.focus();}
+      else if(!event.shiftKey&&(document.activeElement===last||!chartPanel.contains(document.activeElement))){event.preventDefault();first?.focus();}
+    }
+  });
   const changeTimeframe=value=>{$('gexTimeframe').value=value;$('gexChartTimeframe').value=value;draw();};
   $('gexChartTimeframe').addEventListener('change',()=>changeTimeframe($('gexChartTimeframe').value));
   Object.entries(markets).forEach(([value,label])=>{const option=document.createElement('option');option.value=value;option.textContent=label;$('gexMarket').append(option);});
@@ -198,3 +242,4 @@
   window.addEventListener('olfx:market-access',event=>{if(event.detail?.allowed&&visible())load();else stop();});
   window.addEventListener('pagehide',stop);window.addEventListener('pageshow',()=>{if(visible()&&!request&&!data)load();});
 })();
+
