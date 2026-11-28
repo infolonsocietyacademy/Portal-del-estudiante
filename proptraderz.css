@@ -20,3 +20,15 @@
   #propTraderzPage .ptzControls { width: 100%; }
   #propTraderzPage .ptzControls button { flex: 1; }
 }
+
+/* Keep the external terminal at a stable width so the fixed chart crop stays aligned.
+   Narrow screens can pan horizontally without changing the chart controls. */
+#propTraderzPage .ptzFrameHost[data-view="chart"],
+#propTraderzPage .ptzFrameHost[data-view="terminal"] { overflow-x: auto; overflow-y: hidden; }
+#propTraderzPage .ptzFrameHost[data-view="chart"] { --ptz-header-crop: 160px; height: 675px; }
+#propTraderzPage .ptzFrameHost[data-view="terminal"] { --ptz-header-crop: 60px; height: 1000px; }
+#propTraderzPage .ptzFrameHost[data-view="chart"] iframe,
+#propTraderzPage .ptzFrameHost[data-view="terminal"] iframe {
+  width: 1280px; max-width: none; height: 1400px; min-height: 1400px;
+}
+#propTraderzPage #ptzMarketControls[hidden] { display: none; }
