@@ -4,7 +4,7 @@
   if (!page || !panel || !window.OLFXGexData) return;
   const core=window.OLFXGexData, $=id=>document.getElementById(id);
   const markets={nq:'NQ · Nasdaq',es:'ES · S&P 500',ym:'YM · Dow Jones',gc:'GC · Gold',cl:'CL · Oil',spx:'SPX',ndx:'NDX',spy:'SPY',qqq:'QQQ',dia:'DIA'};
-  let chart=null, series=null, lineSeries=null, lines=[], data=null, request=null, resize=null, library=null, frame=0;
+  let chart=null, series=null, lineSeries=null, lines=[], data=null, request=null, resize=null, library=null, frame=0, overlayRows=[], overlayOwner=null;
   const enabled=new Set(['walls','flip','dealer','pin','em']);
   const visible=()=>!$('portal').classList.contains('hidden') && !page.classList.contains('hidden') && !panel.hidden;
   const fmt=n=>core.validNumber(n)?n.toLocaleString('en-US',{maximumFractionDigits:2}):'—';
@@ -23,7 +23,7 @@
   function theme() {
     if (!chart) return;
     const css=getComputedStyle(page), color=(key,fallback)=>css.getPropertyValue(key).trim()||fallback;
-    chart.applyOptions({layout:{background:{type:'solid',color:color('--cyber-ui-panel','#101722')},textColor:color('--cyber-ui-muted','#91a0b3'),fontFamily:'Consolas, monospace',fontSize:13},grid:{vertLines:{color:color('--cyber-ui-border','#243040')},horzLines:{color:color('--cyber-ui-border','#243040')}}});
+    chart.applyOptions({layout:{background:{type:'solid',color:color('--cyber-ui-panel','#101722')},textColor:color('--cyber-ui-muted','#91a0b3'),fontFamily:'Consolas, monospace',fontSize:13},grid:{vertLines:{visible:false},horzLines:{visible:false}}});
     scheduleProfile();
   }
   function createChart() {
@@ -38,21 +38,48 @@
   }
   function scheduleProfile() {if (!frame) frame=requestAnimationFrame(()=>{frame=requestAnimationFrame(()=>{frame=0;drawProfile();});});}
   function drawProfile() {
-    const canvas=$('gexProfile'), box=$('gexChart');
-    const width=box.clientWidth,height=box.clientHeight,ratio=window.devicePixelRatio||1;
-    canvas.width=width*ratio;canvas.height=height*ratio;
-    const ctx=canvas.getContext('2d');ctx.scale(ratio,ratio);ctx.clearRect(0,0,width,height);
-    if (!chart || !data || !$('gexShowProfile').checked) return;
-    const strikes=data.run?.data?.gex_strikes;
-    if (!Array.isArray(strikes)) return;
-    const rows=strikes.filter(b=>Array.isArray(b)&&b.length>=3&&b.slice(0,3).every(core.validNumber));
-    const max=Math.max(1,...rows.map(b=>Math.max(Math.abs(b[1]),Math.abs(b[2]))));
-    const edge=width-chart.priceScale('right').width()-110, maxWidth=Math.min(130,width*.2);
-    rows.forEach(b=>{
-      const y=series.priceToCoordinate(b[0]);if (y===null || y<0 || y>height-28) return;
-      ctx.fillStyle='rgba(44,168,131,.38)';ctx.fillRect(edge-Math.abs(b[1])/max*maxWidth,y-4,Math.abs(b[1])/max*maxWidth,3);
-      ctx.fillStyle='rgba(215,104,120,.4)';ctx.fillRect(edge-Math.abs(b[2])/max*maxWidth,y,Math.abs(b[2])/max*maxWidth,3);
+    const box=$('gexChart'), width=box.clientWidth, height=box.clientHeight, ratio=window.devicePixelRatio||1;
+    const context=id=>{
+      const canvas=$(id);canvas.width=width*ratio;canvas.height=height*ratio;
+      const ctx=canvas.getContext('2d');ctx.scale(ratio,ratio);ctx.clearRect(0,0,width,height);return ctx;
+    };
+    const ctx=context('gexProfile'), heat=context('gexHeatmap');
+    if (!chart || !data || !width || !height) return;
+    const rows=overlayRows;
+    $('gexExposureNote').textContent=rows.length?'Exposición GEX de la actualización seleccionada por precio. Burbujas: calls verdes / puts rojas.':'Esta selección no tiene exposición por strike disponible para el mapa y las burbujas.';
+    const plotWidth=width-chart.priceScale('right').width(), plotHeight=chart.paneSize?.().height||height-28;
+    const owner=overlayOwner;
+    const opacity=Number($('gexLayerOpacity').value)/100, intensity=Number($('gexHeatIntensity').value)/100;
+    const size=Number($('gexBubbleSize').value), edge=Math.max(40,plotWidth-110), maxWidth=Math.min(130,width*.2);
+    const maxSide=Math.max(1,...rows.map(r=>Math.max(r.call,r.put)));
+    for (const c of [ctx,heat]) {c.save();c.beginPath();c.rect(0,0,plotWidth,plotHeight);c.clip();}
+    rows.forEach((row,i)=>{
+      const y=owner.priceToCoordinate(row.price);if (y===null || y<0 || y>plotHeight) return;
+      if ($('gexShowHeatmap').checked) {
+        const previous=owner.priceToCoordinate(rows[i-1]?.price ?? row.price);
+        const next=owner.priceToCoordinate(rows[i+1]?.price ?? row.price);
+        const distances=[previous,next].filter(v=>v!==null && v!==y).map(v=>Math.abs(v-y));
+        const band=Math.max(3,Math.min(24,distances.length?Math.min(...distances):8));
+        const strength=Math.min(1,row.strength*intensity);
+        // Blue -> cyan -> yellow -> red; one horizontal snapshot, never invented time history.
+        const hue=220*(1-strength);
+        heat.fillStyle=`hsla(${hue}, 95%, 52%, ${opacity*(.2+.8*strength)})`;
+        heat.fillRect(0,y-band/2,plotWidth,band);
+      }
+      if ($('gexShowProfile').checked) {
+        ctx.fillStyle=`rgba(44,168,131,${Math.min(.8,opacity+.15)})`;ctx.fillRect(edge-row.call/maxSide*maxWidth,y-4,row.call/maxSide*maxWidth,3);
+        ctx.fillStyle=`rgba(215,104,120,${Math.min(.8,opacity+.15)})`;ctx.fillRect(edge-row.put/maxSide*maxWidth,y,row.put/maxSide*maxWidth,3);
+      }
+      if ($('gexShowBubbles').checked) {
+        [[row.call,Math.max(12,plotWidth-Math.min(150,plotWidth*.32)),'44,168,131'],[row.put,Math.max(12,plotWidth-Math.min(190,plotWidth*.45)),'215,104,120']].forEach(([value,x,rgb])=>{
+          if (!value) return;
+          const radius=Math.max(1.5,size*Math.sqrt(value/maxSide));
+          ctx.beginPath();ctx.arc(x,y,radius,0,Math.PI*2);ctx.fillStyle=`rgba(${rgb},${Math.min(.85,opacity+.2)})`;ctx.fill();
+          ctx.strokeStyle=`rgba(${rgb},.85)`;ctx.lineWidth=1;ctx.stroke();
+        });
+      }
     });
+    ctx.restore();heat.restore();
   }
   function draw(fit=true) {
     if (!chart || !data) return;
@@ -68,6 +95,7 @@
     lines.forEach(l=>l.owner.removePriceLine(l.line));lines=[];
     const levels=core.levels(current).filter(l=>enabled.has(l.group));
     const priceOwner=candles.length?series:lineSeries;
+    overlayOwner=priceOwner;overlayRows=core.exposure(current.gex_strikes);
     levels.forEach(l=>lines.push({owner:priceOwner,line:priceOwner.createPriceLine({price:l.price,color:tone(l),lineWidth:l.group==='flip'?2:1,lineStyle:l.group==='em'||l.group==='zero'?2:0,axisLabelVisible:true,title:l.label})}));
     $('gexLevelList').replaceChildren();
     levels.sort((a,b)=>b.price-a.price).forEach(l=>{
@@ -94,7 +122,7 @@
     if (chart) {series.setData([]);lineSeries.setData([]);lines.forEach(l=>l.owner.removePriceLine(l.line));lines=[];}
     $('gexLevelList').replaceChildren();
     ['gexPrice','gexExpected','gexFlip','gexGamma'].forEach(id=>$(id).textContent='—');
-    $('gexBarTime').textContent='';$('gexDataAge').hidden=true;scheduleProfile();
+    $('gexBarTime').textContent='';$('gexExposureNote').textContent='';$('gexDataAge').hidden=true;scheduleProfile();
   }
   async function load() {
     if (!visible()) return;
@@ -136,7 +164,9 @@
   document.querySelectorAll('[data-gex-view]').forEach(b=>b.addEventListener('click',()=>selectView(b.dataset.gexView)));
   ['gexMarket','gexDataset'].forEach(id=>$(id).addEventListener('change',load));
   ['gexTimeframe','gexSession'].forEach(id=>$(id).addEventListener('change',()=>draw()));
-  $('gexShowProfile').addEventListener('change',scheduleProfile);$('gexFit').addEventListener('click',()=>draw());
+  ['gexShowProfile','gexShowHeatmap','gexShowBubbles'].forEach(id=>$(id).addEventListener('change',scheduleProfile));
+  ['gexHeatIntensity','gexLayerOpacity','gexBubbleSize'].forEach(id=>$(id).addEventListener('input',()=>{const input=$(id);$(id+'Value').value=input.value+(id==='gexLayerOpacity'?'%':'');scheduleProfile();}));$('gexFit').addEventListener('click',()=>draw());
+  ['pointermove','pointerup','wheel'].forEach(type=>$('gexChart').addEventListener(type,scheduleProfile,{passive:true}));
   $('ptzReload').addEventListener('click',()=>{if(visible())load();});
   window.addEventListener('olon:pagechange',e=>{if(e.detail?.id!==page.id) stop();else if(visible()) load();});
   new MutationObserver(()=>{if(!visible())stop();else if(!chart&&!request)load();}).observe($('portal'),{attributes:true,attributeFilter:['class']});

@@ -55,3 +55,18 @@
   .gexViewNav { width: 100%; }
   .gexViewNav button { flex: 1; }
 }
+
+.gexChartTools { flex-wrap: wrap; }
+.gexLayerToggles { display:flex; flex-wrap:wrap; gap:.4rem 1rem; }
+.gexLayerSettings { padding:.75rem 1rem; border-bottom:1px solid var(--cyber-ui-border,var(--line)); }
+.gexLayerSettings summary { cursor:pointer; font-size:.875rem; min-height:28px; }
+.gexLayerSliders { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1rem; padding:.75rem 0; }
+.gexLayerSliders label { display:grid; grid-template-columns:1fr auto; gap:.5rem; font-size:.875rem; }
+.gexLayerSliders input { grid-column:1/-1; width:100%; accent-color:var(--accent,#c7a456); }
+.gexLayerSliders output { font-family:Consolas,monospace; }
+#gexChart { position:relative; z-index:0; }
+#gexHeatmap { position:absolute; inset:0; z-index:1; width:100%; height:100%; pointer-events:none; }
+.gexHeatLegend { display:flex; align-items:center; gap:.75rem; margin:.9rem 1rem .5rem; font-size:.8125rem; color:var(--cyber-ui-muted,var(--muted)); }
+.gexHeatScale { flex:1; max-width:220px; height:8px; border-radius:4px; background:linear-gradient(90deg,#1674ee,#12d5ee,#eded17,#ef2525); }
+.gexExposureNote { margin:.5rem 1rem; color:var(--cyber-ui-muted,var(--muted)); font-size:.8125rem; line-height:1.6; }
+@media(max-width:640px) { .gexLayerSliders { grid-template-columns:1fr; } }

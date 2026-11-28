@@ -35,7 +35,18 @@
     }
     return list;
   }
-  const api = {groups,bars,levels,validNumber};
+  function exposure(raw) {
+    const prices = new Map();
+    for (const row of Array.isArray(raw) ? raw : []) {
+      if (!Array.isArray(row) || row.length < 3 || !row.slice(0,3).every(validNumber) || row[0] <= 0) continue;
+      const item = prices.get(row[0]) || {price:row[0],call:0,put:0};
+      item.call += Math.abs(row[1]); item.put += Math.abs(row[2]); prices.set(row[0],item);
+    }
+    const rows = [...prices.values()].filter(r=>r.call+r.put>0).sort((a,b)=>a.price-b.price);
+    const max = Math.max(1,...rows.map(r=>r.call+r.put));
+    return rows.map(r=>({...r,total:r.call+r.put,strength:(r.call+r.put)/max}));
+  }
+  const api = {groups,bars,levels,exposure,validNumber};
   if (typeof module === 'object' && module.exports) module.exports=api;
   else root.OLFXGexData=api;
 })(typeof window !== 'undefined' ? window : globalThis);
