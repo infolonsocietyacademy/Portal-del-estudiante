@@ -51,3 +51,9 @@ test('locked source reports unavailable access and never renders the protected r
     assert.equal(s.w.document.getElementById('gexPrice').textContent,'—');
   }finally{s.dom.window.close();}
 });
+
+test('exposure layers combine duplicate strikes, preserve call/put magnitude and normalize gross gamma',()=>{
+  const rows=core.exposure([[100,30,-10],[100,10,-10],[101,10,-10],[102,0,0],[103,null,20],[104,NaN,20],null,[-1,5,5]]);
+  assert.deepEqual(rows,[{price:100,call:40,put:20,total:60,strength:1},{price:101,call:10,put:10,total:20,strength:1/3}]);
+  assert.deepEqual(core.exposure(undefined),[]);
+});
