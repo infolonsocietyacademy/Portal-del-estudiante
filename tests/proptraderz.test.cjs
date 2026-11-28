@@ -17,7 +17,7 @@ function setup(fetcher) {
   const section = fs.readFileSync('index.html', 'utf8').match(/<section id="propTraderzPage"[\s\S]*?<\/section>/)[0];
   const dom = new JSDOM('<main id="portal" class="hidden">' + section + '</main>', {runScripts:'outside-only'});
   const w = dom.window;
-  w.AbortController = AbortController;
+  w.AbortController = AbortController; w.olfxMarketAccess={allowed:()=>true};
   w.fetch = fetcher;
   w.eval(fs.readFileSync('proptraderz.js', 'utf8'));
   const page = w.document.getElementById('propTraderzPage');

@@ -79,7 +79,7 @@ body{overflow-y:visible!important;overscroll-behavior-y:auto!important;-webkit-o
 <link rel="stylesheet" href="./student-sidebar.css?v=20261110-student-rail-1">
 <link rel="stylesheet" href="./student-dashboard.css?v=20261113-unified-summary-1">
 <link rel="stylesheet" href="./proptraderz.css?v=20261128-9">
-<link rel="stylesheet" href="./olfx-gex-terminal.css?v=20261128-11">
+<link rel="stylesheet" href="./olfx-gex-terminal.css?v=20261128-12">
 <link rel="stylesheet" href="./copy-trade.css?v=20261119-copy-pilot-1">
 <link rel="stylesheet" href="./maintenance.css?v=20261114-boot-screen-restored-4">
 <link rel="stylesheet" href="./admin-mt5-accounts.css?v=20261119-mt5-delete-any-2">
@@ -1017,7 +1017,9 @@ window.addEventListener("load", () => {
       </div>
     </section>
 
-    <section id="propTraderzPage" class="page hidden" aria-labelledby="ptzTitle">
+    <section id="propTraderzPage" class="page hidden" aria-labelledby="olfxMarketSoonTitle">
+      <div id="olfxMarketSoon" class="olfxMarketSoon"><span class="gexKicker">OLFX</span><h2 id="olfxMarketSoonTitle">Coming soon Market Data</h2></div>
+      <div id="olfxMarketContent" hidden>
       <div class="ptzHeading">
         <div class="ptzIdentity"><div class="ptzEyebrow"><span class="ptzWordmark">OLFX</span><span>MARKET INTELLIGENCE</span></div><h2 id="ptzTitle">Market Data</h2><p>El mapa de opciones de tu mercado. Niveles clave, contexto y movimiento esperado.</p></div>
         <span class="ptzProvider">GEX / OPTIONS DESK</span>
@@ -1039,7 +1041,7 @@ window.addEventListener("load", () => {
         <div class="gexSelectors">
           <label>Mercado<select id="gexMarket"></select></label>
           <label>Datos<select id="gexDataset"><option value="production">Sesión del mercado</option><option value="intraday">Intraday · Experimental</option><option value="eod">Cierre · Experimental</option></select></label>
-          <label>Temporalidad<select id="gexTimeframe"><option value="5">5 min</option><option value="15">15 min</option><option value="30">30 min</option><option value="60">1 hora</option></select></label>
+          <label>Temporalidad<select id="gexTimeframe"><option value="5">5 min</option><option value="15">15 min</option><option value="30">30 min</option><option value="60">1 hora</option><option value="120">2 horas</option><option value="240">4 horas</option></select></label>
           <label>Sesión<select id="gexSession"><option value="eth">Extendida</option><option value="rth">Regular · 09:30–16:00 NY</option></select></label>
         </div>
         <p id="gexStatus" role="status" aria-live="polite">Selecciona GEX Terminal para cargar la gráfica.</p>
@@ -1051,8 +1053,8 @@ window.addEventListener("load", () => {
           <div><span>Expected Move · Día</span><strong id="gexExpected">—</strong></div>
         </div>
         <div class="gexWorkspace">
-          <div class="gexChartPanel">
-            <div class="gexChartTools"><div class="gexLayerToggles"><label><input id="gexShowHeatmap" type="checkbox" checked> Mapa frío/caliente</label><label><input id="gexShowBubbles" type="checkbox" checked> Burbujas GEX</label><label><input id="gexShowProfile" type="checkbox" checked> Perfil GEX</label></div><button type="button" id="gexFit">Ajustar vista</button></div>
+          <div class="gexChartPanel" id="gexChartPanel">
+            <div class="gexChartTools"><div class="gexLayerToggles"><label><input id="gexShowHeatmap" type="checkbox" checked> Mapa frío/caliente</label><label><input id="gexShowBubbles" type="checkbox" checked> Burbujas GEX</label><label><input id="gexShowProfile" type="checkbox" checked> Perfil GEX</label></div><div class="gexChartActions"><label>TF<select id="gexChartTimeframe" aria-label="Temporalidad de la gráfica"><option value="5">5m</option><option value="15">15m</option><option value="30">30m</option><option value="60">1H</option><option value="120">2H</option><option value="240">4H</option></select></label><button type="button" id="gexFit">Ajustar vista</button><button type="button" id="gexChartFullscreen" aria-pressed="false">Solo gráfica · Pantalla completa</button></div></div>
             <details class="gexLayerSettings"><summary>Ajustes de capas</summary><div class="gexLayerSliders"><label>Intensidad del mapa <output id="gexHeatIntensityValue" for="gexHeatIntensity">100</output><input id="gexHeatIntensity" type="range" min="50" max="250" step="10" value="100"></label><label>Opacidad de capas <output id="gexLayerOpacityValue" for="gexLayerOpacity">25%</output><input id="gexLayerOpacity" type="range" min="5" max="60" step="5" value="25"></label><label>Tamaño de burbujas <output id="gexBubbleSizeValue" for="gexBubbleSize">16</output><input id="gexBubbleSize" type="range" min="6" max="28" step="1" value="16"></label></div></details>
             <div class="gexChartWrap"><canvas id="gexHeatmap" aria-hidden="true"></canvas><div id="gexChart" aria-label="Gráfica de precio con niveles GEX"></div><canvas id="gexProfile" aria-hidden="true"></canvas></div>
             <p class="gexHeatLegend"><span>Menor GEX</span><span class="gexHeatScale" aria-hidden="true"></span><span>Mayor GEX</span></p><p id="gexExposureNote" class="gexExposureNote"></p>
@@ -1063,6 +1065,7 @@ window.addEventListener("load", () => {
         <p class="gexChartCredit">Gráfica con <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer">TradingView Lightweight Charts™</a>.</p>
       </div>
       <p class="ptzAttribution">For informational purposes only. Not financial advice. · GEX levels calculated from NDX/SPX options via IBKR.</p>
+      </div>
     </section>
 
     <section id="newsProPage" class="page hidden" aria-labelledby="marketNewsTitle">
@@ -1681,9 +1684,10 @@ window.addEventListener("load", () => {
 </script>
 <script src="./trading-terminal-pro.js?v=20261108" defer></script>
 <script src="./terminal-workspace.js?v=20261108-fluid-dashboard-1" defer></script>
-<script src="./proptraderz.js?v=20261128-8" defer></script>
+<script src="./olfx-market-access.js?v=20261128-12" defer></script>
+<script src="./proptraderz.js?v=20261128-12" defer></script>
 <script src="./olfx-gex-core.js?v=20261128-11" defer></script>
-<script src="./olfx-gex-terminal.js?v=20261128-11" defer></script>
+<script src="./olfx-gex-terminal.js?v=20261128-12" defer></script>
 <script src="./copy-trade.js?v=20261119-copy-pilot-1" defer></script>
 <script src="./olon-own-connect.js?v=20261119-mt5-delete-any-2" defer></script>
 <script src="./mt5-live.js?v=20261114-live-calendar-1" defer></script>
