@@ -21,12 +21,12 @@
   function open() {
     if (!visible() || frame) return;
     const subtitle = document.getElementById('pageSubtitle');
-    if (subtitle) subtitle.textContent = 'GEX y Expected Move de PropTraderz dentro del portal.';
+    if (subtitle) subtitle.textContent = 'OLFX Market Data · GEX y Expected Move dentro del portal.';
     const tool = tools[selected];
     status.textContent = 'Cargando ' + tool.name + '…';
     host.setAttribute('aria-busy', 'true');
     const next = document.createElement('iframe');
-    next.title = tool.name + ' de PropTraderz';
+    next.title = 'OLFX Market Data · ' + tool.name;
     next.referrerPolicy = 'no-referrer';
     next.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads');
     next.setAttribute('allow', 'clipboard-write; fullscreen');
@@ -34,13 +34,13 @@
       if (frame !== next) return;
       clearTimeout(timer);
       host.removeAttribute('aria-busy');
-      status.textContent = 'Contenido de PropTraderz. Si la herramienta no aparece, pulsa Recargar.';
+      status.textContent = 'OLFX Market Data. Si la herramienta no aparece, pulsa Recargar.';
     });
     next.addEventListener('error', () => {
       if (frame !== next) return;
       clearTimeout(timer);
       host.removeAttribute('aria-busy');
-      status.textContent = 'No se pudo abrir PropTraderz. Pulsa Recargar para reintentar.';
+      status.textContent = 'No se pudo abrir la herramienta. Pulsa Recargar para reintentar.';
     });
     next.src = tool.url;
     frame = next;
@@ -48,7 +48,7 @@
     timer = setTimeout(() => {
       if (frame !== next) return;
       host.removeAttribute('aria-busy');
-      status.textContent = 'PropTraderz está tardando en responder. Puedes volver a intentar con Recargar.';
+      status.textContent = 'La herramienta está tardando en responder. Puedes volver a intentar con Recargar.';
     }, 25000);
   }
   page.querySelectorAll('[data-ptz-tool]').forEach(button => {
