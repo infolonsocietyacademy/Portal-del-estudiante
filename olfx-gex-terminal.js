@@ -111,7 +111,7 @@
       if (!result.run?.data || !core.validNumber(result.run.t) || result.instrument!==selected().instrument || result.dataset!==selected().dataset) throw new Error('No hay datos para este mercado.');
       createChart();data=result;draw();
       const runTime=result.run.t;
-      $('gexStatus').textContent='Niveles: '+stamp(runTime)+' PR · Fuente: PropTraderz';
+      $('gexStatus').textContent='Niveles: '+stamp(runTime)+' PR';
       if (Date.now()/1000-runTime>86400) {$('gexDataAge').hidden=false;$('gexDataAge').textContent='La última actualización de niveles tiene más de 24 horas. Fecha de la fuente: '+stamp(runTime)+' PR.';}
     } catch(error) {
       if (request===controller && visible()) $('gexStatus').textContent=(error.name==='AbortError'?'La fuente tardó demasiado.':error.message)+' Pulsa Actualizar datos para reintentar.';
