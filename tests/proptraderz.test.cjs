@@ -106,3 +106,33 @@ test('TradingView clipboard failures show the permission error without claiming 
     assert.match(s.w.document.getElementById('ptzStatus').textContent,/no permitió copiar/);
   } finally {s.dom.window.close();}
 });
+
+test('OLFX desk keeps instrument selection across groups and datasets while preserving exports', async () => {
+  const card = (ticker, group, value) => `<div class="nqp-gex-card" data-gex-group="${group}"><div class="nqp-gex-card-hdr"><div><div class="nqp-gex-card-title" style="color:magenta">${ticker}</div><div class="nqp-gex-card-price">${ticker} Futures • Price: ${value} • Prev Close: 100</div></div><div class="nqp-flip-badge">Below Flip — Bearish</div></div><div class="nqp-gex-body"><div class="nqp-gex-row"><span class="nqp-gex-lbl">GEX Flip</span><span class="nqp-gex-val">${value}</span></div><button class="nqp-copy-btn" data-copy="── ${ticker} KEY LEVELS | 2026-11-28 ──\nGEX Flip: ${value}">Copy Levels</button></div></div>`;
+  const html = `<style>#nqp_desk .nqp-gex-card{color:magenta}</style><div id="nqp_desk"><div class="nqp-tab-pane" id="nqp_desk_gex"><div class="nqp-sec"><div class="nqp-sec-hdr">Provider heading</div><div class="nqp-dataset-bar"><button class="nqp-ds-pill active" data-dataset="production">Intraday</button><button class="nqp-ds-pill" data-dataset="eod">EOD</button></div><div class="nqp-gex-pills"><button class="nqp-gex-pill active" data-gex-group="futures">Futures</button><button class="nqp-gex-pill" data-gex-group="commodities">Commodities</button></div><div class="nqp-ds-panel" id="nqp_desk_ds_production">${card('NQ','futures',101)}${card('ES','futures',102)}${card('GC','commodities',103)}</div><div class="nqp-ds-panel" id="nqp_desk_ds_eod">${card('NQ','futures',201)}${card('ES','futures',202)}${card('GC','commodities',203)}</div></div></div></div>`;
+  const s=setup(async()=>({ok:true,json:async()=>({content:{rendered:html}})}));
+  let copied='';
+  try {
+    Object.defineProperty(s.w.navigator,'clipboard',{value:{writeText:async text=>{copied=text;}}});
+    s.enter();await tick();
+    const panel=()=>s.view.querySelector('.nqp-ds-panel:not([style*="none"])');
+    const instrument=()=>panel().querySelector('.gex-visible .nqp-gex-card-title').textContent;
+    const choose=symbol=>[...s.view.querySelectorAll('.olfxInstrumentButton')].find(b=>b.textContent===symbol).click();
+    assert.equal(instrument(),'NQ');
+    assert.equal(s.view.querySelector('style'),null,'remote provider CSS is not retained');
+    assert.equal(s.view.querySelector('link').getAttribute('href'),'./olfx-market-data.css?v=20261128-7');
+    assert.equal(s.view.querySelector('.nqp-sec-hdr'),null);
+    assert.equal(s.view.querySelector('[style*="magenta"]'),null);
+    choose('ES');assert.equal(instrument(),'ES');
+    s.view.querySelector('[data-gex-group="commodities"]').click();assert.equal(instrument(),'GC');
+    s.view.querySelector('[data-gex-group="futures"]').click();assert.equal(instrument(),'ES');
+    s.view.querySelector('[data-dataset="eod"]').click();assert.equal(instrument(),'ES');
+    panel().querySelector('.gex-visible .ptz-tv-btn').click();await tick();
+    assert.equal(copied,'ES,yellow,dashed,-2,GEX Flip,202;');
+    assert.equal(panel().querySelector('.gex-visible .olfxQuote').textContent,'202');
+    const mobileSelect=s.view.querySelector('.olfxDatasetSelect');
+    mobileSelect.value='production';mobileSelect.dispatchEvent(new s.w.Event('change'));
+    assert.equal(instrument(),'ES');
+    assert.equal(panel().querySelector('.gex-visible .olfxQuote').textContent,'102');
+  } finally {s.dom.window.close();}
+});

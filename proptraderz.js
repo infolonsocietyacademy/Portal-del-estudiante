@@ -29,26 +29,133 @@
     const doc = new DOMParser().parseFromString(html, 'text/html');
     const pane = doc.querySelector('.nqp-tab-pane[id$="_gex"]');
     const source = pane?.parentElement;
-    const css = [...doc.querySelectorAll('style')].find(node => node.textContent.includes('.nqp-gex-card'))?.textContent;
-    if (!pane || !/^nqp_[a-z0-9]+$/i.test(source?.id || '') || !css || !safeStyle(css) || !pane.querySelector('.nqp-gex-card')) {
+    if (!pane || !/^nqp_[a-z0-9]+$/i.test(source?.id || '') || !pane.querySelector('.nqp-gex-card')) {
       throw new Error('La fuente cambió de formato.');
     }
-    const style = document.createElement('style');
-    style.textContent = css + '\n:host{display:block;color:#f0f0f8} button{font-family:inherit} button:focus-visible{outline:3px solid #25d5b5;outline-offset:2px} [id^="nqp_"] .nqp-tab-pane{display:block!important} [id^="nqp_"] .nqp-gex-lbl,[id^="nqp_"] .nqp-gex-lvl,[id^="nqp_"] .nqp-gex-val,[id^="nqp_"] .nqp-ds-pill,[id^="nqp_"] .nqp-gex-pill,[id^="nqp_"] .nqp-copy-btn{font-size:max(14px,1em)}';
-    style.textContent += '\n[id^="nqp_"] .nqp-sec{padding:0;background:transparent;border:0;border-radius:0} [id^="nqp_"] .nqp-gex-card,[id^="nqp_"] .nqp-gex-em-box{border-radius:8px} [id^="nqp_"] .nqp-gex-pill,[id^="nqp_"] .nqp-ds-pill,[id^="nqp_"] .nqp-copy-btn{border-radius:5px}';
-    style.textContent += '\n[id^="nqp_"] .nqp-copy-btn{margin:8px 8px 0 0}';
-    style.textContent = style.textContent.replaceAll('[id^="nqp_"]', '#' + source.id);
+    // OLFX owns the presentation. Only sanitized market content comes from the source.
+    const style = document.createElement('link');
+    style.rel = 'stylesheet';
+    style.href = './olfx-market-data.css?v=20261128-7';
     const root = document.createElement('div');
     root.id = source.id;
+    root.className = 'olfxDataRoot';
     const warning = [...source.children].find(node => /Data is .*old/.test(node.textContent) && !node.className);
-    if (warning) root.append(sanitize(warning.cloneNode(true)));
+    if (warning) {
+      const notice = sanitize(warning.cloneNode(true));
+      notice.className = 'olfxDataNotice';
+      notice.removeAttribute('style');
+      root.append(notice);
+    }
     const content = sanitize(pane.cloneNode(true));
     content.classList.add('active');
+    content.querySelectorAll('[style]').forEach(node => node.removeAttribute('style'));
+    const plainLabel = value => value.replace(/[\p{Extended_Pictographic}\uFE0F\u25B2\u25BC\u21E7\u21E9]/gu, '').trim();
+    const groupLabels = {futures: 'Nasdaq / S&P 500', dow: 'Dow Jones', etf: 'ETFs', commodities: 'Materias primas'};
+    content.querySelector('.nqp-sec-hdr')?.remove();
+    content.querySelectorAll('.nqp-gex-pill').forEach(button => {button.textContent = groupLabels[button.dataset.gexGroup] || plainLabel(button.textContent);});
+    const datasetSelect = document.createElement('select');
+    datasetSelect.className = 'olfxDatasetSelect';
+    datasetSelect.setAttribute('aria-label', 'Conjunto de datos');
+    const datasetNames = {production: 'Sesión del mercado', eod: 'Cierre · Experimental', intraday: 'Intradia · Experimental'};
+    content.querySelectorAll('.nqp-ds-pill').forEach(button => {
+      button.title = plainLabel(button.textContent);
+      button.textContent = datasetNames[button.dataset.dataset] || button.title;
+      const option = document.createElement('option'); option.value = button.dataset.dataset; option.textContent = button.textContent;
+      option.selected = button.classList.contains('active'); datasetSelect.append(option);
+    });
+    datasetSelect.addEventListener('change', () => {
+      [...root.querySelectorAll('.nqp-ds-pill')].find(button => button.dataset.dataset === datasetSelect.value)?.click();
+    });
+    content.querySelector('.nqp-dataset-bar')?.prepend(datasetSelect);
+    content.querySelectorAll('.nqp-tip').forEach(tip => {
+      tip.tabIndex = 0;
+      tip.setAttribute('role', 'button');
+      tip.setAttribute('aria-label', 'Información del nivel');
+      tip.setAttribute('aria-expanded', 'false');
+      const toggle = () => {tip.classList.toggle('olfxTipOpen'); tip.setAttribute('aria-expanded', String(tip.classList.contains('olfxTipOpen')));};
+      tip.addEventListener('click', toggle);
+      tip.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') {event.preventDefault(); toggle();}
+        if (event.key === 'Escape') {tip.classList.remove('olfxTipOpen'); tip.setAttribute('aria-expanded', 'false');}
+      });
+    });
+    content.querySelectorAll('.nqp-gex-card').forEach(card => {
+      const price = card.querySelector('.nqp-gex-card-price');
+      if (price) {
+        const quote = price.textContent.match(/Price:\s*([0-9,.]+)/i)?.[1];
+        const previous = price.textContent.match(/Prev Close:\s*([0-9,.]+)/i)?.[1];
+        const description = price.textContent.split('•')[0].trim();
+        price.replaceChildren();
+        const name = document.createElement('span'); name.className = 'olfxMarketName'; name.textContent = description;
+        const amount = document.createElement('strong'); amount.className = 'olfxQuote'; amount.textContent = quote || '—';
+        const closing = document.createElement('span'); closing.className = 'olfxPrevious'; closing.textContent = previous ? 'Cierre anterior  ' + previous : 'Precio de referencia';
+        price.append(name, amount, closing);
+      }
+      const badge = card.querySelector('.nqp-flip-badge');
+      if (badge) {
+        badge.textContent = plainLabel(badge.textContent);
+        badge.dataset.tone = /bearish|below/i.test(badge.textContent) ? 'down' : /bullish|above/i.test(badge.textContent) ? 'up' : 'neutral';
+      }
+      card.querySelectorAll('.nqp-gex-lbl').forEach(label => {
+        for (const node of label.childNodes) if (node.nodeType === Node.TEXT_NODE) node.textContent = plainLabel(node.textContent);
+      });
+      const body = card.querySelector('.nqp-gex-body');
+      if (!body) return;
+      const levels = document.createElement('div'); levels.className = 'olfxLevelsPanel';
+      const heading = document.createElement('div'); heading.className = 'olfxLevelsHeading';
+      const headingName = document.createElement('strong'); headingName.textContent = 'Mapa de niveles';
+      const headingHint = document.createElement('span'); headingHint.textContent = 'Referencia · Precio';
+      heading.append(headingName, headingHint); levels.append(heading);
+      const aside = document.createElement('aside'); aside.className = 'olfxMarketAside'; aside.setAttribute('aria-label', 'Movimiento esperado y exportación');
+      const asideTitle = document.createElement('h3'); asideTitle.textContent = 'Expected Move'; aside.append(asideTitle);
+      const actions = document.createElement('div'); actions.className = 'olfxExportActions';
+      const details = document.createElement('div'); details.className = 'olfxSourceNotes';
+      for (const item of [...body.children]) {
+        if (item.classList.contains('nqp-gex-em')) {
+          item.querySelectorAll('.nqp-gex-em-levels').forEach(bounds => {
+            for (const node of [...bounds.childNodes]) if (node.nodeType === Node.TEXT_NODE) node.remove();
+          });
+          aside.append(item);
+        }
+        else if (item.classList.contains('nqp-copy-btn')) {item.textContent = 'Copy Levels'; actions.append(item);}
+        else if (item.classList.contains('nqp-gex-row')) {
+          const label = item.querySelector('.nqp-gex-lbl')?.textContent || '';
+          item.dataset.kind = /call|resistance/i.test(label) ? 'resistance' : /put|support/i.test(label) ? 'support' : /flip|trigger/i.test(label) ? 'pivot' : 'neutral';
+          levels.append(item);
+        } else if (/^(Dealer Levels|DEX Exposure|Pin Risk)$/i.test(item.textContent.trim())) {
+          item.className = 'olfxGroupHeading'; levels.append(item);
+        } else if (item.textContent.trim()) {item.className = 'olfxSourceNote'; details.append(item);}
+      }
+      const exportTitle = document.createElement('h3'); exportTitle.textContent = 'Llevar a tu gráfica';
+      const exportNote = document.createElement('p'); exportNote.textContent = 'Copia la data de este mercado y pégala en tu indicador.';
+      aside.append(exportTitle, exportNote, actions, details);
+      body.classList.add('olfxMarketLayout'); body.replaceChildren(levels, aside);
+    });
     root.append(content);
     view.replaceChildren(style, root);
+    const instruments = document.createElement('div');
+    instruments.className = 'olfxInstrumentNav';
+    instruments.setAttribute('role', 'group'); instruments.setAttribute('aria-label', 'Seleccionar instrumento');
+    content.querySelector('.nqp-gex-pills')?.after(instruments);
+    const selectedInstruments = new Map();
     const updateMarkets = () => {
       const group = root.querySelector('.nqp-gex-pill.active')?.dataset.gexGroup || 'futures';
-      root.querySelectorAll('.nqp-gex-card[data-gex-group]').forEach(card => card.classList.toggle('gex-visible', card.dataset.gexGroup === group));
+      const dataset = root.querySelector('.nqp-ds-pill.active')?.dataset.dataset || 'production';
+      const currentPanel = [...root.querySelectorAll('.nqp-ds-panel')].find(panel => panel.id === root.id + '_ds_' + dataset);
+      const choices = [...(currentPanel || content).querySelectorAll('.nqp-gex-card[data-gex-group]')].filter(card => card.dataset.gexGroup === group && card.querySelector('.nqp-gex-card-title'));
+      const symbolOf = card => card.querySelector('.nqp-gex-card-title')?.textContent.trim();
+      let selected = selectedInstruments.get(group);
+      if (!choices.some(card => symbolOf(card) === selected)) selected = choices.length ? symbolOf(choices[0]) : null;
+      if (selected) selectedInstruments.set(group, selected);
+      instruments.replaceChildren();
+      choices.forEach(card => {
+        const symbol = symbolOf(card);
+        const button = document.createElement('button'); button.type = 'button'; button.textContent = symbol;
+        button.className = 'olfxInstrumentButton'; button.setAttribute('aria-pressed', String(symbol === selected));
+        button.addEventListener('click', () => {selectedInstruments.set(group, symbol); updateMarkets();});
+        instruments.append(button);
+      });
+      root.querySelectorAll('.nqp-gex-card[data-gex-group]').forEach(card => card.classList.toggle('gex-visible', card.dataset.gexGroup === group && (!selected || symbolOf(card) === selected)));
     };
     root.querySelectorAll('.nqp-gex-pill').forEach(button => button.addEventListener('click', () => {
       root.querySelectorAll('.nqp-gex-pill').forEach(item => {
@@ -59,6 +166,7 @@
     }));
     root.querySelectorAll('.nqp-ds-pill').forEach(button => button.addEventListener('click', () => {
       const dataset = button.dataset.dataset;
+      datasetSelect.value = dataset;
       root.querySelectorAll('.nqp-ds-pill').forEach(item => {
         item.classList.toggle('active', item === button);
         item.setAttribute('aria-pressed', String(item === button));
@@ -127,7 +235,7 @@
       const tvButton = document.createElement('button');
       tvButton.type = 'button';
       tvButton.className = 'nqp-copy-btn ptz-tv-btn';
-      tvButton.textContent = '📈 Copy for TradingView';
+      tvButton.textContent = 'Copy for TradingView';
       tvButton.title = 'Copia los niveles en formato TradingView, compatible con OLFX DATA V1.5';
       tvButton.addEventListener('click', () => copyLevels(tradingViewExport(button), 'Formato TradingView copiado. Pégalo en la DATA de OLFX V1.5 o en un indicador compatible.'));
       button.after(tvButton);
@@ -147,7 +255,7 @@
     pending = controller;
     const timeout = setTimeout(() => controller.abort(), 25000);
     const subtitle = document.getElementById('pageSubtitle');
-    if (subtitle) subtitle.textContent = 'OLFX Market Data · GEX Levels & Expected Move';
+    if (subtitle) subtitle.textContent = 'OLFX Market Data · Mesa de opciones';
     status.textContent = 'Cargando GEX Levels & Expected Move…';
     host.setAttribute('aria-busy', 'true');
     try {

@@ -1,22 +1,25 @@
-#propTraderzPage { min-width: 0; }
-#propTraderzPage .ptzHeading, #propTraderzPage .ptzToolbar {
-  display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
-}
-#propTraderzPage .ptzHeading h2 { margin: 0 0 .5rem; font-size: 1.5rem; }
-#propTraderzPage .ptzHeading p { margin: 0; font-size: 1rem; line-height: 1.5; }
-#propTraderzPage .ptzProvider { font-size: .875rem; padding: .5rem .75rem; border: 1px solid currentColor; border-radius: 5px; }
-#propTraderzPage .ptzToolbar { margin: 1.25rem 0 .75rem; }
+#propTraderzPage { --olfx-negative: #b13d4b; --olfx-positive: #14765a; --olfx-pivot: #886624; }
+body.atlas-dark #propTraderzPage { --olfx-negative: #e58a91; --olfx-positive: #5fc49e; --olfx-pivot: #d6b575; }
+#propTraderzPage { min-width: 0; color: var(--cyber-ui-ink, var(--text)); }
+#propTraderzPage .ptzHeading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1.5rem; padding: .5rem 0 1rem; border-bottom: 1px solid var(--cyber-ui-border, var(--line)); }
+#propTraderzPage .ptzEyebrow { display: flex; align-items: center; gap: .85rem; margin-bottom: .8rem; color: var(--cyber-ui-muted, var(--muted)); font-size: .75rem; font-weight: 600; letter-spacing: .12em; }
+#propTraderzPage .ptzWordmark { display: inline-block; padding: .3rem .45rem; border: 1px solid var(--accent, #d6b575); color: var(--cyber-ui-ink, var(--text)); font: 700 .9375rem/1.2 Consolas, monospace; letter-spacing: .05em; }
+#propTraderzPage .ptzHeading h2 { margin: 0 0 .7rem; font-size: clamp(1.9rem, 4vw, 2.65rem); font-weight: 600; letter-spacing: -.045em; }
+#propTraderzPage .ptzHeading p { margin: 0; font-size: 1rem; line-height: 1.6; color: var(--cyber-ui-muted, var(--muted)); }
+#propTraderzPage .ptzProvider { flex-shrink: 0; margin-top: .25rem; padding: .5rem 0; font: .75rem/1.5 Consolas, monospace; letter-spacing: .09em; color: var(--cyber-ui-muted, var(--muted)); }
+#propTraderzPage .ptzToolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin: 1.25rem 0 .75rem; }
 #propTraderzPage .ptzControls { display: flex; flex-wrap: wrap; gap: .5rem; }
 #propTraderzPage button { min-height: 44px; font-size: .875rem; }
-#propTraderzPage button[aria-pressed="true"] { outline: 2px solid var(--accent, #25d5b5); outline-offset: 2px; }
-#propTraderzPage button:focus-visible { outline: 3px solid var(--accent, #25d5b5); outline-offset: 3px; }
-#propTraderzPage #ptzStatus { min-height: 1.5em; font-size: .875rem; line-height: 1.5; margin: .75rem 0; }
-#propTraderzPage .ptzSectionTitle { font-size: 1rem; font-weight: 700; }
-#propTraderzPage .ptzFrameHost { min-width: 0; min-height: 300px; background: transparent; border: 0; border-radius: 0; overflow: visible; }
-#propTraderzPage .ptzAttribution { font-size: .875rem; line-height: 1.5; margin: .75rem 0 0; }
+#propTraderzPage button:focus-visible { outline: 2px solid var(--accent, #d6b575); outline-offset: 3px; }
+#propTraderzPage #ptzStatus { min-height: 1.5em; font-size: .8125rem; line-height: 1.5; margin: .75rem 0 1.25rem; color: var(--cyber-ui-muted, var(--muted)); }
+#propTraderzPage .ptzSectionTitle { font-size: 1rem; font-weight: 600; }
+#propTraderzPage .ptzFrameHost { min-width: 0; min-height: 300px; border: 0; border-radius: 0; overflow: visible; }
+#propTraderzPage .ptzAttribution { padding-top: 1rem; margin-top: 1.5rem; border-top: 1px solid var(--cyber-ui-border, var(--line)); color: var(--cyber-ui-muted, var(--muted)); font-size: .8125rem; line-height: 1.7; }
 #propTraderzPage .ptzAttribution a { color: inherit; }
-#propTraderzPage:fullscreen { overflow: auto; padding: 1rem; background: var(--bg, #10141b); color: var(--text, #eaf0f7); }
+#propTraderzPage:fullscreen { overflow: auto; padding: 1.5rem; background: var(--cyber-ui-bg, var(--bg, #0b1016)); }
 @media (max-width: 640px) {
+  #propTraderzPage .ptzHeading { display: block; }
+  #propTraderzPage .ptzProvider { display: none; }
   #propTraderzPage .ptzControls { width: 100%; }
   #propTraderzPage .ptzControls button { flex: 1; }
 }
