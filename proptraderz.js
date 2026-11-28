@@ -35,7 +35,7 @@
     // OLFX owns the presentation. Only sanitized market content comes from the source.
     const style = document.createElement('link');
     style.rel = 'stylesheet';
-    style.href = './olfx-market-data.css?v=20261128-7';
+    style.href = './olfx-market-data.css?v=20261128-8';
     const root = document.createElement('div');
     root.id = source.id;
     root.className = 'olfxDataRoot';
@@ -50,7 +50,7 @@
     content.classList.add('active');
     content.querySelectorAll('[style]').forEach(node => node.removeAttribute('style'));
     const plainLabel = value => value.replace(/[\p{Extended_Pictographic}\uFE0F\u25B2\u25BC\u21E7\u21E9]/gu, '').trim();
-    const groupLabels = {futures: 'Nasdaq / S&P 500', dow: 'Dow Jones', etf: 'ETFs', commodities: 'Materias primas'};
+    const groupLabels = {futures: 'Nasdaq / S&P 500', dow: 'Dow Jones', etf: 'ETFs', commodities: 'Commodities'};
     content.querySelector('.nqp-sec-hdr')?.remove();
     content.querySelectorAll('.nqp-gex-pill').forEach(button => {button.textContent = groupLabels[button.dataset.gexGroup] || plainLabel(button.textContent);});
     const datasetSelect = document.createElement('select');
@@ -117,7 +117,7 @@
           });
           aside.append(item);
         }
-        else if (item.classList.contains('nqp-copy-btn')) {item.textContent = 'Copy Levels'; actions.append(item);}
+        else if (item.classList.contains('nqp-copy-btn')) actions.append(item);
         else if (item.classList.contains('nqp-gex-row')) {
           const label = item.querySelector('.nqp-gex-lbl')?.textContent || '';
           item.dataset.kind = /call|resistance/i.test(label) ? 'resistance' : /put|support/i.test(label) ? 'support' : /flip|trigger/i.test(label) ? 'pivot' : 'neutral';
@@ -178,8 +178,7 @@
     // The public content API omits the provider's page-level TradingView button.
     // Build the text export locally; never execute provider scripts.
     const numbers = value => (value.match(/[0-9]+(?:,[0-9]{3})*(?:\.[0-9]+)?/g) || []).map(token => token.replaceAll(',', ''));
-    function tradingViewExport(button) {
-      const raw = button.dataset.copy || '';
+    function tradingViewExport(raw, card) {
       const ticker = raw.match(/──\s*([A-Z0-9!]+)\s+KEY LEVELS/i)?.[1]?.toUpperCase();
       if (!ticker) return '';
       const rows = [];
@@ -212,7 +211,7 @@
         'DEXD+': ['aqua', 'dashed', 'DEX D+'], 'DEXD-': ['aqua', 'dashed', 'DEX D−'],
         CHARMMAGNET: ['fuchsia', 'dashed', 'Charm Magnet'], PINSTRIKE: ['fuchsia', 'solid', 'Pin Strike'], MAXPAIN: ['fuchsia', 'dotted', 'Max Pain']
       };
-      button.closest('.nqp-gex-card')?.querySelectorAll('.nqp-gex-row').forEach(row => {
+      card?.querySelectorAll('.nqp-gex-row').forEach(row => {
         const label = row.querySelector('.nqp-gex-lbl')?.cloneNode(true);
         label?.querySelectorAll('.nqp-tip').forEach(node => node.remove());
         const key = (label?.textContent || '').replaceAll('−', '-').replace(/[^a-z0-9+\-]/gi, '').toUpperCase();
@@ -230,15 +229,16 @@
     }
     root.querySelectorAll('.ptz-tv-btn').forEach(button => button.remove());
     root.querySelectorAll('.nqp-copy-btn').forEach(button => {
-      button.addEventListener('click', () => copyLevels(button.dataset.copy || '', 'Bloque de niveles copiado para OLFX.'));
-      if (!tradingViewExport(button)) return;
+      const raw = button.dataset.copy || '';
+      const card = button.closest('.nqp-gex-card');
+      if (!tradingViewExport(raw, card)) {button.remove(); return;}
       const tvButton = document.createElement('button');
       tvButton.type = 'button';
       tvButton.className = 'nqp-copy-btn ptz-tv-btn';
       tvButton.textContent = 'Copy for TradingView';
       tvButton.title = 'Copia los niveles en formato TradingView, compatible con OLFX DATA V1.5';
-      tvButton.addEventListener('click', () => copyLevels(tradingViewExport(button), 'Formato TradingView copiado. Pégalo en la DATA de OLFX V1.5 o en un indicador compatible.'));
-      button.after(tvButton);
+      tvButton.addEventListener('click', () => copyLevels(tradingViewExport(raw, card), 'Formato TradingView copiado. Pégalo en la DATA de OLFX V1.5 o en un indicador compatible.'));
+      button.replaceWith(tvButton);
     });
     root.querySelector('.nqp-gex-pill.active')?.click();
     root.querySelector('.nqp-ds-pill.active')?.click();

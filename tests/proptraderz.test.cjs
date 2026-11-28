@@ -39,9 +39,8 @@ test('loads only GEX, keeps markets/datasets/copy and strips provider executable
     assert.doesNotMatch(s.view.textContent,/Unwanted analysis/);
     assert.equal(s.view.querySelector('script,img,a,[onclick],[onerror]'),null);
     assert.equal(s.view.querySelector('[style*="evil"]'),null);
-    assert.equal(s.view.querySelector('.nqp-gex-card.gex-visible').textContent,'NQCopy');
-    s.view.querySelector('.nqp-copy-btn').click(); await tick();
-    assert.equal(copied,'GEX Flip: 100');
+    assert.equal(s.view.querySelector('.nqp-gex-card.gex-visible').textContent,'NQ');
+    assert.equal(s.view.querySelector('.nqp-copy-btn'),null,'no copy action without a valid market header');
     s.view.querySelector('[data-gex-group="commodities"]').click();
     assert.equal(s.view.querySelector('.nqp-gex-card.gex-visible').textContent,'GC');
     s.view.querySelector('[data-dataset="eod"]').click();
@@ -70,7 +69,7 @@ test('a changed or unavailable provider shows a retry message without loading th
   finally {s.dom.window.close();}
 });
 
-test('Copy for TradingView exports numeric CSV while Copy Levels preserves the original block', async () => {
+test('Copy for TradingView is the only copy action and exports numeric CSV', async () => {
   const block = '── NQ KEY LEVELS | 2026-11-28 ──\nGEX Flip: 26,641 → Price BELOW flip = MM amplifying moves\nGEX Flip 0DTE: 26,122\nCall Resistance: 26,132, 26,232\nPut Support: 26,032, 25,531\nExpected Move Daily (±625)\nHigh: 26,659 ← upper bound for today\nLow: 25,409\nExpected Move Weekly (±1,396)\nHigh: 27,430\nLow: 24,638\nSource: PropTraderz.com | IBKR';
   const html = fixture.replace('data-copy="GEX Flip: 100"', 'data-copy="' + block + '"');
   const s = setup(async()=>({ok:true,json:async()=>({content:{rendered:html}})}));
@@ -91,8 +90,7 @@ test('Copy for TradingView exports numeric CSV while Copy Levels preserves the o
       'NQ,orange,dashed,-2,EM Weekly Low,24638;'
     ].join('\n'));
     assert.match(s.w.document.getElementById('ptzStatus').textContent,/Formato TradingView copiado/);
-    s.view.querySelector('.nqp-copy-btn:not(.ptz-tv-btn)').click(); await tick();
-    assert.equal(copied,block);
+    assert.equal(s.view.querySelector('.nqp-copy-btn:not(.ptz-tv-btn)'),null,'Copy Levels is removed');
     s.w.document.getElementById('ptzReload').click();await tick();
     assert.equal(s.view.querySelectorAll('.ptz-tv-btn').length,1,'reload must not duplicate buttons');
   } finally {s.dom.window.close();}
@@ -120,10 +118,11 @@ test('OLFX desk keeps instrument selection across groups and datasets while pres
     const choose=symbol=>[...s.view.querySelectorAll('.olfxInstrumentButton')].find(b=>b.textContent===symbol).click();
     assert.equal(instrument(),'NQ');
     assert.equal(s.view.querySelector('style'),null,'remote provider CSS is not retained');
-    assert.equal(s.view.querySelector('link').getAttribute('href'),'./olfx-market-data.css?v=20261128-7');
+    assert.equal(s.view.querySelector('link').getAttribute('href'),'./olfx-market-data.css?v=20261128-8');
     assert.equal(s.view.querySelector('.nqp-sec-hdr'),null);
     assert.equal(s.view.querySelector('[style*="magenta"]'),null);
     choose('ES');assert.equal(instrument(),'ES');
+    assert.equal(s.view.querySelector('[data-gex-group="commodities"]').textContent,'Commodities');
     s.view.querySelector('[data-gex-group="commodities"]').click();assert.equal(instrument(),'GC');
     s.view.querySelector('[data-gex-group="futures"]').click();assert.equal(instrument(),'ES');
     s.view.querySelector('[data-dataset="eod"]').click();assert.equal(instrument(),'ES');

@@ -91,7 +91,7 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--desk-a
   .olfxLevelsPanel, .olfxMarketAside { width: 100%; }
   .olfxMarketAside { order: -1; }
   .nqp-gex-em { grid-template-columns: repeat(2, minmax(0,1fr)); }
-  .olfxExportActions { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .olfxExportActions { grid-template-columns: minmax(0, 1fr); }
   .nqp-gex-card-hdr { flex-wrap: wrap; }
   .nqp-gex-card-hdr > div:first-child { gap: 1rem; }
   .nqp-gex-card-title { padding-right: 1rem; }
