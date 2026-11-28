@@ -10,25 +10,7 @@
   };
   const host = document.getElementById('ptzFrameHost');
   const status = document.getElementById('ptzStatus');
-  let selected = 'terminal', frame = null, timer = null;
-  let marketControls = false;
-  const marketButton = document.getElementById('ptzMarketControls');
-  function terminalUrl() {
-    return tools.terminal.url + (marketControls ? '#ptzterm' : '#ptzt-pulse');
-  }
-  function updateView() {
-    host.dataset.view = selected === 'terminal' ? (marketControls ? 'terminal' : 'chart') : 'analyzer';
-    marketButton.hidden = selected !== 'terminal';
-    marketButton.textContent = marketControls ? 'Volver a la gráfica' : 'Mercado y niveles';
-    marketButton.setAttribute('aria-pressed', String(marketControls));
-  }
-  marketButton.addEventListener('click', () => {
-    marketControls = !marketControls;
-    updateView();
-    // Fragment navigation keeps this same terminal and its chosen market alive.
-    if (frame && selected === 'terminal') frame.src = terminalUrl();
-  });
-  updateView();
+  let selected = 'analyzer', frame = null, timer = null;
   const visible = () => !portal.classList.contains('hidden') && !page.classList.contains('hidden');
   function stop() {
     clearTimeout(timer);
@@ -60,9 +42,7 @@
       host.removeAttribute('aria-busy');
       status.textContent = 'No se pudo abrir la herramienta. Pulsa Recargar para reintentar.';
     });
-    updateView();
-    if (selected === 'terminal') next.setAttribute('scrolling', 'no');
-    next.src = selected === 'terminal' ? terminalUrl() : tool.url;
+    next.src = tool.url;
     frame = next;
     host.replaceChildren(next);
     timer = setTimeout(() => {
