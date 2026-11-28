@@ -20,7 +20,7 @@ function setup() {
   const section=fs.readFileSync('index.html','utf8').match(/<section id="propTraderzPage"[\s\S]*?<\/section>/)[0];
   const dom=new JSDOM('<main id="portal">'+section+'</main>',{runScripts:'outside-only'}), w=dom.window;
   w.eval(fs.readFileSync('olfx-gex-core.js','utf8'));
-  w.requestAnimationFrame=()=>1;w.cancelAnimationFrame=()=>{};w.AbortController=AbortController;
+  w.requestAnimationFrame=()=>1;w.cancelAnimationFrame=()=>{};w.AbortController=AbortController;w.olfxMarketAccess={allowed:()=>true};
   const line={setData(){},applyOptions(){},createPriceLine(){},removePriceLine(){},priceToCoordinate(){return 100;}};
   w.LightweightCharts={createChart:()=>({addCandlestickSeries:()=>line,addLineSeries:()=>line,applyOptions(){},remove(){},priceScale:()=>({width:()=>85,applyOptions(){}}),timeScale:()=>({subscribeVisibleLogicalRangeChange(){},setVisibleLogicalRange(){},fitContent(){}}),subscribeCrosshairMove(){}})};
   w.ResizeObserver=class {observe(){}disconnect(){}};
@@ -56,4 +56,14 @@ test('exposure layers combine duplicate strikes, preserve call/put magnitude and
   const rows=core.exposure([[100,30,-10],[100,10,-10],[101,10,-10],[102,0,0],[103,null,20],[104,NaN,20],null,[-1,5,5]]);
   assert.deepEqual(rows,[{price:100,call:40,put:20,total:60,strength:1},{price:101,call:10,put:10,total:20,strength:1/3}]);
   assert.deepEqual(core.exposure(undefined),[]);
+});
+test('chart-only fullscreen fallback keeps timeframe selection and exits on Escape or navigation',async()=>{
+ const s=setup();try{
+  s.w.document.querySelector('[data-gex-view="terminal"]').click();s.calls[0].resolve(response());await tick();
+  const button=s.w.document.getElementById('gexChartFullscreen'),panel=s.w.document.getElementById('gexChartPanel');
+  button.click();assert.equal(panel.classList.contains('gexChartExpanded'),true);
+  const tf=s.w.document.getElementById('gexChartTimeframe');tf.value='240';tf.dispatchEvent(new s.w.Event('change'));assert.equal(s.w.document.getElementById('gexTimeframe').value,'240');
+  s.w.document.dispatchEvent(new s.w.KeyboardEvent('keydown',{key:'Escape'}));assert.equal(panel.classList.contains('gexChartExpanded'),false);
+  button.click();s.w.dispatchEvent(new s.w.CustomEvent('olon:pagechange',{detail:{id:'dashboard'}}));assert.equal(panel.classList.contains('gexChartExpanded'),false);assert.equal(s.w.document.body.classList.contains('gexChartScreenOpen'),false);
+ }finally{s.dom.window.close();}
 });

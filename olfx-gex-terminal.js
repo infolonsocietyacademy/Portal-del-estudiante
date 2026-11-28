@@ -6,7 +6,7 @@
   const markets={nq:'NQ · Nasdaq',es:'ES · S&P 500',ym:'YM · Dow Jones',gc:'GC · Gold',cl:'CL · Oil',spx:'SPX',ndx:'NDX',spy:'SPY',qqq:'QQQ',dia:'DIA'};
   let chart=null, series=null, lineSeries=null, lines=[], data=null, request=null, resize=null, library=null, frame=0, overlayRows=[], overlayOwner=null;
   const enabled=new Set(['walls','flip','dealer','pin','em']);
-  const visible=()=>!$('portal').classList.contains('hidden') && !page.classList.contains('hidden') && !panel.hidden;
+  const visible=()=>window.olfxMarketAccess?.allowed()===true&&!$('portal').classList.contains('hidden') && !page.classList.contains('hidden') && !panel.hidden;
   const fmt=n=>core.validNumber(n)?n.toLocaleString('en-US',{maximumFractionDigits:2}):'—';
   const stamp=t=>new Intl.DateTimeFormat('es-PR',{timeZone:'America/Puerto_Rico',dateStyle:'medium',timeStyle:'short'}).format(new Date(t*1000));
   const selected=()=>({instrument:$('gexMarket').value,dataset:$('gexDataset').value});
@@ -146,6 +146,7 @@
     } finally {clearTimeout(timeout);if(request===controller){request=null;panel.removeAttribute('aria-busy');}}
   }
   function stop() {
+    exitChartScreen();
     request?.abort();request=null;resize?.disconnect();resize=null;
     if(frame) cancelAnimationFrame(frame);frame=0;
     chart?.remove();chart=null;series=null;lineSeries=null;lines=[];data=null;panel.removeAttribute('aria-busy');
@@ -155,6 +156,28 @@
     document.querySelectorAll('[data-gex-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.gexView===name)));
     if (terminal) load();else stop();
   }
+  const chartPanel=$('gexChartPanel'), chartFullscreen=$('gexChartFullscreen');
+  let nativeChartFullscreen=false;
+  function resetChartScreen(){
+    chartPanel.classList.remove('gexChartExpanded');document.body.classList.remove('gexChartScreenOpen');
+    chartFullscreen.textContent='Solo gráfica · Pantalla completa';chartFullscreen.setAttribute('aria-pressed','false');nativeChartFullscreen=false;scheduleProfile();
+  }
+  function exitChartScreen(){
+    if(document.fullscreenElement===chartPanel)void document.exitFullscreen().catch(()=>{});
+    resetChartScreen();
+  }
+  chartFullscreen.addEventListener('click',async()=>{
+    if(!visible())return;
+    if(chartPanel.classList.contains('gexChartExpanded')){exitChartScreen();return;}
+    chartPanel.classList.add('gexChartExpanded');document.body.classList.add('gexChartScreenOpen');
+    chartFullscreen.textContent='Salir de pantalla completa';chartFullscreen.setAttribute('aria-pressed','true');
+    if(chartPanel.requestFullscreen){try{nativeChartFullscreen=true;await chartPanel.requestFullscreen();}catch{nativeChartFullscreen=false;}}
+    scheduleProfile();
+  });
+  document.addEventListener('fullscreenchange',()=>{if(nativeChartFullscreen&&document.fullscreenElement!==chartPanel)resetChartScreen();else scheduleProfile();});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&chartPanel.classList.contains('gexChartExpanded'))exitChartScreen();});
+  const changeTimeframe=value=>{$('gexTimeframe').value=value;$('gexChartTimeframe').value=value;draw();};
+  $('gexChartTimeframe').addEventListener('change',()=>changeTimeframe($('gexChartTimeframe').value));
   Object.entries(markets).forEach(([value,label])=>{const option=document.createElement('option');option.value=value;option.textContent=label;$('gexMarket').append(option);});
   core.groups.forEach(group=>{
     const button=document.createElement('button');button.type='button';button.textContent=group.label;button.setAttribute('aria-pressed',String(enabled.has(group.id)));
@@ -163,7 +186,8 @@
   });
   document.querySelectorAll('[data-gex-view]').forEach(b=>b.addEventListener('click',()=>selectView(b.dataset.gexView)));
   ['gexMarket','gexDataset'].forEach(id=>$(id).addEventListener('change',load));
-  ['gexTimeframe','gexSession'].forEach(id=>$(id).addEventListener('change',()=>draw()));
+  $('gexTimeframe').addEventListener('change',()=>changeTimeframe($('gexTimeframe').value));
+  $('gexSession').addEventListener('change',()=>draw());
   ['gexShowProfile','gexShowHeatmap','gexShowBubbles'].forEach(id=>$(id).addEventListener('change',scheduleProfile));
   ['gexHeatIntensity','gexLayerOpacity','gexBubbleSize'].forEach(id=>$(id).addEventListener('input',()=>{const input=$(id);$(id+'Value').value=input.value+(id==='gexLayerOpacity'?'%':'');scheduleProfile();}));$('gexFit').addEventListener('click',()=>draw());
   ['pointermove','pointerup','wheel'].forEach(type=>$('gexChart').addEventListener(type,scheduleProfile,{passive:true}));
@@ -171,5 +195,6 @@
   window.addEventListener('olon:pagechange',e=>{if(e.detail?.id!==page.id) stop();else if(visible()) load();});
   new MutationObserver(()=>{if(!visible())stop();else if(!chart&&!request)load();}).observe($('portal'),{attributes:true,attributeFilter:['class']});
   new MutationObserver(theme).observe(document.body,{attributes:true,attributeFilter:['class','style']});
+  window.addEventListener('olfx:market-access',event=>{if(event.detail?.allowed&&visible())load();else stop();});
   window.addEventListener('pagehide',stop);window.addEventListener('pageshow',()=>{if(visible()&&!request&&!data)load();});
 })();

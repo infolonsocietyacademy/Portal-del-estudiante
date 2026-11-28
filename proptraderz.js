@@ -10,7 +10,7 @@
   const status = document.getElementById('ptzStatus');
   const view = host.attachShadow({mode: 'open'});
   let pending = null, loaded = false;
-  const visible = () => !portal.classList.contains('hidden') && !page.classList.contains('hidden');
+  const visible = () => window.olfxMarketAccess?.allowed() === true && !portal.classList.contains('hidden') && !page.classList.contains('hidden');
   const safeStyle = value => !/url\s*\(|@import|expression\s*\(|<\/style/i.test(value);
   function sanitize(element) {
     const tags = new Set(['DIV', 'SPAN', 'BUTTON', 'P', 'SMALL', 'STRONG', 'B', 'BR', 'EM', 'H2', 'H3', 'H4']);
@@ -289,6 +289,7 @@
   });
   window.addEventListener('olon:pagechange', event => {if (event.detail?.id === page.id) open(); else stop();});
   new MutationObserver(() => {if (!visible()) stop(); else open();}).observe(portal, {attributes: true, attributeFilter: ['class']});
+  window.addEventListener('olfx:market-access', event => {if(event.detail?.allowed) open();else stop();});
   window.addEventListener('pagehide', stop);
   window.addEventListener('pageshow', () => {if (visible()) open();});
 })();
