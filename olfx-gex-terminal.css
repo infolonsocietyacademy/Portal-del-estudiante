@@ -1,0 +1,57 @@
+#propTraderzPage [hidden] { display: none !important; }
+#propTraderzPage .gexViewNav { display: flex; flex-wrap: wrap; gap: .4rem; }
+#propTraderzPage .gexViewNav button, #propTraderzPage .gexFilters button, #propTraderzPage #gexFit { border: 1px solid var(--cyber-ui-border, var(--line)); border-radius: 4px; background: transparent; color: var(--cyber-ui-muted, var(--muted)); padding: .6rem .85rem; font: inherit; font-size: .875rem; cursor: pointer; }
+#propTraderzPage .gexViewNav button[aria-pressed="true"], #propTraderzPage .gexFilters button[aria-pressed="true"] { color: var(--cyber-ui-ink, var(--text)); border-color: var(--accent, #c7a456); background: var(--cyber-ui-panel-2, var(--panel2)); }
+.olfxGexTerminal { min-width: 0; }
+.gexTerminalHeading { display: flex; justify-content: space-between; gap: 1rem; align-items: center; padding: 1.75rem 0; }
+.gexKicker { font: .8125rem/1.5 Consolas, monospace; letter-spacing: .12em; color: var(--cyber-ui-muted, var(--muted)); }
+.gexTerminalHeading h3 { margin: .5rem 0 0; font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 500; letter-spacing: -.035em; }
+.gexDelay { padding: .5rem .75rem; border: 1px solid var(--cyber-ui-border, var(--line)); border-radius: 4px; color: var(--cyber-ui-muted, var(--muted)); font-size: .875rem; }
+.gexSelectors { display: grid; grid-template-columns: 1.2fr 1.4fr .7fr 1fr; gap: 1rem; }
+.gexSelectors label { display: grid; gap: .5rem; min-width: 0; font-size: .875rem; color: var(--cyber-ui-muted, var(--muted)); }
+#propTraderzPage .gexSelectors select { width: 100%; min-width: 0; height: 46px; padding: .5rem 2rem .5rem .75rem; border: 1px solid var(--cyber-ui-border, var(--line)); border-radius: 4px; background-color: var(--cyber-ui-panel, var(--panel)); color: var(--cyber-ui-ink, var(--text)); font: inherit; appearance: none; background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%); background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%; background-size: 5px 5px; background-repeat: no-repeat; }
+#gexStatus { font-size: .875rem; line-height: 1.5; color: var(--cyber-ui-muted, var(--muted)); margin: 1rem 0; }
+.gexDataAge { padding: .8rem 1rem; border-left: 3px solid #c7a456; background: var(--cyber-ui-panel-2, var(--panel2)); font-size: .875rem; line-height: 1.6; }
+.gexMetrics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); border: 1px solid var(--cyber-ui-border, var(--line)); background: var(--cyber-ui-panel, var(--panel)); margin: 1.25rem 0; }
+.gexMetrics > div { padding: 1rem 1.25rem; border-right: 1px solid var(--cyber-ui-border, var(--line)); min-width: 0; }
+.gexMetrics > div:last-child { border: 0; }
+.gexMetrics span { display: block; font-size: .875rem; color: var(--cyber-ui-muted, var(--muted)); margin-bottom: .5rem; }
+.gexMetrics strong { font: 500 clamp(1rem, 2vw, 1.5rem)/1.4 Consolas, monospace; overflow-wrap: anywhere; }
+#gexGamma[data-tone="down"] { color: var(--olfx-negative); }
+#gexGamma[data-tone="up"] { color: var(--olfx-positive); }
+.gexWorkspace { display: grid; grid-template-columns: minmax(0,1fr) 290px; gap: 1rem; align-items: start; }
+.gexChartPanel, .gexLevelsPanel { min-width: 0; background: var(--cyber-ui-panel, var(--panel)); border: 1px solid var(--cyber-ui-border, var(--line)); border-radius: 5px; overflow: hidden; }
+.gexChartTools { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .75rem 1rem; border-bottom: 1px solid var(--cyber-ui-border, var(--line)); }
+.gexChartTools label { display: flex; align-items: center; gap: .5rem; font-size: .875rem; min-height: 44px; cursor: pointer; }
+.gexChartTools input { width: 18px; height: 18px; accent-color: var(--accent, #c7a456); }
+.gexChartWrap { position: relative; height: 560px; }
+#gexChart { height: 100%; width: 100%; }
+#gexProfile { position: absolute; z-index: 2; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.gexLegend, .gexBarTime, .gexChartCredit { margin: .75rem 1rem; font-size: .8125rem; line-height: 1.6; color: var(--cyber-ui-muted, var(--muted)); }
+.gexLegend { display: flex; flex-wrap: wrap; gap: 1rem; }
+.gexLegend span:first-child { color: var(--olfx-positive); }
+.gexLegend span:last-child { color: var(--olfx-negative); }
+.gexChartCredit { margin: 1rem 0; }
+.gexChartCredit a { color: inherit; text-underline-offset: 3px; }
+.gexLevelsPanel { padding: 1rem; }
+.gexLevelsPanel h4 { margin: 0 0 1rem; font-size: 1rem; font-weight: 600; }
+.gexFilters { display: flex; flex-wrap: wrap; gap: .4rem; padding-bottom: 1rem; }
+#propTraderzPage .gexFilters button { padding: .4rem .6rem; min-height: 38px; }
+.gexLevelList { max-height: 510px; overflow-y: auto; scrollbar-width: thin; }
+.gexLevel { display: flex; justify-content: space-between; gap: .8rem; padding: .75rem 0; border-top: 1px solid var(--cyber-ui-border, var(--line)); font-size: .875rem; }
+.gexLevel strong { font: 500 .875rem/1.5 Consolas, monospace; white-space: nowrap; }
+@media (max-width: 1100px) {
+  .gexWorkspace { grid-template-columns: minmax(0,1fr); }
+  .gexLevelList { max-height: 300px; }
+  .gexSelectors { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 640px) {
+  .gexTerminalHeading { align-items: flex-start; flex-direction: column; padding: 1rem 0; }
+  .gexMetrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .gexMetrics > div { padding: .85rem; border-bottom: 1px solid var(--cyber-ui-border, var(--line)); }
+  .gexMetrics > div:nth-child(2) { border-right: 0; }
+  .gexMetrics > div:nth-child(3) { border-bottom: 0; }
+  .gexChartWrap { height: 460px; }
+  .gexViewNav { width: 100%; }
+  .gexViewNav button { flex: 1; }
+}
