@@ -11,12 +11,13 @@
 #propTraderzPage button[aria-pressed="true"] { outline: 2px solid var(--accent, #25d5b5); outline-offset: 2px; }
 #propTraderzPage button:focus-visible { outline: 3px solid var(--accent, #25d5b5); outline-offset: 3px; }
 #propTraderzPage #ptzStatus { min-height: 1.5em; font-size: .875rem; line-height: 1.5; margin: .75rem 0; }
-#propTraderzPage .ptzFrameHost { --ptz-header-crop: 112px; background: #10141b; border: 1px solid #535c70; border-radius: .75rem; overflow: hidden; }
-#propTraderzPage iframe { display: block; width: 100%; height: calc(78vh + var(--ptz-header-crop)); min-height: calc(620px + var(--ptz-header-crop)); margin-top: calc(-1 * var(--ptz-header-crop)); border: 0; background: #10141b; }
+#propTraderzPage .ptzSectionTitle { font-size: 1rem; font-weight: 700; }
+#propTraderzPage .ptzFrameHost { max-height: 78dvh; min-height: 300px; background: #09090f; border: 1px solid #535c70; border-radius: .75rem; overflow: auto; overscroll-behavior: contain; }
+#propTraderzPage .ptzAttribution { font-size: .875rem; line-height: 1.5; margin: .75rem 0 0; }
+#propTraderzPage .ptzAttribution a { color: inherit; }
 #propTraderzPage:fullscreen { overflow: auto; padding: 1rem; background: var(--bg, #10141b); color: var(--text, #eaf0f7); }
-#propTraderzPage:fullscreen iframe { height: calc(100dvh - 230px + var(--ptz-header-crop)); }
+#propTraderzPage:fullscreen .ptzFrameHost { max-height: calc(100dvh - 240px); }
 @media (max-width: 640px) {
-  #propTraderzPage iframe { min-height: calc(580px + var(--ptz-header-crop)); height: calc(78dvh + var(--ptz-header-crop)); }
   #propTraderzPage .ptzControls { width: 100%; }
   #propTraderzPage .ptzControls button { flex: 1; }
 }

@@ -1,68 +1,108 @@
-/* Load the provider only while its page is open; portal credentials stay here. */
+/* Read the provider's public WordPress content and show only its GEX pane.
+   Provider scripts, event handlers and network-capable elements are never used. */
 (() => {
   'use strict';
   const page = document.getElementById('propTraderzPage');
   const portal = document.getElementById('portal');
   if (!page || !portal) return;
-  const tools = {
-    analyzer: {name: 'Market Analyzer', url: 'https://www.proptraderz.com/market-direction-analyzer/'},
-    terminal: {name: 'GEX Terminal', url: 'https://www.proptraderz.com/gex-terminal/'}
-  };
+  const endpoint = 'https://www.proptraderz.com/wp-json/wp/v2/pages/8263?_fields=content';
   const host = document.getElementById('ptzFrameHost');
   const status = document.getElementById('ptzStatus');
-  let selected = 'analyzer', frame = null, timer = null;
+  const view = host.attachShadow({mode: 'open'});
+  let pending = null, loaded = false;
   const visible = () => !portal.classList.contains('hidden') && !page.classList.contains('hidden');
-  function stop() {
-    clearTimeout(timer);
-    frame?.remove();
-    frame = null;
-    host.removeAttribute('aria-busy');
+  const safeStyle = value => !/url\s*\(|@import|expression\s*\(|<\/style/i.test(value);
+  function sanitize(element) {
+    const tags = new Set(['DIV', 'SPAN', 'BUTTON', 'P', 'SMALL', 'STRONG', 'B', 'BR', 'EM', 'H2', 'H3', 'H4']);
+    element.querySelectorAll('script,style,iframe,object,embed,link,meta,svg,math,template,form,input,img,video,audio').forEach(node => node.remove());
+    for (const node of [element, ...element.querySelectorAll('*')]) {
+      if (!tags.has(node.tagName)) { node.replaceWith(...node.childNodes); continue; }
+      for (const attr of [...node.attributes]) {
+        if (!/^(id|class|style|title|role|tabindex|aria-[\w-]+|data-(copy|tip|dataset|gex-group))$/.test(attr.name) ||
+            (attr.name === 'style' && !safeStyle(attr.value))) node.removeAttribute(attr.name);
+      }
+      if (node.tagName === 'BUTTON') node.type = 'button';
+    }
+    return element;
   }
-  function open() {
-    if (!visible() || frame) return;
-    const subtitle = document.getElementById('pageSubtitle');
-    if (subtitle) subtitle.textContent = 'OLFX Market Data · GEX y Expected Move dentro del portal.';
-    const tool = tools[selected];
-    status.textContent = 'Cargando ' + tool.name + '…';
-    host.setAttribute('aria-busy', 'true');
-    const next = document.createElement('iframe');
-    next.title = 'OLFX Market Data · ' + tool.name;
-    next.referrerPolicy = 'no-referrer';
-    next.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads');
-    next.setAttribute('allow', 'clipboard-write; fullscreen');
-    next.addEventListener('load', () => {
-      if (frame !== next) return;
-      clearTimeout(timer);
-      host.removeAttribute('aria-busy');
-      status.textContent = 'OLFX Market Data. Si la herramienta no aparece, pulsa Recargar.';
-    });
-    next.addEventListener('error', () => {
-      if (frame !== next) return;
-      clearTimeout(timer);
-      host.removeAttribute('aria-busy');
-      status.textContent = 'No se pudo abrir la herramienta. Pulsa Recargar para reintentar.';
-    });
-    next.src = tool.url;
-    frame = next;
-    host.replaceChildren(next);
-    timer = setTimeout(() => {
-      if (frame !== next) return;
-      host.removeAttribute('aria-busy');
-      status.textContent = 'La herramienta está tardando en responder. Puedes volver a intentar con Recargar.';
-    }, 25000);
-  }
-  page.querySelectorAll('[data-ptz-tool]').forEach(button => {
-    button.addEventListener('click', () => {
-      const key = button.dataset.ptzTool;
-      if (!tools[key] || key === selected) return;
-      selected = key;
-      page.querySelectorAll('[data-ptz-tool]').forEach(item => {
+  function render(html) {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const pane = doc.querySelector('.nqp-tab-pane[id$="_gex"]');
+    const source = pane?.parentElement;
+    const css = [...doc.querySelectorAll('style')].find(node => node.textContent.includes('.nqp-gex-card'))?.textContent;
+    if (!pane || !source?.id || !css || !safeStyle(css) || !pane.querySelector('.nqp-gex-card')) {
+      throw new Error('La fuente cambió de formato.');
+    }
+    const style = document.createElement('style');
+    style.textContent = css + '\n:host{display:block;color:#f0f0f8} button{font-family:inherit} button:focus-visible{outline:3px solid #25d5b5;outline-offset:2px} [id^="nqp_"] .nqp-tab-pane{display:block!important} [id^="nqp_"] .nqp-gex-lbl,[id^="nqp_"] .nqp-gex-lvl,[id^="nqp_"] .nqp-gex-val,[id^="nqp_"] .nqp-ds-pill,[id^="nqp_"] .nqp-gex-pill,[id^="nqp_"] .nqp-copy-btn{font-size:max(14px,1em)}';
+    const root = document.createElement('div');
+    root.id = source.id;
+    const warning = [...source.children].find(node => /Data is .*old/.test(node.textContent) && !node.className);
+    if (warning) root.append(sanitize(warning.cloneNode(true)));
+    const content = sanitize(pane.cloneNode(true));
+    content.classList.add('active');
+    root.append(content);
+    view.replaceChildren(style, root);
+    const updateMarkets = () => {
+      const group = root.querySelector('.nqp-gex-pill.active')?.dataset.gexGroup || 'futures';
+      root.querySelectorAll('.nqp-gex-card[data-gex-group]').forEach(card => card.classList.toggle('gex-visible', card.dataset.gexGroup === group));
+    };
+    root.querySelectorAll('.nqp-gex-pill').forEach(button => button.addEventListener('click', () => {
+      root.querySelectorAll('.nqp-gex-pill').forEach(item => {
+        item.classList.toggle('active', item === button);
         item.setAttribute('aria-pressed', String(item === button));
       });
-      stop();
-      open();
-    });
-  });
+      updateMarkets();
+    }));
+    root.querySelectorAll('.nqp-ds-pill').forEach(button => button.addEventListener('click', () => {
+      const dataset = button.dataset.dataset;
+      root.querySelectorAll('.nqp-ds-pill').forEach(item => {
+        item.classList.toggle('active', item === button);
+        item.setAttribute('aria-pressed', String(item === button));
+      });
+      root.querySelectorAll('.nqp-ds-panel').forEach(panel => { panel.style.display = panel.id === root.id + '_ds_' + dataset ? '' : 'none'; });
+      root.querySelectorAll('[id*="_ds_meta_"]').forEach(meta => { meta.style.display = meta.id === root.id + '_ds_meta_' + dataset ? 'flex' : 'none'; });
+      updateMarkets();
+    }));
+    root.querySelectorAll('.nqp-copy-btn').forEach(button => button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(button.dataset.copy || '');
+        status.textContent = 'Niveles copiados para TradingView.';
+      } catch { status.textContent = 'El navegador no permitió copiar los niveles. Revisa el permiso del portapapeles.'; }
+    }));
+    root.querySelector('.nqp-gex-pill.active')?.click();
+    root.querySelector('.nqp-ds-pill.active')?.click();
+    return source.querySelector('.nqp-hdr-sub')?.textContent.trim();
+  }
+  function stop() {
+    pending?.abort(); pending = null; loaded = false;
+    view.replaceChildren();
+    host.removeAttribute('aria-busy');
+  }
+  async function open() {
+    if (!visible() || pending || loaded) return;
+    const controller = new AbortController();
+    pending = controller;
+    const timeout = setTimeout(() => controller.abort(), 25000);
+    const subtitle = document.getElementById('pageSubtitle');
+    if (subtitle) subtitle.textContent = 'OLFX Market Data · GEX Levels & Expected Move';
+    status.textContent = 'Cargando GEX Levels & Expected Move…';
+    host.setAttribute('aria-busy', 'true');
+    try {
+      const response = await fetch(endpoint, {signal: controller.signal, credentials: 'omit', referrerPolicy: 'no-referrer', cache: 'no-store'});
+      if (!response.ok) throw new Error('Fuente no disponible.');
+      const data = await response.json();
+      if (pending !== controller || !visible()) return;
+      const updated = render(data?.content?.rendered || '');
+      loaded = true;
+      status.textContent = updated || 'GEX Levels & Expected Move · Fuente: PropTraderz.com';
+    } catch {
+      if (pending === controller) status.textContent = 'No se pudieron cargar los niveles de PropTraderz. Pulsa Recargar para reintentar.';
+    } finally {
+      clearTimeout(timeout);
+      if (pending === controller) {pending = null; host.removeAttribute('aria-busy');}
+    }
+  }
   document.getElementById('ptzReload').addEventListener('click', () => {stop(); open();});
   const fullscreen = document.getElementById('ptzFullscreen');
   if (!page.requestFullscreen) fullscreen.hidden = true;
@@ -70,21 +110,15 @@
     try {
       if (document.fullscreenElement === page) await document.exitFullscreen();
       else await page.requestFullscreen();
-    } catch {
-      status.textContent = 'Este navegador no permite pantalla completa. Puedes continuar usando la herramienta aquí.';
-    }
+    } catch { status.textContent = 'Este navegador no permite pantalla completa. Puedes consultar los niveles aquí.'; }
   });
   document.addEventListener('fullscreenchange', () => {
     const active = document.fullscreenElement === page;
     fullscreen.textContent = active ? 'Salir de pantalla completa' : 'Pantalla completa';
     fullscreen.setAttribute('aria-pressed', String(active));
   });
-  window.addEventListener('olon:pagechange', event => {
-    if (event.detail?.id === page.id) open();
-    else stop();
-  });
-  new MutationObserver(() => {if (!visible()) stop(); else open();})
-    .observe(portal, {attributes: true, attributeFilter: ['class']});
+  window.addEventListener('olon:pagechange', event => {if (event.detail?.id === page.id) open(); else stop();});
+  new MutationObserver(() => {if (!visible()) stop(); else open();}).observe(portal, {attributes: true, attributeFilter: ['class']});
   window.addEventListener('pagehide', stop);
   window.addEventListener('pageshow', () => {if (visible()) open();});
 })();
