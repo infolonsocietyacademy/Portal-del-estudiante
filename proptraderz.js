@@ -30,11 +30,13 @@
     const pane = doc.querySelector('.nqp-tab-pane[id$="_gex"]');
     const source = pane?.parentElement;
     const css = [...doc.querySelectorAll('style')].find(node => node.textContent.includes('.nqp-gex-card'))?.textContent;
-    if (!pane || !source?.id || !css || !safeStyle(css) || !pane.querySelector('.nqp-gex-card')) {
+    if (!pane || !/^nqp_[a-z0-9]+$/i.test(source?.id || '') || !css || !safeStyle(css) || !pane.querySelector('.nqp-gex-card')) {
       throw new Error('La fuente cambió de formato.');
     }
     const style = document.createElement('style');
     style.textContent = css + '\n:host{display:block;color:#f0f0f8} button{font-family:inherit} button:focus-visible{outline:3px solid #25d5b5;outline-offset:2px} [id^="nqp_"] .nqp-tab-pane{display:block!important} [id^="nqp_"] .nqp-gex-lbl,[id^="nqp_"] .nqp-gex-lvl,[id^="nqp_"] .nqp-gex-val,[id^="nqp_"] .nqp-ds-pill,[id^="nqp_"] .nqp-gex-pill,[id^="nqp_"] .nqp-copy-btn{font-size:max(14px,1em)}';
+    style.textContent += '\n[id^="nqp_"] .nqp-sec{padding:0;background:transparent;border:0;border-radius:0} [id^="nqp_"] .nqp-gex-card,[id^="nqp_"] .nqp-gex-em-box{border-radius:8px} [id^="nqp_"] .nqp-gex-pill,[id^="nqp_"] .nqp-ds-pill,[id^="nqp_"] .nqp-copy-btn{border-radius:5px}';
+    style.textContent = style.textContent.replaceAll('[id^="nqp_"]', '#' + source.id);
     const root = document.createElement('div');
     root.id = source.id;
     const warning = [...source.children].find(node => /Data is .*old/.test(node.textContent) && !node.className);
